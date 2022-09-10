@@ -1,3 +1,416 @@
 # Vecteurs, indexation et assignation {#sec-vecteurs}
 
+Les vecteurs sont l'objet de base de **R** et correspondent à une liste de valeurs. Leurs propriétés fondamentales sont :
 
+-   les vecteurs sont unidimensionnels (i.e. ce sont des objets à une seule dimension, à la différence d'une matrice par exemple) ;
+-   toutes les valeurs d'un vecteur sont d'un seul et même type ;
+-   les vecteurs ont une longueur qui correspond au nombre de valeurs contenues dans le vecteur.
+
+## Types et classes
+
+Dans **R**, il existe plusieurs types fondamentaux de vecteurs et, en particulier, :
+
+-   les nombres réels (c'est-à-dire les nombres décimaux[^vecteurs-1]), par exemple `5.23` ;
+-   les nombres entiers, que l'on saisi en ajoutant le suffixe `L`[^vecteurs-2], par exemple `4L` ;
+-   les chaînes de caractères (qui correspondent à du texte), que l'on saisit avec des guillemets doubles (`"`) ou simples ('), par exemple `"abc"` ;
+-   les valeurs logiques ou valeurs booléennes, à savoir <q>vrai</q> ou <q>faux</q>, que l'on représente avec les mots `TRUE` et `FALSE` (en majuscules[^vecteurs-3]).
+
+[^vecteurs-1]: Pour rappel, **R** étant anglophone, le caractère utilisé pour indiqué les chiffres <q>après la virgule</q> est le point (`.`).
+
+[^vecteurs-2]: **R** utilise 32 bits pour représenter des nombres entiers, ce qui correspond en informatique à des <q>entiers longs</q> ou *long integers* en anglais, d'où la lettre `L` utilisée pour indiquer un nombre entier.
+
+[^vecteurs-3]: On peut également utiliser les raccourcis `T` et `F`. Cependant, pour une meilleure lisibilité du code, il est préférable d'utiliser les versions longues `TRUE` et `FALSE`.
+
+En plus de ces types de base, il existe de nombreux autres types de vecteurs utilisés pour représenter toutes sortes de données, comme les facteurs (voir @sec-facteurs) ou les dates (voir @sec-dates).
+
+La fonction `class()` renvoie la nature d'un vecteur tandis que la fonction `typeof()` indique la manière dont un vecteur est stocké de manière interne par **R**.
+
+|           `x`           |            `class(x)`            |            `typeof(x)`            |
+|:-----------------:|:------------------------:|:-------------------------:|
+|          `3L`           |          `r class(3L)`           |          `r typeof(3L)`           |
+|          `5.3`          |          `r class(5.3)`          |          `r typeof(5.3)`          |
+|         `TRUE`          |         `r class(TRUE)`          |         `r typeof(TRUE)`          |
+|         `"abc"`         |         `r class("abc")`         |         `r typeof("abc")`         |
+|      `factor("a")`      |      `r class(factor("a"))`      |      `r typeof(factor("a"))`      |
+| `as.Date("2020-01-01")` | `r class(as.Date("2020-01-01"))` | `r typeof(as.Date("2020-01-01"))` |
+
+: Le type et la classe des principaux types de vecteurs {#tbl-types-vecteurs}
+
+::: callout-tip
+Pour un vecteur numérique, le type est `"double"` car **R** utilise une <q>double précision</q> pour stocker informatiquement les nombres réels.
+
+En interne, les facteurs sont représentés par un nombre entier auquel est attaché une étiquette, c'est pourquoi `typeof()` renvoie `"integer"`.
+
+Quand aux dates, elles sont stockées en interne sous la forme d'un nombre réel représentant le nombre de jours depuis le 1^er^ janvier 1970, d'où le fait que `typeof()` renvoie `"double"`.
+:::
+
+## Création d'un vecteur
+
+Pour créer un vecteur, on utilisera la fonction `c()` en lui passant la liste des valeurs à combiner[^vecteurs-4].
+
+[^vecteurs-4]: La lettre `c` est un raccourci du mot anglais *combine*, puisque cette fonction permet de combiner des valeurs individuelles dans un vecteur unique.
+
+```{r}
+taille <- c(1.88, 1.65, 1.92, 1.76)
+taille
+sexe <- c("h", "f", "h", "f")
+sexe
+urbain <- c(TRUE, TRUE, FALSE, FALSE)
+urbain
+```
+
+Nous l'avons vu, toutes les valeurs d'un vecteur doivent obligatoirement être du même type. Dès lors, si on essaie de combiner des valeurs de différents types, **R** essaiera de les convertir au mieux. Par exemple :
+
+```{r}
+x <- c(2L, 3.14, "a")
+x
+class(x)
+```
+
+Dans le cas présent, toutes les valeurs ont été converties en chaînes de caractères.
+
+Dans certaines situations, on peut avoir besoin de créer un vecteur d'une certaine longueur mais dont toutes les valeurs sont identiques. Cela se réalise facilement avec `rep()` à qui on indiquera la valeur à répéter puis le nombre de répétitions :
+
+```{r}
+rep(2, 10)
+```
+
+On peut aussi lui indiquer plusieurs valeurs qui seront alors répétées en boucle :
+
+```{r}
+rep(c("a", "b"), 3)
+```
+
+Dans d'autres situations, on peut avoir besoin de créer un vecteur contenant une suite de valeurs, ce qui se réalise aisément avec `seq()` à qui on précisera les arguments `from` (point de départ), `to` (point d'arrivée) et `by` (pas). Quelques exemples valent mieux qu'un long discours :
+
+```{r}
+seq(1, 10)
+seq(5, 17, by = 2)
+seq(10, 0)
+seq(100, 10, by = -10)
+seq(1.23, 5.67, by = 0.33) 
+```
+
+L'opérateur `:` est un raccourci de la fonction `seq()` pour créer une suite de nombres entiers. Il s'utilise ainsi :
+
+```{r}
+1:5
+24:32
+55:43
+```
+
+## Longueur d'un vecteur
+
+Un vecteur dispose donc d'une longueur qui correspond au nombre de valeurs qui le composent. Elle s'obtient avec `length()` :
+
+```{r}
+length(taille)
+length(c("a", "b"))
+```
+
+Il est possible de faire un vecteur de longueur nulle avec `c()`. Bien évidemment sa longueur est zéro.
+
+```{r}
+length(c())
+```
+
+## Combiner des vecteurs
+
+Pour combiner des vecteurs, rien de plus simple. Il suffit d'utiliser `c()`{data-pkd="base"} ! Les valeurs des différents vecteurs seront mises bout à bout pour créer un unique vecteur.
+
+```{r}
+x <- c(2, 1, 3, 4)
+length(x)
+y <- c(9, 1, 2, 6, 3, 0)
+length(y)
+z <- c(x, y)
+z
+length(z)
+```
+
+## Valeurs manquantes
+
+Lorsqu'on travaille avec des données d'enquête, il est fréquent que certaines données soient manquantes, en raison d'un refus du participant de répondre à une question donnée ou d'un oubli ou d'un dysfonctionnement du matériel de mesure, etc.
+
+Une valeur manquante s'indique sous **R** avec `NA` (pour *not available*). Cette valeur peut s'appliquer à n'importe quel type de vecteur, qu'il soit numérique, textuel ou logique.
+
+```{r}
+taille <- c(1.88, NA, 1.65, 1.92, 1.76, NA)
+sexe <- c("h", "f", NA, "h", NA, "f")
+```
+
+Les valeurs manquantes sont prises en compte dans le calcul de la longueur du vecteur.
+
+```{r}
+length(taille)
+```
+
+Il ne faut pas confondre `NA` avec un autre objet qu'on rencontre sous **R** qui s'appelle `NULL` et qui représente l'<q>objet vide</q>. `NULL` ne contient absolument rien. La différence se comprend mieux lorsqu'on essaie de combiner ces objets.
+
+On peut combiner `NULL` avec `NULL`, du vide plus du vide renverra toujours du vide dont la dimension est égale à zéro.
+
+```{r}
+c(NULL, NULL, NULL)
+length(c(NULL, NULL, NULL))
+```
+
+Par contre, un vecteur composé de trois valeurs manquantes a une longueur de 3, même si toutes ses valeurs sont manquantes.
+
+```{r}
+c(NA, NA, NA)
+length(c(NA, NA, NA))
+```
+
+## Indexation par position
+
+L'indexation est l'une des fonctionnalités les plus puissantes mais aussi les plus difficiles à maîtriser de **R**. Il s'agit d'opérations permettant de sélectionner des sous-ensembles de valeurs en fonction de différents critères. Il existe trois types d'indexation : (i) l'indexation par position, (ii) l'indexation par nom et (iii) l'indexation par condition. Le principe est toujours le même : on indique entre crochets[^vecteurs-5] (`[]`) ce qu'on souhaite garder ou non.
+
+[^vecteurs-5]: Pour rappel, les crochets s'obtiennent sur un clavier français de type PC en appuyant sur la touche <kbd>Alt Gr</kbd> et la touche <kbd>(</kbd> ou <kbd>)</kbd>.
+
+Commençons par l'indexation par position encore appelée indexation directe. Ce mode le plus simple d'indexation consiste à indiquer la position des éléments à conserver.
+
+Reprenons notre vecteur `taille` :
+
+```{r}
+taille
+```
+
+Si on souhaite le premier élément du vecteur, on peut faire :
+
+```{r}
+taille[1]
+```
+
+Si on souhaite les trois premiers éléments ou les éléments 2, 5 et 6 :
+
+```{r}
+taille[1:3]
+taille[c(2, 5, 6)]
+```
+
+Si on veut le dernier élément :
+
+```{r}
+taille[length(taille)]
+```
+
+Il est tout à fait possible de sélectionner les valeurs dans le désordre :
+
+```{r}
+taille[c(5, 1, 4, 3)]
+```
+
+Dans le cadre de l'indexation par position, il est également possible de spécifier des nombres négatifs, auquel cas cela signifiera <q>toutes les valeurs sauf celles-là</q>. Par exemple :
+
+```{r}
+taille[c(-1, -5)]
+```
+
+À noter, si on indique une position au-delà de la longueur du vecteur, **R** renverra `NA`. Par exemple :
+
+```{r}
+taille[23:25]
+```
+
+## Des vecteurs nommés
+
+Les différentes valeurs d'un vecteur peuvent être nommées. Une première manière de nommer les éléments d'un vecteur est de le faire à sa création :
+
+```{r}
+sexe <- c(Michel = "h", Anne = "f", Dominique = NA, Jean = "h", Claude = NA, Marie = "f")
+```
+
+Lorsqu'on affiche le vecteur, la présentation change quelque peu.
+
+```{r}
+sexe
+```
+
+La liste des noms s'obtient avec `names()`.
+
+```{r}
+names(sexe)
+```
+
+Pour ajouter ou modifier les noms d'un vecteur, on doit attribuer un nouveau vecteur de noms :
+
+```{r}
+names(sexe) <- c("Michael", "Anna", "Dom", "John", "Alex", "Mary")
+sexe
+```
+
+Pour supprimer tous les noms, il y a la fonction `unname()` :
+
+```{r}
+anonyme <- unname(sexe)
+anonyme
+```
+
+## Indexation par nom
+
+Lorsqu'un vecteur est nommé, il est dès lors possible d'accéder à ses valeurs à partir de leur nom. Il s'agit de l'indexation par nom.
+
+```{r}
+sexe["Anna"]
+sexe[c("Mary", "Michael", "John")]
+```
+
+Par contre il n'est pas possible d'utiliser l'opérateur `-` comme pour l'indexation directe. Pour exclure un élément en fonction de son nom, on doit utiliser une autre forme d'indexation, l'indexation par condition, expliquée dans la section suivante. On peut ainsi faire...
+
+```{r, results='hide'}
+sexe[names(sexe) != "Dom"]
+```
+
+... pour sélectionner tous les éléments sauf celui qui s'appelle <q>Dom</q>.
+
+## Indexation par condition
+
+L'indexation par condition consiste à fournir un vecteur logique indiquant si chaque élément doit être inclus (si `TRUE`) ou exclu (si `FALSE`). Par exemple :
+
+```{r}
+sexe
+sexe[c(TRUE, FALSE, FALSE, TRUE, FALSE, FALSE)]
+```
+
+Écrire manuellement une telle condition n'est pas très pratique à l'usage. Mais supposons que nous ayons également à notre disposition les deux vecteurs suivants, également de longueur 6.
+
+```{r}
+urbain <- c(TRUE, FALSE, FALSE, FALSE, TRUE, TRUE)
+poids <- c(80, 63, 75, 87, 82, 67)
+```
+
+Le vecteur `urbain` est un vecteur logique. On peut directement l'utiliser pour avoir le sexe des enquêtés habitant en milieu urbain :
+
+```{r}
+sexe[urbain]
+```
+
+Supposons qu'on souhaite maintenant avoir la taille des individus pesant 80 kilogrammes ou plus. Nous pouvons effectuer une comparaison à l'aide des opérateurs de comparaison suivants :
+
+| Opérateur de comparaison | Signification           |
+|:-------------------------|:------------------------|
+| `==`                     | égal à                  |
+| `!=`                     | différent de            |
+| `>`                      | strictement supérieur à |
+| `<`                      | strictement inférieur à |
+| `>=`                     | supérieur ou égal à     |
+| `<=`                     | inférieur ou égal à     |
+
+Voyons tout de suite un exemple :
+
+```{r}
+poids >= 80
+```
+
+Que s'est-il passé ? Nous avons fourni à **R** une condition et il nous a renvoyé un vecteur logique avec autant d'éléments qu'il y a d'observations et dont la valeur est `TRUE` si la condition est remplie et `FALSE` dans les autres cas. Nous pouvons alors utiliser ce vecteur logique pour obtenir la taille des participants pesant 80 kilogrammes ou plus :
+
+```{r}
+taille[poids >= 80]
+```
+
+On peut combiner ou modifier des conditions à l'aide des opérateurs logiques habituels :
+
+| Opérateur logique | Signification    |
+|:------------------|:-----------------|
+| `&`               | et logique       |
+| `|`               | ou logique       |
+| `!`               | négation logique |
+
+Comment les utilise-t-on ? Voyons tout de suite un exemple. Supposons que je veuille identifier les personnes pesant 80 kilogrammes ou plus **et** vivant en milieu urbain :
+
+```{r}
+poids >= 80 & urbain
+```
+
+Les résultats sont différents si je souhaite isoler les personnes pesant 80 kilogrammes ou plus **ou** vivant milieu urbain :
+
+```{r}
+poids >= 80 | urbain
+```
+
+Une remarque importante : quand l'un des termes d'une condition comporte une valeur manquante (`NA`), le résultat de cette condition n'est pas toujours `TRUE` ou `FALSE`, il peut aussi être à son tour une valeur manquante.
+
+```{r}
+taille
+taille > 1.8
+```
+
+On voit que le test `NA > 1.8` ne renvoie ni vrai ni faux, mais `NA`.
+
+Une autre conséquence importante de ce comportement est qu'on ne peut pas utiliser l'opérateur l'expression `== NA` pour tester la présence de valeurs manquantes. On utilisera à la place la fonction *ad hoc* `is.na()` :
+
+```{r}
+is.na(taille > 1.8)
+```
+
+Pour compliquer encore un peu le tout, lorsqu'on utilise une condition pour l'indexation, si la condition renvoie `NA`, **R** ne sélectionne pas l'élément mais retourne quand même la valeur `NA`. Ceci a donc des conséquences sur le résultat d'une indexation par comparaison.
+
+Par exemple si je cherche à connaître le poids des personnes mesurant 1,80 mètre ou plus :
+
+```{r}
+taille
+poids
+poids[taille > 1.8]
+```
+
+Les éléments pour lesquels la taille n'est pas connue ont été transformés en `NA`, ce qui n'influera pas le calcul d'une moyenne. Par contre, lorsqu'on utilisera assignation et indexation ensemble, cela peut créer des problèmes. Il est donc préférable lorsqu'on a des valeurs manquantes de les exclure ainsi :
+
+```{r}
+poids[taille > 1.8 & !is.na(taille)]
+```
+
+## Assignation par indexation
+
+Dans tous les exemples précédents, on a utilisé l'indexation pour extraire une partie d'un vecteur, en plaçant l'opération d'indexation à droite de l'opérateur `<-`.
+
+Mais l'indexation peut également être placée à gauche de cet opérateur d'assignation. Dans ce cas, les éléments sélectionnés par l'indexation sont alors remplacés par les valeurs indiquées à droite de l'opérateur `<-`.
+
+Prenons donc un exemple simple :
+
+```{r}
+v <- 1:5
+v
+v[1] <- 3
+v
+```
+
+Cette fois, au lieu d'utiliser quelque chose comme `x <- v[1]`, qui aurait placé la valeur du premier élément de `v` dans `x`, on a utilisé `v[1] <- 3`, ce qui a mis à jour le premier élément de `v` avec la valeur 3. Ceci fonctionne également pour les différents types d'indexation évoqués précédemment :
+
+```{r}
+sexe["Alex"] <- "f"
+```
+
+Enfin on peut modifier plusieurs éléments d'un seul coup soit en fournissant un vecteur, soit en profitant du mécanisme de recyclage. Les deux commandes suivantes sont ainsi rigoureusement équivalentes :
+
+```{r}
+sexe[c(1,3,4)] <- c("Homme", "Homme", "Homme")
+sexe[c(1,3,4)] <- "Homme"
+```
+
+L'assignation par indexation peut aussi être utilisée pour ajouter une ou plusieurs valeurs à un vecteur :
+
+```{r}
+length(sexe)
+sexe[7] <- "f"
+sexe
+length(sexe)
+```
+
+## En résumé
+
+-   Un vecteur est un objet unidimensionnel contenant une liste de valeurs qui sont toutes du même type (entières, numériques, textuelles ou logiques).
+-   La fonction `class()` permet de connaître le type du vecteur et la fonction `length()` sa longueur, c'est-à-dire son nombre d'éléments.
+-   La fonction `c()` sert à créer et à combiner des vecteurs.
+-   Les valeurs manquantes sont représentées avec `NA`.
+-   Un vecteur peut être nommé, c'est-à-dire qu'un nom textuel a été associé à chaque élément. Cela peut se faire lors de sa création ou avec la fonction `names()`.
+-   L'indexation consiste à extraire certains éléments d'un vecteur. Pour cela, on indique ce qu'on souhaite extraire entre crochets (`[]`) juste après le nom du vecteur. Le type d'indexation dépend du type d'information transmise.
+-   S'il s'agit de nombres entiers, c'est l'indexation par position : les nombres représentent la position dans le vecteur des éléments qu'on souhaite extraire. Un nombre négatif s'interprète comme <q>tous les éléments sauf celui-là</q>.
+-   Si on indique des chaînes de caractères, c'est l'indexation par nom : on indique le nom des éléments qu'on souhaite extraire. Cette forme d'indexation ne fonctionne que si le vecteur est nommé.
+-   Si on transmet des valeurs logiques, le plus souvent sous la forme d'une condition, c'est l'indexation par condition : `TRUE` indique les éléments à extraire et `FALSE` les éléments à exclure. Il faut être vigilant aux valeurs manquantes (`NA`) dans ce cas précis.
+-   Enfin, il est possible de ne modifier que certains éléments d'un vecteur en ayant recours à la fois à l'indexation (`[]`) et à l'assignation (`<-`).
+
+## webin-R
+
+On pourra également se référer au webin-R #02 (*les bases du langage R*) sur [YouTube](https://youtu.be/Eh8piunoqQc).
+
+{{< video https://youtu.be/Eh8piunoqQc >}}
