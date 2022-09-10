@@ -2,12 +2,12 @@
 
 En attendant sa finalisation, voir <https://larmarange.github.io/analyse-R/>
 
-# Tutoriel sur l’analyse d’enquêtes avec **R** & le *tidyverse*
+# Guide pour l'analyse de données d'enquêtes avec R
 
-Site consultable à l'adresse <https://github.com/larmarange/tuto-R>
+Site consultable à l'adresse <https://github.com/larmarange/guide-R>
 
-Questions & Réponses : <https://github.com/larmarange/tuto-R/discussions>
+Questions & Réponses : <https://github.com/larmarange/guide-R/discussions>
 
-Demandes de correction / ajout : <https://github.com/larmarange/tuto-R/issues>
+Demandes de correction / ajout : <https://github.com/larmarange/guide-R/issues>
 
 Ce site est généré avec [quarto](https://quarto.org/).
