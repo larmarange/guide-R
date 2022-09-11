@@ -1,0 +1,146 @@
+# Listes {#sec-listes}
+
+Par nature, les vecteurs ne peuvent contenir que des valeurs de même type (numérique, textuel ou logique). Or, on peut avoir besoin de représenter des objets plus complexes composés d'éléments disparates. C'est ce que permettent les listes.
+
+## Propriétés et création
+
+Une liste se crée tout simplement avec la fonction `list()` :
+
+```{r}
+l1 <- list(1:5, "abc")
+l1
+```
+
+Une liste est un ensemble d'objets, quels qu'ils soient, chaque élément d'une liste pouvant avoir ses propres dimensions. Dans notre exemple précédent, nous avons créé une liste `l1` composée de deux éléments : un vecteur d'entiers de longueur 5 et un vecteur textuel de longueur 1. La longueur d'une liste correspond aux nombres d'éléments qu'elle contient et s'obtient avec `length()` :
+
+```{r}
+length(l1)
+```
+
+Comme les vecteurs, une liste peut être nommée et les noms des éléments d'une liste sont accessibles avec `names()` :
+
+```{r}
+l2 <- list(
+  minuscules = letters, 
+  majuscules = LETTERS, 
+  mois = month.name
+)
+l2
+length(l2)
+names(l2)
+```
+
+Que se passe-t-il maintenant si on effectue la commande suivante ?
+
+```{r}
+l <- list(l1, l2)
+```
+
+À votre avis, quelle est la longueur de cette nouvelle liste `l` ? 5 ?
+
+```{r}
+length(l)
+```
+
+Eh bien non ! Elle est de longueur 2 car nous avons créé une liste composée de deux éléments qui sont eux-mêmes des listes. Cela est plus lisible si on fait appel à la fonction `str()` qui permet de visualiser la structure d'un objet.
+
+```{r}
+str(l)
+```
+
+Une liste peut contenir tous types d'objets, y compris d'autres listes. Pour combiner les éléments d'une liste, il faut utiliser la fonction `append()` :
+
+```{r}
+l <- append(l1, l2)
+length(l)
+str(l)
+```
+
+::: callout-note
+On peut noter en passant qu'une liste peut tout à fait n'être que partiellement nommée.
+:::
+
+## Indexation
+
+Les crochets simples (`[]`) fonctionnent comme pour les vecteurs. On peut utiliser à la fois l'indexation par position, l'indexation par nom et l'indexation par condition.
+
+```{r}
+l
+l[c(1,3,4)]
+l[c("majuscules", "minuscules")]
+l[c(TRUE, TRUE, FALSE, FALSE, TRUE)]
+```
+
+Même si on extrait un seul élément, l'extraction obtenue avec les crochets simples renvoie toujours une liste, ici composée d'un seul élément :
+
+```{r}
+str(l[1])
+```
+
+Supposons que je souhaite calculer la moyenne des valeurs du premier élément de ma liste. Essayons la commande suivante :
+
+```{r}
+mean(l[1])
+```
+
+Nous obtenons un message d'erreur. En effet, **R** ne sait pas calculer une moyenne à partir d'une liste. Ce qu'il lui faut, c'est un vecteur de valeurs numériques. Autrement dit, ce que nous cherchons à obtenir c'est le contenu même du premier élément de notre liste et non une liste à un seul élément.
+
+C'est ici que les doubles crochets (`[[]]`) vont rentrer en jeu. Pour ces derniers, nous pourrons utiliser l'indexation par position ou l'indexation par nom, mais pas l'indexation par condition. De plus, le critère qu'on indiquera doit indiquer **un et un seul** élément de notre liste. Au lieu de renvoyer une liste à un élément, les doubles crochets vont renvoyer l'élément désigné.
+
+```{r}
+str(l[1])
+str(l[[1]])
+```
+
+Maintenant, nous pouvons calculer notre moyenne :
+
+```{r}
+mean(l[[1]])
+```
+
+Nous pouvons aussi utiliser l'indexation par nom.
+
+```{r}
+l[["mois"]]
+```
+
+Mais il faut avouer que cette écriture avec doubles crochets et guillemets est un peu lourde. Heureusement, un nouvel acteur entre en scène : le symbole dollar (`$`). C'est un raccourci des doubles crochets pour l'indexation par nom qu'on utilise ainsi :
+
+```{r}
+l$mois
+```
+
+Les écritures `l$mois` et `l[["mois"]]` sont équivalentes. Attention ! Cela ne fonctionne que pour l'indexation par nom.
+
+```{r}
+#| eval: false
+l$1
+```
+
+::: {.cell-output .cell-output-stdout}
+    Error: unexpected numeric constant in "l$1"
+:::
+
+L'assignation par indexation fonctionne également avec les doubles crochets ou le signe dollar :
+
+```{r}
+l[[2]] <- list(c("un", "vecteur", "textuel"))
+l$mois <- c("Janvier", "Février", "Mars")
+l
+```
+
+## En résumé
+
+-   Les listes sont des objets unidimensionnels pouvant contenir tout type d'objet, y compris d'autres listes.
+-   Elles ont une longueur qu'on obtient avec `length()`.
+-   On crée une liste avec `list()` et on peut fusionner des listes avec `append()`.
+-   Tout comme les vecteurs, les listes peuvent être nommées et les noms des éléments s'obtiennent avec `base::names()`.
+-   Les crochets simples (`[]`) permettent de sélectionner les éléments d'une liste, en utilisant l'indexation par position, l'indexation par nom ou l'indexation par condition. Cela renvoie toujours une autre liste.
+-   Les doubles crochets (`[[]]`) renvoient directement le contenu d'un élément de la liste qu'on aura sélectionné par position ou par nom.
+-   Le symbole `$` est un raccourci pour facilement sélectionner un élément par son nom, `liste$nom` étant équivalent à `liste[["nom"]]`.
+
+## webin-R
+
+On pourra également se référer au webin-R #02 (*les bases du langage R*) sur [YouTube](https://youtu.be/Eh8piunoqQc).
+
+{{< video https://youtu.be/Eh8piunoqQc start='2766' >}}

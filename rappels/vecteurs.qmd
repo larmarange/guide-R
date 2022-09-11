@@ -1,4 +1,4 @@
-# Vecteurs, indexation et assignation {#sec-vecteurs}
+# Vecteurs {#sec-vecteurs}
 
 Les vecteurs sont l'objet de base de **R** et correspondent à une liste de valeurs. Leurs propriétés fondamentales sont :
 
@@ -12,7 +12,7 @@ Dans **R**, il existe plusieurs types fondamentaux de vecteurs et, en particulie
 
 -   les nombres réels (c'est-à-dire les nombres décimaux[^vecteurs-1]), par exemple `5.23` ;
 -   les nombres entiers, que l'on saisi en ajoutant le suffixe `L`[^vecteurs-2], par exemple `4L` ;
--   les chaînes de caractères (qui correspondent à du texte), que l'on saisit avec des guillemets doubles (`"`) ou simples ('), par exemple `"abc"` ;
+-   les chaînes de caractères (qui correspondent à du texte), que l'on saisit avec des guillemets doubles (`"`) ou simples (`'`), par exemple `"abc"` ;
 -   les valeurs logiques ou valeurs booléennes, à savoir <q>vrai</q> ou <q>faux</q>, que l'on représente avec les mots `TRUE` et `FALSE` (en majuscules[^vecteurs-3]).
 
 [^vecteurs-1]: Pour rappel, **R** étant anglophone, le caractère utilisé pour indiqué les chiffres <q>après la virgule</q> est le point (`.`).
@@ -26,7 +26,7 @@ En plus de ces types de base, il existe de nombreux autres types de vecteurs uti
 La fonction `class()` renvoie la nature d'un vecteur tandis que la fonction `typeof()` indique la manière dont un vecteur est stocké de manière interne par **R**.
 
 |           `x`           |            `class(x)`            |            `typeof(x)`            |
-|:-----------------:|:------------------------:|:-------------------------:|
+|:-----------------------:|:--------------------------------:|:---------------------------------:|
 |          `3L`           |          `r class(3L)`           |          `r typeof(3L)`           |
 |          `5.3`          |          `r class(5.3)`          |          `r typeof(5.3)`          |
 |         `TRUE`          |         `r class(TRUE)`          |         `r typeof(TRUE)`          |
@@ -51,11 +51,11 @@ Pour créer un vecteur, on utilisera la fonction `c()` en lui passant la liste d
 [^vecteurs-4]: La lettre `c` est un raccourci du mot anglais *combine*, puisque cette fonction permet de combiner des valeurs individuelles dans un vecteur unique.
 
 ```{r}
-taille <- c(1.88, 1.65, 1.92, 1.76)
+taille <- c(1.88, 1.65, 1.92, 1.76, NA, 1.72)
 taille
-sexe <- c("h", "f", "h", "f")
+sexe <- c("h", "f", "h", "f", "f", "f")
 sexe
-urbain <- c(TRUE, TRUE, FALSE, FALSE)
+urbain <- c(TRUE, TRUE, FALSE, FALSE, FALSE, TRUE)
 urbain
 ```
 
@@ -101,17 +101,17 @@ L'opérateur `:` est un raccourci de la fonction `seq()` pour créer une suite d
 
 ## Longueur d'un vecteur
 
-Un vecteur dispose donc d'une longueur qui correspond au nombre de valeurs qui le composent. Elle s'obtient avec `length()` :
+La longueur d'un vecteur correspond au nombre de valeurs qui le composent. Elle s'obtient avec `length()` :
 
 ```{r}
 length(taille)
 length(c("a", "b"))
 ```
 
-Il est possible de faire un vecteur de longueur nulle avec `c()`. Bien évidemment sa longueur est zéro.
+La longueur d'un vecteur vide (`NULL`) est zéro.
 
 ```{r}
-length(c())
+length(NULL)
 ```
 
 ## Combiner des vecteurs
@@ -128,37 +128,38 @@ z
 length(z)
 ```
 
-## Valeurs manquantes
+## Vecteurs nommés
 
-Lorsqu'on travaille avec des données d'enquête, il est fréquent que certaines données soient manquantes, en raison d'un refus du participant de répondre à une question donnée ou d'un oubli ou d'un dysfonctionnement du matériel de mesure, etc.
-
-Une valeur manquante s'indique sous **R** avec `NA` (pour *not available*). Cette valeur peut s'appliquer à n'importe quel type de vecteur, qu'il soit numérique, textuel ou logique.
+Les différentes valeurs d'un vecteur peuvent être nommées. Une première manière de nommer les éléments d'un vecteur est de le faire à sa création :
 
 ```{r}
-taille <- c(1.88, NA, 1.65, 1.92, 1.76, NA)
-sexe <- c("h", "f", NA, "h", NA, "f")
+sexe <- c(Michel = "h", Anne = "f", Dominique = NA, Jean = "h", Claude = NA, Marie = "f")
 ```
 
-Les valeurs manquantes sont prises en compte dans le calcul de la longueur du vecteur.
+Lorsqu'on affiche le vecteur, la présentation change quelque peu.
 
 ```{r}
-length(taille)
+sexe
 ```
 
-Il ne faut pas confondre `NA` avec un autre objet qu'on rencontre sous **R** qui s'appelle `NULL` et qui représente l'<q>objet vide</q>. `NULL` ne contient absolument rien. La différence se comprend mieux lorsqu'on essaie de combiner ces objets.
-
-On peut combiner `NULL` avec `NULL`, du vide plus du vide renverra toujours du vide dont la dimension est égale à zéro.
+La liste des noms s'obtient avec `names()`.
 
 ```{r}
-c(NULL, NULL, NULL)
-length(c(NULL, NULL, NULL))
+names(sexe)
 ```
 
-Par contre, un vecteur composé de trois valeurs manquantes a une longueur de 3, même si toutes ses valeurs sont manquantes.
+Pour ajouter ou modifier les noms d'un vecteur, on doit attribuer un nouveau vecteur de noms :
 
 ```{r}
-c(NA, NA, NA)
-length(c(NA, NA, NA))
+names(sexe) <- c("Michael", "Anna", "Dom", "John", "Alex", "Mary")
+sexe
+```
+
+Pour supprimer tous les noms, il y a la fonction `unname()` :
+
+```{r}
+anonyme <- unname(sexe)
+anonyme
 ```
 
 ## Indexation par position
@@ -212,40 +213,6 @@ taille[c(-1, -5)]
 taille[23:25]
 ```
 
-## Des vecteurs nommés
-
-Les différentes valeurs d'un vecteur peuvent être nommées. Une première manière de nommer les éléments d'un vecteur est de le faire à sa création :
-
-```{r}
-sexe <- c(Michel = "h", Anne = "f", Dominique = NA, Jean = "h", Claude = NA, Marie = "f")
-```
-
-Lorsqu'on affiche le vecteur, la présentation change quelque peu.
-
-```{r}
-sexe
-```
-
-La liste des noms s'obtient avec `names()`.
-
-```{r}
-names(sexe)
-```
-
-Pour ajouter ou modifier les noms d'un vecteur, on doit attribuer un nouveau vecteur de noms :
-
-```{r}
-names(sexe) <- c("Michael", "Anna", "Dom", "John", "Alex", "Mary")
-sexe
-```
-
-Pour supprimer tous les noms, il y a la fonction `unname()` :
-
-```{r}
-anonyme <- unname(sexe)
-anonyme
-```
-
 ## Indexation par nom
 
 Lorsqu'un vecteur est nommé, il est dès lors possible d'accéder à ses valeurs à partir de leur nom. Il s'agit de l'indexation par nom.
@@ -275,7 +242,7 @@ sexe[c(TRUE, FALSE, FALSE, TRUE, FALSE, FALSE)]
 Écrire manuellement une telle condition n'est pas très pratique à l'usage. Mais supposons que nous ayons également à notre disposition les deux vecteurs suivants, également de longueur 6.
 
 ```{r}
-urbain <- c(TRUE, FALSE, FALSE, FALSE, TRUE, TRUE)
+urbain <- c(TRUE, TRUE, FALSE, FALSE, FALSE, TRUE)
 poids <- c(80, 63, 75, 87, 82, 67)
 ```
 
@@ -295,6 +262,8 @@ Supposons qu'on souhaite maintenant avoir la taille des individus pesant 80 kilo
 | `<`                      | strictement inférieur à |
 | `>=`                     | supérieur ou égal à     |
 | `<=`                     | inférieur ou égal à     |
+
+: Opérateurs de comparaison {#tbl-operateurs-comparaisons}
 
 Voyons tout de suite un exemple :
 
@@ -316,7 +285,9 @@ On peut combiner ou modifier des conditions à l'aide des opérateurs logiques h
 | `|`               | ou logique       |
 | `!`               | négation logique |
 
-Comment les utilise-t-on ? Voyons tout de suite un exemple. Supposons que je veuille identifier les personnes pesant 80 kilogrammes ou plus **et** vivant en milieu urbain :
+: Opérateurs logiques {#tbl-operateurs-logiques}
+
+Supposons que je veuille identifier les personnes pesant 80 kilogrammes ou plus **et** vivant en milieu urbain :
 
 ```{r}
 poids >= 80 & urbain
@@ -327,6 +298,9 @@ Les résultats sont différents si je souhaite isoler les personnes pesant 80 ki
 ```{r}
 poids >= 80 | urbain
 ```
+
+::: callout-important
+## Comparaison et valeur manquante
 
 Une remarque importante : quand l'un des termes d'une condition comporte une valeur manquante (`NA`), le résultat de cette condition n'est pas toujours `TRUE` ou `FALSE`, il peut aussi être à son tour une valeur manquante.
 
@@ -358,26 +332,19 @@ Les éléments pour lesquels la taille n'est pas connue ont été transformés e
 ```{r}
 poids[taille > 1.8 & !is.na(taille)]
 ```
+:::
 
 ## Assignation par indexation
 
-Dans tous les exemples précédents, on a utilisé l'indexation pour extraire une partie d'un vecteur, en plaçant l'opération d'indexation à droite de l'opérateur `<-`.
-
-Mais l'indexation peut également être placée à gauche de cet opérateur d'assignation. Dans ce cas, les éléments sélectionnés par l'indexation sont alors remplacés par les valeurs indiquées à droite de l'opérateur `<-`.
-
-Prenons donc un exemple simple :
+L'indexation peut être combinée avec l'assignation (opérateur `<-`) pour modifier seulement certaines parties d'un vecteur. Ceci fonctionne pour les différents types d'indexation évoqués précédemment.
 
 ```{r}
 v <- 1:5
 v
 v[1] <- 3
 v
-```
-
-Cette fois, au lieu d'utiliser quelque chose comme `x <- v[1]`, qui aurait placé la valeur du premier élément de `v` dans `x`, on a utilisé `v[1] <- 3`, ce qui a mis à jour le premier élément de `v` avec la valeur 3. Ceci fonctionne également pour les différents types d'indexation évoqués précédemment :
-
-```{r}
-sexe["Alex"] <- "f"
+sexe["Alex"] <- "non-binaire"
+sexe
 ```
 
 Enfin on peut modifier plusieurs éléments d'un seul coup soit en fournissant un vecteur, soit en profitant du mécanisme de recyclage. Les deux commandes suivantes sont ainsi rigoureusement équivalentes :
@@ -413,4 +380,4 @@ length(sexe)
 
 On pourra également se référer au webin-R #02 (*les bases du langage R*) sur [YouTube](https://youtu.be/Eh8piunoqQc).
 
-{{< video https://youtu.be/Eh8piunoqQc >}}
+{{< video https://youtu.be/Eh8piunoqQc start='67' >}}
