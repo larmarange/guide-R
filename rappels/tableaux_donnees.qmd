@@ -1,0 +1,185 @@
+# Tableaux de données {#sec-tableaux-donnees}
+
+Les tableaux de données, ou *data frame* en anglais, est un type d'objets essentiel pour les données d'enquêtes.
+
+## Propriétés et création
+
+Dans **R**, les tableaux de données sont tout simplement des listes (voir @sec-listes) avec quelques propriétés spécifiques :
+
+-   les tableaux de données ne peuvent contenir que des vecteurs ;
+-   tous les vecteurs d'un tableau de données ont la même longueur ;
+-   tous les éléments d'un tableau de données sont nommés et ont chacun un nom unique.
+
+Dès lors, un tableau de données correspond aux fichiers de données qu'on a l'habitude de manipuler dans d'autres logiciels de statistiques comme **SPSS** ou **Stata**. Les variables sont organisées en colonnes et les observations en lignes.
+
+On peut créer un tableau de données avec la fonction `data.frame()` :
+
+```{r}
+df <- data.frame(
+  sexe =  c("f", "f", "h", "h"), 
+  age = c(52, 31, 29, 35), 
+  blond = c(FALSE, TRUE, TRUE, FALSE)
+)
+df
+str(df)
+```
+
+Un tableau de données étant une liste, la fonction `length()` renverra le nombre d'éléments de la liste, donc dans le cas présent le nombre de variables, et `names()` leurs noms :
+
+```{r}
+length(df)
+names(df)
+```
+
+Comme tous les éléments d'un tableau de données ont la même longueur, cet objet peut être vu comme bidimensionnel. Les fonctions `nrow()`, `ncol()` et `dim()` donnent respectivement le nombre de lignes, le nombre de colonnes et les dimensions de notre tableau.
+
+```{r}
+nrow(df)
+ncol(df)
+dim(df)
+```
+
+De plus, tout comme les colonnes ont un nom, il est aussi possible de nommer les lignes avec `row.names()` :
+
+```{r}
+row.names(df) <- c("Anna", "Mary-Ann", "Michael", "John")
+df
+```
+
+## Indexation
+
+Les tableaux de données étant des listes, nous pouvons donc utiliser les crochets simples (`[]`), les crochets doubles (`[[]]`) et le symbole dollar (`$`) pour extraire des parties de notre tableau, de la même manière que pour n'importe quelle liste.
+
+```{r}
+df[1]
+df[[1]]
+df$sexe
+```
+
+Cependant, un tableau de données étant un objet bidimensionnel, il est également possible d'extraire des données sur deux dimensions, à savoir un premier critère portant sur les lignes et un second portant sur les colonnes. Pour cela, nous utiliserons les crochets simples (`[]`) en séparant nos deux critères par une virgule (`,`).
+
+Un premier exemple :
+
+```{r}
+df
+df[3, 2]
+```
+
+Cette première commande indique que nous souhaitons la troisième ligne de la seconde colonne, autrement dit l'âge de Michael. Le même résultat peut être obtenu avec l'indexation par nom, l'indexation par condition, ou un mélange de tout ça.
+
+```{r}
+df["Michael", "age"]
+df[c(F, F, T, F), c(F, T, F)]
+df[3, "age"]
+df["Michael", 2]
+```
+
+Il est également possible de préciser un seul critère. Par exemple, si je souhaite les deux premières observations, ou les variables *sexe* et *blond* :
+
+```{r}
+df[1:2,]
+df[,c("sexe", "blond")]
+```
+
+Il a suffi de laisser un espace vide avant ou après la virgule.
+
+::: callout-warning
+ATTENTION ! Il est cependant impératif de laisser la virgule pour indiquer à **R** qu'on souhaite effectuer une indexation à deux dimensions. Si on oublie la virgule, cela nous ramène au mode de fonctionnement des listes. Et le résultat n'est pas forcément le même :
+
+```{r}
+df[2, ]
+df[, 2]
+df[2]
+```
+:::
+
+::: callout-note
+Au passage, on pourra noter quelques subtilités sur le résultat renvoyé.
+
+```{r}
+str(df[2, ])
+str(df[, 2])
+str(df[2])
+str(df[[2]])
+```
+
+`df[2, ]` signifie qu'on veut toutes les variables pour le second individu. Le résultat est un tableau de données à une ligne et trois colonnes. `df[2]` correspond au mode d'extraction des listes et renvoie donc une liste à un élément, en l'occurrence un tableau de données à quatre observations et une variable. `df[[2]]` quant à lui renvoie le contenu de cette variable, soit un vecteur numérique de longueur quatre. Reste `df[, 2]` qui renvoie toutes les observations pour la seconde colonne. Or l'indexation bidimensionnelle a un fonctionnement un peu particulier : par défaut elle renvoie un tableau de données mais s'il y a une seule variable dans l'extraction, c'est un vecteur qui est renvoyé. Pour plus de détails, on pourra consulter l'entrée d'aide `help("[.data.frame")`.
+:::
+
+## Afficher les données
+
+Prenons un tableau de données un peu plus conséquent, en l'occurrence le jeu de données `?questionr::hdv2003` disponible dans l'extension `{questionr}` et correspondant à un extrait de l'enquête *Histoire de vie* réalisée par l'INSEE en 2003. Il contient 2000 individus et 20 variables.
+
+```{r}
+library(questionr)
+data(hdv2003)
+```
+
+Si on demande d'afficher l'objet `hdv2003` dans la console (résultat non reproduit ici), **R** va afficher l'ensemble du contenu de `hdv2003` à l'écran ce qui, sur un tableau de cette taille, ne sera pas très lisible. Pour une exploration visuelle, le plus simple est souvent d'utiliser la visionneuse intégrée à **RStudio** et qu'on peut appeler avec la fonction `View()`.
+
+```{r}
+#| eval: false
+View(hdv2003)
+```
+
+![Interface View() de R RStudio](ressources/rstudio_view_hdv2003.png){#fig-view}
+
+Les fonctions `head()` et `tail()`, qui marchent également sur les vecteurs, permettent d'afficher seulement les premières (respectivement les dernières) lignes d'un tableau de données :
+
+```{r}
+head(hdv2003)
+tail(hdv2003, 2)
+```
+
+L'extension `{dplyr}` propose une fonction `dplyr::glimpse()` (ce qui signifie <q>aperçu</q> en anglais) qui permet de visualiser rapidement et de manière condensée le contenu d'un tableau de données.
+
+```{r, message=FALSE}
+library(dplyr)
+glimpse(hdv2003)
+```
+
+L'extension `{labelled}` propose une fonction `labelled::look_for()` qui permet de lister les différentes variables d'un fichier de données :
+
+```{r}
+library(labelled)
+look_for(hdv2003)
+```
+
+Lorsqu'on a un gros tableau de données avec de nombreuses variables, il peut être difficile de retrouver la ou les variables d'intérêt. Il est possible d'indiquer à `labelled::look_for()` un mot-clé pour limiter la recherche. Par exemple :
+
+```{r}
+look_for(hdv2003, "trav")
+```
+
+Il est à noter que si la recherche n'est pas sensible à la casse (i.e. aux majuscules et aux minuscules), elle est sensible aux accents.
+
+La méthode `summary()` qui fonctionne sur tout type d'objet permet d'avoir quelques statistiques de base sur les différentes variables de notre tableau, les statistiques affichées dépendant du type de variable.
+
+```{r}
+summary(hdv2003)
+```
+
+On peut également appliquer `summary()` à une variable particulière.
+
+```{r}
+summary(hdv2003$sexe)
+summary(hdv2003$age)
+```
+
+## En résumé
+
+-   Les tableaux de données sont des listes avec des propriétés particulières :
+    i.  tous les éléments sont des vecteurs ;
+    ii. tous les vecteurs ont la même longueur ;
+    iii. tous les vecteurs ont un nom et ce nom est unique.
+-   On peut créer un tableau de données avec `data.frame()`.
+-   Les tableaux de données correspondent aux fichiers de données qu'on utilise usuellement dans d'autres logiciels de statistiques : les variables sont représentées en colonnes et les observations en lignes.
+-   Ce sont des objets bidimensionnels : `ncol()` renvoie le nombre de colonnes et `nrow()` le nombre de lignes.
+-   Les doubles crochets (`[[]]`) et le symbole dollar (`$`) fonctionnent comme pour les listes et permettent d'accéder aux variables.
+-   Il est possible d'utiliser des coordonnées bidimensionnelles avec les crochets simples (`[]`) en indiquant un critère sur les lignes puis un critère sur les colonnes, séparés par une virgule (`,`).
+
+## webin-R
+
+On pourra également se référer au webin-R #02 (*les bases du langage R*) sur [YouTube](https://youtu.be/Eh8piunoqQc).
+
+{{< video https://youtu.be/Eh8piunoqQc start='3490' >}}
