@@ -4,6 +4,6 @@ if (!requireNamespace("remotes")) install.packages("remotes")
 remotes::install_cran("renv")
 remotes::install_cran("purrr")
 
-renv::dependencies() |> 
-  purrr::pluck("Package") |> 
+renv::dependencies() |>
+  purrr::pluck("Package") |>
   remotes::install_cran()
