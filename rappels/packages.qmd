@@ -1,0 +1,141 @@
+# Packages {#sec-packages}
+
+L'installation par défaut du logiciel **R** contient le cœur du programme ainsi qu'un ensemble de fonctions de base fournissant un grand nombre d'outils de traitement de données et d'analyse statistiques.
+
+**R** étant un logiciel libre, il bénéficie d'une forte communauté d'utilisateurs qui peuvent librement contribuer au développement du logiciel en lui ajoutant des fonctionnalités supplémentaires. Ces contributions prennent la forme d'extensions (packages en anglais) pouvant être installées par l'utilisateur et fournissant alors diverses fonctionnalités supplémentaires.
+
+Il existe un très grand nombre d'extensions (plus de 16 000 à ce jour), qui sont diffusées par un réseau baptisé **CRAN** (*Comprehensive R Archive Network*).
+
+La liste de toutes les extensions disponibles sur **CRAN** est disponible ici : <http://cran.r-project.org/web/packages/>.
+
+Pour faciliter un peu le repérage des extensions, il existe un ensemble de regroupements thématiques (économétrie, finance, génétique, données spatiales...) baptisés Task views : <http://cran.r-project.org/web/views/>.
+
+On y trouve notamment une *Task view* dédiée aux sciences sociales, listant de nombreuses extensions potentiellement utiles pour les analyses statistiques dans ce champ disciplinaire : <http://cran.r-project.org/web/views/SocialSciences.html>.
+
+On peut aussi citer le site *Awesome R* (<https://github.com/qinwf/awesome-R>) qui fournit une liste d'extensions choisies et triées par thématique.
+
+## Installation (CRAN)
+
+L'installation d'une extension se fait par la fonction `install.packages()`, à qui on fournit le nom de l'extension. Par exemple, si on souhaite installer l'extension `{gtsummary}` :
+
+```{r}
+#| eval: false
+install.packages("gtsummary")
+```
+
+Sous **RStudio**, on pourra également cliquer sur *Install* dans l'onglet *Packages* du quadrant inférieur droit.
+
+Alternativement, on pourra avoir recours au package `{remotes}` et à sa fonction `remotes::install_cran()` :
+
+```{r}
+#| eval: false
+remotes::install_cran("gtsummary")
+```
+
+::: callout-note
+Le package `{remotes}` n'est pas disponible par défaut sous **R** et devra donc être installé classiquement avec `install.packages("remotes")`. À la différence de `install.packages()`, `remotes::install_cran()` vérifie si le package est déjà installé et, si oui, si la version installée est déjà la dernière version, avant de procéder à une installation complète si et seulement si cela est nécessaire.
+:::
+
+## Chargement
+
+Une fois un package installé (c'est-à-dire que ses fichiers ont eté téléchargés et copiés sur votre ordinateur), ses fonctions et objets ne sont pas directement accessibles. Pour pouvoir les utiliser, il faut, **à chaque session de travail**, charger le package en mémoire avec la fonction `library()` ou la fonction `require()` :
+
+```{r}
+#| eval: false
+library(gtsummary)
+```
+
+À partir de là, on peut utiliser les fonctions de l'extension, consulter leur page d'aide en ligne, accéder aux jeux de données qu'elle contient, etc.
+
+Alternativement, pour accéder à un objet ou une fonction d'un package sans avoir à le charger en mémoire, on pourra avoir recours à l'opérateur `::`. Ainsi, l'écriture `p::f()` signifie la fonction `f()` du package `p`. Cette écriture sera notamment utilisée tout au long de ce guide pour indiquer à quel package appartient telle fonction : `remotes::install_cran()` indique que la fonction `install_cran()` provient du packages `{remotes}`.
+
+::: callout-important
+Il est important de bien comprendre la différence entre `install.packages()` et `library()`. La première va chercher un package sur internet et l'installe en local sur le disque dur de l'ordinateur. On n'a besoin d'effectuer cette opération qu'une seule fois. La seconde lit les informations de l'extension sur le disque dur et les met à disposition de **R**. On a besoin de l'exécuter à chaque début de session ou de script.
+:::
+
+## Mise à jour
+
+Pour mettre à jour l'ensemble des pacakges installés, il suffit d'exécuter la fonction `update.packages()` :
+
+```{r}
+#| eval: false
+update.packages()
+```
+
+Sous **RStudio**, on pourra alternativement cliquer sur *Update* dans l'onglet *Packages* du quadrant inférieur droit.
+
+Si on souhaite désinstaller une extension précédemment installée, on peut utiliser la fonction `remove.packages()` :
+
+```{r}
+#| eval: false
+remove.packages("gtsummary")
+```
+
+::: callout-tip
+## Installer / Mettre à jour les packages utilisés par un projet
+
+Après une mise à jour majeure de **R**, il est souvent nécessaire de réinstaller tous les packages utilisés. De même, on peut parfois souhaiter mettre à jour uniquement les packages utilisés par un projet donné sans avoir à mettre à jour tous les autres packages présents sur son PC.
+
+Une astuce consiste à avoir recours à la fonction `renv::dependencies()` qui examine le code du projet courant pour identifier les packages utilisés, puis à passer cette liste de packages à `remotes::install_cran()` qui installera les packages manquants ou pour lesquels une mise à jour est disponible.
+
+Il vous suffit d'exécuter la commande ci-dessous :
+
+```{r}
+#| eval: false
+renv::dependencies() |> 
+  purrr::pluck("Package") |> 
+  remotes::install_cran()
+```
+:::
+
+## Installation depuis GitHub
+
+Certains packages ne sont pas disponibles sur [**CRAN**](https://cran.r-project.org/) mais seulement sur [**GitHub**](https://github.com/), une plateforme de développement informatique. Il s'agit le plus souvent de packages qui ne sont pas encore suffisament matures pour être diffusés sur **CRAN** (sachant que des vérifications strictes sont effectués avant qu'un package ne soit référencés sur **CRAN**).
+
+Dans d'autres cas de figure, la dernière version stable d'un package est disponible sur **CRAN** tandis que la version en cours de développement est, elle, disponible sur **GitHub**. Il fuat être vigilant avec les versions de développement. Parfois, elle corrige un bug ou introduit une nouvelle fonctionnalité qui n'est pas encore dans la version stable. Mais les versions de développement peuvent aussi contenir de nouveaux bugs ou des fonctionnalités instables.
+
+::: callout-warning
+## Sous Windows
+
+Pour les utilisatrices et utilisateurs sous **Windows**, il faut être conscient que le code source d'un package doit être compilé afin de pouvoir être utilisé. **CRAN** fournit une version des packages déjà compilée pour **Windows** ce qui facilite l'installation.
+
+Par contre, lorsque l'on installe un package depuis **GitHub**, **R** ne récupère que le code source et il est donc nécessaire de compiler localement le package. Pour cela, il est nécessaire que soit installé sur le PC un outil complémentaire appelé **RTools**. Il est téléchargeable à l'adresse <https://cran.r-project.org/bin/windows/Rtools/>.
+:::
+
+Le code source du package `{labelled}` est disponible sur **GitHub** à l'adresse <https://github.com/larmarange/labelled>. Pour installer la version de développement de `{labelled}`,on aura recours à la fonction `remotes::install_github()` à laquelle on passera la partie située à droite de `https://github.com/` dans l'URL du package, à savoir :
+
+```{r}
+#| eval: false
+remotes::install_github("larmarange/labelled")
+```
+
+## Le tidyverse
+
+Le terme `{tidyverse}` est une contraction de *tidy* (qu'on pourrait traduire par <q>bien rangé</q>) et de *universe*. Il s'agit en fait d'une collection de packages conçus pour travailler ensemble et basés sur une philosophie commune.
+
+Ils abordent un très grand nombre d'opérations courantes dans **R** (la liste n'est pas exhaustive) :
+
+-   visualisation (`{ggplot2}`)
+-   manipulation des tableaux de données (`{dplyr}`, `{tidyr}`)
+-   import/export de données (`{readr}`, `{readxl}`, `{haven}`)
+-   manipulation de variables (`{forcats}`, `{stringr}`, `{lubridate}`)
+-   programmation (`{purrr}`, `{magrittr}`, `{glue}`)
+
+Un des objectifs de ces extensions est de fournir des fonctions avec une syntaxe cohérente, qui fonctionnent bien ensemble, et qui retournent des résultats prévisibles. Elles sont en grande partie issues du travail d'[Hadley Wickham](http://hadley.nz/), qui travaille désormais pour [RStudio](https://www.rstudio.com).
+
+`{tidyverse}` est également le nom d'une extension générique qui permets d'installer en une seule commande l'ensemble des packages constituant le *tidyverse* :
+
+```{r}
+#| eval: false
+install.packages("tidyverse")
+```
+
+Lorsque l'on charge le package `{tidyverse}` avec `library()`, cela charge également en mémoire les principaux packages du *tidyverse*[^packages-1].
+
+[^packages-1]: Si on a besoin d'un autre package du *tidyverse* comme `{lubridate}`, il faudra donc le charger individuellement.
+
+```{r}
+library(tidyverse)
+```
+
+![Packages chargés avec `library(tidyverse)`](ressources/tidyverse_core_packages.png){#fig-tidyverse-core}
