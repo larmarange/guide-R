@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="fr" xml:lang="fr"><head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.1.168">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<title>guide-R - 5&nbsp; Enchainements avec le pipe</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1.6em;
+  vertical-align: middle;
+}
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../rappels/facteurs.html" rel="next">
+<link href="../rappels/tableaux_donnees.html" rel="prev">
+<script src="../site_libs/quarto-html/quarto.js"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script src="../site_libs/quarto-contrib/glightbox/glightbox.min.js"></script>
+<link href="../site_libs/quarto-contrib/glightbox/glightbox.min.css" rel="stylesheet">
+<link href="../site_libs/quarto-contrib/glightbox/lightbox.css" rel="stylesheet"><script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "Pas de résultats",
+    "search-matching-documents-text": "documents trouvés",
+    "search-copy-link-title": "Copier le lien vers la recherche",
+    "search-hide-matches-text": "Cacher les correspondances additionnelles",
+    "search-more-match-text": "correspondance de plus dans ce document",
+    "search-more-matches-text": "correspondances de plus dans ce document",
+    "search-clear-button-title": "Effacer",
+    "search-detached-cancel-button-title": "Annuler",
+    "search-submit-button-title": "Envoyer"
+  }
+}</script><style>html{ scroll-behavior: smooth; }</style>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body class="nav-sidebar floating">
+
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top"><nav class="quarto-secondary-nav" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }"><div class="container-fluid d-flex justify-content-between">
+      <h1 class="quarto-secondary-nav-title"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Enchainements avec le pipe</span></h1>
+      <button type="button" class="quarto-btn-toggle btn" aria-label="Show secondary navigation">
+        <i class="bi bi-chevron-right"></i>
+      </button>
+    </div>
+  </nav></header><!-- content --><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse sidebar-navigation floating overflow-auto"><div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../">guide-R</a> 
+        <div class="sidebar-tools-main tools-wide">
+    <a href="https://github.com/larmarange/guide-R/" title="Source Code" class="sidebar-tool px-1"><i class="bi bi-github"></i></a>
+    <a href="../guide-R.pdf" title="Download PDF" class="sidebar-tool px-1"><i class="bi bi-file-pdf"></i></a>
+    <a href="" title="Share" id="sidebar-tool-dropdown-0" class="sidebar-tool dropdown-toggle px-1" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-share"></i></a>
+    <ul class="dropdown-menu" aria-labelledby="sidebar-tool-dropdown-0">
+<li>
+          <a class="dropdown-item sidebar-tools-main-item" href="https://twitter.com/intent/tweet?url=%7Curl%7C">
+            <i class="bi bi-bi-twitter pe-1"></i>
+          Twitter
+          </a>
+        </li>
+        <li>
+          <a class="dropdown-item sidebar-tools-main-item" href="https://www.facebook.com/sharer/sharer.php?u=%7Curl%7C">
+            <i class="bi bi-bi-facebook pe-1"></i>
+          Facebook
+          </a>
+        </li>
+        <li>
+          <a class="dropdown-item sidebar-tools-main-item" href="https://www.linkedin.com/sharing/share-offsite/?url=%7Curl%7C">
+            <i class="bi bi-bi-linkedin pe-1"></i>
+          LinkedIn
+          </a>
+        </li>
+    </ul>
+</div>
+    </div>
+      </div>
+      <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+      </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+<li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../index.html" class="sidebar-item-text sidebar-link">Préface</a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true"><strong>Rappels</strong></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">
+<li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../rappels/packages.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Packages</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../rappels/vecteurs.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Vecteurs</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../rappels/listes.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Listes</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../rappels/tableaux_donnees.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Tableaux de données</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../rappels/pipe.html" class="sidebar-item-text sidebar-link active"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Enchainements avec le pipe</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../rappels/facteurs.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Facteurs</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../rappels/tibbles.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Tibbles</span></a>
+  </div>
+</li>
+      </ul>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="true"><strong>Manipulation de données</strong></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="true">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">
+<li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../manipulation/dates.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Dates avec <code>lubridate</code></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../manipulation/tidyr.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Réorganisation avec <code>tidyr</code></span></a>
+  </div>
+</li>
+      </ul>
+</li>
+    </ul>
+</div>
+</nav><!-- margin-sidebar --><div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active"><h2 id="toc-title">Table des matières</h2>
+   
+  <ul>
+<li><a href="#le-pipe-natif-de-r" id="toc-le-pipe-natif-de-r" class="nav-link active" data-scroll-target="#le-pipe-natif-de-r"><span class="toc-section-number">5.1</span>  Le pipe natif de R&nbsp;: <code>|&gt;</code></a></li>
+  <li><a href="#le-pipe-du-tidyverse" id="toc-le-pipe-du-tidyverse" class="nav-link" data-scroll-target="#le-pipe-du-tidyverse"><span class="toc-section-number">5.2</span>  Le pipe du tidyverse&nbsp;: <code>%&gt;%</code></a></li>
+  <li><a href="#vaut-il-mieux-utiliser-ou" id="toc-vaut-il-mieux-utiliser-ou" class="nav-link" data-scroll-target="#vaut-il-mieux-utiliser-ou"><span class="toc-section-number">5.3</span>  Vaut-il mieux utiliser <code>|&gt;</code> ou <code>%&gt;%</code>&nbsp;?</a></li>
+  </ul><div class="toc-actions"><div><i class="bi bi-github"></i></div><div class="action-links"><p><a href="https://github.com/larmarange/guide-R/blob/main/rappels/pipe.qmd" class="toc-action">Voir la source</a></p><p><a href="https://github.com/larmarange/guide-R/issues/new" class="toc-action">Faire part d'un problème</a></p></div></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block default"><div class="quarto-title">
+<h1 class="title"><span id="sec-pipe" class="quarto-section-identifier d-none d-lg-block"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Enchainements avec le pipe</span></span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+    
+  </div>
+  
+
+</header><p>Il est fréquent d’enchainer des opérations en appelant successivement des fonctions sur le résultat de l’appel précédent.</p>
+<p>Prenons un exemple. Supposons que nous ayons un vecteur numérique <code>v</code> dont nous voulons calculer la moyenne puis l’afficher via un message dans la console. Pour un meilleur rendu, nous allons arrondir la moyenne à une décimale, mettre en forme le résultat à la française, c’est-à-dire avec la virgule comme séparateur des décimales, créer une phrase avec le résultat, puis l’afficher dans la console. Voici le code correspondant, étape par étape.</p>
+<div class="cell" data-hash="pipe_cache/html/unnamed-chunk-1_96ba8f544a16f4e7cadccbc5703da1cc">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a>v <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">1.2</span>, <span class="fl">8.7</span>, <span class="fl">5.6</span>, <span class="fl">11.4</span>)</span>
+<span id="cb1-2"><a href="#cb1-2"></a>m <span class="ot">&lt;-</span> <span class="fu">mean</span>(v)</span>
+<span id="cb1-3"><a href="#cb1-3"></a>r <span class="ot">&lt;-</span> <span class="fu">round</span>(m, <span class="at">digits =</span> <span class="dv">1</span>)</span>
+<span id="cb1-4"><a href="#cb1-4"></a>f <span class="ot">&lt;-</span> <span class="fu">format</span>(r, <span class="at">decimal.mark =</span> <span class="st">","</span>)</span>
+<span id="cb1-5"><a href="#cb1-5"></a>p <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">"La moyenne est de "</span>, f, <span class="st">"."</span>)</span>
+<span id="cb1-6"><a href="#cb1-6"></a><span class="fu">message</span>(p)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>La moyenne est de 6,7.</code></pre>
+</div>
+</div>
+<p>Cette écriture, n’est pas vraiment optimale, car cela entraine la création d’un grand nombre de variables intermédiaires totalement inutiles. Nous pourrions dès lors imbriquer les différentes fonctions les unes dans les autres&nbsp;:</p>
+<div class="cell" data-hash="pipe_cache/html/unnamed-chunk-2_9dd6c0d3d4f3478a5148d46a85626a88">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a><span class="fu">message</span>(<span class="fu">paste0</span>(<span class="st">"La moyenne est de "</span>, <span class="fu">format</span>(<span class="fu">round</span>(<span class="fu">mean</span>(v),        <span class="at">digits =</span> <span class="dv">1</span>), <span class="at">decimal.mark =</span> <span class="st">","</span>), <span class="st">"."</span>))</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>La moyenne est de 6,7.</code></pre>
+</div>
+</div>
+<p>Nous obtenons bien le même résultat, mais la lecture de cette ligne de code est assez difficile et il n’est pas aisé de bien identifié à quelle fonction est rattaché chaque argument.</p>
+<p>Une amélioration possible serait d’effectuer des retours à la ligne avec une identation adéquate pour rendre cela plus lisible.</p>
+<div class="cell" data-hash="pipe_cache/html/unnamed-chunk-3_bd60410e3b29ee439b3979ff5f5022c4">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a><span class="fu">message</span>(</span>
+<span id="cb5-2"><a href="#cb5-2"></a>  <span class="fu">paste0</span>(</span>
+<span id="cb5-3"><a href="#cb5-3"></a>    <span class="st">"La moyenne est de "</span>, </span>
+<span id="cb5-4"><a href="#cb5-4"></a>    <span class="fu">format</span>(</span>
+<span id="cb5-5"><a href="#cb5-5"></a>      <span class="fu">round</span>(</span>
+<span id="cb5-6"><a href="#cb5-6"></a>        <span class="fu">mean</span>(v), </span>
+<span id="cb5-7"><a href="#cb5-7"></a>        <span class="at">digits =</span> <span class="dv">1</span>), </span>
+<span id="cb5-8"><a href="#cb5-8"></a>      <span class="at">decimal.mark =</span> <span class="st">","</span></span>
+<span id="cb5-9"><a href="#cb5-9"></a>    ),</span>
+<span id="cb5-10"><a href="#cb5-10"></a>    <span class="st">"."</span></span>
+<span id="cb5-11"><a href="#cb5-11"></a>  )</span>
+<span id="cb5-12"><a href="#cb5-12"></a>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>La moyenne est de 6,7.</code></pre>
+</div>
+</div>
+<p>C’est déjà mieux, mais toujours pas optimal.</p>
+<section id="le-pipe-natif-de-r" class="level2" data-number="5.1"><h2 data-number="5.1" class="anchored" data-anchor-id="le-pipe-natif-de-r">
+<span class="header-section-number">5.1</span> Le pipe natif de R&nbsp;: <code>|&gt;</code>
+</h2>
+<p>Depuis la version 4.1, <strong>R</strong> a introduit ce que l’on nomme un <em>pipe</em> (tuyau en anglais), un nouvel opérateur noté <code>|&gt;</code>.</p>
+<p>Le principe de cet opérateur est de passer l’élément situé à sa gauche comme premier argument de la fonction située à sa droite. Ainsi, l’écriture <code>x |&gt; f()</code> est équivalente à <code>f(x)</code> et l’écriture <code>x |&gt; f(y)</code> à <code>f(x, y)</code>.</p>
+<p>Parfois, on souhaite passer l’objet <strong>x</strong> à un autre endroit de la fonction <code>f()</code> que le premier argument. Depuis la version 4.2, <strong>R</strong> a introduit l’opérateur <code>_</code>,que l’on nomme un <em>placeholder</em>, pour indiquer où passer l’objet de gauche. AInsi, <code>x |&gt; f(y, a = _)</code> devient équivalent à <code>f(y, a = x)</code>. <strong>ATTENTION :</strong> le <em>placeholder</em> doit impérativement être transmis à un argument nommé&nbsp;!</p>
+<p>Tout cela semble encore un peu abstrait&nbsp;? Reprenons notre exemple précédent et réécrivons le code avec le <em>pipe</em>.</p>
+<div class="cell" data-hash="pipe_cache/html/unnamed-chunk-4_0f4a620a07f06ecb61f6b72945ca51ed">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a>v <span class="sc">|&gt;</span> </span>
+<span id="cb7-2"><a href="#cb7-2"></a>  <span class="fu">mean</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb7-3"><a href="#cb7-3"></a>  <span class="fu">round</span>(<span class="at">digits =</span> <span class="dv">1</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb7-4"><a href="#cb7-4"></a>  <span class="fu">format</span>(<span class="at">decimal.mark =</span> <span class="st">","</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb7-5"><a href="#cb7-5"></a>  <span class="fu">paste0</span>(<span class="st">"La moyenne est de "</span>, <span class="at">m =</span> _, <span class="st">"."</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb7-6"><a href="#cb7-6"></a>  <span class="fu">message</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>La moyenne est de 6,7.</code></pre>
+</div>
+</div>
+<p>Le code n’est-il pas plus lisible&nbsp;?</p>
+</section><section id="le-pipe-du-tidyverse" class="level2" data-number="5.2"><h2 data-number="5.2" class="anchored" data-anchor-id="le-pipe-du-tidyverse">
+<span class="header-section-number">5.2</span> Le pipe du tidyverse&nbsp;: <code>%&gt;%</code>
+</h2>
+<p>Ce n’est qu’à partir de la version 4.1 sortie en 2021 que <strong>R</strong> a proposé de manière native un <em>pipe</em>, en l’occurence l’opérateur <code>|&gt;</code>.</p>
+<p>En cela, <strong>R</strong> s’est notamment inspiré d’un opérateur similaire introduit dès 2014 dans le <em>tidyverse</em>. Le pipe du <em>tidyverse</em> fonctionne de manière similaire. Il est implémenté dans le package <a href="https://magrittr.tidyverse.org">magrittr</a> qui doit donc être chargé en mémoire. Le <em>pipe</em> est également disponible lorsque l’on effecture <code><a href="https://tidyverse.tidyverse.org">library(tidyverse)</a></code>.</p>
+<p>Cet opérateur s’écrit <code>%&gt;%</code> et il dispose lui aussi d’un <em>placeholder</em> qui est le <code>.</code>. La syntaxe du <em>placeholder</em> est un peu plus souple puisqu’il peut être passé à tout type d’argument, y compris un argument sans nom. Si l’on reprend notre exemple précédent.</p>
+<div class="cell" data-hash="pipe_cache/html/unnamed-chunk-5_cc8a83e8e831ae73e551051de75e9888">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a><span class="fu">library</span>(magrittr)</span>
+<span id="cb9-2"><a href="#cb9-2"></a>v <span class="sc">%&gt;%</span> </span>
+<span id="cb9-3"><a href="#cb9-3"></a>  <span class="fu">mean</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb9-4"><a href="#cb9-4"></a>  <span class="fu">round</span>(<span class="at">digits =</span> <span class="dv">1</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb9-5"><a href="#cb9-5"></a>  <span class="fu">format</span>(<span class="at">decimal.mark =</span> <span class="st">","</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb9-6"><a href="#cb9-6"></a>  <span class="fu">paste0</span>(<span class="st">"La moyenne est de "</span>, ., <span class="st">"."</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb9-7"><a href="#cb9-7"></a>  <span class="fu">message</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>La moyenne est de 6,7.</code></pre>
+</div>
+</div>
+</section><section id="vaut-il-mieux-utiliser-ou" class="level2" data-number="5.3"><h2 data-number="5.3" class="anchored" data-anchor-id="vaut-il-mieux-utiliser-ou">
+<span class="header-section-number">5.3</span> Vaut-il mieux utiliser <code>|&gt;</code> ou <code>%&gt;%</code>&nbsp;?</h2>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure"><p><a href="ressources/native_pipe_vs_magrittr.jpg" class="lightbox" data-gallery="quarto-lightbox-gallery-1"><img src="ressources/native_pipe_vs_magrittr.jpg" class="img-fluid figure-img"></a></p>
+</figure>
+</div>
+<p>Bonne question. Si vous utilisez une version récente de <strong>R</strong> (≥ 4.2), il est préférable d’avoir recours au <em>pipe</em> natif de <strong>R</strong> dans la mesure où il est <a href="https://michaelbarrowman.co.uk/post/the-new-base-pipe/">plus efficient en termes de temps de calcul</a> car il fait partie intégrante du langage. Dans ce guide, nous privilégions d’ailleurs l’utilisation de <code>|&gt;</code>.</p>
+<p>Si votre code nécessite de fonctionner avec différentes versions de <strong>R</strong>, par exemple dans le cadre d’un package, il est alors préférable, pour le moment, d’utiliser celui fourni par <a href="https://magrittr.tidyverse.org">magrittr</a> (<code>%&gt;%</code>).</p>
+
+
+</section></main><!-- /main --><script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copié");
+    setTimeout(function() {
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const cites = ref.parentNode.getAttribute('data-cites').split(' ');
+    tippyHover(ref, function() {
+      var popup = window.document.createElement('div');
+      cites.forEach(function(cite) {
+        var citeDiv = window.document.createElement('div');
+        citeDiv.classList.add('hanging-indent');
+        citeDiv.classList.add('csl-entry');
+        var biblioDiv = window.document.getElementById('ref-' + cite);
+        if (biblioDiv) {
+          citeDiv.innerHTML = biblioDiv.innerHTML;
+        }
+        popup.appendChild(citeDiv);
+      });
+      return popup.innerHTML;
+    });
+  }
+});
+</script><script src="https://giscus.app/client.js" data-repo="larmarange/guide-R" data-repo-id="R_kgDOH6-xnw" data-category="Forum" data-category-id="DIC_kwDOH6-xn84CRLQy" data-mapping="pathname" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="top" data-theme="light" data-lang="fr" crossorigin="anonymous" data-loading="lazy" async="">
+</script><nav class="page-navigation"><div class="nav-page nav-page-previous">
+      <a href="../rappels/tableaux_donnees.html" class="pagination-link">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Tableaux de données</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../rappels/facteurs.html" class="pagination-link">
+        <span class="nav-page-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Facteurs</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+<footer class="footer"><div class="nav-footer">
+    <div class="nav-footer-left">
+      <ul class="footer-items list-unstyled">
+<li class="nav-item">
+ guide-R : Guide pour l'analyse de données d'enquêtes avec R
+  </li>  
+    <li class="nav-item compact">
+    <a class="nav-link" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">
+      <i class="bi bi-cc-circle" role="img">
+</i> 
+    </a>
+  </li>  
+</ul>
+</div>   
+    <div class="nav-footer-right">
+      <ul class="footer-items list-unstyled">
+<li class="nav-item compact">
+    <a class="nav-link active" href="https://github.com/larmarange/guide-R/" aria-current="page">
+      <i class="bi bi-github" role="img">
+</i> 
+    </a>
+  </li>  
+    <li class="nav-item compact">
+    <a class="nav-link" href="https://www.youtube.com/c/webinR">
+      <i class="bi bi-youtube" role="img">
+</i> 
+    </a>
+  </li>  
+    <li class="nav-item">
+    <a class="nav-link" href="https://larmarange.github.io/analyse-R/">analyse-R</a>
+  </li>  
+    <li class="nav-item">
+    <a class="nav-link" href="https://larmarange.github.io/webin-R/">webin-R</a>
+  </li>  
+</ul>
+</div>
+  </div>
+</footer><script>var lightboxQuarto = GLightbox({"selector":".lightbox","descPosition":"bottom","openEffect":"zoom","loop":true,"closeEffect":"zoom"});</script>
+
+
+<script src="../site_libs/quarto-html/zenscroll-min.js"></script>
+</body></html>
