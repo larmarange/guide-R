@@ -1,0 +1,507 @@
+# `dplyr` {#sec-dplyr}
+
+`{dplyr}` est l'un des packages les plus connus du *tidyverse*. Il facilite le traitement et la manipulation de données contenues dans une ou plusieurs tables (qu'il s'agisse de *data frame* ou de *tibble*). Il propose une syntaxe claire et cohérente, sous formes de <q>verbes</q> correspondant à des fonctions.
+
+`{dplyr}` part du principe que les données sont *tidy* (chaque variable est une colonne, chaque observation est une ligne, voir @sec-tibbles). Les verbes de *{dplyr}* prennent en entrée un tableau de données[^dplyr-1] (*data frame* ou *tibble*) et renvoient systématiquement un *tibble*.
+
+[^dplyr-1]: Le package `{dbplyr}` permets d'étendre les verbes de `{dplyr}` à des tables de bases de données **SQL,** `{dtplyr}` à des tableaux de données du type `{data.table}` et `{srvyr}` à des données pondérées du type `{survey}`.
+
+```{r}
+#| message: false
+library(dplyr)
+```
+
+Dans ce qui suit on va utiliser les données du jeu de données `{nycflights13}`, contenu dans l'extension du même nom (qu'il faut donc avoir installée). Celui-ci correspond aux données de tous les vols au départ d'un des trois aéroports de New-York en 2013. Il a la particularité d'être réparti en trois tables :
+
+-   `nycflights13::flights` contient des informations sur les vols : date, départ, destination, horaires, retard...
+-   `nycflights13::airports` contient des informations sur les aéroports
+-   `nycflights13::airlines` contient des données sur les compagnies aériennes
+
+On va charger les trois tables du jeu de données :
+
+```{r}
+library(nycflights13)
+## Chargement des trois tables du jeu de données
+data(flights)
+data(airports)
+data(airlines)
+```
+
+Normalement trois objets correspondant aux trois tables ont dû apparaître dans votre environnement.
+
+## Opérations sur les lignes
+
+### filter() {#filter}
+
+`dplyr::filter()` sélectionne des lignes d'un tableau de données selon une condition. On lui passe en paramètre un test, et seules les lignes pour lesquelles ce test renvoit `TRUE` (vrai) sont conservées[^dplyr-2].
+
+[^dplyr-2]: Si le test renvoie faux (`FALSE`) ou une valeur manquante (`NA`), les lignes correspondantes ne seront donc pas sélectionnées.
+
+Par exemple, si on veut sélectionner les vols du mois de janvier, on peut filtrer sur la variable *month* de la manière suivante :
+
+```{r}
+filter(flights, month == 1)
+```
+
+Cela peut s'écrire plus simplement avec un pipe :
+
+```{r}
+flights |> filter(month == 1)
+```
+
+Si on veut uniquement les vols avec un retard au départ (variable *dep_delay*) compris entre 10 et 15 minutes :
+
+```{r}
+flights |> 
+  filter(dep_delay >= 10 & dep_delay <= 15)
+```
+
+Si on passe plusieurs arguments à `dplyr::filter()`, celui-ci rajoute automatiquement une condition **et** entre les conditions. La ligne ci-dessus peut donc également être écrite de la manière suivante, avec le même résultat :
+
+```{r eval = FALSE}
+flights |> 
+  filter(dep_delay >= 10, dep_delay <= 15)
+```
+
+Enfin, on peut également placer des fonctions dans les tests, qui nous permettent par exemple de sélectionner les vols avec la plus grande distance :
+
+```{r}
+flights |> 
+  filter(distance == max(distance))
+```
+
+::: callout-tip
+## Évaluation contextuelle
+
+Il est important de noter que `{dplyr}` procède à une évaluation contexte des expressions qui lui sont passées. Ainsi, on peut lui passer directement le nom du variable et `{dplyr}` l'interprétera dans le contexte du tableau de données, c'est-à-dire regardera s'il existe une colonne portant ce nom dans le tableau.
+
+Dans l'expression `flights |> filter(month == 1)`, `month` est interprété comme la colonne *month* du tableau `flights`, à savoir `flights$month`.
+
+Il est également possible d'indiquer des objets extérieurs au tableau :
+
+```{r}
+m <- 2
+flights |> 
+  filter(month == m)
+```
+
+Cela fonctionne car il n'y a pas de colonne *m* dans `flights`. Dès lors, {dplyr} regarde s'il existe un objet `m` dans l'environnement de travail.
+
+Par contre, si une colonne existe dans le tableau, elle aura priorité sur les objets du même nom dans l'environnement. Dans l'exemple ci-dessous, le résultat obtenu n'est pas celui voulu. Il est interprété comme sélectionner toutes les lignes où la colonne *mois* est égale à elle-même, et donc sélectionne toutes les lignes du tableau.
+
+```{r}
+month <- 3
+flights |> 
+  filter(month == month)
+```
+
+Afin de distinguer ce qui correspond à une colonne du tableau et à un objet de l'environnement, on pourra avoir recours à `.data` et `.env` (voir `help(".env")`).
+
+```{r}
+month <- 3
+flights |> 
+  filter(.data$month == .env$month)
+```
+:::
+
+### slice()
+
+Le verbe `dplyr::slice()` sélectionne des lignes du tableau selon leur position. On lui passe un chiffre ou un vecteur de chiffres.
+
+Si on souhaite sélectionner la 345^e^ ligne du tableau `airports` :
+
+```{r}
+airports |> 
+  slice(345)
+```
+
+Si on veut sélectionner les 5 premières lignes :
+
+```{r}
+airports |> 
+  slice(1:5)
+```
+
+### arrange()
+
+`dplyr::arrange()` réordonne les lignes d'un tableau selon une ou plusieurs colonnes.
+
+Ainsi, si on veut trier le tableau `flights` selon le retard au départ, dans l'ordre croissant :
+
+```{r}
+flights |> 
+  arrange(dep_delay)
+```
+
+On peut trier selon plusieurs colonnes. Par exemple selon le mois, puis selon le retard au départ :
+
+```{r}
+flights |> 
+  arrange(month, dep_delay)
+```
+
+Si on veut trier selon une colonne par ordre décroissant, on lui applique la fonction `dplyr::desc()`{data-pkg="dplyr"} :
+
+```{r}
+flights |> 
+  arrange(desc(dep_delay))
+```
+
+Combiné avec `dplyr::slice()`, `dplyr::arrange()` permet par exemple de sélectionner les trois vols ayant eu le plus de retard :
+
+```{r}
+flights |> 
+  arrange(desc(dep_delay)) |> 
+  slice(1:3)
+```
+
+### slice_sample()
+
+`dplyr::slice_sample()` permet de sélectionner un nombre de lignes ou une fraction des lignes d'un tableau aléatoirement. Ainsi si on veut choisir 5 lignes au hasard dans le tableau `airports` :
+
+```{r}
+airports |> 
+  slice_sample(n = 5)
+```
+
+Si on veut tirer au hasard 10% des lignes de `flights` :
+
+```{r}
+flights |> 
+  slice_sample(prop = .1)
+```
+
+Ces fonctions sont utiles notamment pour faire de <q>"l'échantillonnage"</q> en tirant au hasard un certain nombre d'observations du tableau.
+
+### distinct-)
+
+`dplyr::distinct()` filtre les lignes du tableau pour ne conserver que les lignes distinctes, en supprimant toutes les lignes en double.
+
+```{r}
+flights |>
+  select(day, month) |>
+  distinct()
+```
+
+On peut lui spécifier une liste de variables : dans ce cas, pour toutes les observations ayant des valeurs identiques pour les variables en question, `dplyr::distinct()` ne conservera que la première d'entre elles.
+
+```{r}
+flights |>
+  distinct(month, day)
+```
+
+L'option `.keep_all` permet, dans l'opération précédente, de conserver l'ensemble des colonnes du tableau :
+
+```{r}
+flights |>
+  distinct(month, day, .keep_all = TRUE) 
+```
+
+## Opérations sur les colonnes
+
+### select()
+
+`dplyr::select()` permet de sélectionner des colonnes d'un tableau de données. Ainsi, si on veut extraire les colonnes `lat` et `lon` du tableau `airports` :
+
+```{r}
+airports |> 
+  select(lat, lon)
+```
+
+Si on fait précéder le nom d'un `-`, la colonne est éliminée plutôt que sélectionnée :
+
+```{r}
+airports |> 
+  select(-lat, -lon)
+```
+
+`dplyr::select()` comprend toute une série de fonctions facilitant la sélection de multiples colonnes. Par exemple, `dplyr::starts_with()`, `dplyr::ends_width()`, `dplyr::contains()` ou `dplyr::matches()` permettent d'exprimer des conditions sur les noms de variables :
+
+```{r}
+flights |> 
+  select(starts_with("dep_"))
+```
+
+La syntaxe `colonne1:colonne2` permet de sélectionner toutes les colonnes situées entre *colonne1* et *colonne2* incluses[^dplyr-3] :
+
+[^dplyr-3]: À noter que cette opération est un peu plus "fragile" que les autres, car si l'ordre des colonnes change elle peut renvoyer un résultat différent.
+
+```{r}
+flights |> 
+  select(year:day)
+```
+
+`dplyr::all_of()`{data_pkg="tidyselect"} et `dplyr::any_of()`{data_pkg="tidyselect"} permettent de fournir une liste de variables à extraire sous forme de vecteur textuel. Alors que `dplyr::all_of()`{data_pkg="tidyselect"} renverra une erreur si une variable n'est pas trouvée dans le tableau de départ, `dplyr::any_of()`{data_pkg="tidyselect"} sera moins stricte.
+
+```{r}
+flights |> 
+  select(all_of(c("year", "month", "day")))
+```
+
+```{r}
+#| error: true
+flights |> 
+  select(all_of(c("century", "year", "month", "day")))
+```
+
+    Erreur : Can't subset columns that don't exist. 
+    x Column `century` doesn't exist.
+
+```{r}
+flights |> 
+  select(any_of(c("century", "year", "month", "day")))
+```
+
+`dplyr::where()`{data_pkg="tidyselect"} permets de sélectionner des variables à partir d'une fonction qui renvoie une valeur logique. Par exemple, pour sélectionner seulement les variables textuelles :
+
+```{r}
+flights |> 
+  select(where(is.character))
+```
+
+`dplyr::select()` peut être utilisée pour réordonner les colonnes d'une table en utilisant la fonction `dplyr::everything()`{data-pkg="dplyr" data-rdoc="select_helpers"}, qui sélectionne l'ensemble des colonnes non encore sélectionnées. Ainsi, si on souhaite faire passer la colonne *name* en première position de la table `airports`, on peut faire :
+
+```{r}
+airports |> 
+  select(name, everything())
+```
+
+### relocate()
+
+Pour réordonner des colonnes, on pourra aussi avoir recours à `dplyr::relocate()` en indiquant les premières variables. Il n'est pas nécessaire d'ajouter `everything()`{data-pkg="dplyr"} car avec `dplyr::relocate()` toutes les variables sont conservées.
+
+```{r}
+airports |> 
+  relocate(lon, lat, name)
+```
+
+### rename()
+
+Une variante de `dplyr::select()` est `dplyr::rename()`[^dplyr-4], qui permet de renommer facilement des colonnes. On l'utilise en lui passant des paramètres de la forme `nouveau_nom = ancien_nom`. Ainsi, si on veut renommer les colonnes *lon* et *lat* de `airports` en *longitude* et *latitude* :
+
+[^dplyr-4]: Il est également possible de renommer des colonnes directement avec `select`, avec la même syntaxe que pour `rename`.
+
+```{r}
+airports |> 
+  rename(longitude = lon, latitude = lat)
+```
+
+Si les noms de colonnes comportent des espaces ou des caractères spéciaux, on peut les entourer de guillemets (`"`) ou de quotes inverses (`` ` ``) :
+
+```{r}
+flights |> 
+  rename(
+    "retard départ" = dep_delay,
+    "retard arrivée" = arr_delay
+  ) |> 
+  select(`retard départ`, `retard arrivée`)
+```
+
+### rename_with()
+
+La fonction `dplyr::rename_with()` permets de renommer plusieurs colonnes d'un coup en transmettant une fonction, par exemple `toupper()` qui passe tous les caractères en majuscule.
+
+```{r}
+airports |> 
+  rename_with(toupper)
+```
+
+On pourra notamment utiliser les fonctions du package `snakecase` et, en particulier, `snakecase::to_snake_case()` que je recommande pour nommer de manière consistante les variables[^dplyr-5].
+
+[^dplyr-5]: 
+
+    Le [***snake case***](https://fr.wikipedia.org/wiki/Snake_case) est une convention typographique en informatique consistant à écrire des ensembles de mots, généralement, en minuscules en les séparant par des tirets bas.
+
+### mutate()
+
+`dplyr::mutate()` permet de créer de nouvelles colonnes dans le tableau de données, en général à partir de variables existantes.
+
+Par exemple, la table `airports` contient l'altitude de l'aéroport en pieds. Si on veut créer une nouvelle variable *alt_m* avec l'altitude en mètres, on peut faire :
+
+```{r}
+airports <- 
+  airports |> 
+  mutate(alt_m = alt / 3.2808)
+```
+
+On peut créer plusieurs nouvelles colonnes en une seule fois, et les expressions successives peuvent prendre en compte les résultats des calculs précédents. L'exemple suivant convertit d'abord la distance en kilomètres dans une variable *distance_km*, puis utilise cette nouvelle colonne pour calculer la vitesse en km/h.
+
+```{r}
+flights <- 
+  flights |> 
+  mutate(
+    distance_km = distance / 0.62137,
+    vitesse = distance_km / air_time * 60
+)
+```
+
+## Opérations groupées
+
+### group_by()
+
+Un élément très important de `{dplyr}` est la fonction `dplyr::group_by()`. Elle permet de définir des groupes de lignes à partir des valeurs d'une ou plusieurs colonnes. Par exemple, on peut grouper les vols selon leur mois :
+
+```{r}
+flights |> 
+  group_by(month)
+```
+
+Par défaut ceci ne fait rien de visible, à part l'apparition d'une mention *Groups* dans l'affichage du résultat. Mais à partir du moment où des groupes ont été définis, les verbes comme `dplyr::slice()` ou `dplyr::mutate()` vont en tenir compte lors de leurs opérations.
+
+Par exemple, si on applique `dplyr::slice()` à un tableau préalablement groupé, il va sélectionner les lignes aux positions indiquées *pour chaque groupe*. Ainsi la commande suivante affiche le premier vol de chaque mois, selon leur ordre d'apparition dans le tableau :
+
+```{r}
+flights |> 
+  group_by(month) |> 
+  slice(1)
+```
+
+Idem pour `dplyr::mutate()` : les opérations appliquées lors du calcul des valeurs des nouvelles colonnes sont appliquée groupe de lignes par groupe de lignes. Dans l'exemple suivant, on ajoute une nouvelle colonne qui contient le retard moyen *du mois correspondant* :
+
+```{r}
+flights |> 
+  group_by(month) |> 
+  mutate(mean_delay_month = mean(dep_delay, na.rm = TRUE))
+```
+
+Ceci peut permettre, par exemple, de déterminer si un retard donné est supérieur ou inférieur au retard moyen du mois en cours.
+
+`dplyr::group_by()` peut aussi être utile avec `dplyr::filter()`, par exemple pour sélectionner les vols avec le retard au départ le plus important *pour chaque mois* :
+
+```{r}
+flights |> 
+  group_by(month) |> 
+  filter(dep_delay == max(dep_delay, na.rm = TRUE))
+```
+
+::: important
+**Attention :** la clause `dplyr::roup_by()` marche pour les verbes déjà vus précédemment, *sauf* pour `dplyr::arrange()`, qui par défaut trie la table sans tenir compte des groupes. Pour obtenir un tri par groupe, il faut lui ajouter l'argument `.by_group = TRUE`.
+:::
+
+On peut voir la différence en comparant les deux résultats suivants :
+
+```{r}
+flights |> 
+  group_by(month) |> 
+  arrange(desc(dep_delay))
+flights |> 
+  group_by(month) |> 
+  arrange(desc(dep_delay), .by_group = TRUE)
+```
+
+### summarise()
+
+`dplyr::summarise()` permet d'agréger les lignes du tableau en effectuant une opération <q>résumée</q> sur une ou plusieurs colonnes. Par exemple, si on souhaite connaître les retards moyens au départ et à l'arrivée pour l'ensemble des vols du tableau `flights` :
+
+```{r}
+flights |> 
+  summarise(
+    retard_dep = mean(dep_delay, na.rm=TRUE),
+    retard_arr = mean(arr_delay, na.rm=TRUE)
+  )
+```
+
+Cette fonction est en général utilisée avec `dplyr::group_by()`, puisqu'elle permet du coup d'agréger et résumer les lignes du tableau groupe par groupe. Si on souhaite calculer le délai maximum, le délai minimum et le délai moyen au départ pour chaque mois, on pourra faire :
+
+```{r}
+flights |>
+  group_by(month) |>
+  summarise(
+    max_delay = max(dep_delay, na.rm=TRUE),
+    min_delay = min(dep_delay, na.rm=TRUE),
+    mean_delay = mean(dep_delay, na.rm=TRUE)
+  )
+```
+
+`dplyr::summarise()` dispose d'un opérateur spécial, `dplyr::n()`{data-pkg="dplyr"}, qui retourne le nombre de lignes du groupe. Ainsi si on veut le nombre de vols par destination, on peut utiliser :
+
+```{r}
+flights |>
+  group_by(dest) |>
+  summarise(nb = n())
+```
+
+`dplyr::n()`{data-pkg="dplyr"} peut aussi être utilisée avec `dplyr::filter()` et `dplyr::mutate()`.
+
+### count()
+
+À noter que quand on veut compter le nombre de lignes par groupe, on peut utiliser directement la fonction `dplyr::count()`. Ainsi le code suivant est identique au précédent :
+
+```{r}
+flights |>
+  count(dest)
+```
+
+### Grouper selon plusieurs variables
+
+On peut grouper selon plusieurs variables à la fois, il suffit de les indiquer dans la clause du `dplyr::group_by()` :
+
+```{r}
+flights |>
+  group_by(month, dest) |>
+  summarise(nb = n()) |>
+  arrange(desc(nb))
+```
+
+On peut également compter selon plusieurs variables :
+
+```{r}
+flights |> 
+  count(origin, dest) |> 
+  arrange(desc(n))
+```
+
+On peut utiliser plusieurs opérations de groupage dans le même *pipeline*. Ainsi, si on souhaite déterminer le couple origine/destination ayant le plus grand nombre de vols selon le mois de l'année, on devra procéder en deux étapes :
+
+-   d'abord grouper selon mois, origine et destination pour calculer le nombre de vols
+-   puis grouper uniquement selon le mois pour sélectionner la ligne avec la valeur maximale.
+
+Au final, on obtient le code suivant :
+
+```{r}
+flights |>
+  group_by(month, origin, dest) |>
+  summarise(nb = n()) |>
+  group_by(month) |>
+  filter(nb == max(nb))
+```
+
+Lorsqu'on effectue un `dplyr::group_by()` suivi d'un `dplyr::summarise()`, le tableau résultat est automatiquement dégroupé *de la dernière variable de regroupement*. Ainsi le tableau généré par le code suivant est groupé par *month* et *origin*[^dplyr-6] :
+
+[^dplyr-6]: Comme expliqué dans le message affiché dans la console, cela peut être contrôlé avec l'argument `.groups` de `dplyr::summarise()`, dont les options sont décrites dans l'aide de la fonction.
+
+```{r}
+flights |>
+  group_by(month, origin, dest) |>
+  summarise(nb = n())
+```
+
+Cela peut permettre <q>d'enchaîner</q> les opérations groupées. Dans l'exemple suivant on calcule le pourcentage des trajets pour chaque destination par rapport à tous les trajets du mois :
+
+```{r}
+flights |>
+  group_by(month, dest) |>
+  summarise(nb = n()) |> 
+  mutate(pourcentage = nb / sum(nb) * 100)
+```
+
+On peut à tout moment <q>dégrouper</q> un tableau à l'aide de `dplyr::ungroup()`. Ce serait par exemple nécessaire, dans l'exemple précédent, si on voulait calculer le pourcentage sur le nombre total de vols plutôt que sur le nombre de vols par mois :
+
+```{r}
+flights |>
+  group_by(month, dest) |>
+  summarise(nb = n()) |> 
+  ungroup() |> 
+  mutate(pourcentage = nb / sum(nb) * 100)
+```
+
+À noter que `dplyr::count()`, par contre, renvoit un tableau non groupé :
+
+```{r}
+flights |> 
+  count(month, dest)
+```
+
+## Cheatsheet
+
+[![](ressources/dplyr-cheatsheet-thumbs.png)](https://github.com/rstudio/cheatsheets/blob/main/data-transformation.pdf)
