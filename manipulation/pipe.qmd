@@ -66,7 +66,7 @@ Le diaporama ci-dessous vous permet de visualiser chaque étape du code.
 
 :::{.column-page-right .ratio .ratio-16x9}
 
-<iframe src="flipbook-pipe.html"></iframe>
+<iframe src="ressources/flipbook-pipe.html"></iframe>
 :::
 :::
 
@@ -95,3 +95,51 @@ v %>%
 Bonne question. Si vous utilisez une version récente de **R** (≥ 4.2), il est préférable d'avoir recours au *pipe* natif de **R** dans la mesure où il est [plus efficient en termes de temps de calcul](https://michaelbarrowman.co.uk/post/the-new-base-pipe/) car il fait partie intégrante du langage. Dans ce guide, nous privilégeons d'ailleurs l'utilisation de `|>`.
 
 Si votre code nécessite de fonctionner avec différentes versions de **R**, par exemple dans le cadre d'un package, il est alors préférable, pour le moment, d'utiliser celui fourni par `{magrittr}` (`%>%`).
+
+## Accéder à un élément avec `purrr::pluck()` et `purrr::chuck()`
+
+Il est fréquent d'avoir besoin d'accéder à un élément précis d'une liste, d'un tableau ou d'un vecteur, ce que l'on fait d'ordinaire avec la syntaxe `[[]]` ou `$` pour les listes ou `[]` pour les vecteurs. Cependant, cette syntaxe se combine souvent mal avec un enchaînement d'opérations utilisant le *pipe*.
+
+Le package `{purrr}`, chargé par défaut avec `library(tidyverse)`, fournit une fonction ``purrr::pluck()` qui, est l'équivalent de `[[]]`, et qui permet de récupérer un élément par son nom ou sa position. Ainsi, si l'on considère le tableau de données `iris`, `pluck(iris, "Petal.Witdh")` est équivalent à `iris$Petal.Width`. Voyons un example d'utilisation dans le cadre d'un enchaînement d'opérations.
+
+```{r}
+iris |> 
+  purrr::pluck("Petal.Width") |> 
+  mean()
+```
+
+Cette écriture est équivalente à :
+
+```{r}
+mean(iris$Petal.Width)
+```
+
+`purrr::pluck()` fonctionne également sur des vecteurs (et dans ce cas opère comme `[]`).
+
+```{r}
+v <- c("a", "b", "c", "d")
+v |> purrr::pluck(2)
+v[2]
+```
+
+On peut également, dans un même appel à `purrr::pluck()`, enchaîner plusieurs niveaux. Les trois syntaxes ci-après sont ainsi équivalents :
+
+```{r}
+iris |> 
+  purrr::pluck("Sepal.Width", 3)
+iris |> 
+  purrr::pluck("Sepal.Width") |> 
+  purrr::pluck(3)
+iris[["Sepal.Width"]][3]
+```
+
+Si l'on demande un élément qui n'existe pas, `purrr:pluck()` renverra l'élement vide (`NULL`). Si l'on souhaite plutôt que cela génère une erreur, on aura alors recours à `purrr::chuck()`.
+
+```{r}
+#| error: true
+iris |> purrr::pluck("inconnu")
+iris |> purrr::chuck("inconnu")
+v |> purrr::pluck(10)
+v |> purrr::chuck(10)
+```
+
