@@ -1,1 +1,275 @@
-# Facteurs avec `forcats` {#sec-facteurs}
+# Facteurs et `forcats` {#sec-facteurs}
+
+Dans **R**, les fecteurs sont utilisés pour représenter des variables catégorielles, c'est-à-dire des variables qui ont un nombre fixé et limité de valeurs possibles (par exemple une variable *sexe* ou une variable *niveau d'éducation*).
+
+De telles variables sont parfois représentées sous forme textuelle (vecteurs de type `character`). Cependant, cela ne permets pas d'indiquer un ordre spécifique aux modalités, à la différence des facteurs.
+
+::: callout-note
+Lorsque l'on importe des données d'enquêtes, il est fréquent que les variables catégorielles sont codées sous la forme d'un code numérique (par exemple 1 pour *femme* et 2 pour *homme*) auquel est associé une *étiquette de valeur*. C'est notamment le fonctionnement usuel de logiciels tels que **SPSS**, **Stata** ou **SAS**. Les étiquettes de valeurs seront abordés dans un prochain chapitre (voir @sec-etiquettes-valeurs).
+
+Au moment de l'analyse (tableaux statistiques, graphiques, modèles de régression...), il sera nécessaire de transformer ces vecteurs avec étiquettes en facteurs.
+:::
+
+## Création d'un facteur
+
+Le plus simple pour créer un facteur est de partir d'un vecteur textuel et d'utiliser la fonction `factor()`.
+
+```{r}
+x <- c("nord", "sud", "sud", "est", "est", "est")
+x |> 
+  factor()
+```
+
+Par défaut, les niveaux du facteur obtenu correspondent aux valeurs uniques du fecteur textuel, triés par ordre alphabétique. Si l'on veut contrôler l'ordre des niveaux, et éventuellement indiquer un niveau absent des données, on utilisera l'argument `levels` de `factor()`.
+
+```{r}
+x |> 
+  factor(levels = c("nord", "est", "sud", "ouest"))
+```
+
+Si une valeur observée dans les données n'est pas indiqué dans `levels`, elle sera siliencieusement convertie en valeur manquante (`NA`).
+
+```{r}
+x |> 
+  factor(levels = c("nord", "sud"))
+```
+
+Si l'on veut être averti par un warning dans ce genre de situation, on pourra avoir plutôt recours à la fonction `readr::parse_factor()` du package `{readr}`, qui, le cas échéant, renverra un tableau avec les problèmes rencontrés.
+
+```{r}
+x |> 
+  readr::parse_factor(levels = c("nord", "sud"))
+```
+
+Une fois un facteur créé, on peut accéder à la liste de ses étiquettes avec `levels()`.
+
+```{r}
+f <- factor(x)
+levels(f)
+```
+
+Dans certaines situations (par exemple pour la réalisation d'une régression logistique ordinale), on peut avoir avoir besoin d'indiquer que les modalités du facteur sont ordonnées héarchiquement. Dans ce cas là, on aura simplement recours à `ordered()` pour créer/convertir notre facteur.
+
+```{r}
+c("supérieur", "primaire", "secondaire", "primaire", "supérieur") |> 
+  ordered(levels = c("primaire", "secondaire", "supérieur"))
+```
+
+Techniquement, les valeurs d'un facteur sont stockés de manière interne à l'aide de nombres entiers, dont la valeur représente la position de l'étiquette correspondante dans l'attribut `levels`. Ainsi, un facteur à `n` modalités sera toujours codé avec les nombre entiers allant de 1 à `n`.
+
+```{r}
+class(f)
+typeof(f)
+as.integer(f)
+as.character(f)
+```
+
+## Changer l'ordre des modalités
+
+L'extension `{forcats}`, chargée par défaut lorsque l'on exécute la commande `library(tidyverse)`, fournie plusieurs fonctions pour manipuler des facteurs. Pour donner des exemples d'utilisation de ces différentes fonctions, nous allons utiliser le jeu de données `hdv2003` de l'extension `{questionr}`.
+
+```{r}
+library(forcats)
+data("hdv2003", package = "questionr")
+```
+
+Considérons la variable *qualif* qui indique le niveau de qualification des enquêtés. On peut voir la liste des niveaux de ce facteur, et leur ordre, avec `levels()`, ou en effectuant un tri à plat avec la fonction `questionr::freq()`.
+
+```{r}
+hdv2003$qualif |> 
+  levels()
+hdv2003$qualif |> 
+  questionr::freq()
+```
+
+Parfois, on a simplement besoin d'inverser l'ordre des facteurs, ce qui peut se faire facilement avec la fonction `forcats::fct_rev()`. Elle renvoie le facteur fourni en entrée en ayant inverser l'ordre des modalités (mais sans modifier l'ordre des valeurs dans le vecteur).
+
+```{r}
+hdv2003$qualif |> 
+  fct_rev() |> 
+  questionr::freq()
+```
+
+Pour plus de contrôle, on utilisera `forcats::fct_relevel()` où l'on indique l'ordre souhaité des modalités. On peut également seulement indiquer les premières modalités, les autres seront ajoutées à la fin sans changer leur ordre.
+
+```{r}
+hdv2003$qualif |> 
+  fct_relevel("Cadre", "Autre", "Technicien", "Employe") |> 
+  questionr::freq()
+```
+
+La fonction `forcats::fct_infreq()` ordonne les modalités de celle la plus fréquente à celle la moins fréquente (nombre d'observations) :
+
+```{r}
+hdv2003$qualif |> 
+  fct_infreq() |> 
+  questionr::freq()
+```
+
+Pour inverser l'ordre, on combinera `forcats::fct_infreq()` avec `forcats::fct_rev()`.
+
+```{r}
+hdv2003$qualif |> 
+  fct_infreq() |> 
+  fct_rev() |> 
+  questionr::freq()
+```
+
+Dans certains cas, on souhaite créer un facteur dont les modalités sont triées selon leur ordre d'apparation dans le jeu de données. Pour cela, on aura recours à `forcats::fct_inorder()`.
+
+```{r}
+v <- c("c", "a", "d", "b", "a", "c")
+factor(v)
+fct_inorder(v)
+```
+
+La fonction `forcats::fct_reorder()` permets de trier les modalités en fonction d'une autre variable. Par exemple, si je souhaite trier les modalités de la variable *qualif* en fonction de l'âge moyen (dans chaque modalité) :
+
+```{r}
+hdv2003$qualif_tri_age <-
+  hdv2003$qualif |> 
+  fct_reorder(hdv2003$age, .fun = mean)
+hdv2003 |> 
+  dplyr::group_by(qualif_tri_age) |> 
+  dplyr::summarise(age_moyen = mean(age))
+```
+
+::: callout-tip
+`{questionr}` propose une interface graphique afin de faciliter les opérations de réordonnancement manuel. Pour la lancer, sélectionner le menu *Addins* puis *Levels ordering*, ou exécuter la fonction `questionr::iorder()` en lui passant comme paramètre le facteur à réordonner.
+
+![](ressources/iorder.png){alt="Interface graphique de questionr::iorder()"}
+
+<!--# VIDEO A AJOUTER -->
+:::
+
+## Modifier les modalités
+
+Pour modifier le nom des modalités, on pourra avoir recours à `forcats::fct_recode()` avec une syntaxe de la forme `"nouveau nom" = "ancien nom"`.
+
+```{r}
+hdv2003$sexe |> 
+  questionr::freq()
+hdv2003$sexe <- 
+  hdv2003$sexe |> 
+  fct_recode(f = "Femme", m = "Homme")
+hdv2003$sexe |> 
+  questionr::freq()
+```
+
+On peut également fusionner des modalités ensemble en leur attribuant le même nom.
+
+```{r}
+hdv2003$nivetud |> 
+  questionr::freq()
+hdv2003$instruction <- 
+  hdv2003$nivetud |> 
+  fct_recode(
+    "primaire" = "N'a jamais fait d'etudes",
+    "primaire" = "A arrete ses etudes, avant la derniere annee d'etudes primaires",
+    "primaire" = "Derniere annee d'etudes primaires",
+    "secondaire" = "1er cycle",
+    "secondaire" = "2eme cycle",
+    "technique/professionnel" = "Enseignement technique ou professionnel court",
+    "technique/professionnel" = "Enseignement technique ou professionnel long",
+    "supérieur" = "Enseignement superieur y compris technique superieur"
+  )
+hdv2003$instruction |> 
+  questionr::freq()
+```
+
+::: callout-tip
+## Interface graphique
+
+L'extension `{questionr}` propose une interface graphique facilitant le recodage des modalités d'une variable qualitative. L'objectif est de permettre à la personne qui l'utilise de saisir les nouvelles valeurs dans un formulaire, et de générer ensuite le code R correspondant au recodage indiqué.
+
+Pour utiliser cette interface, sous **RStudio** vous pouvez aller dans le menu *Addins* (présent dans la barre d'outils principale) puis choisir *Levels recoding*. Sinon, vous pouvez lancer dans la console la fonction `questionr::irec()` en lui passant comme paramètre la variable à recoder.
+
+![](ressources/irec.png){alt="Interface graphique de questionr::iorder()"}
+
+<!--# VIDEO A AJOUTER -->
+:::
+
+La fonction `forcats::fct_collapse()` est une variante de `forcats::fct_recode()` pour indiquer les fusions de modalités. La même recodification s'écrirait alors :
+
+```{r}
+hdv2003$instruction <- 
+  hdv2003$nivetud |> 
+  fct_collapse(
+    "primaire" = c(
+      "N'a jamais fait d'etudes",
+      "A arrete ses etudes, avant la derniere annee d'etudes primaires",
+      "Derniere annee d'etudes primaires"
+    ),
+    "secondaire" = c(
+      "1er cycle",
+      "2eme cycle"
+    ),
+    "technique/professionnel" = c(
+      "Enseignement technique ou professionnel court",
+      "Enseignement technique ou professionnel long"
+    ),
+    "supérieur" = "Enseignement superieur y compris technique superieur"
+  )
+```
+
+Pour transformer les valeurs manquantes (`NA`) en une modalité explicite, on pourra avoir recours à `forcats::fct_explicit_na()`.
+
+```{r}
+hdv2003$instruction <-
+  hdv2003$instruction |> 
+  fct_explicit_na(na_level = "(manquant)")
+hdv2003$instruction |> 
+  questionr::freq()
+```
+
+Plusieurs fonctions permettent de regrouper plusieurs modalités dans une modalité *autres*.
+
+Par exemple, avec `forcats::fct_other()`, on pourra indiquer les modalités à garder.
+
+```{r}
+hdv2003$qualif |> 
+  questionr::freq()
+hdv2003$qualif |> 
+  fct_other(keep = c("Technicien", "Cadre", "Employe")) |> 
+  questionr::freq()
+```
+
+La fonction `forcats::fct_lump_n()` permets de ne conserver que les modalités les plus fréquentes et de regrouper les autres dans une modalité *autres*.
+
+```{r}
+hdv2003$qualif |> 
+  fct_lump_n(n = 4, other_level = "Autres") |> 
+  questionr::freq()
+```
+
+Et `forcats::fct_lump_min()` celles qui ont un minimum d'observations.
+
+```{r}
+hdv2003$qualif |> 
+  fct_lump_min(min = 200, other_level = "Autres") |> 
+  questionr::freq()
+```
+
+Il peut arriver qu'une des modalités d'un facteur ne soit pas représentée dans les données.
+
+```{r}
+v <- factor(
+  c("a", "a", "b", "a"),
+  levels = c("a", "b", "c")
+)
+questionr::freq(v)
+```
+
+Pour calculer certains tests statistiques ou faire tourner un modèle, ces modalités sans observation peuvent être problématiques. `forcats::fct_drop()` permet de supprimer les modalités qui n'apparaissent pas dans les données.
+
+```{r}
+v
+v |> fct_drop()
+```
+
+À l'inverse, `forcats::fct_expand()` permet d'ajouter une ou plusieurs modalités à un facteur.
+
+```{r}
+v
+v |> fct_expand("d", "e")
+```

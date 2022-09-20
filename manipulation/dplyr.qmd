@@ -1,8 +1,8 @@
 # `dplyr` {#sec-dplyr}
 
-`{dplyr}` est l'un des packages les plus connus du *tidyverse*. Il facilite le traitement et la manipulation de données contenues dans une ou plusieurs tables (qu'il s'agisse de *data frame* ou de *tibble*). Il propose une syntaxe claire et cohérente, sous formes de <q>verbes</q> correspondant à des fonctions.
+`{dplyr}` est l'un des packages les plus connus du *tidyverse*. Il facilite le traitement et la manipulation des tableaux de données (qu'il s'agisse de *data frame* ou de *tibble*). Il propose une syntaxe claire et cohérente, sous formes de <q>verbes</q> correspondant à des fonctions.
 
-`{dplyr}` part du principe que les données sont *tidy* (chaque variable est une colonne, chaque observation est une ligne, voir @sec-tibbles). Les verbes de *{dplyr}* prennent en entrée un tableau de données[^dplyr-1] (*data frame* ou *tibble*) et renvoient systématiquement un *tibble*.
+`{dplyr}` part du principe que les données sont *tidy* (chaque variable est une colonne, chaque observation est une ligne, voir @sec-tibbles). Les verbes de `{dplyr}` prennent en entrée un tableau de données[^dplyr-1] (*data frame* ou *tibble*) et renvoient systématiquement un *tibble*.
 
 [^dplyr-1]: Le package `{dbplyr}` permets d'étendre les verbes de `{dplyr}` à des tables de bases de données **SQL,** `{dtplyr}` à des tableaux de données du type `{data.table}` et `{srvyr}` à des données pondérées du type `{survey}`.
 
@@ -11,7 +11,7 @@
 library(dplyr)
 ```
 
-Dans ce qui suit on va utiliser les données du jeu de données `{nycflights13}`, contenu dans l'extension du même nom (qu'il faut donc avoir installée). Celui-ci correspond aux données de tous les vols au départ d'un des trois aéroports de New-York en 2013. Il a la particularité d'être réparti en trois tables :
+Dans ce qui suit on va utiliser le jeu de données `{nycflights13}`, contenu dans l'extension du même nom (qu'il faut donc avoir installée). Celui-ci correspond aux données de tous les vols au départ d'un des trois aéroports de New-York en 2013. Il a la particularité d'être réparti en trois tables :
 
 -   `nycflights13::flights` contient des informations sur les vols : date, départ, destination, horaires, retard...
 -   `nycflights13::airports` contient des informations sur les aéroports
@@ -49,14 +49,14 @@ Cela peut s'écrire plus simplement avec un pipe :
 flights |> filter(month == 1)
 ```
 
-Si on veut uniquement les vols avec un retard au départ (variable *dep_delay*) compris entre 10 et 15 minutes :
+Si l'on veut uniquement les vols avec un retard au départ (variable *dep_delay*) compris entre 10 et 15 minutes :
 
 ```{r}
 flights |> 
   filter(dep_delay >= 10 & dep_delay <= 15)
 ```
 
-Si on passe plusieurs arguments à `dplyr::filter()`, celui-ci rajoute automatiquement une condition **et** entre les conditions. La ligne ci-dessus peut donc également être écrite de la manière suivante, avec le même résultat :
+Si l'on passe plusieurs arguments à `dplyr::filter()`, celui-ci rajoute automatiquement une condition **ET**. La ligne ci-dessus peut donc également être écrite de la manière suivante, avec le même résultat :
 
 ```{r eval = FALSE}
 flights |> 
@@ -73,7 +73,7 @@ flights |>
 ::: callout-tip
 ## Évaluation contextuelle
 
-Il est important de noter que `{dplyr}` procède à une évaluation contexte des expressions qui lui sont passées. Ainsi, on peut lui passer directement le nom du variable et `{dplyr}` l'interprétera dans le contexte du tableau de données, c'est-à-dire regardera s'il existe une colonne portant ce nom dans le tableau.
+Il est important de noter que `{dplyr}` procède à une évaluation contextuelle des expressions qui lui sont passées. Ainsi, on peut indiquer directement le nom d'une variable et `{dplyr}` l'interprétera dans le contexte du tableau de données, c'est-à-dire regardera s'il existe une colonne portant ce nom dans le tableau.
 
 Dans l'expression `flights |> filter(month == 1)`, `month` est interprété comme la colonne *month* du tableau `flights`, à savoir `flights$month`.
 
@@ -85,9 +85,9 @@ flights |>
   filter(month == m)
 ```
 
-Cela fonctionne car il n'y a pas de colonne *m* dans `flights`. Dès lors, {dplyr} regarde s'il existe un objet `m` dans l'environnement de travail.
+Cela fonctionne car il n'y a pas de colonne *m* dans `flights`. Dès lors, `{dplyr}` regarde s'il existe un objet `m` dans l'environnement de travail.
 
-Par contre, si une colonne existe dans le tableau, elle aura priorité sur les objets du même nom dans l'environnement. Dans l'exemple ci-dessous, le résultat obtenu n'est pas celui voulu. Il est interprété comme sélectionner toutes les lignes où la colonne *mois* est égale à elle-même, et donc sélectionne toutes les lignes du tableau.
+Par contre, si une colonne existe dans le tableau, elle aura priorité sur les objets du même nom dans l'environnement. Dans l'exemple ci-dessous, le résultat obtenu n'est pas celui voulu. Il est interprété comme <q>sélectionner toutes les lignes où la colonne *mois* est égale à elle-même</q> et donc cela sélectionne toutes les lignes du tableau.
 
 ```{r}
 month <- 3
@@ -95,7 +95,7 @@ flights |>
   filter(month == month)
 ```
 
-Afin de distinguer ce qui correspond à une colonne du tableau et à un objet de l'environnement, on pourra avoir recours à `.data` et `.env` (voir `help(".env")`).
+Afin de distinguer ce qui correspond à une colonne du tableau et à un objet de l'environnement, on pourra avoir recours à `.data` et `.env` (voir `help(".env", package = "rlang")`).
 
 ```{r}
 month <- 3
@@ -108,14 +108,14 @@ flights |>
 
 Le verbe `dplyr::slice()` sélectionne des lignes du tableau selon leur position. On lui passe un chiffre ou un vecteur de chiffres.
 
-Si on souhaite sélectionner la 345^e^ ligne du tableau `airports` :
+Si l'on souhaite sélectionner la 345^e^ ligne du tableau `airports` :
 
 ```{r}
 airports |> 
   slice(345)
 ```
 
-Si on veut sélectionner les 5 premières lignes :
+Si l'on veut sélectionner les 5 premières lignes :
 
 ```{r}
 airports |> 
@@ -126,7 +126,7 @@ airports |>
 
 `dplyr::arrange()` réordonne les lignes d'un tableau selon une ou plusieurs colonnes.
 
-Ainsi, si on veut trier le tableau `flights` selon le retard au départ, dans l'ordre croissant :
+Ainsi, si l'on veut trier le tableau `flights` selon le retard au départ, dans l'ordre croissant :
 
 ```{r}
 flights |> 
@@ -140,7 +140,7 @@ flights |>
   arrange(month, dep_delay)
 ```
 
-Si on veut trier selon une colonne par ordre décroissant, on lui applique la fonction `dplyr::desc()`{data-pkg="dplyr"} :
+Si l'on veut trier selon une colonne par ordre décroissant, on lui applique la fonction `dplyr::desc()`{data-pkg="dplyr"} :
 
 ```{r}
 flights |> 
@@ -157,23 +157,23 @@ flights |>
 
 ### slice_sample()
 
-`dplyr::slice_sample()` permet de sélectionner un nombre de lignes ou une fraction des lignes d'un tableau aléatoirement. Ainsi si on veut choisir 5 lignes au hasard dans le tableau `airports` :
+`dplyr::slice_sample()` permet de sélectionner aléatoirement un nombre de lignes ou une fraction des lignes d'un tableau. Ainsi si l'on veut choisir 5 lignes au hasard dans le tableau `airports` :
 
 ```{r}
 airports |> 
   slice_sample(n = 5)
 ```
 
-Si on veut tirer au hasard 10% des lignes de `flights` :
+Si l'on veut tirer au hasard 10% des lignes de `flights` :
 
 ```{r}
 flights |> 
   slice_sample(prop = .1)
 ```
 
-Ces fonctions sont utiles notamment pour faire de <q>"l'échantillonnage"</q> en tirant au hasard un certain nombre d'observations du tableau.
+Ces fonctions sont utiles notamment pour faire de l'<q>"échantillonnage"</q> en tirant au hasard un certain nombre d'observations du tableau.
 
-### distinct-)
+### distinct()
 
 `dplyr::distinct()` filtre les lignes du tableau pour ne conserver que les lignes distinctes, en supprimant toutes les lignes en double.
 
@@ -201,7 +201,7 @@ flights |>
 
 ### select()
 
-`dplyr::select()` permet de sélectionner des colonnes d'un tableau de données. Ainsi, si on veut extraire les colonnes `lat` et `lon` du tableau `airports` :
+`dplyr::select()` permet de sélectionner des colonnes d'un tableau de données. Ainsi, si l'on veut extraire les colonnes `lat` et `lon` du tableau `airports` :
 
 ```{r}
 airports |> 
@@ -259,7 +259,7 @@ flights |>
   select(where(is.character))
 ```
 
-`dplyr::select()` peut être utilisée pour réordonner les colonnes d'une table en utilisant la fonction `dplyr::everything()`{data-pkg="dplyr" data-rdoc="select_helpers"}, qui sélectionne l'ensemble des colonnes non encore sélectionnées. Ainsi, si on souhaite faire passer la colonne *name* en première position de la table `airports`, on peut faire :
+`dplyr::select()` peut être utilisée pour réordonner les colonnes d'une table en utilisant la fonction `dplyr::everything()`{data-pkg="dplyr" data-rdoc="select_helpers"}, qui sélectionne l'ensemble des colonnes non encore sélectionnées. Ainsi, si l'on souhaite faire passer la colonne *name* en première position de la table `airports`, on peut faire :
 
 ```{r}
 airports |> 
@@ -279,7 +279,7 @@ airports |>
 
 Une variante de `dplyr::select()` est `dplyr::rename()`[^dplyr-4], qui permet de renommer facilement des colonnes. On l'utilise en lui passant des paramètres de la forme `nouveau_nom = ancien_nom`. Ainsi, si on veut renommer les colonnes *lon* et *lat* de `airports` en *longitude* et *latitude* :
 
-[^dplyr-4]: Il est également possible de renommer des colonnes directement avec `select`, avec la même syntaxe que pour `rename`.
+[^dplyr-4]: Il est également possible de renommer des colonnes directement avec `select()`, avec la même syntaxe que pour `rename()`.
 
 ```{r}
 airports |> 
@@ -308,15 +308,13 @@ airports |>
 
 On pourra notamment utiliser les fonctions du package `snakecase` et, en particulier, `snakecase::to_snake_case()` que je recommande pour nommer de manière consistante les variables[^dplyr-5].
 
-[^dplyr-5]: 
-
-    Le [***snake case***](https://fr.wikipedia.org/wiki/Snake_case) est une convention typographique en informatique consistant à écrire des ensembles de mots, généralement, en minuscules en les séparant par des tirets bas.
+[^dplyr-5]: Le [***snake case***](https://fr.wikipedia.org/wiki/Snake_case) est une convention typographique en informatique consistant à écrire des ensembles de mots, généralement, en minuscules en les séparant par des tirets bas.
 
 ### mutate()
 
 `dplyr::mutate()` permet de créer de nouvelles colonnes dans le tableau de données, en général à partir de variables existantes.
 
-Par exemple, la table `airports` contient l'altitude de l'aéroport en pieds. Si on veut créer une nouvelle variable *alt_m* avec l'altitude en mètres, on peut faire :
+Par exemple, la table `airports` contient l'altitude de l'aéroport en pieds. Si l'on veut créer une nouvelle variable *alt_m* avec l'altitude en mètres, on peut faire :
 
 ```{r}
 airports <- 
@@ -391,7 +389,7 @@ flights |>
 
 ### summarise()
 
-`dplyr::summarise()` permet d'agréger les lignes du tableau en effectuant une opération <q>résumée</q> sur une ou plusieurs colonnes. Par exemple, si on souhaite connaître les retards moyens au départ et à l'arrivée pour l'ensemble des vols du tableau `flights` :
+`dplyr::summarise()` permet d'agréger les lignes du tableau en effectuant une opération <q>résumée</q> sur une ou plusieurs colonnes. Il s'agit de toutes les fonctions qui prennent en entrée un ensemble de valeurs et renvoie une valeur unique, comme la moyenne (`mean()`). Par exemple, si l'on souhaite connaître les retards moyens au départ et à l'arrivée pour l'ensemble des vols du tableau `flights` :
 
 ```{r}
 flights |> 
@@ -401,7 +399,7 @@ flights |>
   )
 ```
 
-Cette fonction est en général utilisée avec `dplyr::group_by()`, puisqu'elle permet du coup d'agréger et résumer les lignes du tableau groupe par groupe. Si on souhaite calculer le délai maximum, le délai minimum et le délai moyen au départ pour chaque mois, on pourra faire :
+Cette fonction est en général utilisée avec `dplyr::group_by()`, puisqu'elle permet du coup d'agréger et de résumer les lignes du tableau groupe par groupe. Si l'on souhaite calculer le délai maximum, le délai minimum et le délai moyen au départ pour chaque mois, on pourra faire :
 
 ```{r}
 flights |>
@@ -413,19 +411,19 @@ flights |>
   )
 ```
 
-`dplyr::summarise()` dispose d'un opérateur spécial, `dplyr::n()`{data-pkg="dplyr"}, qui retourne le nombre de lignes du groupe. Ainsi si on veut le nombre de vols par destination, on peut utiliser :
+`dplyr::summarise()` dispose d'une fonction spéciale `dplyr::n()`{data-pkg="dplyr"}, qui retourne le nombre de lignes du groupe. Ainsi si l'on veut le nombre de vols par destination, on peut utiliser :
 
 ```{r}
 flights |>
   group_by(dest) |>
-  summarise(nb = n())
+  summarise(n = n())
 ```
 
 `dplyr::n()`{data-pkg="dplyr"} peut aussi être utilisée avec `dplyr::filter()` et `dplyr::mutate()`.
 
 ### count()
 
-À noter que quand on veut compter le nombre de lignes par groupe, on peut utiliser directement la fonction `dplyr::count()`. Ainsi le code suivant est identique au précédent :
+À noter que quand l'on veut compter le nombre de lignes par groupe, on peut utiliser directement la fonction `dplyr::count()`. Ainsi le code suivant est identique au précédent :
 
 ```{r}
 flights |>
@@ -451,7 +449,7 @@ flights |>
   arrange(desc(n))
 ```
 
-On peut utiliser plusieurs opérations de groupage dans le même *pipeline*. Ainsi, si on souhaite déterminer le couple origine/destination ayant le plus grand nombre de vols selon le mois de l'année, on devra procéder en deux étapes :
+On peut utiliser plusieurs opérations de groupage dans le même *pipeline*. Ainsi, si l'on souhaite déterminer le couple origine/destination ayant le plus grand nombre de vols selon le mois de l'année, on devra procéder en deux étapes :
 
 -   d'abord grouper selon mois, origine et destination pour calculer le nombre de vols
 -   puis grouper uniquement selon le mois pour sélectionner la ligne avec la valeur maximale.
@@ -476,7 +474,7 @@ flights |>
   summarise(nb = n())
 ```
 
-Cela peut permettre <q>d'enchaîner</q> les opérations groupées. Dans l'exemple suivant on calcule le pourcentage des trajets pour chaque destination par rapport à tous les trajets du mois :
+Cela peut permettre d'<q>enchaîner</q> les opérations groupées. Dans l'exemple suivant, on calcule le pourcentage des trajets pour chaque destination par rapport à tous les trajets du mois :
 
 ```{r}
 flights |>
