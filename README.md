@@ -2,7 +2,7 @@
 
 En attendant sa finalisation, voir <https://larmarange.github.io/analyse-R/>
 
-![cover](ressources/cover.png){style="max-width:100px; float:right;"}
+![cover](ressources/cover.png){:style="max-width:100px; float:right;"}
 
 # Guide pour l'analyse de données d'enquêtes avec R
 
