@@ -1,8 +1,4 @@
-**SITE EN COURS DE CONSTRUCTION !**
-
-En attendant sa finalisation, voir <https://larmarange.github.io/analyse-R/>
-
-<img src="ressources/cover.png" width="200" style="float:right;" />
+<a href="https://larmarange.github.io/guide-R/"><img src="ressources/cover.png" width="250" align="right" /></a>
 
 # Guide pour l'analyse de données d'enquêtes avec R
 
