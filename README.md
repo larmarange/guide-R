@@ -2,9 +2,11 @@
 
 En attendant sa finalisation, voir <https://larmarange.github.io/analyse-R/>
 
+![](ressources/cover.png)
+
 # Guide pour l'analyse de données d'enquêtes avec R
 
-Site consultable à l'adresse <https://github.com/larmarange/guide-R>
+Site consultable à l'adresse <https://larmarange.github.io/guide-R/>
 
 Questions & Réponses : <https://github.com/larmarange/guide-R/discussions>
 
