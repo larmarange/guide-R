@@ -1,0 +1,218 @@
+# Combiner plusieurs variables {#sec-combiner-variables}
+
+Parfois, on a besoin de créer une nouvelle variable en partant des valeurs d'une ou plusieurs autres variables. Dans ce cas on peut utiliser les fonctions `dplyr::if_else()` pour les cas les plus simples, ou `dplyr::case_when()` pour les cas plus complexes.
+
+Une fois encore, nous utiliser le jeu de données `hdv2003` pour illustrer ces différentes fonctions.
+
+```{r}
+library(tidyverse)
+data("hdv2003", package = "questionr")
+```
+
+## if_else()
+
+`dplyr::if_else()` prend trois arguments : un test, les valeurs à renvoyer si le test est vrai, et les valeurs à renvoyer si le test est faux.
+
+Voici un exemple simple :
+
+```{r}
+v <- c(12, 14, 8, 16)
+if_else(v > 10, "Supérieur à 10", "Inférieur à 10")
+```
+
+La fonction devient plus intéressante avec des tests combinant plusieurs variables. Par exemple, imaginons qu'on souhaite créer une nouvelle variable indiquant les hommes de plus de 60 ans :
+
+```{r}
+hdv2003 <- 
+  hdv2003 |> 
+  mutate(
+    statut = if_else(
+      sexe == "Homme" & age > 60,
+      "Homme de plus de 60 ans",
+      "Autre"
+    )
+  )
+hdv2003 |> 
+  pull(statut) |> 
+  questionr::freq()
+```
+
+Il est possible d'utiliser des variables ou des combinaisons de variables au sein du `dplyr::if_else()`. Suppons une petite enquête menée auprès de femmes et d'hommes. Le questionnaire comportait une question de préférence posée différemment aux femmes et aux hommes et dont les réponses ont ainsi été collectées dans deux variables différentes, *pref_f* et *pref_h*, que l'on souhaite combiner en une seule variable. De même, une certaine mesure quantitative a été réalisée, mais une correction est nécessaire pour normaliser ce score (retirer 0.4 aux scores des hommes et 0.6 aux scores des femmes). Cela peut être réalisé avec le code ci-dessous.
+
+```{r}
+df <- tibble(
+  sexe = c("f", "f", "h", "h"),
+  pref_f = c("a", "b", NA, NA),
+  pref_h = c(NA, NA, "c", "d"),
+  mesure = c(1.2, 4.1, 3.8, 2.7)
+)
+df
+df <- 
+  df |> 
+  mutate(
+    pref = if_else(sexe == "f", pref_f, pref_h),
+    indicateur = if_else(sexe == "h", mesure - 0.4, mesure - 0.6)
+  )
+df
+```
+
+::: callout-important
+## if_else() et ifelse()
+
+La fonction `dplyr::if_else()` ressemble à la fonction `ifelse()` en base **R**. Il y a néanmoins quelques petites différences :
+
+-   `dplyr::if_else()` vérifie que les valeurs fournies pour `true` et celles pour false sont du même type et de la même classe et renvoie une erreur dans le cas contraire, là où `ifelse()` sera plus permissif ;
+-   si un vecteur a des attributs (cf. @sec-attributs), ils seront préservés par `dplyr::if_else()` (et pris dans le vecteur `true`), ce que ne fera pas `if_else()` ;
+-   `dplyr::if_else()` propose un argument optionnel supplémentaire `missing` pour indiquer les valeurs à retourner lorsque le test renvoie `NA`.
+:::
+
+## case_when()
+
+`dplyr::case_when()` est une généralisation de `dplyr::if_else()` qui permet d'indiquer plusieurs tests et leurs valeurs associées.
+
+Imaginons que l'on souhaite créer une nouvelle variable permettant d'identifier les hommes de plus de 60 ans, les femmes de plus de 60 ans, et les autres. On peut utiliser la syntaxe suivante :
+
+```{r}
+hdv2003 <-
+  hdv2003 |> 
+  mutate(
+    statut = case_when(
+      age >= 60 & sexe == "Homme" ~ "Homme, 60 et plus",
+      age >= 60 & sexe == "Femme" ~ "Femme, 60 et plus",
+      TRUE ~ "Autre"
+    )
+  )
+hdv2003 |> 
+  pull(statut) |> 
+  questionr::freq()
+```
+
+`dplyr::case_when()` prend en arguments une série d'instructions sous la forme `condition ~ valeur`. Il les exécute une par une, et dès qu'une `condition` est vraie, il renvoit la `valeur` associée.
+
+La clause `TRUE ~ "Autre"` permet d'assigner une valeur à toutes les lignes pour lesquelles aucune des conditions précédentes n'est vraie.
+
+::: callout-important
+**Attention :** comme les conditions sont testées l'une après l'autre et que la valeur renvoyée est celle correspondant à la première condition vraie, l'ordre de ces conditions est très important. Il faut absolument aller du plus spécifique au plus général.
+
+Par exemple le recodage suivant ne fonctionne pas :
+
+```{r}
+hdv2003 <-
+  hdv2003 |> 
+  mutate(
+    statut = case_when(
+      sexe == "Homme" ~ "Homme",
+      age >= 60 & sexe == "Homme" ~ "Homme, 60 et plus",
+      TRUE ~ "Autre"
+    )
+  )
+hdv2003 |> 
+  pull(statut) |> 
+  questionr::freq()
+```
+
+Comme la condition `sexe == "Homme"` est plus générale que `sexe == "Homme" & age > 60`, cette deuxième condition n'est jamais testée ! On n'obtiendra jamais la valeur correspondante.
+
+Pour que ce recodage fonctionne il faut donc changer l'ordre des conditions pour aller du plus spécifique au plus général :
+
+```{r}
+hdv2003 <-
+  hdv2003 |> 
+  mutate(
+    statut = case_when(
+      age >= 60 & sexe == "Homme" ~ "Homme, 60 et plus",
+      sexe == "Homme" ~ "Homme",
+      TRUE ~ "Autre"
+    )
+  )
+hdv2003 |> 
+  pull(statut) |> 
+  questionr::freq()
+```
+
+C'est pour cela que l'on peut utiliser, en toute dernière condition, la valeur `TRUE` pour indiquer <q>dans tous les autres cas</q>.
+:::
+
+## recode_if()
+
+Parfois, on n'a besoin de ne modifier une variable que pour certaines observations. Prenons un petit exemple :
+
+```{r}
+df <- tibble(
+  pref = factor(c("bleu", "rouge", "autre", "rouge", "autre")),
+  autre_details = c(NA, NA, "bleu ciel", NA, "jaune")
+)
+df
+```
+
+Nous avons demandé aux enquêtés d'indiquer leur couleur préférée. Ils pouvaient répondre <q>bleu</q> ou <q>rouge</q> et avait également la possibilité de choisir <q>autre</q> et d'indiquer la valeur de leur choix dans un champs textuel libre.
+
+Une des personnes enquêtées a choisi <q>autre</q> et a indiqué dans le champs texte la valeur <q>bleu ciel</q>. Pour les besoins de l'analyse, on peut considérer que cette valeur <q>bleu ciel</q> pour être tout simplement recodée en <q>bleu</q>.
+
+En syntaxe **R** classique, on pourra simplement faire :
+
+```{r}
+df$pref[df$autre_details == "bleu ciel"] <- "bleu"
+```
+
+Avec `dplyr::if_else()`, on serait tenté d'écrire :
+
+```{r}
+#| error: true
+df |> 
+  mutate(pref = if_else(autre_details == "bleu ciel", "bleu", pref))
+```
+
+On obtient une erreur, car `dplyr::if_else()` exige les valeurs fournie pour `true` et `false` soient de même type. Essayons alors :
+
+```{r}
+df |> 
+  mutate(pref = if_else(autre_details == "bleu ciel", factor("bleu"), pref))
+```
+
+Ici nous avons un autre problème, signalé par un message d'avertissement (*warning*) : `dplyr::if_else()` ne préserve que les attributs du vecteur passé en `true` et non ceux passés à `false`. Or l'ensemble des modalités (niveaux du facteur) de la variable *pref* n'ont pas été définis dans `factor("bleu")` et sont ainsi perdus, générant une perte de données (valeurs manquantes `NA`).
+
+Pour obtenir le bon résultat, il faudrait inverser la condition :
+
+```{r}
+df |> 
+  mutate(pref = if_else(
+    autre_details != "bleu ciel", 
+    pref, 
+    factor("bleu")
+  ))
+```
+
+Mais ce n'est toujours pas suffisant. En effet, la variable *autre_details* a des valeurs manquantes pour lesquelles le test `autre_details != "bleu ciel"` renvoie `NA` ce qui une fois encore génère des valeurs manquantes non souhaitées. Dès lors, il nous faut soit définir l'argument `missing` de `dplyr::if_else()`, soit être plus précis dans notre test.
+
+```{r}
+df |> 
+  mutate(pref = if_else(
+    autre_details != "bleu ciel", 
+    pref, 
+    factor("bleu"),
+    missing = pref
+  ))
+df |> 
+  mutate(pref = if_else(
+    autre_details != "bleu ciel" | is.na(autre_details), 
+    pref, 
+    factor("bleu")
+  ))
+```
+
+Bref, on peut s'en sortir avec `dplyr::if_else()` mais ce n'est pas forcément le plus pratique dans le cas présent. La syntaxe en base **R** fonctionne très bien, mais ne peut pas être intégrée à un enchainement d'opérations utilisant le *pipe*.
+
+Dans ce genre de situation, on pourra être intéressé par la fonction `labelled::recode_if()` disponible dans le package `{labelled}`. Elle permet de ne modifier que certaines observations d'un vecteur en fonction d'une condition. Si la condition vaut `FALSE` ou `NA`, les observations concernées restent inchangées. Voyons comment cela s'écrit :
+
+```{r}
+df <-
+  df |> 
+  mutate(
+    pref = pref |> 
+      labelled::recode_if(autre_details == "bleu ciel", "bleu")
+  )
+df
+```
+
+C'est tout de suite plus intuitif !
