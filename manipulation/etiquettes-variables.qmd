@@ -1,0 +1,89 @@
+# Étiquettes de variables {#sec-etiquettes-variables}
+
+## Principe
+
+Les étiquettes de variable permettent de donner un nom long, plus explicite, aux différentes colonnes d'un tableau de données (ou encore directement à un vecteur autonome). Dans le champs des grandes enquêtes, il est fréquent de nommer les variables *q101*, *q102*, etc. pour refléter le numéro de la question et d'indiquer ce qu'elle réprésente (groupe d'âges, milieur de résidence...) avec une étiquette.
+
+Un usage, introduit par le package `{haven}`, et repris depuis par de nombreux autres packages dont `{gtsummary}` que nous aborderons dans de prochains chapitres, consiste à stocker les étiquettes de variables sous la forme d'un attribut[^etiquettes-variables-1] `"label"` attaché au vecteur / à la colonne du tableau.
+
+[^etiquettes-variables-1]: Pour plus d'information sur les attributs, voir @sec-attributs.
+
+Le package `{labelled}` permet de manipuler aisément ces étiquettes de variables.
+
+La visonneuse de données de **RStudio** sait reconnaître et afficher ces étiquettes de variable lorsqu'elles existent. Prenons pour exemple le jeu de données `gtsummary::trial` dont les colonnes ont des étiquettes de variable. La commande `View(gtsummary::trial)` permet d'ouvrir la visionneuse de données de **RStudio**. Comme on peut le constater, une étiquette de variable est bien présente sous le nom des différentes colonnes.
+
+![Présentation du tableau `gtsummary::trial` dans la visionneuse de **RStudio**](ressources/view_trial.png){#fig-view-trial}
+
+La fonction `labelled::look_for()` du package labelled permet de lister l'ensemble des variables d'un tableau de données et affiche notamment les étiquettes de variable associées.
+
+```{r}
+library(labelled)
+gtsummary::trial |> 
+  look_for()
+```
+
+La fonction `labelled::look_for()` permet également de rechercher des variables en tenant compte à la fois de leur nom et de leur étiquette.
+
+```{r}
+gtsummary::trial |> 
+  look_for("months")
+```
+
+::: callout-tip
+Comme on le voit, la fonction `labelled::look_for()` est tout à fait adaptée pour générer un dictionnaire de codification. Ses différentes options sont détaillées dans une [vignette dédiée](https://larmarange.github.io/labelled/articles/look_for.html). Les résultats renvoyés par `labelled::look_for()` sont récupérables dans un tableau de données que l'on pourra ainsi manipuler à sa guise.
+
+```{r}
+gtsummary::trial |> 
+  look_for() |> 
+  dplyr::as_tibble()
+```
+:::
+
+## Manipulation sur un vecteur / une colonne
+
+La fonction `labelled::var_label()` permets de voir l'étiquette de variable attachée à un vecteur (renvoie `NULL` s'il n'y en a pas) mais également d'ajouter/modifier une étiquette.
+
+Le fait d'ajouter une étiquette de variable à un vecteur ne modifie en rien son type ni sa classe. On peut associer une étiquette de variable à n'importe quel type de variable, qu'elle soit numérique, textuelle, un facteur ou encore des dates.
+
+```{r}
+v <- c(1, 5, 2, 4, 1)
+v |> var_label()
+var_label(v) <- "Mon étiquette"
+var_label(v)
+str(v)
+var_label(v) <- "Une autre étiquette"
+var_label(v)
+str(v)
+```
+
+Pour supprimer une étiquette, il siffit d'attribuer la valeur `NULL`.
+
+```{r}
+var_label(v) <- NULL
+str(v)
+```
+
+On peut appliquer `labelled::var_label()` directement sur une colonne de tableau.
+
+```{r}
+var_label(iris$Petal.Length) <- "Longueur du pétale"
+var_label(iris$Petal.Width) <- "Largeur du pétale"
+var_label(iris$Species) <- "Espèce"
+iris |> 
+  look_for()
+```
+
+## Manipulation sur un tableau de données
+
+La fonction `labelled::set_variable_labels()` permets de manipuler les étiquettes de variable d'un tableau de données avec une syntaxe du type `{dplyr}`.
+
+```{r}
+iris <- 
+  iris |> 
+  set_variable_labels(
+    Species = NULL,
+    Sepal.Length = "Longeur du sépale"
+  )
+iris |> 
+  look_for()
+```
