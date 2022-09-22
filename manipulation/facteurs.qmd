@@ -66,10 +66,11 @@ as.character(f)
 
 ## Changer l'ordre des modalités
 
-L'extension `{forcats}`, chargée par défaut lorsque l'on exécute la commande `library(tidyverse)`, fournie plusieurs fonctions pour manipuler des facteurs. Pour donner des exemples d'utilisation de ces différentes fonctions, nous allons utiliser le jeu de données `hdv2003` de l'extension `{questionr}`.
+Le pacakge `{forcats}`, chargé par défaut lorsque l'on exécute la commande `library(tidyverse)`, fournie plusieurs fonctions pour manipuler des facteurs. Pour donner des exemples d'utilisation de ces différentes fonctions, nous allons utiliser le jeu de données `hdv2003` du package `{questionr}`.
 
 ```{r}
-library(forcats)
+#| message: false
+library(tidyverse)
 data("hdv2003", package = "questionr")
 ```
 
@@ -182,7 +183,7 @@ hdv2003$instruction |>
 ::: callout-tip
 ## Interface graphique
 
-L'extension `{questionr}` propose une interface graphique facilitant le recodage des modalités d'une variable qualitative. L'objectif est de permettre à la personne qui l'utilise de saisir les nouvelles valeurs dans un formulaire, et de générer ensuite le code R correspondant au recodage indiqué.
+Le package`{questionr}` propose une interface graphique facilitant le recodage des modalités d'une variable qualitative. L'objectif est de permettre à la personne qui l'utilise de saisir les nouvelles valeurs dans un formulaire, et de générer ensuite le code R correspondant au recodage indiqué.
 
 Pour utiliser cette interface, sous **RStudio** vous pouvez aller dans le menu *Addins* (présent dans la barre d'outils principale) puis choisir *Levels recoding*. Sinon, vous pouvez lancer dans la console la fonction `questionr::irec()` en lui passant comme paramètre la variable à recoder.
 
@@ -279,3 +280,81 @@ v |> fct_drop()
 v
 v |> fct_expand("d", "e")
 ```
+
+## Découper une variable numérique en classes
+
+Il est fréquent d'avoir besoin de découper une variable numérique en une variable catgéorielles (un facteur) à plusieurs modalités, par exemple pour créer des groupes d'âges à partir d'une variable *age*.
+
+On utilise pour cela la fonction `cut()` qui prend, outre la variable à découper, un certain nombre d'arguments :
+
+-   `breaks` indique soit le nombre de classes souhaité, soit, si on lui fournit un vecteur, les limites des classes ;
+-   `labels` permet de modifier les noms de modalités attribués aux classes ;
+-   `include.lowest` et `right` influent sur la manière dont les valeurs situées à la frontière des classes seront inclues ou exclues ;
+-   `dig.lab` indique le nombre de chiffres après la virgule à conserver dans les noms de modalités.
+
+Prenons tout de suite un exemple et tentons de découper la variable *age* en cinq classes :
+
+```{r}
+hdv2003 <-
+  hdv2003 |> 
+  mutate(groupe_ages = cut(age, 5))
+hdv2003$groupe_ages |> questionr::freq()
+```
+
+Par défaut **R** nous a bien créé cinq classes d'amplitudes égales. La première classe va de 17,9 à 33,8 ans (en fait de 17 à 32), etc.
+
+Les frontières de classe seraient plus présentables si elles utilisaient des nombres ronds. On va donc spécifier manuellement le découpage souhaité, par tranches de 20 ans :
+
+```{r}
+hdv2003 <-
+  hdv2003 |> 
+  mutate(groupe_ages = cut(age, c(18, 20, 40, 60, 80, 97)))
+hdv2003$groupe_ages |> questionr::freq()
+```
+
+Les symboles dans les noms attribués aux classes ont leur importance : `(` signifie que la frontière de la classe est exclue, tandis que `[` signifie qu'elle est incluse. Ainsi, `(20,40]` signifie « strictement supérieur à 20 et inférieur ou égal à 40 ».
+
+On remarque que du coup, dans notre exemple précédent, la valeur minimale, 18, est exclue de notre première classe, et qu'une observation est donc absente de ce découpage. Pour résoudre ce problème on peut soit faire commencer la première classe à 17, soit utiliser l'option `include.lowest=TRUE` :
+
+```{r}
+hdv2003 <-
+  hdv2003 |> 
+  mutate(groupe_ages = cut(
+    age, 
+    c(18, 20, 40, 60, 80, 97),
+    include.lowest = TRUE
+  ))
+hdv2003$groupe_ages |> questionr::freq()
+```
+
+On peut également modifier le sens des intervalles avec l'option `right=FALSE` :
+
+```{r}
+hdv2003 <-
+  hdv2003 |> 
+  mutate(groupe_ages = cut(
+    age, 
+    c(18, 20, 40, 60, 80, 97),
+    include.lowest = TRUE,
+    right = FALSE
+  ))
+hdv2003$groupe_ages |> questionr::freq()
+```
+
+::: callout-tip
+## Interface graphique
+
+Il n'est pas nécessaire de connaître toutes les options de `cut()`. Le package `{questionr}` propose là encore une interface graphique permettant de visualiser l'effet des différents paramètres et de générer le code **R** correspondant.
+
+Pour utiliser cette interface, sous **RStudio** vous pouvez aller dans le menu *Addins* (présent dans la barre d'outils principale) puis choisir *Numeric range dividing*. Sinon, vous pouvez lancer dans la console la fonction `questionr::icut()` en lui passant comme paramètre la variable numérique à découper.
+
+![](ressources/icut.png){alt="Interface graphique de questionr::iorder()"}
+
+::: callout-tip
+Une démonstration en vidéo de cet *add-in* est disponible dans le webin-R #05 (*recoder des variables*) sur \[YouTube\](https://youtu.be/CokvTbtWdwc?t=2795).
+
+{{< video https://youtu.be/CokvTbtWdwc start='2795' >}}
+:::
+:::
+
+## 
