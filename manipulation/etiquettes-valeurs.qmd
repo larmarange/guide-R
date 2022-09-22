@@ -1,1 +1,255 @@
 # Étiquettes de valeurs {#sec-etiquettes-valeurs}
+
+Dans le domaine des grandes enquêtes, il est fréquent de coder les variables catégorielles avec des codes numériques auxquels on associé une certaines valeurs. Par exemple, une variable *milieu de résidence* pourrait être codée 1 pour <q>urbain</q>, 2 pour <q>semi-urbain</q>, 3 pour <q>rural</q> et 9 pour indiquer une donnée manquante. Une variable binaire pourrait quant à elle être codée 0 pour <q>non</q> et 1 pour <q>oui</q>. Souvent, chaque enquête définit ses propres conventions.
+
+Les logiciels statistiques propriétaires **SPSS**, **Stata** et **SAS** ont tous les trois un système d'étiquettes de valeurs pour représenter ce type de variables catégorielles.
+
+**R** n'a pas, de manière native, de système d'étiquettes de valeurs. Le format utilisé en interne pour représenter les variables catégorielles est celui des facteurs (cf. @sec-facteurs). Cependant, ce dernier ne permet de contrôler comment sont associées une étiquette avec une valeur numérique précise.
+
+## La classe haven_labelled
+
+Afin d'assurer une importation complète des données depuis **SPSS**, **Stata** et **SAS**, le package `{haven}` a introduit un nouveau type de vecteurs, la classe `haven_labelled`, qui permet justement de rendre compte de ces vecteurs labellisés (i.e. avec des étiquettes de valeurs). Le package `{labelled}` fournie un jeu de fonctions pour faciliter la manipulation des vecteurs labellisés.
+
+::: callout-important
+Les vecteurs labellisés sont un format intermédiaire qui permets d'importer les données telles qu'elles ont été définies dans le fichier source. Il n'est pas destiné à être utilisé pour l'analyse statistique.
+
+Pour la réalisation de tableaux, graphiques, modèles, **R** attend que les variables catégorielles soit codées sous formes de facteurs, et que les variables continues soient numériques. On aura donc besoin, à un moment ou à un autre, de convertir les vecteurs labellisés en facteurs ou en variables numériques classiques.
+:::
+
+## Manipulation sur un vecteur / une colonne
+
+Pour définir des étiquettes, la fonction de base est `labelled::val_labels()`. Il est possible de définir des étiquettes de valeurs pour des vecteurs numériques, d'entiers et textuels. On indiquera les étiquettes sous la forme `étiquette = valeur`. Cette fonction s'utilise de la même manière que `labelled::var_label()` abordée au chapitre précédent (cf. @sec-etiquettes-variables). Un appel simple renvoie les étiquettes de valeur associées au vecteur, `NULL` s'il n'y en n'a pas. Combiner avec l'opérateur d'assignation (`<-`), on peut ajouter/modifier les étiquettes de valeurs associées au vecteur.
+
+```{r}
+library(labelled)
+v <- c(1, 2, 1, 9)
+v
+class(v)
+val_labels(v)
+val_labels(v) <- c(non = 1, oui = 2)
+val_labels(v)
+v
+class(v)
+
+```
+
+Comme on peut le voir avec cet exemple simple :
+
+-   l'ajout d'étiquettes de valeurs modifie la class de l'objet (qui est maintenant un vecteur de la classe `haven_labelled`) ;
+-   l'objet obtenu est multi-classes, la classe `double` indiquant ici qu'il s'agit d'un vecteur numérique ;
+-   il n'est pas obligatoire d'associer une étiquette de valeurs à toutes les valeurs observées dans le vecteur (ici, nous n'avons pas défini d'étiquettes pour la valeur `9`).
+
+La fonction `labelled::val_label()` (notez l'absence d'un s à la fin du nom de la fonction) permet d'accéder / de modifier l'étiquette associée à une valeur spécifique.
+
+```{r}
+val_label(v, 1)
+val_label(v, 9)
+val_label(v, 9) <- "(manquant)"
+val_label(v, 2) <- NULL
+v
+```
+
+Pour supprimer, toutes les étiquettes de valeurs, on attribuera `NULL` avec `labelled::val_labels()`.
+
+```{r}
+val_labels(v) <- NULL
+v
+class(v)
+```
+
+On remarquera que, lorsque toutes les étiquettes de valeurs sont supprimées, la nature de l'objet change à nouveau et il redevient un simple vecteur numérique.
+
+::: callout-caution
+Il est essentiel de bien comprendre que l'ajout d'étiquettes de valeurs ne change pas fondamentalement la nature du vecteur. **Cela ne le transforme pas en variable catégorielle.** À ce stade, le vecteur n'a pas été transformé en facteur. Cela reste un vecteur numérique qui est considéré comme tel par **R**. On peut ainsi en calculer une moyenne, ce qui serait impossible avec un facteur.
+
+```{r}
+#| error: true
+v <- c(1, 2, 1, 2)
+val_labels(v) <- c(non = 1, oui = 2)
+mean(v)
+f <- factor(v, levels = c(1, 2), labels = c("non", "oui"))
+mean(f)
+```
+:::
+
+Les fonctions `labelled::val_labels()` et `labelled::val_label()` peuvent également être utilisées sur les colonnes d'un tableau.
+
+```{r}
+df <- dplyr::tibble(
+  x = c(1, 2, 1, 2),
+  y = c(3, 9, 9, 3)
+)
+val_labels(df$x) <- c(non = 1, oui = 2)
+val_label(df$y, 9) <- "(manquant)"
+df
+```
+
+On pourra noter, que si notre tableau est un *tibble*, les étiquettes sont rendues dans la console quand on affiche le tableau.
+
+La fonction `labelled::look_for()` est également un bon moyen d'afficher les étiquettes de valeurs.
+
+```{r}
+df |> 
+  look_for()
+```
+
+## Manipulation sur un tableau de données
+
+{labelled} fournie 3 fonctions directement applicables sur un tableau de données : `labelled::set_value_labels()`, `labelled::add_value_labels()` et `labelled::remove_value_labels()`. La première remplace l'ensemble des étiquettes de valeurs associées à une variable, la seconde ajoute des étiquettes de valeurs (et conserve celles déjà définies), la troisième supprime les étiquettes associées à certaines valeurs spécifiques (et laisse les autres inchangées).
+
+```{r}
+df |> 
+  look_for()
+df <- df |> 
+  set_value_labels(
+    x = c(yes = 2),
+    y = c("a répondu" = 3, "refus de répondre" = 9)
+  )
+df |> 
+  look_for()
+df <- df |> 
+  add_value_labels(
+    x = c(no = 1)
+  ) |> 
+  remove_value_labels(
+    y = 9
+  )
+df |> 
+  look_for()
+```
+
+## Conversion
+
+### Quand convertir les vecteurs labellisés ?
+
+La classe `haven_labelled` permets d'ajouter des métadonnées aux variables sous la forme d'étiquettes de valeurs. Lorsque les données sont importées depuis **SAS**, **SPSS** ou **Stata**, cela permet notamment de conserver le codage original du fichier importé.
+
+Mais il faut noter que ces *étiquettes de valeur* n'indique pas pour autant de manière systématique le type de variable (catégorielle ou continue). Les vecteurs labellisés n'ont donc pas vocation à être utilisés pour l'analyse, notamment le calcul de modèles statistiques. Ils doivent être convertis en facteurs (pour les variables catégorielles) ou en vecteurs numériques (pour les variables continues).
+
+La question qui peut se poser est donc de choisir à quel moment cette conversion doit avoir lieu dans un processus d'analyse. On peut considérer deux approches principales.
+
+![Deux approches possibles pour la conversion des étiquettes de valeurs](ressources/conversion_labelled.png){#fig-conversion-labelled}
+
+Dans l'**approche A**, les vecteurs labellisés sont convertis juste après l'import des données, en utilisant les fonctions `labelled::unlabelled()`, `labelled::to_factor()` ou `base::unclass()` qui sont présentées ci-après. Dès lors, toute la partie de nettoyage et de recodage des données se fera en utilisant les fonctions classiques de **R**. Si l'on n'a pas besoin de conserver le codage original, cette approche a l'avantage de s'inscrire dans le fonctionnement usuel de **R**.
+
+Dans l'**approche B**, les vecteurs labellisés sont conservés pour l'étape de nettoyage et de recodage des données. Dans ce cas là, on pourra avoir recours aux fonctions de l'extension `{labelled}` qui facilitent la gestion des données labellisées. Cette approche est particulièrement intéressante quand (i) on veut pouvoir se référer au dictionnaire de codification fourni avec les données sources et donc on veut conserver le codage original et/ou (ii) quand les données devront faire l'objet d'un réexport après transformation. Par contre, comme dans l'approche A, il faudra prévoir une conversion des variables labellisées au moment de l'analyse.
+
+::: callout-warning
+Dans tous les cas, il est recommandé d'adopter l'une ou l'autre approche, mais d'éviter de mélanger les différents types de vecteur. Une organisation rigoureuse de ses données et de son code est essentielle !
+:::
+
+### Convertir un vecteur labellisé en facteur
+
+Il est très facile de convertir un vecteur labellisé en facteur à l'aide la fonction `labelled::to_factor()` du package `{labelled}`[^etiquettes-valeurs-1].
+
+[^etiquettes-valeurs-1]: On priviligiera la fonction `labelled::to_factor()` à la fonction `haven::as_factor()` de l'extension `{haven}`, la première ayant plus de possibilités et un comportement plus consistent.
+
+```{r}
+v <- c(1,2,9,3,3,2,NA)
+val_labels(v) <- c(
+  oui = 1, "peut-être" = 2, 
+  non = 3, "ne sait pas" = 9
+)
+v
+to_factor(v)
+```
+
+Il possible d'indiquer si l'on souhaite, comme étiquettes du facteur, utiliser les étiquettes de valeur (par défaut), les valeurs elles-mêmes, ou bien les étiquettes de valeurs préfixées par la valeur d'origine indiquée entre crochets.
+
+```{r}
+to_factor(v, 'l')
+to_factor(v, 'v')
+to_factor(v, 'p')
+```
+
+Par défaut, les modalités du facteur seront triées selon l'ordre des étiquettes de valeur. Mais cela peut être modifié avec l'argument `sort_levels` si l'on préfère trier selon les valeurs ou selon l'ordre alphabétique des étiquettes.
+
+```{r}
+to_factor(v, sort_levels = 'v')
+to_factor(v, sort_levels = 'l')
+```
+
+### Convertir un vecteur labellisé en numérique ou en texte
+
+Pour rappel, il existe deux types de vecteurs labellisés : des vecteurs numériques labellisés (`x` dans l'exemple ci-dessous) et des vecteurs textuels labellisés (`y` dans l'exemple ci-dessous).
+
+```{r}
+x <- c(1, 2, 9, 3, 3, 2, NA)
+val_labels(x) <- c(
+  oui = 1, "peut-être" = 2, 
+  non = 3, "ne sait pas" = 9
+)
+  
+y <- c("f", "f", "h", "f")
+val_labels(y) <- c(femme = "f", homme = "h")
+```
+
+Pour leur retirer leur caractère <q>labellisé</q> et revenir à leur classe d'origine, on peut utiliser la fonction `unclass()`.
+
+```{r}
+unclass(x)
+unclass(y)
+```
+
+À noter que dans ce cas-là, les étiquettes sont conservées comme attributs du vecteur.
+
+Une alternative est d'utiliser `labelled::remove_labels()` qui supprimera toutes les étiquettes, y compris les étiquettes de variable. Pour conserver les étiquettes de variables et ne supprimer que les étiquettes de valeurs, on indiquera `keep_var_label = TRUE`.
+
+```{r}
+var_label(x) <- "Etiquette de variable"
+remove_labels(x)
+remove_labels(x, keep_var_label = TRUE)
+remove_labels(y)
+```
+
+Dans le cas d'un vecteur numérique labellisé que l'on souhaiterait convertir en variable textuelle, on pourra utiliser `labelled::to_character()` à la place de `labelled::to_factor()` qui, comme sa grande soeur, utilisera les étiquettes de valeurs.
+
+```{r}
+to_character(x)
+```
+
+### Conversion conditionnelle en facteurs
+
+Il n'est pas toujours possible de déterminer la nature d'une variable (continue ou catégorielle) juste à partir de la présence ou l'absence d'étiquettes de valeur. En effet, on peut utiliser des étiquettes de valeur dans le cadre d'une variable continue pour indiquer certaines valeurs spécifiques.
+
+Une bonne pratique est de vérifier chaque variable inclue dans une analyse, une à une.
+
+Cependant, une règle qui fonctionne dans 90% des cas est de convertir un vecteur labellisé en facteur si et seulement si toutes les valeurs observées dans le vecteur disposent d'une étiquette de valeur correspondante. C'est ce que propose la fonction `labelled::unlabelled()` qui peut même être appliqué à tout un tableau de données. Par défaut, elle fonctionne ainsi :
+
+1.  les variables non labellisées restent inchangées (variables *f* et *g* dans l'exemple ci-dessous);
+2.  si toutes les valeurs observées d'une variable labellisées ont une étiquette, elles sont converties en facteurs (variables *b* et *c*);
+3.  sinon, on leur applique `base::unclass()` (variables *a*, *d* et *e*).
+
+```{r}
+df <- dplyr::tibble(
+  a = c(1, 1, 2, 3),
+  b = c(1, 1, 2, 3),
+  c = c(1, 1, 2, 2),
+  d = c("a", "a", "b", "c"),
+  e = c(1, 9, 1, 2),
+  f = 1:4,
+  g = as.Date(c(
+    "2020-01-01", "2020-02-01", 
+    "2020-03-01", "2020-04-01"
+  ))
+) |> 
+  set_value_labels(
+    a = c(No = 1, Yes = 2),
+    b = c(No = 1, Yes = 2, DK = 3),
+    c = c(No = 1, Yes = 2, DK = 3),
+    d = c(No = "a", Yes = "b"),
+    e = c(No = 1, Yes = 2)
+  )
+df |> look_for()
+to_factor(df) |> look_for()
+unlabelled(df) |> look_for()
+```
+
+On peut indiquer certaines options, par exemple `drop_unused_labels = TRUE` pour supprimer des facteurs créés les niveaux non observées dans les données (voir la variable *c*).
+
+```{r}
+unlabelled(df, drop_unused_labels = TRUE) |> 
+  look_for()
+unlabelled(df, levels = "prefixed") |> 
+  look_for()
+```
