@@ -1,0 +1,281 @@
+# Valeurs manquantes {#sec-valeurs-manquantes}
+
+Dans **R** base, les valeurs manquantes sont indiquées par la valeurs logiques `NA` que l'on peut utiliser dans tous types de vecteurs.
+
+Dans certains cas, par exemple dans la fonction `dplyr::if_else()` qui vérifie que les deux options sont du même type, on peut avoir besoin de spécifier une valeur manquante d'un certains types précis (numérique, entier, textuel...) ce que l'on peut faire avec les constantes `NA_real_`, `NA_integer_` ou encore `NA_character_`.
+
+De base, il n'existe qu'un seul type de valeurs manquantes dans **R**. D'autres logiciels statistiques ont mis en place des systèmes pour distinguer plusieurs types de valeurs manquantes, ce qui peut avoir une importance dans le domaine des grandes enquêtes, par exemple pour distinguer des <q>ne sait pas</q> d'un <q>refus de répondre</q> ou d'un <q>oubli enquêteur</q>.
+
+Ainsi, **Stata** et **SAS** ont un système de <q>valeurs manquantes étiquettées</q> ou *tagged NAs*, où les valeurs manquantes peuvent recevoir une étiquette (une lettre entre a et z). De son côté, **SPSS** permet d'indiquer, sous la forme de métadonnées, que certaines valeurs devraient être traitées comme des valeurs manquantes (par exemple que la valeur 8 correspont à des refus et que la valeur 9 correspond à des ne sait pas). Il s'agit alors de <q>valeurs manquantes définies par l'utilisateur</q> ou *user NAs.*
+
+Dans tous les cas, il appartient à l'analyste de décider au cas par cas comment ces valeurs manquantes doivent être traitées. Dans le cadre d'une variable numérique, il est essentiel d'exclure ces valeurs manquantes pour le calcul de statistiques telles que la moyenne ou l'écart-type. Pour des variables catégorielles, les pourcentages peuvent être calculées sur l'ensemble de l'échantillon (les valeurs manquantes étant alors traitées comme des modalités à part entière) ou bien uniquement sur les réponses valides, en fonction du besoin de l'analyse et de ce que l'on cherche à montrer.
+
+Afin d'éviter toute perte d'informations lors d'un import de données depuis **Stata**, **SAS** et **SPSS**, le package `{haven}` propose une implémentation sous **R** des *tagged NAs* et des *user NAs*. Le package {labelled} fournit quant à lui différentes fonctions pour les manipuler aisément.
+
+```{r}
+library(labelled)
+```
+
+## Valeurs manquantes étiquettées (*tagged NAs*)
+
+### Création et test
+
+Les *tagged NAs* sont de véritables valeurs manquantes (`NA`) au sens de **R**, auxquelles a été attachées sur étiquette, une lettre unique minuscule (a-z) ou majuscule (A-Z). On peut les créer avec `labelled::tagged_na()`.
+
+```{r}
+x <- c(1:3, tagged_na("a"), tagged_na("z"), NA)
+```
+
+Pour la plupart des fonctions de **R**, les *tagged NAs* sont juste considérées comme des valeurs manquantes régulières (*regumar NAs*). Dès lors, par défaut, elles sont justes affichées à l'écran comme n'importe quelle valeur manquante et la fonction `is.na()` renvoie `TRUE`.
+
+```{r}
+x
+is.na(x)
+```
+
+Pour afficher les étiquettes associées à ces valeurs manquantes, il faut avoir recours à `labelled::na_tag()`, `labelled::print_tagged_na()` ou encore `labelled::format_tagged_na()`.
+
+```{r}
+na_tag(x)
+print_tagged_na(x)
+format_tagged_na(x)
+```
+
+Pour tester si une certaine valeur manquante est une *regular NA* ou une *tagged NA*, on aura recours à `labelled::is_regular_na()` et à `labelled::is_tagged_na()`.
+
+```{r}
+is.na(x)
+is_regular_na(x)
+is_tagged_na(x)
+```
+
+Il est possible de tester une étiquette particulière en passant un deuxième argument à `labelled::is_tagged_na()`.
+
+```{r}
+is_tagged_na(x, "a")
+```
+
+::: callout-note
+Il n'est possible de définir des *tagged NAs* seulement pour des vecteurs numériques (*double*). Si l'on ajoute une *tagged NA* à un vecteur d'entiers, ce vecteur sera converti en vecteur numérique. Si on l'ajoute à un vecteur textuel, la valeur manquante sera convertie en *regular NA*.
+
+```{r, error=TRUE}
+y <- c("a", "b", tagged_na("z"))
+y
+is_tagged_na(y)
+format_tagged_na(y)
+
+z <- c(1L, 2L, tagged_na("a"))
+typeof(z)
+format_tagged_na(z)
+```
+:::
+
+### Valeurs uniques, doublons et tris
+
+Par défaut, les fonctions classiques de **R** `unique()`, `duplicated()`, `ordered()` ou encore `sort()` traiteront les *tagged NAs* comme des valeurs manquantes tout ce qu'il y a de plus classique, et ne feront pas de différences entre des *tagged NAs* ayant des étiquettes différentes.
+
+Pour traiter des *tagged NAs* ayant des étiquettes différentes comme des valeurs différentes, on aura recours aux fonctions `labelled::unique_tagged_na()`, `labelled::duplicated_tagged_na()`, `labelled::order_tagged_na()` ou encore `labelled::sort_tagged_na()`.
+
+```{r}
+x <- c(1, 2, tagged_na("a"), 1, tagged_na("z"), 2, tagged_na("a"), NA)
+x |> 
+  print_tagged_na()
+
+x |> 
+  unique() |> 
+  print_tagged_na()
+x |> 
+  unique_tagged_na() |> 
+  print_tagged_na()
+
+x |> 
+  duplicated()
+x |> 
+  duplicated_tagged_na()
+
+x |> 
+  sort(na.last = TRUE) |> 
+  print_tagged_na()
+x |> 
+  sort_tagged_na()  |> 
+  print_tagged_na()
+```
+
+### Tagged NAs et étiquettes de valeurs
+
+Il est tout à fait possible d'associer une étiquette de valeurs (cf. @sect-etiquettes-valeurs) à des *tagged NAs*.
+
+```{r}
+x <- c(
+  1, 0, 
+  1, tagged_na("r"), 
+  0, tagged_na("d"), 
+  tagged_na("z"), NA
+)
+val_labels(x) <- c(
+  no = 0, 
+  yes = 1,
+  "don't know" = tagged_na("d"),
+  refusal = tagged_na("r")
+)
+x
+```
+
+Lorsqu'un vecteur labellisé est converti en facteur avec `labelled::to_factor()`, les *tagged NAs* sont, par défaut convertis en en valeurs manquantes classiques (*regular NAs*). Il n'est pas possible de définir des *tagged NAs* pour des facteurs.
+
+```{r}
+x |> to_factor()
+```
+
+L'option `explicit_tagged_na` de `labelled::to_factor()` permets de convertir les *tagged NAs* en modalités explicites du facteur.
+
+```{r}
+x |> 
+  to_factor(explicit_tagged_na = TRUE)
+x |> 
+  to_factor(
+    levels = "prefixed", 
+    explicit_tagged_na = TRUE
+  )
+```
+
+### Conversion en user NAs
+
+La fonction `labelled::tagged_na_to_user_na()` permets de convertir des *tagged NAs* en *user NAs*.
+
+```{r}
+x |> 
+  tagged_na_to_user_na()
+x |> 
+  tagged_na_to_user_na(user_na_start = 10)
+```
+
+La fonction `labelled::tagged_na_to_regular_na()` convertit les *tagged NAs* en valeurs manquantes classiques (*regular NAs*).
+
+```{r}
+x |> 
+  tagged_na_to_regular_na()
+x |> 
+  tagged_na_to_regular_na() |>
+  is_tagged_na()
+```
+
+## Valeurs manquantes définies par l'utilisateurs (*user NAs*)
+
+Le package `{haven}` a introduit la classe `haven_labelled_spss`, une extension de la classe `haven_labelled` permettant d'indiquer des valeurs à considérer comme manquantes à la manière de **SPSS**.
+
+::: callout-important
+Cela revient à associer à un vecteur des attributs (cf. @sec-attributs) additionnels pour indiquer des valeurs que l'utilisateur pourrait/devrait considérer comme manquante. Cependant, il ne s'agit que de métadonnées et en interne ces valeurs ne sont pas stockées sous forme de `NA` mais restent des valeurs valides.
+
+Il convient de garder en mémoire que la très grande majorité des fonctions de **R** ne prendront pas en compte ces métadonnées et traiteront donc ces valeurs comme des valeurs valides. C'est donc à l'utilisateur de convertir, au besoin, ces les valeurs indiquées comme manquantes en réelles valeurs manquantes (`NA`).
+:::
+
+### Création
+
+Il est possible d'indiquer des valeurs à considérer comme manquantes (*user NAs*) de deux manières :
+
+-   soit en indiquant une liste de valeurs individuelles avec `labelled::na_values()` (on peut indiquer `NULL` pour supprimer les déclarations existantes) ;
+-   soit en indiquant deux valeurs représentant une plage de valeurs à considérées comme manquantes avec `labelled::na_range()` (seront considérées comme manquantes toutes les valeurs supérieures ou égale au premier chiffre et inférieures ou égales au second chiffre[^valeurs-manquantes-1]).
+
+[^valeurs-manquantes-1]: On peut utiler `-Inf` et `Inf` qui représentent respectivement <q>moins l'infini</q> et <q>l'infini</q>.
+
+```{r}
+v <- c(1, 2, 3, 9, 1, 3, 2, NA)
+val_labels(v) <- c(
+  faible = 1, 
+  fort = 3, 
+  "ne sait pas" = 9
+)
+na_values(v) <- 9
+v
+
+na_values(v) <- NULL
+v
+
+na_range(v) <- c(5, Inf)
+v
+```
+
+On peut noter que les *user NAs* peuvent cohabiter avec des *regular NAs* ainsi qu'avec des étiquettes de valeurs (*value labels*, cf. @sec-etiquettes-valeurs).
+
+Pour manipuler les variables d'un tableau de données, on peut également avoir recours à `labelled::set_na_values()` et `labelled::set_na_range()`.
+
+```{r}
+df <- 
+  dplyr::tibble(
+    s1 = c("M", "M", "F", "F"), 
+    s2 = c(1, 1, 2, 9)
+  ) |> 
+  set_na_values(s2 = 9)
+df$s2
+
+df <- 
+  df |> 
+  set_na_values(s2 = NULL)
+df$s2
+```
+
+### Tests
+
+La fonction `is.na()` est l'une des rares fonctions de base **R** à reconnaître les *user NAs* et donc à renvoyer `TRUE` dans ce cas. Pour des tests plus spécifiques, on aura recours à `labelled::is_user_na()` et `labelled::is_regular_na()`.
+
+```{r}
+v
+v |> is.na()
+v |> is_user_na()
+v |> is_regular_na()
+```
+
+### Conversion
+
+Comme dit précédemment, pour la plupart des fonctions de **R**, les *users NAs* sont toujours des valeurs valides.
+
+```{r}
+x <- c(1:5, 11:15)
+na_range(x) <- c(10, Inf)
+x
+mean(x)
+```
+
+On aura alors recours à `labelled::user_na_to_regular_na()` pour convertir les *users NAs* en véritables valeurs manquantes avant de procéder à un calcul statistique.
+
+```{r}
+x |> 
+  user_na_to_na()
+x |> 
+  user_na_to_na() |> 
+  mean(na.rm = TRUE)
+```
+
+Une alternative consiste à transformer les *user NAs* en *tagged NAs* avec `labelled::user_na_to_tagged_na()`.
+
+```{r}
+x |> 
+  user_na_to_tagged_na() |> 
+  print_tagged_na()
+x |> 
+  user_na_to_tagged_na() |> 
+  mean(na.rm = TRUE)
+```
+
+Pour supprimer les métadonnées relatives aux *user NAs* sans les convertir en valeurs manquantes, on aura recours à `labelled::remove_user_na()`.
+
+```{r}
+x |>
+  remove_user_na()
+x |> 
+  remove_user_na() |> 
+  mean()
+```
+
+Enfin, lorsque l'on convertit un vecteur labellisé en facteur avec `labelled::to_factor()`, on pourra utiliser l'argument `user_na_to_na` pour indiquer si les *users NAs* doivent être convertis ou non en valeurs manquantes classiques (`NA`).
+
+```{r}
+x <- c(1, 2, 9, 2)
+val_labels(x) <- c(oui = 1, non = 2, refus = 9)
+na_values(x) <- 9
+x |>
+  to_factor(user_na_to_na = TRUE)
+x |>
+  to_factor(user_na_to_na = FALSE)
+```

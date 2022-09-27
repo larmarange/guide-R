@@ -1,0 +1,235 @@
+# Import & Export des données {#sec-import-export}
+
+## Importer un fichier texte
+
+Les fichiers texte constituent un des formats les plus largement supportés par la majorité des logiciels statistiques. Presque tous permettent d'exporter des données dans un format texte, y compris les tableurs comme **Libre Office**, **Open Office** ou **Excel**.
+
+Cependant, il existe une grande variétés de format texte, qui peuvent prendre différents noms selon les outils, tels que texte tabulé ou *texte (séparateur : tabulation)*, **CSV** (pour *comma-separated value*, sachant que suivant les logiciels le séparateur peut être une virgule ou un point-virgule).
+
+### Structure d'un fichier texte
+
+Dès lors, avant d'importer un fichier texte dans **R**, il est indispensable de regarder comment ce dernier est structuré. Il importe de prendre note des éléments suivants :
+
+-   La première ligne contient-elle le nom des variables ?
+-   Quel est le caractère séparateur entre les différentes variables (encore appelé séparateur de champs) ? Dans le cadre d'un fichier **CSV**, il aurait pu s'agir d'une virgule ou d'un point-virgule.
+-   Quel est le caractère utilisé pour indiquer les décimales (le séparateur décimal) ? Il s'agit en général d'un point (à l'anglo-saxonne) ou d'une virgule (à la française).
+-   Les valeurs textuelles sont-elles encadrées par des guillemets et, si oui, s'agit-il de guillements simple (`'`) ou de guillemets doubles (`"`) ?
+-   Pour les variables textuelles, y a-t-il des valeurs manquantes et si oui comment sont-elles indiquées ? Par exemple, le texte `NA` est parfois utilisé.
+
+Il ne faut pas hésitez à ouvrir le fichier avec un éditeur de texte pour le regarder de plus près.
+
+### Interface graphique avec RStudio
+
+**RStudio** fournit une interface graphique pour faciliter l'import d'un fichier texte. Pour cela, il suffit d'aller dans le menu *File \> Import Dataset* et de choisir l'option *From CSV*[^import-export-1]. Cette option est également disponible via l'onglet *Environment* dans le quadrant haut-droite.
+
+[^import-export-1]: L'option CSV fonctionne pour tous les fichiers de type texte, même si votre fichier a une autre extension, `.txt` par exemple
+
+Pour la suite, nous allons utiliser ce [fichier texte à titre d'exemple](ressources/exemple_texte_tabule.txt).
+
+![Importer un fichier texte avec RStudio](ressources/capture_RStudio_import_readr.png){#fig-import-rstudio-readr}
+
+L'interface de **RStudio** vous présente sous *Import Options* les différentes options d'import disponible. La section *Data Preview* vous permet de voir en temps réel comment les données sont importées. La section *Code Preview* vous indique le code **R** correspondant à vos choix. Il n'y a plus qu'à le copier/coller dans un de vos scripts ou à cliquer sur **Import** pour l'exécuter.
+
+Vous pourrez remarquer que **RStudio** fait appel à l'extension `{readr}` du tidyverse pour l'import des données via la fonction `readr::read_csv()`.
+
+`{readr}` essaie de deviner le type de chacune des colonnes, en se basant sur les premières observations. En cliquant sur le nom d'une colonne, il est possible de modifier le type de la variable importée. Il est également possible d'exclure une colonne de l'import (*skip*).
+
+### Dans un script
+
+L'interface graphique de **RStudio** fournit le code d'import. On peut également l'adapter à ces besoins en consultant la page d'aide de `readr::read_csv()` pour plus de détails. Par exemple :
+
+```{r}
+#| eval: false
+library(readr)
+d <- read_delim(
+  "http://larmarange.github.io/analyse-R/data/exemple_texte_tabule.txt", 
+  delim = "\t", 
+  quote = "'"
+)
+```
+
+On peut indiquer le chemin local vers un fichier (le plus courant) ou bien directement l'URL d'un fichier sur Internet.
+
+`{readr}` propose plusieurs fonctions proches : `readr::read_delim()`, `readr::read_csv()`, `readr::read_csv2()` et `readr::read_tsv()`. Elles fonctionnent toutes de manière identique et ont les mêmes arguments. Seule différence, les valeurs par défaut de certainsparamètres.
+
+::: callout-tip
+## Fichiers de très grande taille
+
+Si vous travaillez sur des données de grandes dimensions, les formats texte peuvent être lents à exporter et importer. Dans ce cas là, on pourra jeter un œil au package `{vroom}` et/ou aux fonctions `data.table::fread()` et `data.table::fwrite()`.
+:::
+
+::: note
+Dans des manuels ou des exemples en ligne, vous trouverez parfois mention des fonctions `utils::read.table()`, `utils::read.csv()`, `utils::read.csv2()`, `utils::read.delim()` ou encore `utils::read.delim2()`. Il s'agit des fonctions natives et historiques de **R** (extension `{utils}`) dédiées à l'import de fichiers textes. Elles sont similaires à celles de `{readr}` dans l'idée générale mais diffèrent dans leurs détails et les traitements effectués sur les données (pas de détection des dates par exemple). Pour plus d'information, vous pouvez vous référer à la page d'aide de ces fonctions.
+:::
+
+## Importer un fichier Excel
+
+Une première approche pour importer des données **Excel** dans **R** consiste à les exporter depuis **Excel** dans un fichier texte (texte tabulé ou **CSV**) puis de suivre la procédure d'importation d'un fichier texte.
+
+Une feuille **Excel** peut également être importée directement avec l'extension `{readxl}` du *tidyverse*.
+
+La fonction `readxl::read_excel()` permet d'importer à la fois des fichiers `.xls` (**Excel** 2003 et précédents) et `.xlsx` (**Excel** 2007 et suivants).
+
+```{r}
+#| eval: false
+library(readxl)
+donnees <- read_excel("data/fichier.xlsx")
+```
+
+Une seule feuille de calculs peut être importée à la fois. On pourra préciser la feuille désirée avec `sheet` en indiquant soit le nom de la feuille, soit sa position (première, seconde, ...).
+
+```{r}
+#| eval: false
+donnees <- read_excel("data/fichier.xlsx", sheet = 3)
+donnees <- read_excel("data/fichier.xlsx", sheet = "mes_donnees")
+```
+
+On pourra préciser avec `col_names` si la première ligne contient le nom des variables.
+
+Par défaut, `readxl::read_excel()` va essayer de deviner le type (numérique, textuelle, date) de chaque colonne. Au besoin, on pourra indiquer le type souhaité de chaque colonne avec `col_types`.
+
+**RStudio** propose également pour les fichiers **Excel** un assitant d'importation, similaire à celui pour les fichiers texte, permettant de faciliter l'import.
+
+## Importer depuis des logiciels de statistique
+
+Le package `{haven}` du *tidyverse* a été développé spécifiquement pour permettre l'importation de données depuis les formats des logiciels **Stata**, **SAS** et **SPSS**.
+
+Il vise à offrir une importation unifiée depuis ces trois logiciels (là où le package `{foreign}` distribué en standard avec **R** adopte des conventions différentes selon le logiciel source).
+
+Afin de ne pas perdre d'information lors de l'import, `{haven}` a introduit la notion d'étiquettes de variables (cf. @sec-etiquettes-variables), une classe de vecteurs pour la gestion des étiquettes de valeurs (cf. @sec-etiquettes-valeurs), des mécanismes pour reproduire la gestion des valeurs manquantes de ces trois logiciels (cf. @valeurs-manquantes), mais également une gestion et un import correct des dates, dates-heures et des variables horaires (cf. le package `{hms}`).
+
+À noter que **RStudio** intègre égalementg une interface graphique pour l'import des fichiers **Stata**, **SAS** et **SPSS**.
+
+### SPSS
+
+Les fichiers générés par **SPSS** sont de deux types : les fichiers **SPSS natifs** (extension `.sav`) et les fichiers au format **SPSS export** (extension `.por`).
+
+Dans les deux cas, on aura recours à la fonction `haven::read_spss()` :
+
+```{r}
+#| eval: false
+library(haven)
+donnees <- read_spss("data/fichier.sav", user_na = TRUE)
+```
+
+::: callout-tip
+## Valeurs manquantes
+
+Dans **SPSS**, il est possible de définir des valeurs à considérées comme manquantes ou *user NAs*, voir @sec-valeurs-manquantes. Par défaut, `haven::read_spss()` convertir toutes ces valeurs en `NA` lors de l'import.
+
+Or, il est parfois important de garder les différentes valeurs originelles. Dans ce cas, on appellera `haven::read_spss()` avec l'option `user_na = TRUE`.
+:::
+
+### SAS
+
+Les fichiers **SAS** se présentent en général sous deux format : format **SAS export** (extension `.xport` ou `.xpt`) ou format **SAS natif** (extension `.sas7bdat`).
+
+Les fichiers **SAS natifs** peuvent être importées directement avec `haven::read_sas()` de l'extension `{haven}` :
+
+```{r}
+#| eval: false
+library(haven)
+donnees <- read_sas("data/fichier.sas7bdat")
+```
+
+Au besoin, on pourra préciser en deuxième argument le nom d'un fichier **SAS catalogue** (extension `.sas7bcat`) contenant les métadonnées du fichier de données.
+
+```{r}
+#| eval: false
+library(haven)
+donnees <- read_sas(
+  "data/fichier.sas7bdat", 
+  catalog_file = "data/fichier.sas7bcat"
+)
+```
+
+::: callout-note
+Les fichiers au format **SAS export** peuvent être importés via la fonction `foreign::read.xport()` de l'extension `{foreign}`. Celle-ci s'utilise très simplement, en lui passant le nom du fichier en argument :
+
+```{r}
+#| eval: false
+library(foreign)
+donnees <- read.xport("data/fichier.xpt")
+```
+:::
+
+### Stata
+
+Pour les fichiers **Stata** (extension `.dta`), on aura recours aux fonctions `haven::read_dta()` et `haven::read_stata()` de l'extension `{haven}`. Ces deux fonctions sont identiques.
+
+```{r}
+#| eval: false
+library(haven)
+donnees <- read_dta("data/fichier.dta")
+```
+
+::: callout-important
+**Gestion des valeurs manquantes**
+
+Dans **Stata**, il est possible de définir plusieurs types de valeurs manquantes, qui sont notées sous la forme `.a` à `.z`. Elles sont importées par `{haven}` sous formes de *tagged NAs*, cf. @sec-valeurs-manquantes.
+:::
+
+### dBase
+
+L'Insee et d'autres producteur de données diffusent leurs fichiers au format **dBase** (extension `.dbf`). Ceux-ci sont directement lisibles dans **R** avec la fonction `foreign::read.dbf()` de l'extension `{foreign}`.
+
+```{r}
+#| eval: false
+library(foreign)
+donnees <- read.dbf("data/fichier.dbf")
+```
+
+## Sauver ses données
+
+**R** dispose également de son propre format pour sauvegarder et échanger des données. On peut sauver n'importe quel objet créé avec **R** et il est possible de sauver plusieurs objets dans un même fichier. L'usage est d'utiliser l'extension `.RData` pour les fichiers de données **R**. La fonction à utiliser s'appelle tout simplement `save()`.
+
+Par exemple, si l'on souhaite sauvegarder son tableau de données `d` ainsi que les objets `tailles` et `poids` dans un fichier `export.RData` :
+
+```{r}
+#| eval: false
+save(d, tailles, poids, file = "export.RData")
+```
+
+À tout moment, il sera toujours possible de recharger ces données en mémoire à l'aide de la fonction `load()` :
+
+```{r}
+#| eval: false
+load("export.RData")
+```
+
+::: callout-caution
+Si entre temps vous aviez modifié votre tableau `d`, vos modifications seront perdues. En effet, si lors du chargement de données, un objet du même nom existe en mémoire, ce dernier sera remplacé par l'objet importé.
+:::
+
+La fonction `save.image()` est un raccourci pour sauvergarder tous les objets de la session de travail dans le fichier `.RData` (un fichier un peu étrange car il n'a pas de nom mais juste une extension). Lors de la fermeture de **RStudio**, il vous sera demandé si vous souhaitez enregistrer votre session. Si vous répondez *Oui*, c'est cette fonction `save.image()` qui sera appliquée.
+
+```{r}
+#| eval: false
+save.image()
+```
+
+Un autre mécanisme possible est le format **RDS** de **R**. La fonction `saveRDS()` permet de sauvegarder **un et un seul** objet **R** dans un fichier.
+
+```{r}
+#| eval: false
+saveRDS(d, file = "mes_donnees.rds")
+```
+
+Cet objet pourra ensuite être lu avec la fonction `readRDS()`. Mais au lieu d'être directement chargé dans la mémoire de l'environnement de travail, l'objet lu sera retourné par la fonction `readRDS()` et ce sera à l'utilisateur de le sauvegarder.
+
+```{r}
+#| eval: false
+donnees <- readRDS("mes_donnees.rds")
+```
+
+## Export de tableaux de données
+
+On peut avoir besoin d'exporter un tableau de données **R** vers différents formats. La plupart des fonctions d'import disposent d'un équivalent permettant l'export de données. On citera notamment :
+
+-   `readr::write_csv()` et `readr::write_tsv()` permettent d'exporter au format **CSV** et texte tabulé respectivement, `readr::write_delim()` offrant de multiples options pour l'exort au format texte ;
+-   `haven::write_sas()` permet d'exporter au format **SAS ;**
+-   `haven::write_sav()` au format **SPSS ;**
+-   `haven::write_dta()` au format **Stata ;**
+-   `foreign::write.dbf()` au format **dBase**.
+
+L'extension `readxl` ne fournit pas de fonction pour exporter au format **Excel**. Par contre, on pourra passer par la fonction `openxlsx::write.xlsx()` du package `{openxlsx}` ou la fonction `xlsx::write.xlsx()` de l'extension `{xlsx}`. L'intérêt de `{openxlsx}` est de ne pas dépendre de **Java** à la différence de `{xlsx}`.
