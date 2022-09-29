@@ -1,0 +1,194 @@
+# Graphiques avec `ggplot2` {#sec-ggplot2}
+
+Le package `{ggplot2}` fait partie intégrante du *tidyverse*. Développé par Hadley Wickham, ce package met en œuvre la <q>grammaire graphique </q> théorisée par Leland Wilkinson. Il devient vite indispensable lorsque l'on souhaite réaliser des graphiques un peu complexe.
+
+## Ressources
+
+Il existe de très nombreuses ressources traitant de `{ggplot2}`.
+
+Pour une introduction en français, on pourra se référer au chapitre [Visualiser avec ggplot2](https://juba.github.io/tidyverse/08-ggplot2.html) de l'*Introduction à R et au tidyverse* de Julien Barnier, au chapitre [Introduction à ggplot2, la grammaire des graphiques](https://larmarange.github.io/analyse-R/intro-ggplot2.html) du site *analyse-R* et adapté d'une séance de cours de François Briatte, ou encore au chapitre [Graphiques](http://egallic.fr/Enseignement/R/m1_stat_eco_logiciel_R.pdf) du cours *Logiciel R et programmation* d'Ewen Gallic.
+
+Pour les anglophones, la référence reste encore l'ouvrage *ggplot2: Elegant Graphics for Data Analysis* d'Hadley Wickham lui-même, dont la troisième édition est librement accessible en ligne (<https://ggplot2-book.org/>). D'un point de vue pratique, l'ouvrage *R Graphics Cookbook: practical recipes for visualizing data* de Winston Chang est une mine d'informations, ouvrage là encore librement accessible en ligne (<https://r-graphics.org/>).
+
+## Les bases de `ggplot2`
+
+`{ggplot2}` nécessite que les données du graphique soient sous la forme d'un tableau de données (*data.frame* ou *tibble*) au format *tidy*, c'est-à-dire avec une ligne par observation et les différentes valeurs à représenter sous forme de variables du tableau.
+
+![La grammaire des graphiques](ressources/ggplot-grammar-of-graphics.png){#fig-grammaire-graphiques}
+
+Tous les graphiques avec `{ggplot2}` suivent une même logique. En **premier** lieu, on appelera la fonction `ggplot2::ggplot()` en lui passant en paramètre le fichier de données.
+
+`{ggplot2}` nomme *esthétiques* les différentes propriétés visuelles d'un graphique, à savoir l'axe des x (`x`), celui des y (`y`), la couleur des lignes (`colour`), celle de remplissage des polygones (`fill`), le type de lignes (`linetype`), la forme des points (`shape`), etc. Une représentation graphique consiste donc à représenter chacune de nos variables d'intérêt selon une esthétique donnée. En **second** lieu, on appelera donc la fonction `ggplot2::aes()` pour indiquer la correspondance entre les variables de notre fichier de données et les esthétiques du graphique.
+
+A minima, il est nécessaire d'indiquer en **troisième** lieu une *géométrie*, autrement dit la manière dont les éléments seront représentés visuellement. À chaque géométrie corresponds une fonction commençant par `geom_`, par exemple `ggplot2::geom_point()` pour dessiner des points, `ggplot2::geom_line()` pour des lignes, `ggplot2::geom_bar()` pour des barres ou encore `ggplot2::geom_area()` pour des aires. Il existe de nombreuses géométries différentes[^ggplot2-1], chacune prenant en compte certaines esthétiques, certaines étant requises pour cette géométrie et d'autres optionnelles. La liste des esthétiques prises en compte par chaque géométrie est indiquée dans l'aide en ligne de cette dernière.
+
+[^ggplot2-1]: On trouvera une liste dans la *cheat sheet* de `{ggplot2}`, voir @sec-cheatsheet-ggplot2.
+
+Voici un exemple minimal de graphique avec `{ggplot2}` :
+
+```{r}
+#| fig-cap: Un exemple simple de nuage de points avec `ggplot2`
+#| label: fig-exemple-simple-ggplot2
+library(ggplot2)
+p <- 
+  ggplot(iris) +
+  aes(
+    x = Petal.Length, 
+    y = Petal.Width, 
+    colour = Species
+  ) +
+  geom_point()
+p
+```
+
+::: callout-important
+## Syntaxe additive
+
+Le développement de `{ggplot2}` a débuté avant celui du *tidyverse* et la généralisation du *pipe*. Dès lors, on ne sera pas étonné que la syntaxe de `{ggplot2}` n'ait pas recours à ce dernier mais repose sur une approche *additive*. Un graphique est dès lors initialisé avec la fonction `ggplot2::ggplot()` et l'on <q>ajoutera</q> successivement des éléments au graphique en appelant différentes fonctions et en utilisant l'opérateur `+`.
+:::
+
+Il est ensuite possible de personnaliser de nombreux éléments d'un graphique et notamment :
+
+-   les *étiquettes* ou *labs* (titre, axes, légendes) avec `ggplot2::ggtitle()`, `ggplot2::xlab()`, `ggplot2::ylab()` ou encore la fonction plus générique `ggplot2::labs()` ;
+-   les *échelles* (*scales*) des différentes esthétiques avec les fonctions commençant par `scale_` ;
+-   le système de *coordonnées* avec les fonctions commençant par `coord_` ;
+-   les *facettes* (*facets*) avec les fonctions commençant par `facet_` ;
+-   la *légende* (*guides*) avec les fonctions commençant par `guide_` ;
+-   le *thème* du graphiques (mise en forme des différents éléments) avec `ggplot2::theme()`.
+
+```{r}
+#| label: fig-exemple-avance-ggplot2
+#| fig-cap: Un exemple avancé de nuage de points avec `ggplot2`
+#| fig-height: 4
+p +
+  labs(
+    x = "Longueur du pétale",
+    y = "Largeur du pétale",
+    colour = "Espèce"
+  ) +
+  ggtitle(
+    "Relation entre longueur et largeur des pétales",
+    subtitle = "Jeu de données Iris"
+  ) +
+  scale_x_continuous(breaks = 1:7) +
+  scale_y_continuous(
+    labels = scales::label_number(decimal.mark = ",")
+  ) +
+  coord_equal() +
+  facet_grid(cols = vars(Species)) +
+  guides(
+    color = guide_legend(nrow = 2)
+  ) +
+  theme_light() +
+  theme(
+    legend.position = "bottom",
+    axis.title = element_text(face = "bold")
+  )
+```
+
+::: {.content-visible when-format="html"}
+Le diaporama ci-dessous vous permet de visualiser chaque étape du code.
+
+::: {.column-page-right .ratio .ratio-16x9}
+<iframe src="ressources/flipbook-ggplot2.html">
+
+</iframe>
+:::
+:::
+
+## Cheatsheet {#sec-cheatsheet-ggplot2}
+
+[![Cheatsheet ggplot2](ressources/data-visualization-cheatsheet-thumbs.png){#fig-cheatsheet-ggplot2}](https://github.com/rstudio/cheatsheets/raw/main/data-visualization-2.1.pdf)
+
+## Exploration visuelle avec `esquisse`
+
+Le package `{esquisse}` propose un *addin* offrant une interface visuelle pour la création de graphiques `{ggplot2}`. Après installation du package, on pourra lancer `{esquisse}` directement à partir du menu *addins* de **RStudio**.
+
+![Lancement d'`esquisse` à partir du menu *Addins* de **RStudio**](ressources/esquisse-launch-addin.png){#fig-lancement-esquisse}
+
+Au lancement de l'*addin*, une interface permettra de choisir le tableau de données à partir duquel générer le graphique. Le plus simple est de choisir un tableau présent dans l'environnement. Mais `{esquisse}` offre aussi la possibilité d'importer des fichiers externes, voir de procéder à quelques modificatiosn des données.
+
+![Import de données au lancement d'`esquisse`](ressources/esquisse-import-data.png){#fig-esquisse-import-donnees}
+
+Le principe général d'`{esquisse}` consiste à associer des variables à des esthétiques par glisser/déposer[^ggplot2-2]. L'outil déterminera automatiquement une géométrie adaptée en fonction de la nature des variables (continues ou catgéorielles). Un clic sur le nom de la géométrie en haut à gauche permet de sélectionner une autre géométrie.
+
+[^ggplot2-2]: Si une esthétique n'est pas visible à l'écran, on pourra cliquer en haut à droite sur l'icône en forme de roue dentée afin de choisir d'afficher plus d'esthétiques.
+
+![Choix d'une géométrie dans `esquisse`](ressources/esquisse-geometries.png){#fig-esquisse-géométrie}
+
+Les menus situés en bas de l'écran permettent d'ajouter/modifier des étiquettes, de modifier certaines options du graphiques, de modifier les échelles de couleurs et l'apparence du graphique, et de filtrer les observations inclues dans le graphique.
+
+Le menu **Code** permet de récupérer le code correspondant au graphique afin de pouvoir le copier/coller dans un script.
+
+![Obtenir le code du graphique obtenu avec `esquisse`](ressources/esquisse-controls-code.png){#fig-esquisse-code}
+
+`{esquisse}` offre également la possibilité d'exporter le graphique obtenu dans différents formats.
+
+## webin-R
+
+L'utilisation d'`{esquisse}` est présentée dans le webin-R #03 (*statistiques descriptives avec gtsummary et esquisse*) sur [YouTube](https://youtu.be/oEF_8GXyP5c?t=2620).
+
+{{< video https://youtu.be/oEF_8GXyP5c start='2620' >}}
+
+`{ggplot2}` est abordé plus en détails dans le webin-R #08 (*ggplot2 et la grammaire des graphiques*) sur [YouTube](https://youtu.be/msnwENny_cg).
+
+{{< video https://youtu.be/msnwENny_cg >}}
+
+## Combiner plusieurs graphiques
+
+Plusieurs packages proposent des fonctions pour combiner ensemble des graphiques `{ggplot2}`, comme `{patchwork}`, `{ggpubr}` ou `{egg}`. Ici, nous privilégierons la fonction `cowplot::plot_grid()` du package `{cowplot}` car elle permet notamment d'aligner les graphiques les uns par rapports aux autres.
+
+Commençons par créer quelques graphiques avec `{ggplot2}`.
+
+```{r}
+p1 <- ggplot(mtcars) +
+  aes(x = wt, y = mpg) + 
+  geom_point()
+p2 <- ggplot(mtcars) +
+  aes(x = factor(cyl)) +
+  geom_bar()
+p3 <- ggplot(mtcars) +
+  aes(x = factor(cyl), y = mpg) +
+  geom_violin() +
+  theme(axis.title = element_text(size = 20))
+p4 <- ggplot(mtcars) +
+  aes(x = factor(cyl), y = mpg) + 
+  geom_boxplot() +
+  ylab(NULL)
+```
+
+La fonction `cowplot::plot_grid()` permet de combiner ces différents graphiques entre eux.
+
+```{r}
+library(cowplot)
+plot_grid(p1, p2, p3, p4)
+```
+
+Le nombre de lignes / colonnes peut être personnalisé avec les paramètres `nrow` et `ncol`.
+
+```{r}
+plot_grid(p1, p2, p3, nrow = 1)
+```
+
+On peut également ajouter des étiquettes avec l'argument `labels`.
+
+```{r}
+plot_grid(p1, p2, p3, labels = "AUTO", label_size = 12)
+```
+
+Dans certain cas, on peut avoir besoin d'aligner les axes des graphiques, ce qui s'obtient avec l'argument `align`.
+
+```{r}
+plot_grid(p1, p2, p3, p4, align = "hv")
+```
+
+Enfin, on peut jouer les hauteurs/largeurs relatives des lignes/colonnes avec `rel_heights` et `rel_witdhs`.
+
+```{r}
+plot_grid(
+  p1, p2, p3, p4, 
+  align='hv', 
+  rel_heights=c(2,1), 
+  rel_widths=c(1,2)
+)
+```
