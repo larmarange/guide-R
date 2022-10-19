@@ -1,0 +1,798 @@
+# Statistique univariée & Intervalles de confiance {#sec-statistique-univariee}
+
+On entend par statistique univariée l'étude d'une seule variable, que celle-ci soit continue (quantitative) ou catégorielle (qualitative). La statistique univariée fait partie de la statistique descriptive.
+
+## Exploration graphique
+
+Une première approche consiste à explorer visuelle la variable d'intérêt, notamment à l'aide de l'interface proposée par `{esquisse}` (cf @sec-esquisse).
+
+Nous indiquons ci-après le code correspond aux graphiques `{ggplot2}` les plus courants.
+
+```{r}
+library(ggplot2)
+```
+
+### Variable continue
+
+Un histogramme est la représentation graphique la plus commune pour représenter la distribution d'une variable, par exemple ici la longueur des pétales (variable `Petal.Length`) du fichier de données `datasets::iris`. Il s'obtient avec la géométrie `ggplot2::geom_histogram()`.
+
+```{r}
+#| label: fig-histogramme-simple
+#| fig-cap: un histogramme simple
+ggplot(iris) +
+  aes(x = Petal.Length) +
+  geom_histogram()
+```
+
+::: callout-tip
+Il faut noter qu'il nous a suffit d'associer simplement la variable `Petal.Length` à l'esthétique **x**, sans avoir eu besoin d'indiquer une variable pour l'esthétique **y**.
+
+En fait, `{ggplot2}` associe par défaut à toute géométrie une certaine statistique. Dans le cas de `ggplot2::geom_histogram()`, il s'agit de la statistique `ggplot2::stat_bin()` qui divise la variable continue en classes de même largeur et compte le nombre d'observation dans chacunes. `ggplot2::stat_bin()` renvoie un certain nombre de variables calculées (la liste complète est indiquée dans la documentation dans la section *Compute variables*), dont la variable `count` qui correspond au nombre d'observations la classe. On peut associer cette variable calculée à une esthétique grace à la fonction `ggplot2::after_stat()`, par exemple `aes(y = after_stat(count))`. Dans le cas présent, ce n'est pas nécessaire car `{ggplot2}` fait cette association automatiquement si l'on n'a pas déjà attribué une variable à l'esthétique **y**.
+:::
+
+On peut personnaliser la couleur de remplissage des rectangles en indiquant une valeur fixe pour l'esthétique `fill` dans l'appel de `ggplot2::geom_histogram()` (et non via la fonction `ggplot2::aes()` puisqu'il ne s'agit pas d'une variable du tableau de données). L'esthétique `colour` permet de spécifier la couleur du trait des rectangles. Enfin, le paramètre `binwidth` permet de spécifier la largeur des barres.
+
+```{r}
+#| label: fig-histogramme-personnalise
+#| fig-cap: un histogramme personnalisé
+ggplot(iris) +
+  aes(x = Petal.Length) +
+  geom_histogram(
+    fill ="lightblue", 
+    colour = "black", 
+    binwidth = 1
+  ) +
+  xlab("Longeur du pétale") +
+  ylab("Effectifs")
+```
+
+On peut alternativement indiquer un nombre de classes avec `bins`.
+
+```{r}
+#| label: fig-histogramme-10-classes
+#| fig-cap: un histogramme en 10 classes
+ggplot(iris) +
+  aes(x = Petal.Length) +
+  geom_histogram(bins = 10, colour = "black")
+```
+
+Une représentation alternative de la distribution d'une variable peut être obtenue avec une courbe de densité, dont la particularité est d'avoir une surface sous la courbe égale à 1. Une telle courbe s'obtient avec `ggplot2::geom_density()`. Le paramètre `adjust` permet d'ajuster le niveau de lissage de la courbe.
+
+```{r}
+#| label: fig-courbe-densite
+#| fig-cap: une courbe de densité
+ggplot(iris) +
+  aes(x = Petal.Length) +
+  geom_density(adjust = .5)
+```
+
+### Variable catégorielle
+
+Pour représenter la répartition des effectifs parmi les modalités d'une variable catégorielle, on a souvent tendance à utiliser des diagrammes en secteurs (<q>camemberts</q>). Or, ce type de représentation graphique est très rarement appropriée : l'oeil humain préfère comparer des longueurs plutôt que des surfaces[^statistique-univariee-1].
+
+[^statistique-univariee-1]: Voir en particulier <https://www.data-to-viz.com/caveat/pie.html> pour un exemple concret.
+
+Dans certains contextes ou pour certaines présentations, on pourra éventuellement considérer un diagramme en <q>donut</q>, mais le plus souvent, rien ne vaut un bon vieux diagramme en barres avec `ggplot2::geom_bar()`. Prenons pour l'exemple la variable `occup` du jeu de données `hdv2003` du package `{questionr}`.
+
+```{r}
+#| label: fig-diag-barres-simple
+#| fig-cap: un diagramme en barres simple
+data("hdv2003", package = "questionr")
+ggplot(hdv2003) +
+  aes(x = occup) +
+  geom_bar()
+```
+
+::: callout-tip
+Là encore, `{ggplot2}` a calculé de lui-même le nombre d'observations de chaque modalité, en utilisant cette fois la statistique `ggplot2::stat_count()`.
+:::
+
+Si l'on souhaite représenter des pourcentages plutôt que des effectifs, le plus simple est d'avoir recours à la statistique `ggstats::stat_prop()` du package `{ggstats}`[^statistique-univariee-2]. Pour appeler cette statistique, on utilisera simplement `stat = "prop"` dans les géométries concernées.
+
+[^statistique-univariee-2]: Cette statistique est également disponible via le package `{GGally}`.
+
+Cette statistique, qui sera également bien utile pour des graphiques plus complexes, nécessite qu'on lui indique une esthétique **by** pour dans quels sous-groupes calculés des proportions. Ici, nous avons un seul groupe considéré et nous souhaitons des pourcentages du total. On indiquera simplement `by = 1`.
+
+Pour formater l'axe vertical avec des pourcentages, on pourra avoir recours à la fonction `scales::label_percent()` que l'on appelera via `ggplot2::scale_y_continuous()`.
+
+```{r}
+#| label: fig-diag-barres-personalise
+#| fig-cap: un diagramme en barres épuré
+library(ggstats)
+ggplot(hdv2003) +
+  aes(x = occup, y = after_stat(prop), by = 1) +
+  geom_bar(stat = "prop") +
+  scale_y_continuous(labels = scales::label_percent())
+```
+
+Pour une publication ou une communication, il ne faut surtout pas hésiter à **épurer** vos graphiques (*less is better!*), voire à trier les modalités en fonction de leur fréquence pour faciliter la lecture (ce qui se fait aisément avec `forcats::fct_infreq()`).
+
+```{r}
+#| label: fig-diag-barres-epure
+#| fig-cap: un diagramme en barres épuré
+ggplot(hdv2003) +
+  aes(x = forcats::fct_infreq(occup), 
+      y = after_stat(prop), by = 1) +
+  geom_bar(stat = "prop", 
+           fill = "#4477AA", colour = "black") +
+  geom_text(
+    aes(label = after_stat(prop) |> 
+          scales::percent(accuracy = .1)),
+    stat = "prop",
+    nudge_y = .02
+  ) +
+  theme_minimal() +
+  theme(
+    panel.grid = element_blank(),
+    axis.text.y = element_blank()
+  ) +
+  xlab(NULL) + ylab(NULL) +
+  ggtitle("Occupation des personnes enquêtées")
+```
+
+::: {.content-visible when-format="html"}
+Le [diaporama ci-dessous](ressources/flipbook-geom_bar-univarie.html) vous permet de visualiser chaque étape du code.
+
+::: {.column-page-right .ratio .ratio-16x9}
+<iframe src="ressources/flipbook-geom_bar-univarie.html">
+
+</iframe>
+:::
+:::
+
+## Tableaux et tris à plat
+
+Le package `{gtsummary}` constitue l'une des boites à outils de l'analyste quantitativiste, car il permet de réaliser très facilement des tableaux quasiment publiables en l'état. En matière de statistique univarisée, la fonction clé est `gtsummary::tbl_summary()`.
+
+Commençons avec un premier exemple rapide. On part d'un tableau de données et on indique, avec l'argument `include`, les variables à afficher dans le tableau statistique (si on n'indique rien, toutes les variables du tableau de données sont considérées). Il faut noter que l'argument `include` de `gtsummary::tbl_summary()` utilise la même syntaxe dite <q>*tidy select*</q> que `dplyr::select()` (cf. @sec-dplyr-select). On peut indiquer tout autant des variables catégorielles que des variables continues.
+
+```{r}
+#| label: tbl-tableau-simple
+#| tbl-cap: un tableau simple
+library(gtsummary)
+hdv2003 |> 
+  tbl_summary(include = c(age, occup))
+```
+
+::: callout-important
+## Remarque sur les types de variables et les sélecteurs associés
+
+`{gtsummary}` permets de réaliser des tableaux statistiques combinant plusieurs variables, l'affichage des résultats pouvant dépendre du type de variables.
+
+Par défaut, `{gtsummary}` considère qu'une variable est **catégorielle** s'il s'agit d'un facteur, d'une variable textuelle ou d'une variable numérique ayant moins de 10 valeurs différentes.
+
+Une variable sera considérée comme **dichotomique** (variable catégorielle à seulement deux modalités) s'il s'agit d'un vecteur logique (`TRUE`/`FALSE`), d'une variable textuelle codée `yes`/`no` ou d'une variable numérique codée `0`/`1`.
+
+Dans les autres cas, une variable numérique sera considérée comme **continue**.
+
+Si vous utilisez des vecteurs labellisés (cf. @sec-etiquettes-valeurs), vous devez les convertir, en amont, en facteurs ou en variables numériques. Voir l'extension `{labelled}` et les fonctions `labelled::to_factor()`, `labelled::unlabelled()` et `unclass()`.
+
+Au besoin, il est possible de forcer le type d'une variable avec l'argument `type` de `gtsummary::tbl_summary()`.
+
+`{gtsummary}` fournit des sélecteurs qui peuvent être utilisés dans les options des différentes fonctions, en particulier `gtsummary::all_continuous()` pour les variables continues, `gtsummary::all_dichotolous()` pour les variables dichotomiques et `gtsummary::all_categorical()` pour les variables catégorielles. Cela inclue les variables dichotomiques. Il faut utiliser `all_categorical(dichotomous = FALSE)` pour sélectionner les variables catégorielles en excluant les variables dichotomiques.
+:::
+
+### Thème du tableau
+
+`{gtsummary}` fournit plusieurs fonctions préfixées `theme_gtsummary_*()` permettant de modifier l'affichage par défaut des tableaux. Vous aurez notez que, par défaut, `{gtsummary}` est anglophone.
+
+La fonction `gtsummary::theme_gtsummary_journal()` permets d'adopter les standards de certaines grandes revues scientifiques telles que *JAMA* (*Journal of the American Medical Association*), *The Lancet* ou encore le *NEJM* (*New England Journal of Medicine*).
+
+La fonction `gtsummary::theme_gtsummary_language()` permet de modifier la langue utilisée par défaut dans les tableaux. Les options `decimal.mark` et `big.mark` permettent de définir respectivement le séparateur de décimales et le séparateur des milliers. Ainsi, pour présenter un tableau en français, on appliquera en début de script :
+
+```{r}
+theme_gtsummary_language(
+  language = "fr", 
+  decimal.mark = ",", 
+  big.mark = " "
+)
+```
+
+Ce thème sera appliqué à tous les tableaux ultérieurs.
+
+```{r}
+#| label: tbl-tableau-simple-fr
+#| tbl-cap: un tableau simple en français
+hdv2003 |> 
+  tbl_summary(include = c(age, occup))
+```
+
+### Étiquettes des variables
+
+`gtsummary`, par défaut, prends en compte les étiquettes de variables (cf. @sec-etiquettes-variables), si elles existent, et sinon utilisera le nom de chaque variable dans le tableau. Pour rappel, les étiquettes de variables peuvent être manipulées avec l'extension `{labelled}` et les fonctions `labelled::var_label()` et `labelled::set_variable_labels()`.
+
+Il est aussi possible d'utiliser l'option `label` de `gtsummary::tbl_summary()` pour indiquer des étiquettes personnalisées.
+
+```{r}
+#| label: tbl-tableau-etiquette
+#| tbl-cap: un tableau étiquetté
+hdv2003 |> 
+  labelled::set_variable_labels(
+    occup = "Occupation actuelle"
+  ) |> 
+  tbl_summary(
+    include = c(age, occup, heures.tv),
+    label = list(age ~ "Âge médian")
+  )
+
+```
+
+Pour modifier les modalités d'une variable catégorielle, il faut modifier en amont les niveaux du facteur correspondant.
+
+::: callout-important
+## Remarque sur la syntaxe des options
+
+De nombreuses options des fonctions de `{gtsummary}` peuvent s'appliquer seulement à une ou certaines variables. Pour ces options-là, `{gtsummary}` attends une formule de la forme `variables concernées ~ valeur de l'option` ou bien une liste de formules ayant cette forme.
+
+Par exemple, pour modifier l'étiquette associée à une certaine variable, on peut utiliser l'option `label` de `gtsummary::tbl_summary()`.
+
+```{r}
+#| eval: false
+trial |> 
+  tbl_summary(label = age ~ "Âge")
+```
+
+Lorsque l'on souhaite passer plusieurs options pour plusieurs variables différentes, on utilisera une `list()`.
+
+```{r}
+#| eval: false
+trial |> 
+  tbl_summary(label = list(age ~ "Âge", trt ~ "Traitement"))
+```
+
+`{gtsummary}` est très flexible sur la manière d'indiquer la ou les variables concernées. Il peut s'agir du nom de la variable, d'une chaîne de caractères contenant le nom de la variable, ou d'un vecteur contenant le nom de la variable. Les syntaxes ci-dessous sont ainsi équivalentes.
+
+```{r}
+#| eval: false
+trial |> 
+  tbl_summary(label = age ~ "Âge")
+trial |> 
+  tbl_summary(label = "age" ~ "Âge")
+v <- "age"
+trial |> 
+  tbl_summary(label = v ~ "Âge")
+```
+
+Pour appliquer le même changement à plusieurs variables, plusieurs syntaxes sont acceptées pour lister plusieurs variables.
+
+```{r}
+#| eval: false
+trial |> 
+  tbl_summary(label = c("age", "trt") ~ "Une même étiquette")
+trial |> 
+  tbl_summary(label = c(age, trt) ~ "Une même étiquette")
+```
+
+Il est également possible d'utiliser la syntaxe `{tidyselect}` et les sélecteurs de `{tidyselect}` comme `tidyselect::everything()`, `tidyselect::starts_with()`, `tidyselect::contains()` ou `tidyselect::all_of()`. Ces différents sélecteurs peuvent être combinés au sein d'un `c()`.
+
+```{r}
+#| eval: false
+trial |> 
+  tbl_summary(
+    label = everything() ~ "Une même étiquette"
+  )
+trial |> 
+  tbl_summary(
+    label = starts_with("a") ~ "Une même étiquette"
+  )
+trial |> 
+  tbl_summary(
+    label = c(everything(), -age, -trt) ~ "Une même étiquette"
+  )
+trial |> 
+  tbl_summary(
+    label = age:trt ~ "Une même étiquette"
+  )
+```
+
+Bien sûr, il est possible d'utiliser les sélecteurs propres à `{gtsummary}`.
+
+```{r}
+#| eval: false
+trial |> 
+  tbl_summary(
+    label = all_continuous() ~ "Une même étiquette"
+  )
+trial |> 
+  tbl_summary(
+    label = list(
+      all_continuous() ~ "Variable continue",
+      all_dichotomous() ~ "Variable dichotomique",
+      all_categorical(dichotomous = FALSE) ~ "Variable catégorielle"
+    )
+  )
+```
+
+Enfin, si l'on ne précise rien à gauche du `~`, ce sera considéré comme équivalent à `everything()`. Les deux syntaxes ci-dessous sont donc équivalentes.
+
+```{r}
+#| eval: false
+trial |> 
+  tbl_summary(label = ~ "Une même étiquette")
+trial |> 
+  tbl_summary(
+    label = everything() ~ "Une même étiquette"
+  )
+```
+:::
+
+### Statistiques affichées
+
+Le paramètre `statistic` permets de sélectionner les statistiques à afficher pour chaque variable. On indiquera une chaîne de caractères dont les différentes statistiques seront indiquées entre accolades (`{}`).
+
+Pour une **variable continue**, on pourra utiliser `{median}` pour la médiane, `{mean}` pour la moyenne, `{sd}` pour l'écart type, `{var}` pour la variance, `{min}` pour le minimum, `{max}` pour le maximum, ou encore `{p##}` (en remplacant `##` par un nombre entier entre 00 et 100) pour le percentile correspondant (par exemple `p25` et `p75` pour le premier et le troisième quartile). Utilisez `gtsummary::all_continous()` pour sélectionner toutes les variables continues.
+
+```{r}
+#| label: tbl-stat-var-cont
+#| tbl-cap: statisques personnalisées pour une variable continue
+hdv2003 |>
+  tbl_summary(
+    include = c(age, heures.tv),
+    statistic = 
+      all_continuous() ~ "Moy. : {mean} [min-max : {min} - {max}]"
+  )
+```
+
+Il est possible d'afficher des statistiques différentes pour chaque variable.
+
+```{r}
+#| label: tbl-stat-var-cont2
+#| tbl-cap: statisques personnalisées pour une variable continue (2)
+hdv2003 |>
+  tbl_summary(
+    include = c(age, heures.tv),
+    statistic = list(
+      age ~ "Méd. : {median} [{p25} - {p75}]",
+      heures.tv ~ "Moy. : {mean} ({sd})"
+    )
+  )
+```
+
+Pour les variables continues, il est également possible d'indiquer le nom d'une fonction personnalisée qui prends un vecteur et renvoie une valeur résumée. Par exemple, pour afficher la moyenne des carrés :
+
+```{r}
+#| label: tbl-stat-var-cont3
+#| tbl-cap: statisques personnalisées pour une variable continue (3)
+moy_carres <- function(x) {
+  mean(x^2, na.rm = TRUE)
+}
+hdv2003 |>
+  tbl_summary(
+    include = heures.tv,
+    statistic = ~ "MC : {moy_carres}"
+  )
+```
+
+Pour une **variable catégorielle**, les statistiques possibles sont `{n}` le nombre d'observations, `{N}` le nombre total d'observations, et `{p}` le pourcentage correspondant. Utilisez `gtsummary::all_categorical()` pour sélectionner toutes les variables catégorielles.
+
+```{r}
+#| label: tbl-stat-var-cat
+#| tbl-cap: statisques personnalisées pour une variable catégorielle
+hdv2003 |>
+  tbl_summary(
+    include = occup,
+    statistic = all_categorical() ~ "{p} % ({n}/{N})"
+  )
+```
+
+Il est possible, pour une variable catégorielle, de trier les modalités de la plus fréquente à la moins fréquente avec le paramètre `sort`.
+
+```{r}
+#| label: tbl-stat-var-cat-sort
+#| tbl-cap: variable catégorielle triée par fréquence
+hdv2003 |>
+  tbl_summary(
+    include = occup,
+    sort = all_categorical() ~ "frequency"
+  )
+```
+
+Pour toutes les variables (catégorielles et continues), les statistiques suivantes sont également disponibles :
+
+-   `{N_obs}` le nombre total d'observations,
+-   `{N_miss}` le nombre d'observations manquantes (`NA`),
+-   `{N_nonmiss}` le nombre d'observations non manquantes,
+-   `{p_miss}` le pourcentage d'observations manquantes (i.e. `N_miss / N_obs`) et
+-   `{p_nonmiss}` le pourcentage d'observations non manquantes (i.e. `N_nonmiss / N_obs`).
+
+### Affichage du nom des statistiques
+
+Lorsque l'on affiche de multiples statistiques, la liste des statistiques est regroupée dans une note de tableau qui peut vite devenir un peu confuse.
+
+```{r}
+#| label: tbl-stat-nom
+#| tbl-cap: tableau par défaut
+tbl <- hdv2003 |>
+  tbl_summary(
+    include = c(age, heures.tv, occup),
+    statistic = list(
+      age ~ "{mean} ({sd})",
+      heures.tv ~ "{median} [{p25} - {p75}]"
+    )
+  )
+tbl
+```
+
+La fonction `gtsummary::add_stat_label()` permets d'indiquer le type de statistique à côté du nom des variables ou bien dans une colonne dédiée, plutôt qu'en note de tableau.
+
+```{r}
+#| label: tbl-stat-nom-2
+#| tbl-cap: ajout du nom des statistiques
+tbl |> 
+  add_stat_label()
+```
+
+```{r}
+#| label: tbl-stat-nom-3
+#| tbl-cap: ajout du nom des statistiques dans une colonne séparée
+tbl |> 
+  add_stat_label(location = "column")
+```
+
+### Forcer le type de variable
+
+Comme évoqué plus haut, `{gtsummary}` détermine automatiquement le type de chaque variable. Par défaut, la variabe `age` du tableau de données `trial` est traitée comme variable continue, `death` comme dichotomique (seule la valeur 1 est affichée) et `grade` comme variable catégorielle.
+
+```{r}
+#| label: tbl-types-defaut
+#| tbl-cap: types de variable par défaut
+trial |>
+  tbl_summary(
+    include = c(grade, age, death)
+  )
+```
+
+Il est cependant possible de forcer un certain type avec l'argument `type`. Précision : lorsque l'on force une variable en dichotomique, il faut indiquer avec `value` la valeur à afficher (les autres sont alors masquées).
+
+```{r}
+#| label: tbl-types-personnalises
+#| tbl-cap: types de variable personnalisés
+trial |>
+  tbl_summary(
+    include = c(grade, death),
+    type = list(
+      grade ~ "dichotomous",
+      death ~ "categorical"
+    ),
+    value = grade ~ "III",
+    label = grade ~ "Grade III"
+  )
+```
+
+### Afficher des statistiques sur plusieurs lignes (variables continues)
+
+Pour les variables continues, `{gtsummary}` a introduit un type de variable `"continuous2"`, qui doit être attribué manuellement via `type`, et qui permets d'afficher plusieurs lignes de statistiques (en indiquant plusieurs chaînes de caractères dans `statistic`). À noter le sélecteur dédié `gtsummary::all_continuous2()`.
+
+```{r}
+#| label: tbl-continuous2
+#| tbl-cap: des statistiques sur plusieurs lignes (variables continues)
+hdv2003 |>
+  tbl_summary(
+    include = c(age, heures.tv),
+    type = age ~ "continuous2",
+    statistic = 
+      all_continuous2() ~ c(
+        "{median} ({p25} - {p75})", 
+        "{mean} ({sd})",
+        "{min} - {max}"
+      )
+  )
+```
+
+### Mise en forme des statistiques
+
+L'argument `digits` permet de spécifier comment mettre en forme les différentes statistiques. Le plus simple est d'indiquer le nombre de décimales à afficher. Il est important de tenir compte que plusieurs statistiques peuvent être affichées pour une même variable. On peut alors indiquer une valeur différente pour chaque statistique.
+
+```{r}
+#| label: tbl-digits
+#| tbl-cap: personnalisation du nombre de décimales
+hdv2003 |>
+  tbl_summary(
+    include = c(age, occup),
+    digits = list(
+      all_continuous() ~ 1,
+      all_categorical() ~ c(0, 1)
+    )
+  )
+```
+
+Au lieu d'un nombre de décimales, on peut indiquer plutôt une fonction à appliquer pour mettre en forme le résultat. Par exemple, `{gtsummary}` fournit les fonctions suivantes : `gtsummary::style_number()` pour les nombres de manière générale, `gtsummary::style_percent()` pour les pourcentages (les valeurs sont multipliées par 100, mais le symbole % n'est pas ajouté), `gtsummary::style_pvalue()` pour les p-valeurs, `gtsummary::style_sigfig()` qui n'affiche, par défaut, que deux chiffres significatifs, ou encore `gtsummary::style_ratio()` qui est une variante de `gtsummary::``style_sigfig()`{data-pkg="\"gtsummary"} pour les ratios (comme les *odds ratios*) que l'on compare à 1.
+
+Il faiut bien noter que ce qui est attendu par `digits`, c'est une fonction et non le résultat d'une fonction. On indiquera donc le nom de la fonction sans parenthèse, comme dans l'exemple ci-dessous (même si pas forcément pertinent ;-)).
+
+```{r}
+#| label: tbl-digits-2
+#| tbl-cap: personnalisation de la mise en forme des nombres
+hdv2003 |>
+  tbl_summary(
+    include = age,
+    digits = 
+      all_continuous() ~ c(style_percent, style_sigfig, style_ratio)
+  )
+```
+
+Comme `digits` s'attends à recevoir une fonction (et non le résultat) d'une fonction, on ne peut pas passer directement des arguments aux fonctions `style_*()` de `{gtsummary}`. Pour cela il faut créer une fonction à la levée :
+
+```{r}
+#| label: tbl-digits-3
+#| tbl-cap: passer une fonction personnalisée à digits (syntaxe 1)
+trial |>
+  tbl_summary(
+    include = marker,
+    statistic = ~ "{mean} pour 100",
+    digits = ~ function(x){style_percent(x, digits = 1)}
+  )
+```
+
+Depuis **R 4.1**, il existe une syntaxe raccourcie équivalente, avec le symbole `\` à la place de `function`.
+
+```{r}
+#| label: tbl-digits-4
+#| tbl-cap: passer une fonction personnalisée à digits (syntaxe 2)
+trial |>
+  tbl_summary(
+    include = marker,
+    statistic = ~ "{mean} pour 100",
+    digits = ~ \(x){style_percent(x, digits = 1)}
+  )
+```
+
+Une syntaxe alternative consiste à avoir recours à la fonction `purrr::partial()` qui permet d'appeler <q>partiellement</q> une fonction et de renvoyer une nouvelle fonction.
+
+```{r}
+#| label: tbl-digits-5
+#| tbl-cap: passer une fonction personnalisée à digits (syntaxe 3)
+trial |>
+  tbl_summary(
+    include = marker,
+    statistic = ~ "{mean} pour 100",
+    digits = ~ purrr::partial(style_percent, digits = 1)
+  )
+```
+
+À noter dans l'exemple précédent que les fonctions `style_*()` de `{gtsummary}` tiennent compte du thème défini (ici la virgule comme séparateur de décimale).
+
+Pour une mise en forme plus avancée des nombres, il faut se tourner vers l'extension `{scales}` et ses diverses fonctions de mise en forme comme `scales::label_number()` ou `scales::label_percent()`.
+
+**ATTENTION :** les fonctions de `{scales}` n'héritent pas des paramètres du thème `{gtsummary}` actif. Il faut donc personnaliser le séparateur de décimal dans l'appel à la fonction.
+
+```{r}
+#| label: tbl-digits-6
+#| tbl-cap: passer une fonction personnalisée à digits (syntaxe 4)
+trial |>
+  tbl_summary(
+    include = marker,
+    statistic = ~ "{mean}",
+    digits = ~ scales::label_number(
+      accuracy = .01, 
+      suffix = " ng/mL", 
+      decimal.mark = ","
+    )
+  )
+```
+
+### Données manquantes
+
+Le paramètre `missing` permets d'indiquer s'il faut afficher le nombre d'observations manquantes (c'est-à-dire égales à `NA`) : `"ifany"` (valeur par défaut) affiche ce nombre seulement s'il y en a, `"no"` masque ce nombre et `"always"` force l'affichage de ce nombre même s'il n'y pas de valeur manquante. Le paramètre `missing_text` permets de personnaliser le texte affiché.
+
+```{r}
+#| label: tbl-missing
+#| tbl-cap: forcer l'affichage des valeurs manquantes
+hdv2003 |>
+  tbl_summary(
+    include = c(age, heures.tv),
+    missing = "always",
+    missing_text = "Nbre observations manquantes"
+  )
+```
+
+Il est à noter, pour les variables catégorielles, que les valeurs manquantes ne sont jamais pris en compte pour le calcul des pourcentages. Pour les inclure dans le calcul, il faut les transformer en valeurs explicites, par exemple avec `forcats::fct_explicit_na()` de `{forcats}`.
+
+```{r}
+#| label: tbl-explicit-na
+#| tbl-cap: valeurs manquantes explicites (variable catégorielle)
+hdv2003 |>
+  dplyr::mutate(
+    trav.imp.explicit = trav.imp |> 
+      forcats::fct_explicit_na("(non renseigné)")
+  ) |> 
+  tbl_summary(
+    include = c(trav.imp, trav.imp.explicit)
+  )
+```
+
+### Ajouter les effectifs observés
+
+Lorsque l'on masque les manquants, il peut être pertinent d'ajouter une colonne avec les effectifs observés pour chaque variable à l'aide de la fonction `gtsummary::add_n()`.
+
+```{r}
+#| label: tbl-add_n
+#| tbl-cap: ajouter une colonne avec les effectifs observés
+hdv2003 |>
+  tbl_summary(
+    include = c(heures.tv, trav.imp),
+    missing = "no"
+  ) |> 
+  add_n()
+```
+
+## Calcul manuel
+
+### Variable continue
+
+**R** fournit de base toutes les fonctions nécessaires pour le calcul des différentes statistiques descriptives :
+
+-   `mean()` pour la moyenne
+-   `sd()` pour l'écart-type
+-   `min()` et `max()` pour le minimum et le maximum
+-   `range()` pour l'étendue
+-   `median()` pour la médiane
+
+Si la variable contient des valeurs manquantes (`NA`), ces fonctions renverront une valeur manquante, sauf si on leur précise `na.rm = TRUE`.
+
+```{r}
+hdv2003$heures.tv |> mean()
+hdv2003$heures.tv |> mean(na.rm = TRUE)
+hdv2003$heures.tv |> sd(na.rm = TRUE)
+hdv2003$heures.tv |> min(na.rm = TRUE)
+hdv2003$heures.tv |> max(na.rm = TRUE)
+hdv2003$heures.tv |> range(na.rm = TRUE)
+hdv2003$heures.tv |> median(na.rm = TRUE)
+```
+
+La fonction `quantile()` permets de calculer tous types de quantiles.
+
+```{r}
+hdv2003$heures.tv |> quantile(na.rm = TRUE)
+hdv2003$heures.tv |> 
+  quantile(
+    probs = c(.2, .4, .6, .8),
+    na.rm = TRUE
+  )
+```
+
+La fonction `summary()` renvoie la plupart de ces indicateurs en une seule fois, ainsi que le nombre de valeurs manquantes.
+
+```{r}
+hdv2003$heures.tv |> summary()
+```
+
+### Variable catégorielle
+
+Les fonctions de base pour le calcul d'un tri à plat sont les fonctions `table()` et `xtabs()`. Leur syntaxe est quelque peu différente. On passe un vecteur entier à `table()` alors que la syntaxe de `xtabs()` se rapproche de celle d'un modèle linéaire : on décrit le tableau attendu à l'aide d'une formule et on indique le tableau de données. Les deux fonctions renvoient le meme résultat.
+
+```{r}
+tbl <- hdv2003$trav.imp |> table()
+tbl <- xtabs(~ trav.imp, data = hdv2003)
+tbl <- hdv2003 |> xtabs(~ trav.imp, data = _)
+tbl
+```
+
+Comme on le voit, il s'agit du tableau brut des effectifs, sans les valeurs manquantes, et pas vraiment lisible dans la console de **R**.
+
+Pour calculer les proportions, on appliquera `prop.table()` sur la table des effectifs bruts.
+
+```{r}
+prop.table(tbl)
+```
+
+Pour la réalisation rapide d'un tri à plat, on pourra donc préférer la fonction `questionr::freq()` qui affiche également le nombre de valeurs manquantes et les pourcentages, en un seul appel.
+
+```{r}
+hdv2003$trav.imp |> 
+  questionr::freq(total = TRUE)
+```
+
+## Intervalles de confiance
+
+### Avec gtsummary
+
+La fonction `gtsummary::add_ci()` permet d'ajouter des intervalles de confiance à un tableau créé avec `gtsummary::tbl_summary()`.
+
+::: callout-warning
+Par défaut, pour les **variables continues**, `gtsummary::tbl_summary()` affiche la médiane tandis que `gtsummary::add_ci()` calcule l'intervalle de confiance d'une moyenne !
+
+Il faut donc :
+
+-   soit afficher la moyenne dans `gtsummary::tbl_summary()` à l'aide du paramètre `statistic` ;
+-   soit calculer les intervalles de confiance d'une médiane (méthode `"wilcox.text"`) via le paramètre `method` de `gtsummary::add_ci()`.
+:::
+
+```{r}
+#| label: tbl-add_ci
+#| tbl-cap: ajouter les intervalles de confiance
+hdv2003 |>
+  tbl_summary(
+    include = c(age, heures.tv, trav.imp),
+    statistic = age ~ "{mean} ({sd})"
+  ) |> 
+  add_ci(
+    method = heures.tv ~ "wilcox.test"
+  )
+```
+
+L'argument `statistic` permet de personnaliser la présentation de l'intervalle ; `conf.level` de changer le niveau de confiance et `style_fun` de modifier la mise en forme des nombres de l'intervalle.
+
+```{r}
+#| label: tbl-add_ci-2
+#| tbl-cap: des intervalles de confiance personnalisés
+hdv2003 |>
+  tbl_summary(
+    include = c(age, heures.tv),
+    statistic = ~ "{mean}"
+  ) |> 
+  add_ci(
+    statistic = ~ "entre {conf.low} et {conf.high}",
+    conf.level = .9,
+    style_fun = ~ purrr::partial(style_number, digits = 1)
+  )
+```
+
+### Calcul manuel
+
+Le calcul de l'intervalle de confiance d'une **moyenne** s'effectue avec la fonction `t.test()`.
+
+```{r}
+hdv2003$age |> t.test()
+```
+
+Le résultat renvoyé est une liste contenant de multiples informations.
+
+```{r}
+hdv2003$age |> t.test() |> str()
+```
+
+Si l'on a besoin d'accéder spécifiquement à l'intervalle de confiance calculé :
+
+```{r}
+hdv2003$age |> t.test() |> purrr::pluck("conf.int")
+```
+
+Pour celui d'une **médiane**, on utilisera `wilcox.test()` en précisant `conf.int = TRUE`.
+
+```{r}
+hdv2003$age |> wilcox.test(conf.int = TRUE)
+hdv2003$age |> 
+  wilcox.test(conf.int = TRUE) |>
+  purrr::pluck("conf.int")
+```
+
+Pour une **proportion**, on utilisera `prop.test()` en lui transmettant le nombre de succès et le nombre d'observations, qu'il faudra donc avoir calculé au préalable. On peut également passer une table à deux entrées avec le nombre de succès puis le nombre d'échecs.
+
+Ainsi, pour obtenir l'intervalle de confiance de la proportion des enquêtés qui considèrent leur travail comme *peu important*, en tenant compte des valeurs manquantes, le plus simple est d'effectuer le code suivant[^statistique-univariee-3] :
+
+[^statistique-univariee-3]: Notez l'utilisation de `rev()` pour inverser le tableau créé avec `table()` afin que le nombre de succès (`TRUE`) soit indiqués avant le nombre d'échecs (`FALSE`).
+
+```{r}
+table(hdv2003$trav.imp == "Peu important") |> 
+  rev() |> 
+  prop.test()
+```
+
+::: callout-tip
+Comme on le voit, il n'est pas aisé, avec les fonctions de **R base** de calculer les intervalles de confiance pour toutes les modalités d'une variable catégorielle.
+
+On pourra éventuellement avoir recours à la petite fonction suivante qui réalise le tri à plat d'une variable catégorielle, calcule les proprotions et leurs intervalles de confiance.
+
+```{r}
+prop_ci <- function(x, conf.level = .95, correct = TRUE) {
+  tbl <- as.data.frame(table(x), responseName = "n")
+  tbl$N <- sum(tbl$n)
+  tbl$prop <- tbl$n / tbl$N
+  tbl$conf.low <- NA_real_
+  tbl$conf.high <- NA_real_
+  for (i in 1:nrow(tbl)) {
+    test <- prop.test(
+      x = tbl$n[i],
+      n = tbl$N[i],
+      conf.level = conf.level,
+      correct = correct
+    )
+    tbl$conf.low[i] <- test$conf.int[1]
+    tbl$conf.high[i] <- test$conf.int[2]
+  }
+  tbl
+}
+prop_ci(hdv2003$trav.imp)
+```
+:::
