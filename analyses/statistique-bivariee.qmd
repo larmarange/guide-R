@@ -1,0 +1,670 @@
+# Statistique bivariée & Tests de comparaison {#sec-statistique-bivariee}
+
+## Deux variables catégorielles
+
+### Tableau croisé avec `gtsummary`
+
+Pour regarder le lien entre deux variables catégorielles, l'approche la plus fréquente consiste à réaliser un *tableau croisé*, ce qui s'obtient très facilement avec l'argument `by` de la fonction `gtsummary::tbl_summary()` que nous avons déjà abordée dans le chapitre sur la statitstique univariée (cf. @sec-tri-a-plat).
+
+Prenons pour exemple le jeu de données `gtsummary::trial` et croisons les variables *stage* et *grade*. On indique à `by` la variable à représenter en colonnes et à `include` celle à représenter en lignes.
+
+```{r}
+#| label: tbl-by
+#| tbl-cap: un tableau croisé avec des pourcentages en colonne
+library(gtsummary)
+theme_gtsummary_language("fr", decimal.mark = ',')
+trial |> 
+  tbl_summary(
+    include = stage,
+    by = grade
+  )
+```
+
+Par défaut, les pourcentages affichés correspondent à des pourcentages en colonne. On peut demander des pourcentages en ligne avec `percent = "row"` ou des pourcentages du total avec `percent = "cell"`.
+
+Il est possible de passer plusieurs variables à `include` mais une seule variable peut être transmise à `by`. La fonction `gtsummary::add_overall()` permet d'ajouter une colonne totale. Comme pour un tri à plat, on peut personnaliser les statistiques affichées avec `statistic`.
+
+```{r}
+#| label: tbl-by-2
+#| tbl-cap: un tableau croisé avec des pourcentages en ligne
+library(gtsummary)
+trial |> 
+  tbl_summary(
+    include = c(stage, trt),
+    by = grade,
+    statistic = ~ "{p}% ({n}/{N})",
+    percent = "row"
+  ) |> 
+  add_overall(last = TRUE)
+```
+
+::: callout-important
+Choisissez bien votre type de pourcentages (en lignes ou en colonnes). Si d'un point de vue purement statistique, ils permettent tous deux de décrire la relation entre les deux variables, ils ne correspondent au même *story telling*. Tout dépend donc du message que vous souhaitez faire passer, de l'histoire que vous souhaitez raconter.
+:::
+
+`gtsummary::tbl_summary()` est bien adaptée dans le cadre d'une analyse de facteurs afin de représenter un *outcome* donné avec `by` et une liste de facteurs avec `include`.
+
+Lorsque l'on ne croise que deux variables et que l'on souhaite un affichage un peu plus <q>traditionnel</q> d'un tableau croisé, on peut utiliser `gtsummary::tbl_cross()` à laquelle on transmettra une et une seule variable à `row` et une et une seule variable à `col`. Pour afficher des pourcentages, il faudra indiquer le type de pourcentages voulus avec `percent`.
+
+```{r}
+#| label: tbl-cross
+#| tbl-cap: un tableau croisé avec tbl_cross()
+trial |> 
+  tbl_cross(
+    row = stage,
+    col = grade,
+    percent = "row"
+  )
+```
+
+### Représentations graphiques
+
+La représentation graphique la plus commune pour le croisement de deux variables catégorielles est le diagramme en barres, que l'on réalise avec la géométrie `ggplot2::geom_bar()` et en utilisant les esthétiques *x* et *fill* pour représenter les deux variables.
+
+```{r}
+#| label: fig-bar-fill
+#| fig-cap: un graphique en barres croisant deux variables
+library(ggplot2)
+ggplot(trial) +
+  aes(x = stage, fill = grade) +
+  geom_bar() +
+  labs(x = "T Stage", fill = "Grade", y = "Effectifs")
+```
+
+On peut modifier la position des barres avec le paramètre `position`.
+
+```{r}
+#| label: fig-bar-fill-dodge
+#| fig-cap: un graphique avec des barres côte à côte
+library(ggplot2)
+ggplot(trial) +
+  aes(x = stage, fill = grade) +
+  geom_bar(position = "dodge") +
+  labs(x = "T Stage", fill = "Grade", y = "Effectifs")
+```
+
+Pour des barres cumulées, on aura recours à `position = "fill"`. Pour que les étiquettes de l'axe des `y` soient représentées sous forme de pourcentages (i.e. `25%` au lieu de `0.25`), on aura recours à la fonction `scales::percent()` qui sera transmise à `ggplot2::scale_y_continuous()`.
+
+```{r}
+#| label: fig-bar-fill-dodge-2
+#| fig-cap: un graphique en barres cumulées
+library(ggplot2)
+ggplot(trial) +
+  aes(x = stage, fill = grade) +
+  geom_bar(position = "fill") +
+  labs(x = "T Stage", fill = "Grade", y = "Proportion") +
+  scale_y_continuous(labels = scales::percent)
+```
+
+::: callout-tip
+## Ajouter des étiquettes sur un diagramme en barres
+
+Il est facile d'ajouter des étiquettes en ayant recours à `ggplot2::geom_text()`, à condition de lui passer les bons paramètres.
+
+Tout d'abord, il faudra préciser `stat = "count"` pour indiquer que l'on souhaite utiliser la statistique `ggplot2::stat_count()` qui est celle utilisé par défaut par `ggplot2::geom_bar()`. C'est elle qui permets de compter le nombre d'observations.
+
+Il faut ensuite utiliser l'esthétique *label* pour indiquer ce que l'on souhaite afficher comme étiquettes. La fonction `after_stat(count)` permet d'accéder à la variable *count* calculée par `ggplot2::stat_count()`.
+
+Enfin, il faut indiquer la position verticale avec `ggplot2::position_stack()`. En précisant un ajustement de vertical de `0.5`, on indique que l'on souhaite positionner l'étiquette au milieu.
+
+```{r}
+ggplot(trial) +
+  aes(
+    x = stage, fill = grade, 
+    label = after_stat(count)
+  ) +
+  geom_bar() +
+  geom_text(
+    stat = "count", 
+    position = position_stack(.5)
+  )
+```
+
+Pour un graphique en barres cumulées, on peut utiliser de manière similaire `ggplot2::position_fill()`. On ne peut afficher directement les proportions avec `ggplot2::stat_count()`. Cependant, nous pouvons avoir recours à `ggstats::stat_prop()`, déjà évoquée dans le chapitre sur la statistique univariée (cf. @sec-graph-univ-var-cat) et dont le dénominateur doit être précisé via l'esthétique *by*.
+
+```{r}
+library(ggstats)
+ggplot(trial) +
+  aes(
+    x = stage, 
+    fill = grade, 
+    by = stage,
+    label = scales::percent(after_stat(prop), accuracy = .1)
+  ) +
+  geom_bar(position = "fill") +
+  geom_text(
+    stat = "prop", 
+    position = position_fill(.5)
+  ) +
+  scale_y_continuous(labels = scales::percent)
+```
+
+On peut aussi comparer facilement deux distributions, ici la proportion de chaque niveau de qualification au sein chaque sexe.
+
+```{r}
+p <- ggplot(trial) +
+  aes(
+    x = stage,
+    y = after_stat(prop),
+    fill = grade, 
+    by = grade,
+    label = scales::percent(after_stat(prop), accuracy = 1)
+  ) +
+  geom_bar(
+    stat = "prop", 
+    position = position_dodge(.9)
+  ) +
+  geom_text(
+    aes(y = after_stat(prop) - 0.01),
+    stat = "prop", 
+    position = position_dodge(.9),
+    vjust = "top"
+  ) +
+  scale_y_continuous(labels = scales::percent)
+p
+```
+
+Il est possible d'alléger le graphique en retirant des éléments superflus.
+
+```{r}
+p + 
+  theme_light() +
+  xlab("") +
+  ylab("") +
+  labs(fill = "") +
+  ggtitle("Distribution selon le niveau, par grade") +
+  theme(
+    panel.grid = element_blank(),
+    panel.border = element_blank(),
+    axis.text.y = element_blank(),
+    axis.ticks = element_blank(),
+    legend.position = "top"
+  ) +
+  scale_fill_brewer()
+```
+:::
+
+::: {.content-visible when-format="html"}
+Le [diaporama ci-dessous](ressources/flipbook-geom_bar-dodge.html) vous permet de visualiser chaque étape du code correspondant au graphique précédent.
+
+::: {.column-page-right .ratio .ratio-16x9}
+<iframe src="ressources/flipbook-geom_bar-dodge.html">
+
+</iframe>
+:::
+:::
+
+### Calcul manuel
+
+Les deux fonctions de base permettant le calcul d'un tri à plat sont `table()` et `xtabs()` (cf. @sec-table-univariee). Ces mêmes fonctions permettent le calcul du tri croisé de deux variables (ou plus). Pour `table()`, on passera les deux vecteurs à croisés, tandis que pour `xtabs()` on décrira le tableau attendu à l'aide d'une formule.
+
+```{r}
+table(trial$stage, trial$grade)
+tab <- xtabs(~ stage + grade, data = trial)
+tab
+```
+
+Le tableau obtenu est basique et ne contient que les effectifs. La fonction `addmargins()` permet d'ajouter les totaux par ligne et par colonne.
+
+```{r}
+tab |> addmargins()
+```
+
+Pour le calcul des pourcentages, le plus simple est d'avoir recours au package `{questionr}` qui fournit les fonctions `questionr::cprop()`, `questionr::rprop()` et `questionr::prop()` qui permettent de calculer, respectivement, les pourcentages en colonne, en ligne et totaux.
+
+```{r}
+questionr::cprop(tab)
+questionr::rprop(tab)
+questionr::prop(tab)
+```
+
+### Test du Chi² et dérivés
+
+Dans le cadre d'un tableau croisé, on peut tester l'existence d'un lien entre les modalités de deux variables, avec le très classique test du Chi² (parfois écrit χ² ou Chi²). Pour une présentation plus détaillée du test, on pourra se référer à ce [cours de Julien Barnier](https://github.com/juba/archive_doc_khi2/raw/master/khi2.pdf).
+
+Le test du Chi² peut se calculer très facilement avec la fonction `chisq.test()` appliquée au tableau obtenu avec `table()` ou `xtabs()`.
+
+```{r}
+tab <- xtabs(~ stage + grade, data = trial)
+tab
+chisq.test(tab)
+```
+
+Si l'on est adepte de `{gtsummary}`, il suffit d'appliquer `gtsummary::add_p()` au tableau produit avec `gtsummary::tbl_summary()`.
+
+```{r}
+#| label: tbl-add_p
+#| tbl-cap: un tableau croisé avec test du khi²
+trial |> 
+  tbl_summary(
+    include = stage,
+    by = grade
+  ) |> 
+  add_p()
+```
+
+Dans notre exemple, les deux variables *stage* et *grade* ne sont clairement pas corrélées.
+
+Un test alternatif est le test exact de Fisher. Il s'obtient aisément avec `fisher.test()` ou bien en le spécifiant via l'argument `test` de `gtsummary::add_p()`.
+
+```{r}
+tab <- xtabs(~ stage + grade, data = trial)
+fisher.test(tab)
+```
+
+```{r}
+#| label: tbl-add_p-fisher
+#| tbl-cap: un tableau croisé avec test exact de Fisher
+trial |> 
+  tbl_summary(
+    include = stage,
+    by = grade
+  ) |> 
+  add_p(test = all_categorical() ~ "fisher.test")
+```
+
+::: callout-note
+Formellement, le test de Fisher suppose que les marges du tableau (totaux lignes et colonnes) sont fixées, puisqu'il repose sur une loi hypergéométrique, et donc celui-ci se prête plus au cas des situations expérimentales (plans d'expérience, essais cliniques) qu'au cas des données tirées d'études observationnelles.
+
+En pratique, le test du Chi² étant assez robuste quant aux déviations par rapport aux hypothèses d'applications du test (effectifs théoriques supérieurs ou égaux à 5), le test de Fisher présente en général peu d'intérêt dans le cas de l'analyse des tableaux de contingence.
+:::
+
+### Comparaison de deux proportions
+
+Pour comparer deux proportions, la fonction de base est `prop.test()` à laquelle on passera un tableau à 2×2 dimensions.
+
+```{r}
+tab <- xtabs(~ I(stage == "T1") + trt, data = trial)
+tab |> questionr::cprop()
+tab |> prop.test()
+```
+
+Il est également envisageable d'avoir recours à un test exact de Fisher. Dans le cas d'un tableau à 2×2 dimensions, le test exact de Fisher ne teste pas si les deux proportions sont différents, mais plutôt si leur [*odds ratio*](https://fr.wikipedia.org/wiki/Odds_ratio) (qui est d'ailleurs renvoyé par la fonction) est différent de 1.
+
+```{r}
+fisher.test(tab)
+```
+
+Mais le plus simple reste encore d'avoir recours à `{gtsummary}` et à sa fonction `gtsummary::add_difference()` que l'on peut appliquer à un tableau où le paramètre `by` n'a que deux modalités. Pour la différence de proportions, il faut que les variables transmises à `include` soit dichotomiques.
+
+```{r}
+#| label: tbl-add_difference
+#| tbl-cap: différence entre deux proportions
+trial |> 
+  tbl_summary(
+    by = trt,
+    include = response
+  ) |> 
+  add_difference()
+```
+
+**Attention :** si l'on passe une variable catégorielle à trois modalités ou plus, c'est la différence des moyennes standardisées (globale pour la variable) qui sera calculée et non la différence des proportions dans chaque groupe.
+
+```{r}
+#| label: tbl-add_difference-2
+#| tbl-cap: différence moyenne standardisée
+trial |> 
+  tbl_summary(
+    by = trt,
+    include = grade
+  ) |> 
+  add_difference()
+```
+
+Pour calculer la différence des proportions pour chaque modalité de *grade*, il est nécessaire de transformer, en amont, la variable catégorielle *grade* en trois variables dichotomiques (de type oui/non, une par modalité), ce qui peut se faire facilement avec la fonction `fastDummies::dummy_cols()` de l'extension `{fastDummies}`.
+
+```{r}
+#| label: tbl-add_difference-3
+#| tbl-cap: différence entre proportions avec création de variables dichotomiques
+trial |> 
+  fastDummies::dummy_cols("grade") |> 
+  tbl_summary(
+    by = trt,
+    include = starts_with("grade_"),
+    digits = ~ c(0, 1)
+  ) |> 
+  add_difference()
+```
+
+## Une variable continue selon une variable catégorielle
+
+### Tableau comparatif avec `gtsummary`
+
+Dans le chapitre sur la statitstique univariée (cf. @sec-tri-a-plat), nous avons abordé comment afficher les statistiques descriptives d'une variable continue avec `gtsummary::tbl_summary()`. Pour comparer une variable continue selon plusieurs groupes définis par une variable catégorielle, il suffit d'utiliser le paramètre `by` :
+
+```{r}
+#| label: tbl-by-cont
+#| tbl-cap: âge médian et intervalle interquartile selon le grade
+trial |> 
+  tbl_summary(
+    include = age,
+    by = grade
+  )
+```
+
+La fonction `gtsummary::add_overall()` permet d'ajouter une colonne <q>total</q> et `gtsummary::modify_spanning_header()` peut-être utilisé pour ajouter un en-tête de colonne.
+
+```{r}
+#| label: tbl-by-cont-2
+#| tbl-cap: âge médian et intervalle interquartile selon le grade
+trial |> 
+  tbl_summary(
+    include = age,
+    by = grade
+  ) |> 
+  add_overall(last = TRUE) |> 
+  modify_spanning_header(
+    all_stat_cols(stat_0 = FALSE) ~ "**Grade**"
+  )
+```
+
+Comme pour un tri à plat, on peut personnaliser les statistiques à afficher avec `statistic`.
+
+```{r}
+#| label: tbl-by-cont-3
+#| tbl-cap: âge moyen et écart-type selon le grade
+trial |> 
+  tbl_summary(
+    include = age,
+    by = grade,
+    statistic = all_continuous() ~ "{mean} ({sd})",
+    digits = all_continuous() ~ c(1, 1)
+  ) |> 
+  add_overall(last = TRUE)
+```
+
+### Représentations graphiques
+
+La moyenne ou la médiane sont des indicateurs centraux et ne suffisent pas à rendre compte des différences de distribution d'une variable continue entre plusieurs sous-groupes.
+
+Une représentation usuelle pour comparer deux distributions consiste à avoir recours à des boîtes à moustaches que l'on obtient avec `ggplot2::geom_boxplot()`.
+
+```{r}
+#| label: fig-geom_boxplot
+#| fig-cap: boîtes à moustache
+#| warning: false
+ggplot(trial) +
+  aes(x = grade, y = age) +
+  geom_boxplot(fill = "lightblue") +
+  theme_light()
+```
+
+::: callout-tip
+Le trait central représente la médiane, le rectangle est délimité par le premier et le troisème quartiles (i.e. le 25^e^ et le 75^e^ percentiles). Les traits verticaux vont jusqu'aux extrêmes (minimum et maximum) ou jusqu'à 1,5 fois l'intervalle interquartile. Si des points sont situés à plus d'1,5 fois l'intervalle interquartile au-dessus du 3^e^ quartile ou en-dessous du 1^er^ quartile, ils sont considérés comme des valeurs atypiques et représentés par un point. Dans l'exemple précédent, c'est le cas des deux plus petites valeurs observées pour le grade I.
+:::
+
+Alternativement, on peut utiliser un graphique en <q>violons</q> qui représentent des courbes de densité dessinées en mirroir.
+
+```{r}
+#| label: fig-geom_violin
+#| fig-cap: graphique en violons
+#| warning: false
+ggplot(trial) +
+  aes(x = grade, y = age) +
+  geom_violin(fill = "lightblue") +
+  theme_light()
+```
+
+Il est toujours possible de représenter les observations inviduelles sous la forme d'un nuage de points. Le paramètre `alpha` permet de rendre les points transparents afin de mieux visualiser les supperpositions de points.
+
+```{r}
+#| label: fig-geom_point-bi-cont-cat
+#| fig-cap: un nuage de points avec une variable continue et une variable catégorielle
+#| warning: false
+ggplot(trial) +
+  aes(x = grade, y = age) +
+  geom_point(alpha = .25, colour = "blue") +
+  theme_light()
+```
+
+Comme la variable *grade* est catégorielle, tous les points d'une meme modalité sont représentées sur une même ligne. La représentation peut être améliorée en ajoutant un décalage aléatoire sur l'axe horizontal. Cela s'obtient avec `ggplot2::position_jitter()` en précisant `height = 0` pour ne pas ajouter de décalage vertical et `width = .2` pour décaler horizontalement les points entre -20% et +20%.
+
+```{r}
+#| label: fig-geom_point-bi-cont-cat-2
+#| fig-cap: un nuage de points avec une variable continue et une variable catégorielle et avec un décalage horizontal aléatoire
+#| warning: false
+ggplot(trial) +
+  aes(x = grade, y = age) +
+  geom_point(
+    alpha = .25,
+    colour = "blue",
+    position = position_jitter(height = 0, width = .2)
+  ) +
+  theme_light()
+```
+
+La statistique `ggstats::stat_weighted_mean()` de `{ggstats}` permets de calculer à la volée la moyenne du nuage de points.
+
+```{r}
+#| label: fig-stat_weighted_mean
+#| fig-cap: âge moyen selon le grade
+#| warning: false
+ggplot(trial) +
+  aes(x = grade, y = age) +
+  geom_point(stat = "weighted_mean", colour = "blue") +
+  theme_light()
+```
+
+Cela peut être utile pour effectuer des comparaisons multiples.
+
+```{r}
+#| label: fig-stat_weighted_mean-2
+#| fig-cap: âge moyen selon le grade, par traitement et état d'avancement de la maladie
+#| warning: false
+ggplot(trial) +
+  aes(x = grade, y = age, colour = stage, group = stage) +
+  geom_line(stat = "weighted_mean") +
+  geom_point(stat = "weighted_mean") +
+  facet_grid(cols = vars(trt)) +
+  theme_light()
+```
+
+### Calcul manuel
+
+Le plus simple pour calculer des indicateurs par sous-groupe est d'avoir recours à `dplyr::summarise()` avec `dplyr::group_by()`.
+
+```{r}
+#| message: false
+library(dplyr)
+trial |>
+  group_by(grade) |> 
+  summarise(
+    age_moy = mean(age, na.rm = TRUE),
+    age_med = median(age, na.rm = TRUE)
+  )
+```
+
+En base **R**, on peut avoir recours à `tapply()`. On lui indique d'abord le vecteur sur lequel on souhaite réaliser le calcul, puis un facteur qui indiquera les sous-groupes, puis une fonction qui sera appliquée à chaque sous-groupe et enfin, optionnellement, des arguments additionnels qui seront transmis à cette fonction.
+
+```{r}
+tapply(trial$age, trial$grade, mean, na.rm = TRUE)
+```
+
+### Tests de comparaison
+
+Pour comparer des moyennes ou des médianes, le plus facile est encore d'avoir recours à `{gtsummary}` et sa fonction `gtsummary::add_p()`.
+
+```{r}
+#| label: tbl-add_p-cont
+#| tbl-cap: test de comparaison sur la somme des rangs
+trial |> 
+  tbl_summary(
+    include = age,
+    by = grade
+  ) |> 
+  add_p()
+```
+
+Par défaut, pour les **variables continues**, un test de Kruskal-Wallis calculé avec la fonction `stats::kruskal.test()` est utilisé lorsqu'il y a trois groupes ou plus, et un test de Wilcoxon-Mann-Whitney calculé avec `stats::wilcox.test()` (test de comparaison des rangs) lorsqu'il n'y a que deux groupes. Au sens strict, il ne s'agit pas de tests de comparaison des médianes mais de tests sur la somme des rangs. En pratique, ces tests sont appropriés lorsque l'on présente les médianes et les intervalles interquartiles.
+
+Si l'on affiche des moyennes, il serait plus juste d'utiliser un test *t de Student* (test de comparaison des moyennes) calculé avec `stats::t.test()`, valable seulement si l'on compare deux moyennes. Pour tester si trois moyennes ou plus sont égales, on aura plutôt recours à `stats::oneway.test()`.
+
+On peut indiquer à `gtsummary::add_p()` le test à utiliser avec le paramètre `test`.
+
+```{r}
+#| label: tbl-add_p-cont-2
+#| tbl-cap: test de comparaison des moyennes
+trial |> 
+  tbl_summary(
+    include = age,
+    by = grade,
+    statistic = all_continuous() ~ "{mean} ({sd})"
+  ) |> 
+  add_p(
+    test = all_continuous() ~ "oneway.test"
+  )
+```
+
+::: callout-important
+## Précision statistique
+
+Classiquement, le test t de Student présuppose l'égalité des variances entre les deux sous-groupes, ce qui permet de former une estimation commune de la variance des deux échantillons (on parle de pooled variance), qui revient à une moyenne pondérée des variances estimées à partir des deux échantillons. Pour tester l'égalité des variances de deux échantillons, on peut utiliser `stats::var.test()`.
+
+Dans le cas où l'on souhaite relaxer cette hypothèse d'égalité des variances, le test de Welch ou la correction de Satterthwaite reposent sur l'idée que l'on utilise les deux estimations de variance séparément, suivie d'une approximation des degrés de liberté pour la somme de ces deux variances.
+
+Par défaut, la fonction `stats::t.test()` réalise un test de Welch. Pour un test classique de Student, il faut lui préciser `var.equal = TRUE`.
+
+De manière similaire, `stats::oneway.test()` ne présuppose pas, par défaut, l'égalité des variances et généralise donc le test de Welch au cas à trois modalités ou plus. Cependant, on peut là encore indiquer `var.equal = TRUE`, auquel cas une analyse de variance (ANOVA) classique sera réalisée, que l'on peut aussi obtenir avec `stats::aov()`.
+
+Il est possible d'indiquer à `gtsummary::add_p()` des arguments additionnels à passer à la fonction utilisée pour réaliser le test :
+
+```{r}
+trial |> 
+  tbl_summary(
+    include = age,
+    by = trt,
+    statistic = all_continuous() ~ "{mean} ({sd})"
+  ) |> 
+  add_p(
+    test = all_continuous() ~ "t.test",
+    test.args = all_continuous() ~ list(var.equal = TRUE)
+  )
+```
+:::
+
+### Différence de deux moyennes
+
+La fonctions `gtsummary::add_difference()` permet, pour une variable continue et si la variable catégorielle spécifiée via `by` n'a que deux modalités, de calculer la différence des deux moyennes, l'intervalle de confiance de cette différence et test si cette différence est significativement différente de 0 avec `stats::t.test()`.
+
+```{r}
+#| label: tbl-add_difference-cont
+#| tbl-cap: différence de deux moyennes
+trial |> 
+  tbl_summary(
+    include = age,
+    by = trt,
+    statistic = all_continuous() ~ "{mean} ({sd})"
+  ) |> 
+  add_difference()
+```
+
+## Deux variables continues
+
+### Représentations graphiques
+
+La comparaison de deux variables continues se fait en premier lieu graphique, en représentant, via un nuage de points, l'ensemble des couples de valeurs. Notez ici l'application d'un niveau de transparence (`alpha`) afin de faciliter la lecture des points superposés.
+
+```{r}
+#| label: fig-nuage-points
+#| fig-cap: nuage de points
+#| warning: false
+ggplot(iris) +
+  aes(x = Petal.Length, y = Petal.Width) +
+  geom_point(colour = "blue", alpha = .25) +
+  theme_light()
+```
+
+La géométrie `ggplot2::geom_smooth()` permets d'ajouter une courbe de tendance au graphique, avec son intervalle de confiance. Par défaut, il s'agit d'une régression polynomiale locale obtenue avec `stats::loess()`.
+
+```{r}
+#| label: fig-nuage-points-2
+#| fig-cap: nuage de points avec une courbe de tendance
+#| warning: false
+ggplot(iris) +
+  aes(x = Petal.Length, y = Petal.Width) +
+  geom_smooth() +
+  geom_point(colour = "blue", alpha = .25) +
+  theme_light()
+```
+
+Pour afficher plutôt la droite de régression linéaire entre les deux variables, on précisera `method = "lm"`.
+
+```{r}
+#| label: fig-nuage-points-3
+#| fig-cap: nuage de points avec droite de régression linéaire
+#| warning: false
+ggplot(iris) +
+  aes(x = Petal.Length, y = Petal.Width) +
+  geom_smooth(method = "lm") +
+  geom_point(colour = "blue", alpha = .25) +
+  theme_light()
+```
+
+La géométrie `ggplot2::geom_rug()` permet d'afficher une représentation synthétique de la densité de chaque variable sur les deux axes.
+
+```{r}
+#| label: fig-nuage-points-4
+#| fig-cap: nuage de points avec représentation synthétique des densités marginales
+#| warning: false
+ggplot(iris) +
+  aes(x = Petal.Length, y = Petal.Width) +
+  geom_smooth(method = "lm") +
+  geom_point(colour = "blue", alpha = .25) +
+  geom_rug() +
+  theme_light()
+```
+
+### Tester la relation entre les deux variables
+
+Si l'on a besoin de calculer le coefficient de corrélation de Pearson entre deux variables, on aura recours à `stats::cor()`.
+
+```{r}
+cor(iris$Petal.Length, iris$Petal.Width)
+```
+
+Pour aller plus loin, on peut calculer une régression linéaire entre les deux variables avec `stats::lm()`.
+
+```{r}
+m <- lm(Petal.Length ~ Petal.Width, data = iris)
+summary(m)
+```
+
+Les résultats montrent une corrélation positive et significative entre les deux variables.
+
+Pour une présentation propre des résultats de la régression linéaire, on utilisera `gtsummary::tbl_regression()`. La fonction `gtsummary::add_glance_source_note()` permet d'ajouter différentes statistiques en notes du tableau de résultats.
+
+```{r}
+m |> 
+  tbl_regression() |> 
+  add_glance_source_note()
+```
+
+## Matrice de corrélations
+
+Le package `{GGally}` et sa fonction `GGally::ggpairs()` permettent de représenter facilement une matrice de corrélation entre plusieurs variables, tant quantitatives que qualitatives.
+
+```{r}
+#| message: false
+#| label: fig-ggpairs
+#| fig-cap: une matrice de corrélation avec ggpairs()
+library(GGally)
+ggpairs(iris)
+```
+
+`GGally::ggpairs()` et sa petite sœur `GGally::ggduo()` offrent de nombreuses options de personnalisation qui sont détaillées sur le [site dédié du package](https://ggobi.github.io/ggally/articles/ggpairs.html).
+
+```{r}
+#| message: false
+#| label: fig-ggpairs-2
+#| fig-cap: un second example de matrice de corrélation
+#| fig-width: 16
+#| fig-height: 16
+ggpairs(trial, mapping = aes(colour = trt))
+
+```
+
+## webin-R
+
+La statistique univariée est présentée dans le webin-R #03 (*statistiques descriptives avec gtsummary et esquisse*) sur [YouTube](https://youtu.be/oEF_8GXyP5c?t=3650).
+
+{{< video https://youtu.be/oEF_8GXyP5c start='3650' >}}

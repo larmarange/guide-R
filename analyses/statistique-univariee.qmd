@@ -66,7 +66,7 @@ ggplot(iris) +
   geom_density(adjust = .5)
 ```
 
-### Variable catégorielle
+### Variable catégorielle {#sec-graph-univ-var-cat}
 
 Pour représenter la répartition des effectifs parmi les modalités d'une variable catégorielle, on a souvent tendance à utiliser des diagrammes en secteurs (<q>camemberts</q>). Or, ce type de représentation graphique est très rarement appropriée : l'oeil humain préfère comparer des longueurs plutôt que des surfaces[^statistique-univariee-1].
 
@@ -140,7 +140,7 @@ Le [diaporama ci-dessous](ressources/flipbook-geom_bar-univarie.html) vous perme
 :::
 :::
 
-## Tableaux et tris à plat
+## Tableaux et tris à plat {#sec-tri-a-plat}
 
 Le package `{gtsummary}` constitue l'une des boites à outils de l'analyste quantitativiste, car il permet de réaliser très facilement des tableaux quasiment publiables en l'état. En matière de statistique univarisée, la fonction clé est `gtsummary::tbl_summary()`.
 
@@ -496,7 +496,7 @@ hdv2003 |>
   )
 ```
 
-Au lieu d'un nombre de décimales, on peut indiquer plutôt une fonction à appliquer pour mettre en forme le résultat. Par exemple, `{gtsummary}` fournit les fonctions suivantes : `gtsummary::style_number()` pour les nombres de manière générale, `gtsummary::style_percent()` pour les pourcentages (les valeurs sont multipliées par 100, mais le symbole % n'est pas ajouté), `gtsummary::style_pvalue()` pour les p-valeurs, `gtsummary::style_sigfig()` qui n'affiche, par défaut, que deux chiffres significatifs, ou encore `gtsummary::style_ratio()` qui est une variante de `gtsummary::``style_sigfig()`{data-pkg="\"gtsummary"} pour les ratios (comme les *odds ratios*) que l'on compare à 1.
+Au lieu d'un nombre de décimales, on peut indiquer plutôt une fonction à appliquer pour mettre en forme le résultat. Par exemple, `{gtsummary}` fournit les fonctions suivantes : `gtsummary::style_number()` pour les nombres de manière générale, `gtsummary::style_percent()` pour les pourcentages (les valeurs sont multipliées par 100, mais le symbole % n'est pas ajouté), `gtsummary::style_pvalue()` pour les p-valeurs, `gtsummary::style_sigfig()` qui n'affiche, par défaut, que deux chiffres significatifs, ou encore `gtsummary::style_ratio()` qui est une variante de ``` gtsummary::``style_sigfig() ```{data-pkg="\"gtsummary"} pour les ratios (comme les *odds ratios*) que l'on compare à 1.
 
 Il faiut bien noter que ce qui est attendu par `digits`, c'est une fonction et non le résultat d'une fonction. On indiquera donc le nom de la fonction sans parenthèse, comme dans l'exemple ci-dessous (même si pas forcément pertinent ;-)).
 
@@ -657,7 +657,7 @@ La fonction `summary()` renvoie la plupart de ces indicateurs en une seule fois,
 hdv2003$heures.tv |> summary()
 ```
 
-### Variable catégorielle
+### Variable catégorielle {#sec-table-univariee}
 
 Les fonctions de base pour le calcul d'un tri à plat sont les fonctions `table()` et `xtabs()`. Leur syntaxe est quelque peu différente. On passe un vecteur entier à `table()` alors que la syntaxe de `xtabs()` se rapproche de celle d'un modèle linéaire : on décrit le tableau attendu à l'aide d'une formule et on indique le tableau de données. Les deux fonctions renvoient le meme résultat.
 
@@ -761,13 +761,15 @@ Pour une **proportion**, on utilisera `prop.test()` en lui transmettant le nombr
 
 Ainsi, pour obtenir l'intervalle de confiance de la proportion des enquêtés qui considèrent leur travail comme *peu important*, en tenant compte des valeurs manquantes, le plus simple est d'effectuer le code suivant[^statistique-univariee-3] :
 
-[^statistique-univariee-3]: Notez l'utilisation de `rev()` pour inverser le tableau créé avec `table()` afin que le nombre de succès (`TRUE`) soit indiqués avant le nombre d'échecs (`FALSE`).
+[^statistique-univariee-3]: Notez l'utilisation de `rev()` pour inverser le tableau créé avec `xtabs()` afin que le nombre de succès (`TRUE`) soit indiqués avant le nombre d'échecs (`FALSE`).
 
 ```{r}
-table(hdv2003$trav.imp == "Peu important") |> 
+xtabs(~ I(hdv2003$trav.imp == "Peu important"), data = hdv2003) |> 
   rev() |> 
   prop.test()
 ```
+
+Par défaut, `prop.test()` produit un intervalle de confiance bilatéral en utilisant la méthode de Wilson avec correction de continuité. Pour plus d'information sur les différentes manières de calculer l'intervalle de confiance d'une proportion, on pourra se référer à ce [billet de blog](https://joseph.larmarange.net/Intervalle-de-confiance-bilateral).
 
 ::: callout-tip
 Comme on le voit, il n'est pas aisé, avec les fonctions de **R base** de calculer les intervalles de confiance pour toutes les modalités d'une variable catégorielle.
