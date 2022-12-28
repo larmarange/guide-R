@@ -1,0 +1,130 @@
+# Couleurs & Palettes {#sec-couleurs}
+
+Dans les prochains chapitres, notamment lorsque nous ferons des graphiques, nous aurons besoin de spécier à **R** les couleurs souhaitées.
+
+Le choix d'une palette de couleurs adaptée à sa représentation graphique est également un élément essentiel avec quelques règles de base : un dégradé est adpaté pour représentée une variable continue tandis que pour une variable catégorielle non ordonnée on aura recours à une palette contrastée.
+
+## Noms de couleur
+
+Lorsque l'on doit indiquer à **R** une couleur, notamment dans les fonctions graphiques, on peut mentionner certaines couleurs en toutes lettres (en anglais) comme `"red"` ou `"blue"`. La liste des couleurs reconnues par **R** est disponible sur <http://www.stat.columbia.edu/~tzheng/files/Rcolor.pdf>.
+
+```{r}
+#| message: false
+library(tidyverse)
+ggplot(iris) +
+  aes(x = Petal.Length) +
+  geom_histogram(colour = "red", fill = "blue") 
+```
+
+## Couleurs RVB et code hexadécimal
+
+En informatique, les couleurs sont usuellement codées en Rouge/Vert/Bleu (voir <https://fr.wikipedia.org/wiki/Rouge_vert_bleu>) et représentées par un code hexadécimal à 6 caractères (chiffres 0 à 9 et/ou lettres A à F), précédés du symbole `#`. Ce code est reconnu par **R**. On pourra par exemple indiquer `"#FF0000"` pour la couleur rouge ou `"#666666"` pour un gris foncé. Le code hexadécimal des différentes couleurs peut s'obtenir aisément sur internet, de nombreux sites étant consacrés aux palettes de couleurs.
+
+```{r}
+#| message: false
+ggplot(iris) +
+  aes(x = Petal.Length) +
+  geom_histogram(colour = "#666666", fill = "#FF0000") 
+```
+
+Parfois, au lieu du code hexadécimal, les couleurs RVB sont indiquées avec trois chiffres entiers compris entre 0 et 255. La conversion en hexadécimal se fait avec la fonction `grDevices::rgb()`.
+
+```{r}
+rgb(255, 0, 0, maxColorValue = 255)
+```
+
+## Palettes de couleurs
+
+### Color Brewer
+
+Le projet **Color Brewer** a développé des palettes cartographiques, à la fois séquentielles, divergentes et catégorielles, présentées en détail sur <http://colorbrewer2.org/>. Pour chaque type de palette, et en fonction du nombre de classes, est indiqué sur ce site si la palette est adaptée aux personnes souffrant de daltonisme, si elle est rendra correctement sur écran, en cas d'impression couleur et en cas d'impression en noir et blanc.
+
+Voici un aperçu des différentes palettes disponibles :
+
+```{r}
+#| echo: false
+#| fig.height: 8.0
+#| fig.width: 8.0
+library(RColorBrewer)
+display.brewer.all(8)
+```
+
+L'extension `{RColorBrewer}` permets d'accéder à ces palettes sous **R**.
+
+Si on utilise `{ggplot2}`, les palettes Color Brewer sont directement disponibles via les fonctions `ggplot2::scale_fill_brewer()` et `ggplot2::scale_colour_brewer()`.
+
+::: callout-caution
+Les palettes Color Brewer sont seulement implémentées pour des variables catégorielles. Il est cependant possible de les utiliser avec des variables continues en les combinants avec `ggplot2::scale_fill_gradientn()` ou `ggplot2::scale_coulour_gradientn()` (en remplaçant `"Set1"` par le nom de la palette désirée) :
+
+```{r}
+#| eval: false
+scale_fill_gradientn(values = RColorBrewer::brewer.pal(6, "Set1"))
+```
+:::
+
+### Palettes de Paul Tol
+
+Le physicien Paul Tol a développé plusieurs palettes de couleurs adaptées aux personnes souffrant de déficit de perception des couleurs (daltonisme). À titre personnel, il s'agit des palettes de couleurs que j'utilise le plus fréquemment.
+
+Le détail de ses travaux est présenté sur <https://personal.sron.nl/~pault/>.
+
+Le pacakge `{khroma}` implémente ces palettes de couleurs proposées par Paul Tol afin de pouvoir les utilisées directement dans **R** et avec `{ggplot}`.
+
+```{r}
+library(khroma)
+plot_scheme(colour("bright")(7), colours = TRUE)
+ggplot(mpg) +
+  aes(x = displ, y = hwy, colour = class) +
+  geom_point() +
+  khroma::scale_colour_bright()
+```
+
+```{r}
+plot_scheme(colour("muted")(9), colours = TRUE)
+```
+
+```{r}
+plot_scheme(colour("PRGn")(9), colours = TRUE, size = 0.9)
+```
+
+Pour la liste complète des palettes disponibles, voir <https://packages.tesselle.org/khroma/articles/tol.html>.
+
+### Interface unifiée avec `{paletteer}`
+
+L'extension `{paletteer}` vise à proposer une interface unifiée pour l'utilisation de palettes de couleurs fournies par d'autres packages (dont `{khroma}`, mais aussi par exemple `{ggsci}` qui fournit les palettes utilisées par certaines revues scientifiques). Plus de 2 500 palettes sont ainsi disponibles.
+
+On peut afficher un aperçu des principales palettes disponibles dans `{paletteer}` avec la commande suivante :
+
+```{r}
+#| eval: false
+gt::info_paletteer()
+```
+
+Pour afficher la liste complète des palettes discrètes et continues, on utilisera les commandes suivantes :
+
+```{r}
+#| eval: false
+palettes_d_names |> View()
+palettes_c_names |> View()
+```
+
+La fonction `paletteer::paletteer_d()` permet d'obtenir les codes hexadécimaux d'une parlette discrète en précisant le nombre de couleurs attendues. Les fonctions `paletteer::scale_color_paletteer_d()` et `paletteer::scale_fill_paletteer_d()` permettront d'utiliser une palette donnée avec `{ggplot2}`.
+
+```{r}
+library(paletteer)
+paletteer_d("khroma::bright", n = 5)
+ggplot(mpg) +
+  aes(x = displ, y = hwy, colour = class) +
+  geom_point() +
+  scale_color_paletteer_d("khroma::bright")
+```
+
+L'équivalent existe pour les palettes continues, avec `paletteer::paletteer_c()`, `paletteer::scale_color_paletteer_c()` et `paletteer::scale_fill_paletteer_c()` .
+
+```{r}
+paletteer_c("viridis::viridis", n = 6)
+ggplot(iris) +
+  aes(x = Sepal.Length, y = Sepal.Width, colour = Petal.Length) +
+  geom_point() +
+  scale_colour_paletteer_c("viridis::viridis", direction = -1)
+```

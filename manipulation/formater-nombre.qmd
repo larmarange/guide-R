@@ -1,0 +1,256 @@
+# Mettre en forme des nombres {#sec-formater-nombre}
+
+Dans les chapitres suivants, nous aurons régulièrement besoin, pour produire des tableaux ou des figures propres, de **fonctions de formatage** qui permettent de transformer des valeurs numériques en chaînes de texte.
+
+La fonction **R** de base est `format()` mais de nombreux autres packages proposent des variations pour faciliter cette opération. Le plus complet est probablement `{scales}` et, notamment, ses fonctions `scales::label_number()` et `scales::number()`.
+
+Elles ont l'air très similaires et partagent un grand nombre de paramètres en commun. La différence est que `scales::number()` a besoin d'un vecteur numérique en entrée qu'elle va mettre en forme, tandis que que `scales::label_number()` renvoie une fonction que l'on pourra ensuite appliquer à un vecteur numérique.
+
+```{r}
+library(scales)
+x <- c(0.0023, .123, 4.567, 874.44, 8957845)
+number(x)
+
+f <- label_number()
+f(x)
+label_number()(x)
+```
+
+Dans de nombreux cas de figure (par exemple pour un graphique `{ggplot2}` ou un tableau `{gtsummary}`), il sera demandé de fournir une fonction de formatage, auquel cas on aura recours aux fonctions de `{scales}` préfixées par `label_*()` qui permettent donc de générer une fonction personnalisée.
+
+## `label_number()`
+
+`scales::label_number()` est la fonction de base de mise en forme de nombres dans `{scales}`, une majorité des autres fonctions faisant appel à `scales::label_number()` et partageant les mêmes arguments.
+
+Le paramètre `accurary` permets de définir le niveau d'arrondi à utiliser. Par exemple, `.1` pour afficher une seule décimale. Il est aussi possible d'indiquer un nombre qui n'est pas une puissance de 10 (par exemple `.25`). Si on n'indique rien (`NULL`), alors `scales::label_number()` essaiera de deviner un nombre de décimales pertinent en fonction des valeurs du vecteur de nombres à mettre en forme.
+
+```{r}
+label_number(accuracy = NULL)(x)
+label_number(accuracy = .1)(x)
+label_number(accuracy = .25)(x)
+label_number(accuracy = 10)(x)
+```
+
+L'option `scale` permets d'indiquer un facteur multiplicatif à appliquer avant de mettre en forme. On utilisera le plus souvent les options `prefix` et `suffix` en même temps pour indiquer les unités.
+
+```{r}
+label_number(scale = 100, suffix = "%")(x) # pour cent
+label_number(scale = 1000, suffix = "\u2030")(x) # pour mille
+label_number(scale = .001, suffix = " milliers", accuracy = .1)(x)
+```
+
+Les arguments `decimal.mark` et `big.mark` permettent de définir, respectivement, le séparateur de décimale et le séparateur de milliers. Ainsi, pour afficher des nombres <q>à la française</q> (virgule pour les décimales, espace pour les milliers) :
+
+```{r}
+label_number(decimal.mark = ",", big.mark = " ")(x)
+```
+
+Note : il est possible d'utiliser `small.interval` et `small.mark` pour ajouter des séparateurs parmi les décimales.
+
+```{r}
+label_number(accuracy = 10^-9, small.mark = "|", small.interval = 3)(x)
+```
+
+Les options `style_positive` et `style_negative` permettent de personnaliser la manière dont les valeurs positives et négatives sont mises en forme.
+
+```{r}
+y <- c(-1.2, -0.3, 0, 2.4, 7.2)
+label_number(style_positive = "plus")(y)
+label_number(style_negative = "parens")(y)
+```
+
+## Les autres fonctions de `{scales}`
+
+### `label_comma()`
+
+`scales::label_comma()` (et `scales::comma()`) est une variante de `scales::label_number()` qui, par défaut, affiche les nombres à l'américaine, avec une virgule comme séparateur de milliers.
+
+```{r}
+label_comma()(x)
+```
+
+### `label_percent()`
+
+`scales::label_percent()` (et `scales::percent()`) est une variante de `scales::label_number()` qui affiche les nombres sous formes de pourcentages (les options par défaut sont `scale = 100, suffix = "%"`).
+
+```{r}
+label_percent()(x)
+```
+
+On peut utiliser cette fonction pour afficher des résultats en pour mille (le [code unicode](https://unicode-table.com/fr/2030/) du symbole ‰ étant u2030) :
+
+```{r}
+label_percent(scale = 1000, suffix = "\u2030")(x)
+```
+
+### `label_dollar()`
+
+`scales::label_dollar()` est adapté à l'affichage des valeurs monétaires.
+
+```{r}
+label_dollar()(x)
+label_dollar(prefix = "", suffix = " €", accuracy = .01, big.mark = " ")(x)
+```
+
+L'option `style_negative` permet d'afficher les valeurs négatives avec des parenthèses, convention utilisée dans certaines disciplines.
+
+```{r}
+label_dollar()(c(12.5, -4, 21, -56.36))
+label_dollar(style_negative = "parens")(c(12.5, -4, 21, -56.36))
+```
+
+### `label_pvalue()`
+
+`scales::label_pvalue()` est adapté pour la mise en forme de p-valeurs.
+
+```{r}
+label_pvalue()(c(0.000001, 0.023, 0.098, 0.60, 0.9998))
+label_pvalue(accuracy = .01, add_p = TRUE)(c(0.000001, 0.023, 0.098, 0.60))
+```
+
+### `label_number_si()`
+
+`scales::label_number_si()` cherche le [préfixe du Système international d'unités](https://fr.wikipedia.org/wiki/Pr%C3%A9fixes_du_Syst%C3%A8me_international_d%27unit%C3%A9s) le plus proche et arrondi chaque valeur en fonction, en ajoutant la précision correspondante.
+
+```{r}
+label_number_si(unit = "g")(c(.00000145, .0034, 5, 12478, 14569787))
+```
+
+### `label_scientific()`
+
+`scales::label_scientific()` affiche les nombres dans un format scientifique (avec des puissances de 10).
+
+```{r}
+label_scientific(unit = "g")(c(.00000145, .0034, 5, 12478, 14569787))
+```
+
+### `label_bytes()`
+
+`scales::label_bytes()` mets en forme des tailles exprimées en octets, utilisant au besoin des multiples de 1024.
+
+```{r}
+b <- c(478, 1235468, 546578944897)
+label_bytes()(b)
+label_bytes(units = "auto_binary")(b)
+```
+
+### `label_ordinal()`
+
+`scales::label_bytes()` permets d'afficher des rangs ou nombres ordinaux. Plusieurs langues sont disponibles.
+
+```{r}
+label_ordinal()(1:5)
+label_ordinal(rules = ordinal_french())(1:5)
+label_ordinal(rules = ordinal_french(gender = "f", plural = TRUE))(1:5)
+```
+
+### `label_date()`, `label_date_short()` & `label_time()`
+
+`scales::label_date()`, `scales::label_date_short()` et `scales::label_time()` peuvent être utilisées pour la mise en forme de dates.
+
+```{r}
+label_date()(as.Date("2020-02-14"))
+label_date(format = "%d/%m/%Y")(as.Date("2020-02-14"))
+label_date_short()(as.Date("2020-02-14"))
+```
+
+La mise en forme des dates est un peu complexe. Ne pas hésiter à consulter le fichier d'aide de la fonction `base::strptime()` pour plus d'informations.
+
+### `label_wrap()`
+
+La fonction `scales::label_wrap()` est un peu différente. Elle permets d'insérer des retours à la ligne (`\n`) dans des chaines de caractères. Elle tient compte des espaces pour identifier les mots et éviter ainsi des coupures au milieu d'un mot.
+
+```{r}
+x <- "Ceci est un texte assez long et que l'on souhaiterait afficher sur plusieurs lignes. Cependant, on souhaite éviter que des coupures apparaissent au milieu d'un mot."
+label_wrap(80)(x)
+label_wrap(80)(x) |> message()
+label_wrap(40)(x) |> message()
+```
+
+## Les fonctions de formatage de `{gtsummary}`
+
+Véritable couteau-suisse du statisticien, le package `{gtsummary}` sera largement utilisé dans les prochains chapitres pour produire des tableaux statistiques <q>prêts à être publiés</q>.
+
+Ce package utilise par défaut ses propres fonctions de formatage mais, au besoin, il sera toujours possible de lui transmettre des fonctions de formatage créées avec `{scales}`.
+
+### `style_number()`
+
+Fonction de base, `gtsummary::style_number()` accepte les paramètres `big.mark` (séparateur de milliers), `decimal.mark` (séparateur de décimales) et `scale` (facteur d'échelle). Le nombre de décimales se précisera quant à lui avec `digits` où l'on indiquera le nombre de décimales souhaité.
+
+```{r}
+library(gtsummary)
+x <- c(0.123, 0.9, 1.1234, 12.345, -0.123, -0.9, -1.1234, -132.345)
+style_number(x, digits = 1)
+```
+
+::: callout-tip
+Nous verrons dans le chapitre sur les statistiques univariées (cf. @sec-theme-gtsummary) la fonction `gtsummary::theme_gtsummary_language()` qui permet de fixer globalement le séparateur de milliers et celui des décimales, afin de changer les valeurs par défaut de l'ensemble des fonctions de formatage de `{gtsummary}`.
+
+Il est important de noter que cela n'a aucun effet sur les fonctions de formatage de `{scales}`.
+:::
+
+::: callout-caution
+
+`gtsummary::style_number()` est directement une fonction de formatage (comme `scales::number()`) et non une fonction qui générère une fonction de formatage (comme `scales::label::number()`).
+
+Pour créer une fonction de formatage personnalisée, on pourra avoir recours à `purrr::partial()` qui permet d'appeller <q>partiellement</q> une fonctio et qui renvoie une nouvelle fonction avec des paramètres par défaut personnalisés.
+
+```{r}
+fr <- style_number |>
+  purrr::partial(decimal.mark = ",", digits = 1)
+fr(x)
+```
+:::
+
+### `style_sigfig()`
+
+Variante de `gtsummary::style_number()`, `gstummary::style_sigfig()` arrondi les valeurs transmises pour n'afficher qu'un nombre choisi de chiffres significatifs. Le nombre de décimales peut ainsi varier.
+
+```{r}
+style_sigfig(x)
+style_sigfig(x, digits = 3)
+```
+
+### `style_percent()`
+
+La fonction `gtsummary::style_percent()` a un fonctionnement un peu différent de celui de `scales::label_percent()`. Par défaut, le symbole `%` n'est pas affiché (mais paramétrable avec `symbol = TRUE`. Par défaut, une décimale est affichée pour les valeurs inférieures à 10% et aucune pour celles supérieures à 10%. Un symbole `<` est ajouté devant les valeurs strictement positives inférieures à 0,1%.
+
+```{r}
+v <- c(0, 0.0001, 0.005, 0.01, 0.10, 0.45356, 0.99, 1.45)
+label_percent(accuracy = .1)(v)
+style_percent(v)
+style_percent(v, symbol = TRUE)
+style_percent(v, digits = 1)
+```
+
+### `style_pvalue()`
+
+La fonction `gtsummary::style_pvalue()` est similaire à `scales::label_pvalue()` mais adapte le nombre de décimales affichées,
+
+```{r}
+p <- c(0.000001, 0.023, 0.098, 0.60, 0.9998)
+label_pvalue()(p)
+style_pvalue(p)
+style_pvalue(p, prepend_p = TRUE)
+```
+
+### `style_ratio()`
+
+Enfin, `gtsummary::style_ratio()` est adaptée à l'affichage de ratios.
+
+```{r}
+r <- c(0.123, 0.9, 1.1234, 12.345, 101.234, -0.123, -0.9, -1.1234, -12.345, -101.234)
+style_ratio(r)
+```
+
+## Bonus : `signif_stars()` de `{ggstats}`
+
+La fonction `ggstats::signif_stars()` de `{ggstats}` permet d'afficher des p-valeurs sous forme d'étoiles de significativité, Par défaut, trois astérisques si p \< 0,001, deux si p \< 0,01, une si p \< 0,05 et un point si p \< 0,10. Les valeurs sont bien sur paramétrables.
+
+```{r}
+p <- c(0.5, 0.1, 0.05, 0.01, 0.001)
+ggstats::signif_stars(p)
+ggstats::signif_stars(p, one = .15, point = NULL)
+```
+
+## 

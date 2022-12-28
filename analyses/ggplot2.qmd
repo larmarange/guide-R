@@ -97,10 +97,8 @@ Le [diaporama ci-dessous](ressources/flipbook-ggplot2.html) vous permet de visua
 :::
 
 ::: {.content-visible unless-format="html"}
-Pour visualiser chaque étape du code, vous pouvez consulter le diaporama suivant :
-<https://larmarange.github.io/guide-R/analyses/ressources/flipbook-ggplot2.html>
+Pour visualiser chaque étape du code, vous pouvez consulter le diaporama suivant : <https://larmarange.github.io/guide-R/analyses/ressources/flipbook-ggplot2.html>
 :::
-
 
 ## Cheatsheet {#sec-cheatsheet-ggplot2}
 
@@ -142,7 +140,7 @@ L'utilisation d'`{esquisse}` est présentée dans le webin-R #03 (*statistiques 
 
 ## Combiner plusieurs graphiques
 
-Plusieurs packages proposent des fonctions pour combiner ensemble des graphiques `{ggplot2}`, comme `{patchwork}`, `{ggpubr}` ou `{egg}`. Ici, nous privilégierons la fonction `cowplot::plot_grid()` du package `{cowplot}` car elle permet notamment d'aligner les graphiques les uns par rapports aux autres.
+Plusieurs packages proposent des fonctions pour combiner ensemble des graphiques `{ggplot2}`, comme `{patchwork}`, `{ggpubr}`, `{egg}` ou `{cowplot}`. Ici, nous privilégierons le package `{patchwork}` car, bien qu'il ne fasse pas partie du *tidyverse*, est développé et maintenant par les mêmes auteurs que `{ggplot2}`.
 
 Commençons par créer quelques graphiques avec `{ggplot2}`.
 
@@ -163,38 +161,55 @@ p4 <- ggplot(mtcars) +
   ylab(NULL)
 ```
 
-La fonction `cowplot::plot_grid()` permet de combiner ces différents graphiques entre eux.
+Le symbole `+` permet de combiner des graphiques entre eux. Le package `{patchwork}` déterminera le nombre de lignes et de colonnes en fonction du nombre de graphiques. On pourra noter que les axes des graphiques sont alignés les uns par rapports aux autres.
 
 ```{r}
-library(cowplot)
-plot_grid(p1, p2, p3, p4)
+library(patchwork)
+p1 + p2 + p3 + p4
 ```
 
-Le nombre de lignes / colonnes peut être personnalisé avec les paramètres `nrow` et `ncol`.
+Les symboles `|` et `/` permettent d'indiquer une disposition côte à côte ou les uns au-dessus des autres.
 
 ```{r}
-plot_grid(p1, p2, p3, nrow = 1)
+p1 | p2 | p3
 ```
 
-On peut également ajouter des étiquettes avec l'argument `labels`.
-
 ```{r}
-plot_grid(p1, p2, p3, labels = "AUTO", label_size = 12)
+p1 / p2
 ```
 
-Dans certain cas, on peut avoir besoin d'aligner les axes des graphiques, ce qui s'obtient avec l'argument `align`.
+On peut utiliser les parenthèses pour indiquer des arrangements plus complexes.
 
 ```{r}
-plot_grid(p1, p2, p3, p4, align = "hv")
+(p1 + p2) / p3
 ```
 
-Enfin, on peut jouer les hauteurs/largeurs relatives des lignes/colonnes avec `rel_heights` et `rel_witdhs`.
+```{r}
+(p1 + p2) | p3
+```
+
+Si l'on a une liste de graphiques, on pourra appeler `patchwork::wrap_plots()`.
 
 ```{r}
-plot_grid(
-  p1, p2, p3, p4, 
-  align='hv', 
-  rel_heights=c(2,1), 
-  rel_widths=c(1,2)
-)
+list(p1, p2, p3, p4) |> 
+  wrap_plots()
+```
+
+La fonction `patchwork::plot_layout()` permet de controler les hauteurs / largeurs relatives des lignes / colonnes.
+
+```{r}
+p1 + p2 + p3 + p4 + plot_layout(widths = c(2, 1))
+```
+
+On peut également ajouter un titre ou des étiquettes avec `patchwork::plot_annotation()`.
+
+```{r}
+p1 + p2 + p3 + p4 +
+  plot_annotation(
+    title = "Titre du graphique",
+    subtitle = "sous-titre",
+    caption = "notes additionelles",
+    tag_levels = "a",
+    tag_suffix = "."
+  )
 ```

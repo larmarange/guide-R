@@ -1,0 +1,224 @@
+# Effets marginaux {#sec-effets-marginaux}
+
+Les coefficients d'une régression multivariée ne sont pas toujours facile à interpréter car ils ne sont pas forcément exprimés dans la même dimension que la variable d'intérêt. C'est notamment le cas pour une régression logistique binaire (cf. @sec-regression-logistique-binaire). Comment traduire la valeur d'un *odds ratio* en écart de probabilité ?
+
+Dans certaines disciplines, notamment en économétrie, on préfère souvent présenter les effets marginaux qui tentent de traduire les effets du modèle dans la dimension de la variable d'intérêt. Plusieurs approches existent, dont les effets marginaux moyens, les effets marginaux ou encore les effets conditionnels[^effets-marginaux-1].
+
+[^effets-marginaux-1]: Il est à noter que le vocabulaire n'est pas standardisé et peut varier d'un auteur à l'autre. Pour une présentation plus technique et détaillée, on pourra se référer par exemple à [*An Introduction to `{margins}`*](https://cran.r-project.org/web/packages/margins/vignettes/Introduction.html) ou encore à [*Introduction to Adjusted Predictions and Marginal Effects in R*](https://strengejacke.github.io/ggeffects/articles/introduction_marginal_effects.html).
+
+## Données d'illustration
+
+Pour illustrer ce chapitre, nous allons reprendre le modèle réduit utilisé dans le chapitre sur la régression logistique binaire (cf. @sec-regression-logistique-binaire).
+
+```{r}
+#| message: false
+library(tidyverse)
+library(labelled)
+library(gtsummary)
+theme_gtsummary_language(
+  "fr",
+  decimal.mark = ",",
+  big.mark = " "
+)
+
+data(hdv2003, package = "questionr")
+
+d <-
+  hdv2003 |> 
+  mutate(
+    sexe = sexe |> fct_relevel("Femme"),
+    groupe_ages = age |>
+      cut(
+        c(18, 25, 45, 65, 99),
+        right = FALSE,
+        include.lowest = TRUE,
+        labels = c("18-24 ans", "25-44 ans",
+                   "45-64 ans", "65 ans et plus")
+      ),
+    etudes = nivetud |> 
+      fct_recode(
+        "Primaire" = "N'a jamais fait d'etudes",
+        "Primaire" = "A arrete ses etudes, avant la derniere annee d'etudes primaires",
+        "Primaire" = "Derniere annee d'etudes primaires",
+        "Secondaire" = "1er cycle",
+        "Secondaire" = "2eme cycle",
+        "Technique / Professionnel" = "Enseignement technique ou professionnel court",
+        "Technique / Professionnel" = "Enseignement technique ou professionnel long",
+        "Supérieur" = "Enseignement superieur y compris technique superieur"
+    ) |> 
+    fct_explicit_na("Non documenté")  
+  ) |> 
+  set_variable_labels(
+    sport = "Pratique un sport ?",
+    sexe = "Sexe",
+    groupe_ages = "Groupe d'âges",
+    etudes = "Niveau d'études",
+    heures.tv = "Heures de télévision / jour"
+  )
+
+mod <- glm(
+  sport ~ sexe + groupe_ages + etudes + heures.tv,
+  family = binomial,
+  data = d
+)
+```
+
+```{r}
+#| label: tbl-rappel-model
+#| tbl-cap: Odds Ratio du modèle logistique
+mod |> 
+  tbl_regression(exponentiate = TRUE) |> 
+  bold_labels()
+```
+
+## Effets marginaux moyens
+
+L'approche la plus commune en économétrie est celle implémentée dans la commande `margins` du logiciel **Stata** et dont l'équivalent est disponible sous **R** dans le package `{margins}` et sa fonction `margins::margins()`.
+
+Prenons directement un exemple. Pour bénéficier d'une mise en forme des résultats, le plus simple reste encore d'utiliser la fonction `broom.helpers::tidy_margins()`[^effets-marginaux-2] avec `gtsummary::tbl_regression()`.
+
+[^effets-marginaux-2]: Nécessite au minimum la version 1.11.0 de `{broom.helpers}`.
+
+```{r}
+#| label: tbl-tidy_margins
+#| tbl-cap: Effets marginaux moyens
+mod |> 
+  tbl_regression(
+    tidy_fun = broom.helpers::tidy_margins,
+    estimate_fun = scales::label_percent(
+      accuracy = 0.1,
+      style_positive = "plus"
+    )
+  ) |> 
+  bold_labels()
+```
+
+L'idée générale est d'estimer l'écart dans l'échelle de la variable d'intérêt (ici l'écart de probabilités comme il s'agit d'une régression logistique) à la <q>moyenne des autres variables</q>.
+
+Ainsi, la probabilité de faire du sport des hommes est supérieure de 8 points de pourcentage (pp) à celle des femmes, <q>toutes choses étant égales par ailleurs</q>, et diminue de 2,3 pp pour chaque heure additionnelle de télévision quotidienne.
+
+Par rapport aux *odds ratios*, les effets marginaux moyens sont plus faciles à appréhender car ils s'interprètent ici directement comme des différences de probabilités.
+
+On peut également les représenter graphiquement avec `ggstats::ggcoef_model()`.
+
+```{r}
+#| label: fig-tidy_margins
+#| fig-cap: Effets marginaux moyens
+mod |> 
+  ggstats::ggcoef_model(
+    tidy_fun = broom.helpers::tidy_margins
+  ) +
+  scale_x_continuous(labels = scales::label_percent())
+```
+
+## Effets marginaux ou Moyennes marginales
+
+Comme les *odds ratios*, les effets marginaux moyens sont dépendants de la modalité de réference choisie pour les variables catégorielles. De plus, ils ne permettent pas de visualiser la probabilité de faire du sport d'un groupe donné. Ils ne donnent que l'écart de probabilité entre deux groupes.
+
+Une approche alternative consiste à calculer des effets marginaux de chaque sous-groupe, à la <q>moyenne</q> des autres variables. Il s'agit de conserver l'approche <q>toutes choses égales par ailleurs</q>. Si l'on ne fait varier que le sexe, ayant ajusté sur l'âge, le niveau d'étude et le nombre d'heures quotidiennes de télévision, quelle est la probabilité de faire du sport, telle que prédite par le modèle, pour les femmes ? pour les hommes ?
+
+On parle alors, selon les packages et les auteurs, d'**effets marginaux** (*marginal effects*) ou de **moyennes marginales** (*marginal mean*).
+
+Pour cela, on aura recours au package `{effects}`. Pour calculer les effets de l'ensemble des variables d'un modèle et les représenter graphiquement, on utilisera `effects::allEffects()` :
+
+```{r}
+#| label: fig-allEffects
+#| fig-cap: Représentation des effets marginaux avec effects
+mod |> 
+  effects::allEffects() |> 
+  plot()
+```
+
+Pour des graphiques un peu plus propres, on pourra privilégier `ggeffects::ggeffect()`.
+
+```{r}
+#| label: fig-ggeffects
+#| fig-cap: Représentation des effets marginaux avec ggeffects
+mod |> 
+  ggeffects::ggeffect() |> 
+  plot() |> 
+  patchwork::wrap_plots()
+```
+
+Dernière possibilité, la fonction `broom.helpers::tidy_all_effects()`[^effets-marginaux-3] avec `ggstats::ggcoef_model()`.
+
+[^effets-marginaux-3]: Nécessite au minimum la version 1.11.0 de `{broom.helpers}`.
+
+```{r}
+#| label: fig-tidy_all_effects
+#| fig-cap: Représentation des effets marginaux avec ggstats
+mod |> 
+  ggstats::ggcoef_model(
+    tidy_fun = broom.helpers::tidy_all_effects,
+    vline = FALSE
+  ) +
+  scale_x_continuous(labels = scales::label_percent())
+```
+
+De même, on peut produire un tableau avec `gtsummary::tbl_regression()`.
+
+```{r}
+#| label: tbl-tidy_all_effects
+#| tbl-cap: Effets marginaux
+mod |> 
+  tbl_regression(
+    tidy_fun = broom.helpers::tidy_all_effects,
+    estimate_fun = scales::label_percent(accuracy = 0.1)
+  ) |> 
+  bold_labels()
+```
+
+Avec cette représentation, nous pouvons dire que, toutes choses étant égales par ailleurs, la probabilité de faire du sport des femmes est de 28,7% et celle des hommes de 37,9%. Ces proportions sont différentes de celles observées dans l'échantillon. Elles sont prédites par le modèle, à la <q>moyenne</q> des autres variables, et donc ne varient pas selon l'âge, le niveau d'éducation ou le nombre d'heures quotidiennes de télévision. Il s'agit bien de probabilités prédites et ajustées sur les autres variables. L'objectif est bien d'isoler l'effet du sexe, indépendamment des autres variables du modèle.
+
+**Ici, peu importe la modalité choisie comme modalité de référence, les effets marginaux calculés seront rigoureusement identiques !**
+
+::: callout-note
+L'écart entre les femmes et les hommes obtenus avec `{effects}` n'est pas tout à fait égal à celui obtenu avec `{margins}`, les deux packages n'ayant pas exactement la même approche pour se situer à la <q>moyenne</q> des autres variables. Cependant, l'ordre de grandeur est identique.
+:::
+
+## Effets conditionnels à la référence
+
+Une autre possibilité consiste à prédire les probabilités pour chaque modalité en considérant les autres variables à leur référence (pour les variables catégorielles) ou à leur moyenne (pour les variables continues). Il s'agit d'une <q>transcription</q> plus directe des coefficients du modèle, mais n'a vraiment de sens que si la référence du modèle correspond également à une référence sociale du point de vue sociologique. Sinon, il est préférable d'avoir plutôt recours aux effets marginaux.
+
+Pour cela, on aura recours à la fonction `ggeffects::ggpredict()`.
+
+```{r}
+#| label: fig-ggpredict
+#| fig-cap: Représentation des effets conditionnel à la référence avec ggeffects
+mod |> 
+  ggeffects::ggpredict() |> 
+  plot() |> 
+  patchwork::wrap_plots()
+```
+
+Pour `ggstats::ggcoef_model()` et `gtsummary::tbl_regression()`, on fera appel à `broom.helpers::tidy_ggpredict()`[^effets-marginaux-4].
+
+[^effets-marginaux-4]: Nécessite au minimum la version 1.11.0 de `{broom.helpers}`.
+
+```{r}
+#| label: fig-tidy_ggpredict
+#| fig-cap: Représentation des effets conditionnels à la référence avec ggstats
+mod |> 
+  ggstats::ggcoef_model(
+    tidy_fun = broom.helpers::tidy_ggpredict,
+    vline = FALSE
+  ) +
+  scale_x_continuous(labels = scales::label_percent())
+```
+
+```{r}
+#| label: tbl-tidy_ggpredict
+#| tbl-cap: Effets conditionnels à la référence
+mod |> 
+  tbl_regression(
+    tidy_fun = broom.helpers::tidy_ggpredict,
+    estimate_fun = scales::label_percent(accuracy = 0.1)
+  ) |> 
+  bold_labels()
+```
+
+::: callout-warning
+Lors de l'interprétation des résultats, il faut bien garder en tête qu'ils sont dépendants des références choisies pour chaque variable. Si l'on modifie la référence, les effets conditionnels à la référence seront eux aussi modifiés.
+
+On utilisera donc cette fonctionallité en toute connaissance de cause.
+:::

@@ -1,0 +1,578 @@
+# Régression logistique binaire {#sec-regression-logistique-binaire}
+
+Dans le chapitre précédent (@sec-regression-lineaire), nous avons abordé la régression linéaire pour les variables continues. Pour analyser une variable catégorielle, ilest nécessaire d'avoir recours à d'autres types de modèles. Les modèles linéaires généralisés (*generalized linear models* ou *GLM* en anglais) sont une généralisation de la régression linéaire grâce à l'utilisation d'une fonction de **lien** utilisée pour transformer la variable à expliquer et pouvoir ainsi retomber sur un modèle linéaire classique. Il existe de multiples fonctions de lien correspondant à tout autant de modèles. Par exemple, on pourra utiliser un modèle de Poisson pour une variable entière positive ou un modèle d'incidence.
+
+Pour une variable binaire (c'est-à-dire du type <q>oui / non</q> ou <q>vrai / faux</q>), les modèles les plus courants utilisent les fonctions de lien *probit* ou *logit*, cette dernière fonction correspondent à la **régression logistique binaire** (modèle *logit*). Comme pour la régression linéaire, les variables explicatives peuvent être continues et/ou catégorielles.
+
+## Préparation des données
+
+Dans ce chapite, nous allons encore une fois utiliser les données de l'enquête *Histoire de vie*, fournies avec l'extension `{questionr}`.
+
+```{r}
+#| warning: false
+data(hdv2003, package = "questionr")
+d <- hdv2003
+```
+
+À titre d'exemple, nous allons étudier l'effet de l'âge, du sexe, du niveau d'étude, de la pratique religieuse et du nombre moyen d'heures passées à regarder la télévision par jour sur la probabilité de pratiquer un sport.
+
+En premier lieu, il importe de vérifier, par exemple avec `labelled::look_for()`, que notre variable d'intérêt (ici *sport*) est correctement codée, c'est-à-dire que la première modalité correspondent à la référence (soit ne pas avoir vécu l'événement d'intérêt) et que la seconde modalité corresponde au fait d'avoir vécu l'événement.
+
+```{r}
+library(labelled)
+d |> look_for("sport")
+```
+
+Dans notre exemple, la modalité <q>Non</q> est déjà la première modalité. Il n'y a donc pas besoin de modifier notre variable.
+
+Il faut également la présence éventuelle de données manquantes (`NA`)[^regression-logistique-binaire-1]. Les observations concernées seront tout simplement exclues du modèle lors de son calcul. Ce n'est pas notre cas ici.
+
+[^regression-logistique-binaire-1]: Pour visualiser le nombre de données manquantes (`NA`) de l'ensemble des variables d'un tableau, on pourra avoir recours à `questionr::freq.na()`.
+
+::: callout-tip
+Alternativement, on pourra aussi coder notre variable à expliquer sous forme booléenne (`FALSE` / `TRUE`) ou numériquement en `0`/`1`.
+
+Il est possible d'indiquer un facteur à plus de deux modalités. Dans une telle situation, **R** considérera que tous les modalités, sauf la modalité de référence, est une réalisation de la variable d'intérêt. Cela serait correct, par exemple, si notre variable sport était codée ainsi : <q>Non</q>, <q>Oui, de temps en temps</q>, <q>Oui, régulièrement</q>. Cependant, afin d'éviter tout risque d'erreur ou de mauvaise interprétation, il est vivement conseillé de recoder au préalable sa variable d'intérêt en un facteur à deux modalités.
+:::
+
+La notion de **modalité de référence** s'applique également aux variables explicatives catégorielles. En effet, dans un modèle, tous les coefficients sont calculés par rapport à la modalité de référence (cf. @sec-regression-lineaire-variable-explicative-categorielle). Il importe donc de choisir une modalité de référence qui fasse sens afin de faciliter l'interprétation. Par ailleurs, ce choix doit dépendre de la manière dont on souhaite présenter les résultats (le *data storytelling* est essentiel). De manière générale on évitera de choisir comme référence une modalité peu représentée dans l'échantillon ou bien une modalité correspondant à une situation atypique.
+
+Prenons l'exemple de la variable *sexe*. Souhaite-t-on connaitre l'effet d'être une femme par rapport au fait d'être un homme ou bien l'effet d'être un homme par rapport au fait d'être une femme ? Si l'on opte pour le second, alors notre modalité de référence sera le sexe féminin. Comme est codée cette variable ?
+
+```{r}
+d |> look_for("sexe")
+```
+
+La modalité <q>Femme</q> s'avère ne pas être la première modalité. Nous devons appliquer la fonction `forcats::fct_relevel()` ou la fonction `stats::relevel()` :
+
+```{r}
+#| message: false
+library(tidyverse)
+d <- d |> 
+  mutate(sexe = sexe |> fct_relevel("Femme"))
+```
+
+```{r}
+d$sexe |> questionr::freq()
+```
+
+::: important
+**Données labellisées**
+
+Si l'on utilise des données labellisées (voir @sec-etiquettes-valeurs), nos variables catégorielles seront stockées sous la forme d'un vecteur numérique avec des étiquettes. Il sera donc nécessaire de convertir ces variables en facteurs, tout simplement avec `labelled::to_factor()` ou `labelled::unlabelled()`.
+:::
+
+Les variables *age* et *heures.tv* sont des variables quantitatives. Il importe de vérifier qu'elles sont bien enregistrées en tant que variables numériques. En effet, il arrive parfois que dans le fichier source les variables quantitatives soient renseignées sous forme de valeur textuelle et non sous forme numérique.
+
+```{r}
+d |> look_for("age", "heures")
+```
+
+Nos deux variables sont bien renseignées sous forme numérique (respectivement des entiers et des nombres décimaux).
+
+Cependant, l'effet de l'âge est rarement linéaire. Un exemple trivial est par exemple le fait d'occuper un emploi qui sera moins fréquent aux jeunes âges et aux âges élevés. Dès lors, on pourra transformer la variable *age* en groupe d'âges (et donc en variable catégorielle) avec la fonction `cut()` (cf. @sec-cut) :
+
+```{r}
+d <- d |> 
+  mutate(
+    groupe_ages = age |>
+      cut(
+        c(18, 25, 45, 65, 99),
+        right = FALSE,
+        include.lowest = TRUE,
+        labels = c("18-24 ans", "25-44 ans",
+                   "45-64 ans", "65 ans et plus")
+      )
+  )
+d$groupe_ages |> questionr::freq()
+```
+
+Jetons maintenant un oeil à la variable *nivetud* :
+
+```{r}
+d$nivetud |> questionr::freq()
+```
+
+En premier lieu, cette variable est détaillée en pas moins de huit modalités dont certaines sont peu représentées (seulement 39 individus soit 2 % n'ont jamais fait d'études par exemple). Afin d'améliorier notre modèle logistique, il peut être pertinent de regrouper certaines modalités (cf. @sec-modifier-modalites) :
+
+```{r}
+d <- d |> 
+  mutate(
+    etudes = nivetud |> 
+      fct_recode(
+      "Primaire" = "N'a jamais fait d'etudes",
+      "Primaire" = "A arrete ses etudes, avant la derniere annee d'etudes primaires",
+      "Primaire" = "Derniere annee d'etudes primaires",
+      "Secondaire" = "1er cycle",
+      "Secondaire" = "2eme cycle",
+      "Technique / Professionnel" = "Enseignement technique ou professionnel court",
+      "Technique / Professionnel" = "Enseignement technique ou professionnel long",
+      "Supérieur" = "Enseignement superieur y compris technique superieur"
+    )    
+  )
+d$etudes |> questionr::freq()
+```
+
+Notre variable comporte également 112 individus avec une valeur manquante. Si nous conservons cette valeur manquante, ces 112 individus seront, par défaut, exclus de l'analyse. Ces valeurs manquantes n'étant pas négligeable (5,6 %), nous pouvons également faire le choix de considérer ces valeurs manquantes comme une modalité supplémentaire. Auquel cas, nous utiliserons la fonction `forcats::fct_explicit_na()`  :
+
+```{r}
+d$etudes <- d$etudes |> 
+  fct_explicit_na("Non documenté")
+```
+
+Enfin, pour améliorer les différentes sorties (tableaux et figures), nous allons ajouter des étiquettes de variables (cf. @sec-etiquettes-variables) avec `labelled::set_variable_labels()`.
+
+```{r}
+d <- d |> 
+  set_variable_labels(
+    sport = "Pratique un sport ?",
+    sexe = "Sexe",
+    groupe_ages = "Groupe d'âges",
+    etudes = "Niveau d'études",
+    relig = "Rapport à la religion",
+    heures.tv = "Heures de télévision / jour"
+  )
+```
+
+::: callout-note
+## Code récapitulatif (préparation des données)
+
+```{r}
+data(hdv2003, package = "questionr")
+d <-
+  hdv2003 |> 
+  mutate(
+    sexe = sexe |> fct_relevel("Femme"),
+    groupe_ages = age |>
+      cut(
+        c(18, 25, 45, 65, 99),
+        right = FALSE,
+        include.lowest = TRUE,
+        labels = c("18-24 ans", "25-44 ans",
+                   "45-64 ans", "65 ans et plus")
+      ),
+    etudes = nivetud |> 
+      fct_recode(
+        "Primaire" = "N'a jamais fait d'etudes",
+        "Primaire" = "A arrete ses etudes, avant la derniere annee d'etudes primaires",
+        "Primaire" = "Derniere annee d'etudes primaires",
+        "Secondaire" = "1er cycle",
+        "Secondaire" = "2eme cycle",
+        "Technique / Professionnel" = "Enseignement technique ou professionnel court",
+        "Technique / Professionnel" = "Enseignement technique ou professionnel long",
+        "Supérieur" = "Enseignement superieur y compris technique superieur"
+    ) |> 
+    fct_explicit_na("Non documenté")  
+  ) |> 
+  set_variable_labels(
+    sport = "Pratique un sport ?",
+    sexe = "Sexe",
+    groupe_ages = "Groupe d'âges",
+    etudes = "Niveau d'études",
+    relig = "Rapport à la religion",
+    heures.tv = "Heures de télévision / jour"
+  )
+```
+:::
+
+## Statistiques descriptives
+
+Avant toute analyse multivariée, il est toujours bon de procéder à une analyse descriptive bivariée simple, tout simplement avec `gtsummary::tbl_summary()`. Ajoutons quelques tests de comparaison avec `gtsummary::add_p()`. Petite astuce : `gtsummary::modify_spanning_header()` permet de rajouter un en-tête sur plusieurs colonnes.
+
+```{r}
+#| message: false
+library(gtsummary)
+theme_gtsummary_language("fr", decimal.mark = ",", big.mark = " ")
+```
+
+```{r}
+#| label: tbl-analyse-bivariee
+#| tbl-cap: Pratique d'un sport selon différentes variables explicatives (analyse bivariée)
+d |> 
+  tbl_summary(
+    by = sport,
+    include = c(sexe, groupe_ages, etudes, relig, heures.tv)
+  ) |>
+  add_overall(last = TRUE) |> 
+  add_p() |> 
+  bold_labels() |> 
+  modify_spanning_header(
+    update = all_stat_cols() ~ "**Pratique un sport ?**"
+  )
+```
+
+## Calcul de la régression logistique binaire
+
+La spécification d'une régression logistique se fait avec `stats::glm()` et est très similaire à celle d'une régression linéaire simple (cf. @sec-regression-lineaire-multivariee) : on indique la variable à expliquer suivie d'un tilde (`~`) puis des variables explicatives séparées par un plus (`+`)[^regression-logistique-binaire-2]. Il faut indiquer à `glm()` la famille du modèle souhaité : on indiquera simplement `family = binomial` pour un modèle *logit*[^regression-logistique-binaire-3].
+
+[^regression-logistique-binaire-2]: Il est possible de spécifier des modèles plus complexes, notamment avec des effets d'interaction, qui seront aborder plus loin (cf. @sec-interactions).
+
+[^regression-logistique-binaire-3]: Pour un modèle *probit*, on indiquera `family = binomial("probit")`.
+
+```{r}
+mod <- glm(
+  sport ~ sexe + groupe_ages + etudes + relig + heures.tv,
+  family = binomial,
+  data = d
+)
+```
+
+Pour afficher les résultats du modèle, le plus simple est d'avoir recours à `gtsummary::tbl_regression()`.
+
+```{r}
+#| label: tbl-regression-logistique
+#| tbl-cap: Facteurs associés à la pratique d'un sport (régression logistique binaire)
+mod |> 
+  tbl_regression(intercept = TRUE) |> 
+  bold_labels()
+```
+
+## Interpréter les coefficients
+
+L'*intercept* traduit la situation à la référence (i.e. toutes les variables catégorielles à leur modalité de référence et les variables continues à 0), après transformation selon la fonction de lien (i.e. après la transformation *logit*).
+
+Illustrons cela. Supposons donc une personne de sexe féminin, âgée entre 18 et 24 ans, de niveau d'étude primaire, pratiquante régulière et ne regardant pas la télévision (situation de réference). Seul l'*intercept* s'applique dans le modèle, et donc le modèle prédit que sa probabilité de faire du sport est de $-0,80$ selon l'échelle *logit*. Retraduisons cela en probabilité classique avec la fonction *logit inverse*.
+
+```{r}
+logit_inverse <- binomial("logit") |> purrr::pluck("linkinv")
+logit_inverse(-0.80)
+```
+
+Selon le modèle, la probabilité que cette personne fasse du sport est donc de $31\%$.
+
+Prenons maintenant une personne identique mais de sexe masculin. Nous devons donc considérer, en plus de l'*intercept*, le coefficient associé à la modalité <q>Homme</q>. Sa probabilité de faire du sport est donc :
+
+```{r}
+logit_inverse(-0.80 + 0.44)
+```
+
+Le coefficient associé à <q>Homme</q> est donc un modificateur par rapport à la situation de référence.
+
+Enfin, considérons que cette dernière personne regarde également la télévision 2 heures en moyenne par jour. Nous devons alors considérer le coefficient associé à la variable *heures.tv* et, comme il s'agit d'une variable continue, multiplier ce coefficient par 2, car le coefficient représente le changement pour un incrément de 1 unité.
+
+```{r}
+logit_inverse(-0.80 + 0.44 + 2 * -0.12)
+```
+
+Il est crucial de bien comprendre comment dans quels cas et comment chaque coefficient est utilisé par le modèle.
+
+Le package `{breakdown}` permet de mieux visualiser notre dernier exemple.
+
+```{r}
+individu3 <- d[1, ]
+individu3$sexe[1] <- "Homme"
+individu3$groupe_ages[1] <- "18-24 ans"
+individu3$etudes[1] <- "Primaire"
+individu3$relig[1] <- "Pratiquant regulier"
+individu3$heures.tv[1] <- 2
+```
+
+```{r}
+#| label: breakdown-individu3
+#| fig-cap: Décomposition de la probabilité de faire du sport de l'individu 3
+#| message: false
+library(breakDown)
+logit <- function(x) exp(x) / (1 + exp(x))
+plot(
+  broken(mod, individu3, predict.function = betas),
+  trans = logit
+) +
+  scale_y_continuous(
+    labels = scales::label_percent(),
+    breaks = 0:5/5,
+    limits = c(0, 1)
+  )
+```
+
+## La notion d'*odds ratio*
+
+L'un des intérêts de la régression logistique *logit* réside dans le fait que l'exponentiel des coefficients correspond à des *odds ratio* ou rapport des côtes en français.
+
+::: callout-tip
+Pour comprendre la notion de côte (*odd* en anglais), on peut se référer aux paris sportifs. Par exemple, lorsque les trois quarts des parieurs parient que le cheval A va remporter la course, on dit alors que ce cheval à une côte de trois contre un (trois personnes parient qu'il va gagner contre une personne qu'il va perdre). Prenon un autre cheval : si les deux tiers pensent que le cheval B va perdre (donc un tiers pense qu'il va gagner), on dira alors que sa côte est de un contre deux (une personne pense qu'il va gagner contre deux qu'il va perdre).
+
+Si l'on connait la proportion ou probabilité *p* d'avoir vécu ou de vivre un événenement donné (ici gagner la course), la côte (l'*odd*) s'obtient avec la formule suivante : $p/(1-p)$. La côte du cheval A est bien $0,75/(1-0,75)=0,75/0,25=3$ est celle du cheval B $(1/3)/(2/3)=1/2=0,5$.
+
+Pour comparer deux côtes (par exemple pour savoir si le cheval A a une probabilité plus élevée de remporter la course que le cheval B, selon les parieurs), on calculera tout simplement le rapport des côtes ou *odds ratio* (OR) : $OR_{A/B}=Odds_{A}/Odds_{B}=3/0,5=6$.
+
+Ce calcul peut se faire facilement dans **R** avec la fonction `questionr::odds.ratio()`.
+
+```{r}
+questionr::odds.ratio(.75, 1/3)
+```
+
+L'*odds ratio* est donc égal à 1 si les deux côtes sont identiques, est supérieur à 1 si le cheval A une probabilité supérieure à celle du cheval B, et inférieur à 1 si c'est probabilité est inférieure.
+
+On le voit, par construction, l'*odds ratio* de B par rapport à A est l'inverse de celui de A par rapport à B : $OR_{B/A}=1/OR_{A/B}$.
+:::
+
+Pour afficher les *odds ratio* il suffit d'indiquer `exponentiate = TRUE` à `gtsummary::tbl_regression()`.
+
+```{r}
+#| label: tbl-regression-logistique-OR
+#| tbl-cap: Facteurs associés à la pratique d'un sport (*odds ratios*)
+mod |> 
+  tbl_regression(exponentiate = TRUE) |> 
+  bold_labels()
+```
+
+Pour une représentation visuelle, graphique en forêt ou *forest plot* en anglais, on aura tout simplement recours à `ggstats::ggcoef_model()`.
+
+```{r}
+#| label: fig-forest-plot-regression-logistique
+#| fig-cap: Facteurs associés à la pratique d'un sport (*forest plot*)
+mod |> 
+  ggstats::ggcoef_model(exponentiate = TRUE)
+```
+
+::: callout-caution
+En rédigeant les résultats de la régression, il faudra être vigilant à ne pas confondre les *odds ratios* avec des *prevalence ratios*. Avec un *odds ratio* de 1,55, il serait tentant d'écrire que <q>les hommes ont une probabilité 55% supérieure de pratique un sport que les femmes</q> (toutes choses égales par ailleurs). Une telle formulation correspond à un *prevalence ratio* (rapport des prévalences en français) ou *risk ratio* (rapport des risques), à savoir diviser la probabilité de faire du sport des hommes par celle des femmes, $p_{hommes}/p_{femmes}$. Or, cela ne correspond pas à la formule de l'*odds ratio*, à savoir $(p_{hommes}/(1-p_{hommes}))/(p_{femmes}/(1-p_{femmes}))$.
+
+Lorsque le phénomène étudié est rare et donc que les probabilités sont faibles (inférieures à quelques pourcents), alors il est vrai que les *odds ratio* sont approximativement égaux aux *prevalence ratios*. Mais ceci n'est plus du tout vrai pour des phénomènes plus fréquents.
+:::
+
+## Afficher toutes les comparaisons (*pairwise contrasts*)
+
+Dans le tableau des résultats (@tbl-regression-logistique-OR), pour les variables catégorielles, il importe de bien garder en mémoire que chaque *odds ratio* doit se comparer à la valeur de référence. Ainsi, les *odds ratios* affichés pour chaque classe d'âges correspondent à une comparaison avec la classe d'âges de références, les 18-24 ans. La p-valeur associée nous indique quant à elle si cet *odds ratio* est significativement de 1, donc si cette classe d'âges données se comporte différemment de celle de référence.
+
+Mais cela ne nous dit nullement si les 65 ans et plus diffèrent des 45-64 ans. Il est tout à fait possible de recalculer l'*odds ratio* correspondant en rapport les *odds ratio* à la référence : $OR_{65+/45-64}=OR_{65+/18-24}/OR_{45-64/18-24}$.
+
+Le package `{emmeans}` et sa fonction `emmeans::emmeans()` permettent de recalculer toutes les combinaisons d'*odds ratio* (on parle alors de *pairwise contrasts*) ainsi que leur intervalle de confiance et la p-valeur correspondante.
+
+On peut ajouter facilement[^regression-logistique-binaire-4] cela au tableau produit avec gtsummary::tbl_regression() en ajoutant l'option add_pairwise_contrasts = TRUE.
+
+[^regression-logistique-binaire-4]: Cela nécessite néanmoins au minimum la version 1.11.0 du package `{broom.helpers}` et la version 1.6.3 de `{gtsummary}`.
+
+```{r}
+#| label: tbl-regression-logistique-pairwise
+#| tbl-cap: Facteurs associés à la pratique d'un sport (*pairwise contrasts*)
+mod |> 
+  tbl_regression(
+    exponentiate = TRUE,
+    add_pairwise_contrasts = TRUE
+  ) |> 
+  bold_labels()
+```
+
+De même, on peur visualiser les coefficients avec la même option dans `ggstats::ggcoef_model()`[^regression-logistique-binaire-5]. On peut d'ailleurs choisir les variables concernées avec l'argument `pairwise_variables`.
+
+[^regression-logistique-binaire-5]: Cela nécessite néanmoins au minimum la version 1.11.0 du package `{broom.helpers}` et la version 0.2.0 de `{ggstats}`.
+
+```{r}
+#| label: fig-forest-plot-regression-logistique-pairwise
+#| fig-cap: Facteurs associés à la pratique d'un sport (*pairwise contrasts*)
+mod |> 
+  ggstats::ggcoef_model(
+    exponentiate = TRUE,
+    add_pairwise_contrasts = TRUE,
+    pairwise_variables = c("groupe_ages", "etudes")
+  )
+```
+
+## Identifier les variables ayant un effet significatif
+
+Pour les variables catégorielles à trois modalités ou plus, les p-values associées aux *odds ratios* nous indique si un *odd ratio* est significativement différent de 1, par rapport à la modalité de référence. Mais cela n'indique pas si globalement une variable a un effet significatif sur le modèle. Pour tester l'effet global d'une variable, on peut avoir recours à la fonction `car::Anova()`. Cette dernière va tour à tour supprimer chaque variable du modèle et réaliser une analyse de variance (ANOVA) pour voir si la variance change significativement.
+
+```{r}
+car::Anova(mod)
+```
+
+Ainsi, dans le cas présent, la suppression de la variable *relig* ne modifie significativement pas le modèle, indiquant l'absence d'effet de cette variable.
+
+Si l'on a recours à `gtsummary::tbl_regression()`, on peut facilement ajouter les p-valeurs globales avec `gtsummary::add_global_p()`[^regression-logistique-binaire-6].
+
+[^regression-logistique-binaire-6]: Si l'on veut conserver les p-values individuelles associées à chaque *odds ratio*, on ajoutera l'option `keep = TRUE`.
+
+```{r}
+#| label: tbl-regression-logistique-global-p
+#| tbl-cap: Ajout des p-valeurs globales
+mod |>
+  tbl_regression(exponentiate = TRUE) |>
+  bold_labels() |> 
+  add_global_p()
+```
+
+::: callout-note
+Concernant le test réalisé dans le cadre d'une Anova, il existe trois tests différents que l'on présente comme le type 1, le type 2 et le type 3 (ou I, II et III). Pour une explication sur ces différents types, on pourra se référer (en anglais) à <https://mcfromnz.wordpress.com/2011/03/02/anova-type-iiiiii-ss-explained/> ou encore <http://md.psych.bio.uni-goettingen.de/mv/unit/lm_cat/lm_cat_unbal_ss_explained.html>.
+
+Le type I n'est pas recommandé dans le cas présent car il dépend de l'ordre dans lequel les différentes variables sont testées.
+
+Lorsqu'il n'y a pas d'interaction dans un modèle, le type II serait à privilégier car plus puissant (nous aborderons les interactions dans un prochain chapitre, cf. @sec-interactions).
+
+En présence d'interactions, il est conseillé d'avoir plutôt recours au type III. Cependant, en toute rigueur, pour utiliser le type III, il faut que les variables catégorielles soient codées en utilisant un contrastes dont la somme est nulle (un contrast de type somme ou polynomial). Or, par défaut, les variables catégorielles sont codées avec un contraste de type <q>traitement</q> (nous aborderons les différents types de contrastes plus tard, cf. @sec-contrastes).
+
+Par défaut, `car::Anova()` utilise le type II et `gtsummary::add_global_p()` le type III. Dans les deux cas, il est possible de préciser le type de test avec `type = "II"` ou `type = "III"`.
+
+Dans le cas de notre exemple, un modèle simple sans interaction, le type de test ne change pas les résultats.
+:::
+
+## Sélection pas à pas d'un meilleur modèle
+
+Il est toujours tentant lorsque l'on recherche les facteurs associés à un phénomène d'inclure un nombre important de variables explicatives potentielles dans son modèle logistique. Cependant, un tel modèle n'est pas forcément le plus efficace et certaines variables n'auront probablement pas d'effet significatif sur la variable d'intérêt.
+
+Pour une présentation didactique du cadre théorique de la sélection de modèle, vous pouvez consulter en ligne le [cours de L. Rouvière sur la sélection/validation de modèles](https://perso.univ-rennes2.fr/system/files/users/rouviere_l/chapitre3_glm.pdf).
+
+La technique de sélection descendante pas à pas est une approche visant à améliorer son modèle explicatif[^regression-logistique-binaire-7]. On réalise un premier modèle avec toutes les variables spécifiées, puis on regarde s'il est possible d'améliorer le modèle en supprimant une des variables du modèle. Si plusieurs variables permettent d'améliorer le modèle, on supprimera la variable dont la suppression améliorera le plus le modèle. Puis on recommence le même procédé pour voir si la suppression d'une seconde variable peut encore améliorer le modèle et ainsi de suite. Lorsque le modèle ne peut plus être amélioré par la suppresion d'une variable, on s'arrête.
+
+[^regression-logistique-binaire-7]: Il existe également des méthodes de *sélection ascendante pas à pas*, mais nous les aborderons pas ici.
+
+Il faut également définir un critère pour déterminer la qualité d'un modèle. L'un des plus utilisés est le *Akaike Information Criterion* ou AIC. Plus l'AIC sera faible, meilleure sera le modèle. Il s'agit d'un compromis entre le nombre de degrés de liberté (e.g. le nombre de coefficients dans le modèle) que l'on cherche à minimiser et la variance expliquée que l'on cherche à maximiser.
+
+La fonction `step()` permet justement de sélectionner le meilleur modèle par une procédure pas à pas descendante basée sur la minimisation de l'AIC. La fonction affiche à l'écran les différentes étapes de la sélection et renvoie le modèle final.
+
+```{r}
+mod2 <- step(mod)
+```
+
+Le modèle initial a un AIC de 2236,2. À la première étape, il apparait que la suppression de la variable religion permet diminuer l'AIC à 2210,4. Lors de la seconde étape, toute suppression d'une autre variable ferait augmenter l'AIC. La procédure s'arrête donc.
+
+Pour obtenir directement l'AIC d'un modèle donné, on peut utiliser la fonction `AIC()`.
+
+```{r}
+AIC(mod)
+AIC(mod2)
+```
+
+On peut effectuer une analyse de variance ou ANOVA pour comparer les deux modèles avec la fonction `anova()`.
+
+```{r}
+anova(mod, mod2, test = "Chisq")
+```
+
+Il n'y a pas de différences significatives entre nos deux modèles (p=0,52). Autrement dit, notre second modèle explique tout autant de variance que notre premier modèle, tout en étant plus parcimonieux.
+
+::: callout-tip
+Une alternative à la fonction `stats::step()` est la fonction `MASS::stepAIC()` du package `{MASS}` qui fonctionne de la même manière. Si cela ne change rien aux régressions logistiques classiques, il arrive que pour certains types de modèle la méthode `stats::step()` ne soit pas disponible, mais que `MASS::stepAIC()` puisse être utilisée à la place.
+
+```{r}
+library(MASS)
+mod2bis <- stepAIC(mod)
+```
+
+Un critère similaire à l'AIC est le critère BIC (*Bayesian Information Criterion*) appelé aussi SBC (*Schwarz information criterion*). Il s'obtient avec `stats::step()` en ajoutant l'argument `k = log(n)` où `n` est le nombre d'observations inclues dans le modèle que l'on peut obtenir avec `nrow(model.matrix(reg))` (pour tenir compte des éventuelles observations manquantes retirées des données pour le calcul du modèle).
+
+```{r}
+mod2_bic <- step(mod, k = log(nrow(model.matrix(mod))))
+```
+:::
+
+On peut facilement comparer visuellement deux modèles avec `ggstats::ggcoef_compare()` de `{ggstats}`.
+
+```{r}
+#| label: fig-comparaison-modeles-dodge
+#| fig-cap: Comparaison visuelle des deux modèles (*dodge*)
+library(ggstats)
+ggcoef_compare(
+  list("modèle complet" = mod, "modèle réduit" = mod2), 
+  exponentiate = TRUE
+)
+```
+
+```{r}
+#| label: fig-comparaison-modeles-faceted
+#| fig-cap: Comparaison visuelle des deux modèles (*faceted*)
+ggcoef_compare(
+  list("modèle complet" = mod, "modèle réduit" = mod2), 
+  type = "faceted",
+  exponentiate = TRUE
+)
+```
+
+Si l'on souhaite afficher l'AIC (ainsi que d'autres statistiques globales du modèle) en note du tableau des coefficients, on pourra utiliser `gtsummary::add_glance_source_note()`.
+
+```{r}
+#| label: tbl-regression-logistique-glance_source_note
+#| tbl-cap: Modèle obtenu après réduction du nombre de variables
+mod2 |> 
+  tbl_regression(exponentiate = TRUE) |> 
+  bold_labels() |> 
+  add_glance_source_note()
+```
+
+## Régressions logistiques univariées
+
+Les usages varient selon les disciplines et les revues scientifiques, mais il n'est pas rare de présenter, avant le modèle logistique multivarié, une succession de modèles logistiques univariés (i.e. avec une seule variable explicative à la fois) afin de présenter les *odds ratios* et leur intervalle de confiance et p-valeur associés avant l'ajustement multiniveau.
+
+Afin d'éviter le code fastidieux consistant à réaliser chaque modèle un par un (par exemple `glm(sport ~ sexe, family = binomial, data = d)`) puis à en fusionner les résultats, on pourra tirer partie de `gtsummary::tbl_uvregression()` qui permet de réaliser toutes ces régressions individuelles en une fois et de les présenter dans un tableau synthétique.
+
+```{r}
+#| label: tbl-uregression
+#| tbl-cap: Régressions logistiques univariées
+d |>
+  tbl_uvregression(
+    y = sport,
+    include = c(sexe, groupe_ages, etudes, relig, heures.tv),
+    method = glm,
+    method.args = list(family = binomial),
+    exponentiate = TRUE
+  ) |> 
+  bold_labels()
+```
+
+## Présenter l'ensemble des résultats dans un même tableau
+
+La fonction `gtsummary::tbl_merge()` permet de fusionner plusieurs tableaux (en tenant compte du nom des variables) et donc de présenter les différents résultats de l'analyse descriptive, univariée et multivariée dans un seul et même tableau.
+
+```{r}
+#| label: tbl-merge-regression-logistique
+#| tbl-cap: tableau synthétique de l'analyse
+#| cap-location: top
+#| column: page-right
+tbl_desc <-
+  d |> 
+  tbl_summary(
+    by = sport,
+    include = c(sexe, groupe_ages, etudes, relig, heures.tv),
+    statistic = all_categorical() ~ "{p}% ({n}/{N})",
+    digits = all_categorical() ~ c(1, 0, 0)
+  ) |> 
+  modify_column_hide("stat_1") |> 
+  modify_header("stat_2" ~ "**Pratique d'un sport**")
+
+tbl_uni <-
+  d |>
+  tbl_uvregression(
+    y = sport,
+    include = c(sexe, groupe_ages, etudes, relig, heures.tv),
+    method = glm,
+    method.args = list(family = binomial),
+    exponentiate = TRUE
+  ) |> 
+  modify_column_hide("stat_n")
+
+tbl_multi <-
+  mod2 |> 
+  tbl_regression(exponentiate = TRUE)
+
+list(tbl_desc, tbl_uni, tbl_multi) |> 
+  tbl_merge(
+    tab_spanner = c(
+      NA,
+      "**Régressions univariées**",
+      "**Régression multivariée**"
+    )
+  ) |> 
+  bold_labels()
+```
+
+::: {.content-visible when-format="html"}
+Le [diaporama ci-dessous](ressources/flipbook-regression-logistique.html) vous permet de visualiser chaque étape du code correspondant au graphique précédent.
+
+::: {.column-page-right .ratio .ratio-16x9}
+<iframe src="ressources/flipbook-regression-logistique.html">
+
+</iframe>
+:::
+:::
+
+::: {.content-visible unless-format="html"}
+Pour visualiser chaque étape du code, vous pouvez consulter le diaporama suivant : <https://larmarange.github.io/guide-R/analyses/ressources/flipbook-regression-logistique.html>
+:::
+
+## webin-R
+
+La régression logistique est présentée sur YouTube dans le [webin-R #06](https://youtu.be/-bdMv2aAqUY) (*régression logistique (partie 1*) et le le [webin-R #07](https://youtu.be/BUo9i7XTLYQ) (*régression logistique (partie 2*).
+
+{{< video https://youtu.be/-bdMv2aAqUY >}}
+
+{{< video https://youtu.be/BUo9i7XTLYQ >}}

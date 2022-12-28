@@ -1,0 +1,364 @@
+---
+format: 
+  revealjs:
+    theme: moon
+    standalone: true
+    embed-resources: true
+    controls: true
+    width: 1600
+    height: 900
+    
+execute: 
+  echo: true
+---
+
+## Préparation des données (1)
+
+<style>
+.reveal pre.sourceCode code {
+  max-height: none !important;
+}
+.cell-output pre code {
+  font-size: .55em !important;
+  background-color: white !important;
+  color: black !important;
+}
+table {
+  font-size: .4em !important;
+  background-color: white !important;
+  color: black !important;
+}
+th.gt_col_heading, th.gt_column_spanner_outer {
+  color: black !important;
+}
+h2 {
+  font-size: 1em !important;
+  text-transform: none !important;
+  font-weight: normal !important;
+}
+</style>
+
+
+```{r}
+#| message: false
+#| output-location: column
+library(tidyverse)
+data(hdv2003, package = "questionr")
+d <-
+  hdv2003 |> 
+  mutate(
+    sexe = sexe |> fct_relevel("Femme"),
+    groupe_ages = age |>
+      cut(
+        c(18, 25, 45, 65, 99),
+        right = FALSE,
+        include.lowest = TRUE,
+        labels = c("18-24 ans", "25-44 ans",
+                   "45-64 ans", "65 ans et plus")
+      ),
+    etudes = nivetud |> 
+      fct_recode(
+        "Primaire" = "N'a jamais fait d'etudes",
+        "Primaire" = "A arrete ses etudes, avant la derniere annee d'etudes primaires",
+        "Primaire" = "Derniere annee d'etudes primaires",
+        "Secondaire" = "1er cycle",
+        "Secondaire" = "2eme cycle",
+        "Technique / Professionnel" = "Enseignement technique ou professionnel court",
+        "Technique / Professionnel" = "Enseignement technique ou professionnel long",
+        "Supérieur" = "Enseignement superieur y compris technique superieur"
+    ) |> 
+    fct_explicit_na("Non documenté")  
+  )
+```
+
+## Préparation des données (2)
+
+```{r}
+#| message: false
+#| output-location: column
+library(labelled)
+d <- d |> 
+  set_variable_labels(
+    sport = "Pratique un sport ?",
+    sexe = "Sexe",
+    groupe_ages = "Groupe d'âges",
+    etudes = "Niveau d'études",
+    relig = "Rapport à la religion",
+    heures.tv = "Heures de télévision / jour"
+  )
+
+library(gtsummary)
+theme_gtsummary_language(
+  "fr",
+  decimal.mark = ",",
+  big.mark = " "
+)
+```
+
+
+## Analyse descriptive
+
+```{r}
+#| message: false
+#| output-location: column
+tbl_desc <-
+  d |> 
+  tbl_summary(
+    by = sport,
+    include = c(
+      sexe, groupe_ages, etudes,
+      relig, heures.tv
+    )
+  )
+tbl_desc
+```
+
+## Analyse descriptive
+
+```{r}
+#| message: false
+#| output-location: column
+#| code-line-numbers: "9"
+tbl_desc <-
+  d |> 
+  tbl_summary(
+    by = sport,
+    include = c(
+      sexe, groupe_ages, etudes,
+      relig, heures.tv
+    ),
+    statistic = all_categorical() ~ "{p}% ({n}/{N})"
+  )
+tbl_desc
+```
+
+## Analyse descriptive
+
+```{r}
+#| message: false
+#| output-location: column
+#| code-line-numbers: "10"
+tbl_desc <-
+  d |> 
+  tbl_summary(
+    by = sport,
+    include = c(
+      sexe, groupe_ages, etudes,
+      relig, heures.tv
+    ),
+    statistic = all_categorical() ~ "{p}% ({n}/{N})",
+    digits = all_categorical() ~ c(1, 0, 0)
+  )
+tbl_desc
+```
+
+## Analyse descriptive
+
+```{r}
+#| message: false
+#| output-location: column
+#| code-line-numbers: "12"
+tbl_desc <-
+  d |> 
+  tbl_summary(
+    by = sport,
+    include = c(
+      sexe, groupe_ages, etudes,
+      relig, heures.tv
+    ),
+    statistic = all_categorical() ~ "{p}% ({n}/{N})",
+    digits = all_categorical() ~ c(1, 0, 0)
+  ) |> 
+  modify_column_hide("stat_1")
+tbl_desc
+```
+
+## Analyse descriptive
+
+```{r}
+#| message: false
+#| output-location: column
+#| code-line-numbers: "13"
+tbl_desc <-
+  d |> 
+  tbl_summary(
+    by = sport,
+    include = c(
+      sexe, groupe_ages, etudes,
+      relig, heures.tv
+    ),
+    statistic = all_categorical() ~ "{p}% ({n}/{N})",
+    digits = all_categorical() ~ c(1, 0, 0)
+  ) |> 
+  modify_column_hide("stat_1") |> 
+  modify_header("stat_2" ~ "**Pratique d'un sport**")
+tbl_desc
+```
+
+## Régressions univariées
+
+```{r}
+#| message: false
+#| output-location: column
+tbl_uni <-
+  d |>
+  tbl_uvregression(
+    y = sport,
+    include = c(
+      sexe, groupe_ages, etudes,
+      relig, heures.tv
+    ),
+    method = glm,
+    method.args = list(family = binomial)
+  )
+tbl_uni
+```
+
+## Régressions univariées
+
+```{r}
+#| message: false
+#| output-location: column
+#| code-line-numbers: "11"
+tbl_uni <-
+  d |>
+  tbl_uvregression(
+    y = sport,
+    include = c(
+      sexe, groupe_ages, etudes,
+      relig, heures.tv
+    ),
+    method = glm,
+    method.args = list(family = binomial),
+    exponentiate = TRUE
+  )
+tbl_uni
+```
+
+## Régressions univariées
+
+```{r}
+#| message: false
+#| output-location: column
+#| code-line-numbers: "13"
+tbl_uni <-
+  d |>
+  tbl_uvregression(
+    y = sport,
+    include = c(
+      sexe, groupe_ages, etudes,
+      relig, heures.tv
+    ),
+    method = glm,
+    method.args = list(family = binomial),
+    exponentiate = TRUE
+  ) |> 
+  modify_column_hide("stat_n")
+tbl_uni
+```
+
+## Régression multivariée
+
+```{r}
+#| message: false
+#| output-location: column
+mod <- glm(
+  sport ~ sexe + groupe_ages + etudes + relig + heures.tv,
+  family = binomial,
+  data = d
+)
+mod
+```
+
+## Régression multivariée
+
+```{r}
+#| message: false
+#| output-location: column
+#| code-line-numbers: "6"
+mod <- glm(
+  sport ~ sexe + groupe_ages + etudes + relig + heures.tv,
+  family = binomial,
+  data = d
+)
+mod2 <- step(mod, trace = 0)
+mod2
+```
+
+## Régression multivariée
+
+```{r}
+#| message: false
+#| output-location: column
+#| code-line-numbers: "7,8,9,10"
+mod <- glm(
+  sport ~ sexe + groupe_ages + etudes + relig + heures.tv,
+  family = binomial,
+  data = d
+)
+mod2 <- step(mod, trace = 0)
+tbl_multi <-
+  mod2 |> 
+  tbl_regression()
+tbl_multi
+```
+
+## Régression multivariée
+
+```{r}
+#| message: false
+#| output-location: column
+#| code-line-numbers: "9"
+mod <- glm(
+  sport ~ sexe + groupe_ages + etudes + relig + heures.tv,
+  family = binomial,
+  data = d
+)
+mod2 <- step(mod, trace = 0)
+tbl_multi <-
+  mod2 |> 
+  tbl_regression(exponentiate = TRUE)
+tbl_multi
+```
+
+## Tableau synthétique
+
+```{r}
+#| message: false
+#| output-location: column
+list(tbl_desc, tbl_uni, tbl_multi) |> 
+  tbl_merge()
+```
+
+## Tableau synthétique
+
+```{r}
+#| message: false
+#| output-location: column
+#| code-line-numbers: "3,4,5,6,7"
+list(tbl_desc, tbl_uni, tbl_multi) |> 
+  tbl_merge(
+    tab_spanner = c(
+      NA,
+      "**Régressions univariées**",
+      "**Régression multivariée**"
+    )
+  )
+```
+
+## Tableau synthétique
+
+```{r}
+#| message: false
+#| output-location: column
+#| code-line-numbers: "9"
+list(tbl_desc, tbl_uni, tbl_multi) |> 
+  tbl_merge(
+    tab_spanner = c(
+      NA,
+      "**Régressions univariées**",
+      "**Régression multivariée**"
+    )
+  ) |> 
+  bold_labels()
+```
