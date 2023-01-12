@@ -207,12 +207,12 @@ Cependant, du point de vue explicatif et prédictif, les deux modèles sont rigo
 anova(mod2_trt, mod2_trt_bis, test = "Chisq")
 ```
 
-De même, leurs effets marginaux (cf. @sec-effets-marginaux) sont identiques.
+De même, leurs prédictions marginales (cf. @sec-effets-marginaux) sont identiques.
 
 ```{r}
 ggstats::ggcoef_compare(
   list(mod2_trt, mod2_trt_bis),
-  tidy_fun = broom.helpers::tidy_all_effects,
+  tidy_fun = broom.helpers::tidy_marginalpredictions,
   type = "dodge",
   vline = FALSE
 )
@@ -308,17 +308,22 @@ ggstats::ggcoef_model(mod2_sum, exponentiate = TRUE)
 
 Cette fois-ci, l'*intercept* capture la situation à la <q>grande moyenne</q> à la fois du sexe et du groupe d'âges, et les coefficients s'interprètent donc comme modificateurs de chaque modalité par rapport à cette <q>grande moyenne</q>. En ce sens, les contrastes de type <q>somme</q> permettent donc de capturer l'effet de chaque modalité.
 
-::: callout-important
-## Effets marginaux et contrastes de type somme
+Du point de vue explicatif et prédictif, le fait d'avoir recours à des contrastes de type somme ou traitement n'a aucun impact : les deux modèles sont rigoureusement identiques. Il n'y a que la manière d'interpréter les coeffcients qui chagnge.
 
-Dans le chapitre précédent (cf. @sec-effets-marginaux), nous avons abordé les effets marginaux.
+```{r}
+anova(mod2_trt, mod2_sum, test = "Chisq")
+```
 
-Concernant les *effets marginaux moyens* obtenus avec `margins::margins()`, ils ne tiennent pas compte du type de contrastes. Si on les calcule, on retombera sur la situation des contrastes de type <q>traitement</q> (écarts par rapport à la première modalité prise comme référence).
+Les prédictions marginales (cf. @sec-effets-marginaux) sont identiques.
 
-Concernant les *effets marginaux* obtenus avec `effects::allEffects()`, ils sont indépendants du type de contrastes. Le résultat sera donc identique avec des contrastes de type <q>traitement</q> ou <q>somme</q> (d'où leur intérêt d'être indépendant du type de contrastes ou du choix d'une référence).
-
-Concernant les *effets conditionnels à la référence* obtenus avec `ggeffects::ggpredict()`, ils ne tiennent pas compte du contraste de type <q>somme</q> et restent calculés en considérant comme référence la première modalité de chaque variable catégorielle (contraste de type <q>traitement</q>).
-:::
+```{r}
+ggstats::ggcoef_compare(
+  list(mod2_trt, mod2_sum),
+  tidy_fun = broom.helpers::tidy_marginalpredictions,
+  type = "dodge",
+  vline = FALSE
+)
+```
 
 ## Autres types de contrastes
 
