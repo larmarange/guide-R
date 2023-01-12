@@ -8,8 +8,9 @@ local needsLightbox = false
 local imgCount = 0
 
 -- attributes to forward from the image to the newly created link
+local kDescription = "description"
 local kForwardedAttr = {
-  "title", "description", "desc-position", 
+  "title", kDescription, "desc-position", 
   "type", "effect", "zoomable", "draggable"
 }
 
@@ -19,6 +20,17 @@ local kGalleryPrefix = "quarto-lightbox-gallery-"
 
 -- A list of images already within links that we can use to filter
 local imagesWithinLinks = pandoc.List({})
+
+local function readAttrValue(el, attrName) 
+  if attrName == kDescription then
+    local doc = pandoc.read(el.attr.attributes[attrName])
+    local attrInlines = doc.blocks[1].content
+    return pandoc.write(pandoc.Pandoc(attrInlines), "html")
+  else 
+    return el[attrName]
+  end
+
+end
 
 return {
   {
@@ -56,10 +68,49 @@ return {
         end
       })
     end
+  },{
+    Div = function(div)
+      if div.classes:includes("cell") and div.attributes["lightbox"] ~= nil then
+        meta = quarto.json.decode(div.attributes["lightbox"])
+        local imgCount=0
+        div = div:walk({
+          Image = function(imgEl)
+            imgCount = imgCount + 1
+            if meta == false or meta[kNoLightboxClass] == true then
+              imgEl.classes:insert(kNoLightboxClass)
+            else
+              if not auto and meta and not meta[kNoLightboxClass] then
+                imgEl.classes:insert(kLightboxClass)
+              end
+              if meta.group then
+                imgEl.attr.attributes.group = meta.group or imgEl.attr.attributes.group
+              end
+              for _, v in next, kForwardedAttr do
+                if type(meta[v]) == "table" and #meta[v] > 1 then 
+                  -- if list attributes it should be one per plot
+                  if imgCount > #meta[v] then
+                    quarto.log.warning("More plots than '" .. v .. "' passed in YAML chunk options.")
+                  else
+                    attrLb = meta[v][imgCount]
+                  end
+                else 
+                  -- Otherwise reuse the single attributes
+                  attrLb = meta[v]
+                end
+                imgEl.attr.attributes[v] = attrLb or imgEl.attr.attributes[v]
+              end
+            end
+            return imgEl
+          end
+        })
+        div.attributes["lightbox"] = nil
+      end
+      return div
+    end
   },
   {
   Image = function(imgEl)
-    if quarto.doc.isFormat("html:js") then
+    if quarto.doc.is_format("html:js") then
       local isAlreadyLinked = imagesWithinLinks:includes(imgEl)
       if (not isAlreadyLinked and auto and not imgEl.classes:includes(kNoLightboxClass)) 
           or imgEl.classes:includes('lightbox') then
@@ -82,6 +133,8 @@ return {
         local title = nil
         if imgEl.caption ~= nil and #imgEl.caption > 0 then
           linkAttributes.title = pandoc.utils.stringify(imgEl.caption)
+        elseif imgEl.attributes['fig-alt'] ~= nil and #imgEl.attributes['fig-alt'] > 0 then
+          linkAttributes.title = pandoc.utils.stringify(imgEl.attributes['fig-alt'])
         end
 
         -- move a group attribute to the link, if present
@@ -96,8 +149,8 @@ return {
         for i, v in ipairs(kForwardedAttr) do
           if imgEl.attr.attributes[v] ~= nil then
             -- forward the attribute
-            linkAttributes[v] = imgEl.attr.attributes[v]
-
+            linkAttributes[v] = readAttrValue(imgEl, v)
+          
             -- clear the attribute
             imgEl.attr.attributes[v] = nil
           end
@@ -120,7 +173,7 @@ return {
     -- we need to include the dependencies
     if needsLightbox then
       -- add the dependency
-      quarto.doc.addHtmlDependency({
+      quarto.doc.add_html_dependency({
         name = 'glightbox',
         scripts = {'resources/js/glightbox.min.js'},
         stylesheets = {'resources/css/glightbox.min.css', 'lightbox.css'}
@@ -189,7 +242,7 @@ return {
       local scriptTag = "<script>var lightboxQuarto = GLightbox(" .. optionsJson .. ");</script>"
 
       -- inject the rendering code
-      quarto.doc.includeText("after-body", scriptTag)
+      quarto.doc.include_text("after-body", scriptTag)
 
     end
   end
