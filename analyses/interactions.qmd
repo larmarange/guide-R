@@ -1,3 +1,325 @@
 # Interactions {#sec-interactions}
 
-*à venir*
+Dans un modèle statistique classique, on fait l'hypothèse implicite que chaque variable explicative est indépendante des autres. Cependant, cela ne se vérifie pas toujours. Par exemple, l'effet de l'âge peut varier en fonction du sexe.
+
+Nous pourrons dès lors ajouter à notre modèle des **interactions** entre variables.
+
+## Données d'illustration
+
+Reprenons le modèle que nous avons utilisé dans le chapitre sur la régression logistique binaire (cf. @sec-regression-logistique-binaire).
+
+```{r}
+#| message: false
+library(tidyverse)
+library(labelled)
+
+data(hdv2003, package = "questionr")
+
+d <-
+  hdv2003 |> 
+  mutate(
+    sexe = sexe |> fct_relevel("Femme"),
+    groupe_ages = age |>
+      cut(
+        c(18, 25, 45, 65, 99),
+        right = FALSE,
+        include.lowest = TRUE,
+        labels = c("18-24 ans", "25-44 ans",
+                   "45-64 ans", "65 ans et plus")
+      ),
+    etudes = nivetud |> 
+      fct_recode(
+        "Primaire" = "N'a jamais fait d'etudes",
+        "Primaire" = "A arrete ses etudes, avant la derniere annee d'etudes primaires",
+        "Primaire" = "Derniere annee d'etudes primaires",
+        "Secondaire" = "1er cycle",
+        "Secondaire" = "2eme cycle",
+        "Technique / Professionnel" = "Enseignement technique ou professionnel court",
+        "Technique / Professionnel" = "Enseignement technique ou professionnel long",
+        "Supérieur" = "Enseignement superieur y compris technique superieur"
+    ) |> 
+    fct_explicit_na("Non documenté")  
+  ) |> 
+  set_variable_labels(
+    sport = "Pratique un sport ?",
+    sexe = "Sexe",
+    groupe_ages = "Groupe d'âges",
+    etudes = "Niveau d'études",
+    heures.tv = "Heures de télévision / jour"
+  )
+```
+
+## Modèle sans interaction
+
+Nous avions alors exploré les facteurs associés au fait de pratiquer du sport.
+
+```{r}
+#| message: false
+mod <- glm(
+  sport ~ sexe + groupe_ages + etudes + heures.tv,
+  family = binomial,
+  data = d
+)
+library(gtsummary)
+theme_gtsummary_language(
+  "fr",
+  decimal.mark = ",",
+  big.mark = " "
+)
+```
+
+```{r}
+#| label: tbl-or-modele-simple
+#| tbl-cap: Odds Ratios du modèle logistique simple
+mod |> 
+  tbl_regression(exponentiate = TRUE) |> 
+  bold_labels()
+```
+
+Selon les résultats de notre modèle, les hommes pratiquent plus un sport que les femmes et la pratique du sport diminue avec l'âge.
+
+Dans le chapitre sur les estimations marginales, cf. @sec-estimations-marginales, nous avons présenté la fonction `broom.helpers::plot_marginalpredictions()` qui permet de représenter les prédictions marginales moyennes du modèle.
+
+```{r}
+#| label: fig-predictions-modele-simple
+#| fig-cap: Prédictions marginales moyennes du modèle simple
+mod |> 
+  broom.helpers::plot_marginalpredictions() |> 
+  patchwork::wrap_plots() &
+  scale_y_continuous(
+    limits = c(0, .8),
+    labels = scales::label_percent()
+  )
+```
+
+## Définition d'une interaction
+
+Cependant, l'effet de l'âge est-il le même selon le sexe ? Nous allons donc introduire une interaction entre l'âge et le sexe dans notre modèle, ce qui sera représenté par `sexe * groupe_ages`dans l'équation du modèle.
+
+```{r}
+mod2 <- glm(
+  sport ~ sexe * groupe_ages + etudes + heures.tv,
+  family = binomial,
+  data = d
+)
+```
+
+Commençons par regarder les prédictions marginales du modèle avec interaction.
+
+```{r}
+#| label: fig-predictions-modele-interaction
+#| fig-cap: Prédictions marginales moyennes du modèle avec interaction
+#| fig-height: 6
+mod2 |> 
+  broom.helpers::plot_marginalpredictions() |> 
+  patchwork::wrap_plots(ncol = 1) &
+  scale_y_continuous(
+    labels = scales::label_percent()
+  )
+```
+
+Sur ce graphique, on voit que la pratique d'un sport diminue fortement avec l'âge chez les hommes, tandis que cette diminution est bien plus modérée chez les femmes.
+
+::: callout-tip
+Par défaut, `broom.helpers::plot_marginalpredictions()` détecte la présence d'interactions dans le modèle et calcule les prédictions marginales pour chaque combinaison de variables incluent dans une interaction. Il reste possible de calculer des prédictions marginales individuellement pour chaque variable du modèle. Pour cela, il suffit d'indiquer `variables_list = "no_interaction"`.
+
+```{r}
+mod2 |> 
+  broom.helpers::plot_marginalpredictions(
+    variables_list = "no_interaction"
+  ) |> 
+  patchwork::wrap_plots() &
+  scale_y_continuous(
+    labels = scales::label_percent()
+  )
+```
+:::
+
+## Significativité de l'interaction
+
+L'ajout d'une interaction au modèle augmente la capacité prédictive du modèle mais, dans le même temps, augmente le nombre de coefficients (et donc de degrés de liberté). La question se pose donc de savoir si l'ajout d'un terme d'interaction améliore notre modèle.
+
+En premier lieu, nous pouvons comparer les AIC des modèles avec et sans interaction.
+
+```{r}
+AIC(mod)
+AIC(mod2)
+```
+
+L'AIC du modèle avec interaction est plus faible que celui sans interaction, nous indiquant un gain : notre modèle avec interaction est donc meilleur.
+
+On peut tester avec `car::Anova()` si l'interaction est statistiquement significative[^interactions-1].
+
+[^interactions-1]: Lorsqu'il y a une interaction, il est préférable d'utiliser le type III, cf. @sec-reg-log-anova. En toute rigueur, il serait préférable de coder nos variables catégorielles avec un contraste de type somme (cf. @sec-contrastes). En pratique, nous pouvons nous en passer ici.
+
+```{r}
+car::Anova(mod2, type = "III")
+```
+
+La p-valeur associée au terme d'interaction (`sexe:groupe_ages`) est inférieure à 1% : l'interaction a donc bien un effet significatif.
+
+Nous pouvons également utiliser `gtsummary::add_global_p()`.
+
+```{r}
+#| label: tbl-or-modele-interaction
+#| tbl-cap: Odds Ratios du modèle logistique avec interaction
+mod2 |> 
+  tbl_regression(exponentiate = TRUE) |> 
+  add_global_p() |> 
+  bold_labels()
+```
+
+## Interprétation des coefficients
+
+Jetons maintenant un œil aux coefficients du modèle. Pour rendre les choses plus visuelles, nous aurons recours à `ggtstats::ggcoef_model()`.
+
+```{r}
+#| label: fig-coefficients-modele-interaction
+#| fig-cap: Coefficients (odds ratio) du modèle avec interaction
+#| fig-height: 6
+mod2 |> 
+  ggstats::ggcoef_model(exponentiate = TRUE)
+```
+
+Concernant les variables *sexe* et *groupe_ages*, nous avons trois séries de coefficients : une série pour le sexe, une pour le groupe d'âges et enfin des coefficients pour l'interaction entre le sexe et le groupe d'âges.
+
+Pour bien interpréter ces coefficients, il faut toujours avoir en tête les modalités choisies comme référence pour chaque variable.
+
+Supposons une femme de 60 ans, dont toutes les autres variables correspondent aux modalités de référence (i.e. de niveau primaire, qui ne regarde pas la télévision). Regardons ce que prédit le modèle quant à sa probabilité de faire du sport au travers d'une représentation graphique, grâce au package `{breakDown}`.
+
+```{r}
+#| label: fig-interpretation-femme-60ans
+#| fig-cap: Représentation graphique de l'estimation de la probabilité de faire du sport pour une femme de 60 ans
+#| message: false
+library(breakDown)
+logit <- function(x) exp(x)/(1+exp(x))
+nouvelle_observation <- d[1, ]
+nouvelle_observation$sexe[1] = "Femme"
+nouvelle_observation$groupe_ages[1] = "45-64 ans"
+nouvelle_observation$etud[1] = "Primaire"
+nouvelle_observation$heures.tv[1] = 0
+plot(
+  broken(mod2, nouvelle_observation, predict.function = betas),
+  trans = logit
+) +
+  ylim(0, 1) +
+  ylab("Probabilité de faire du sport")
+```
+
+En premier lieu, l'*intercept* s'applique et permet de déterminer la probabilité de base de faire du sport à la référence. <q>Femme</q> étant la modalité de référence pour la variable *sexe*, cela ne modifie pas le calcul de la probabilité de faire du sport. Par contre, il y a une modification induite par la modalité <q>45-64 ans</q> de la variable *groupe_ages*.
+
+Regardons maintenant la situation d'un homme de 20 ans.
+
+```{r}
+#| label: fig-interpretation-homme-20ans
+#| fig-cap: Représentation graphique de l'estimation de la probabilité de faire du sport pour un homme de 20 ans
+#| message: false
+nouvelle_observation$sexe[1] = "Homme"
+nouvelle_observation$groupe_ages[1] = "18-24 ans"
+plot(
+  broken(mod2, nouvelle_observation, predict.function = betas),
+  trans = logit
+) +
+  ylim(0, 1.2) +
+  ylab("Probabilité de faire du sport")
+```
+
+Nous sommes à la modalité de référence pour l'âge par contre il y a un effet important du sexe. Le coefficient associé globalement à la variable <var>sexe</var> correspond donc à l'effet du sexe à la modalité de référence du groupe d'âges.
+
+Regardons enfin la situation d'un homme de 60 ans.
+
+```{r}
+#| label: fig-interpretation-homme-60ans
+#| fig-cap: Représentation graphique de l'estimation de la probabilité de faire du sport pour un homme de 60 ans
+#| message: false
+nouvelle_observation$groupe_ages[1] = "45-64 ans"
+plot(
+  broken(mod2, nouvelle_observation, predict.function = betas),
+  trans = logit
+) +
+  ylim(0, 1.2) +
+  ylab("Probabilité de faire du sport")
+```
+
+Cette fois, plusieurs coefficients s'appliquent : à la fois le coefficient <q>sexe = Homme</q> (effet du sexe pour les 18-24 ans), le coefficient <q>groupe_ages = 45-64 ans</q> qui est l'effet de l'âge pour les femmes de 45-64 ans par rapport aux 18-24 ans et le coefficient <q>sexe:groupe_ages = Homme:45-64 ans</q> qui indique l'effet spécifique qui s'applique aux hommes de 45-64 ans, d'une part par rapport aux femmes du même âge et d'autre part par rapport aux hommes de 18-24 ans. L'effet des coefficients d'interaction doivent donc être interprétés par rapport aux autres coefficients du modèle qui s'appliquent, en tenant compte des modalités de référence.
+
+## Définition alternative de l'interaction
+
+Il est cependant possible d'écrire le même modèle différemment. En effet, `sexe * groupe_ages` dans la formule du modèle est équivalent à l'écriture `sexe + groupe_ages + sexe:groupe_ages`, c'est-à-dire que l'on demande des coefficients pour la variable *sexe* à la référence de *groupe_ages*, des coefficients pour *groupe_ages* à la référence de *sexe* et enfin des coefficients pour tenir compte de l'interaction.
+
+On peut se contenter d'une série de coefficients uniques pour l'interaction en indiquant seulement `sexe : groupe_ages`.
+
+```{r}
+mod3 <- glm(
+  sport ~ sexe : groupe_ages + etudes + heures.tv,
+  family = binomial,
+  data = d
+)
+```
+
+Au sens strict, ce modèle explique tout autant le phénomène étudié que le modèle précédent. On peut le vérifier facilement avec `stats::anova()`.
+
+```{r}
+anova(mod2, mod3, test = "Chisq")
+```
+
+De même, les prédictions marginales sont les mêmes, comme nous pouvons le constater avec `ggstats::ggcoef_compare()`.
+
+```{r}
+#| label: fig-comparaison-predictions-marginales-interaction
+#| fig-cap: Comparaison des prédictions marginales moyennes des deux modèles avec interaction
+#| fig-height: 6
+#| message: false
+ggstats::ggcoef_compare(
+  list("sexe * groupe_ages" = mod2, "sexe : groupe_ages" = mod3),
+  tidy_fun = broom.helpers::tidy_marginalpredictions,
+  significance = NULL,
+  vline = FALSE
+) +
+  scale_x_continuous(labels = scales::label_percent())
+```
+
+Par contre, regardons d'un peu plus près les coefficients de ce nouveau modèle. Nous allons voir que leur interprétation est légèrement différente.
+
+```{r}
+#| label: fig-coefficients-modele-interaction-3
+#| fig-cap: Coefficients (odds ratio) du modèle avec interaction simple entre le sexe et le groupe d'âges
+#| fig-height: 6
+mod3 |> 
+  ggstats::ggcoef_model(exponentiate = TRUE)
+```
+
+Cette fois-ci, il n'y a plus de coefficients globaux pour la variable *sexe* ni pour *groupe_ages* mais des coefficients pour chaque combinaison de ces deux variables. Reprenons l'exemple de notre homme de 60 ans.
+
+```{r}
+#| label: fig-interpretation-homme-60ans-bis
+#| fig-cap: Représentation graphique de l'estimation de la probabilité de faire du sport pour un homme de 60 ans (interaction simple)
+#| message: false
+plot(
+  broken(mod3, nouvelle_observation, predict.function = betas),
+  trans = logit
+) +
+  ylim(0, 1.2) +
+  ylab("Probabilité de faire du sport")
+```
+
+Cette fois-ci, le coefficient d'interaction fournit indique l'effet combiné du sexe et du groupe d'âges par rapport à la situation de référence (femme de 18-24 ans).
+
+**Que l'on définisse une interaction simple (`sexe:groupe_ages`) ou complète (`sexe*groupe_ages`), les deux modèles calculés sont donc identiques en termes prédictifs et explicatifs, mais l'interprétation de leurs coefficients diffèrent.**
+
+::: callout-tip
+Il peut y avoir de multiples interactions dans un modèle, d'ordre 2 (entre deux variables) ou plus (entre trois variables ou plus). Il est dès lors tentant de tester les multiples interactions possibles de manière itératives afin d'identifier celles à retenir. C'est justement le but de la fonction `ggmulti::glmulti()` `glmulti::glmulti()` permets de tester toutes les combinaisons d'interactions d'ordre 2 dans un modèle, en retenant le meilleur modèle à partir d'un critère spécifié (par défaut l'<df>AIC). ATTENTION : le temps de calcul de `glmulti::glmulti()` peut-être long.
+:::
+
+## Pour aller plus loin
+
+Il y a d'autres extensions dédiées à l'analyse des interactions d'un modèle, de même que de nombreux supports de cours en ligne dédiés à cette question.
+
+-   [Les effets d'interaction](http://commonweb.unifr.ch/artsdean/pub/gestens/f/as/files/4665/9547_131825.pdf) par Jean-François Bickel
+-   [Analysing interactions of fitted models](https://cran.r-project.org/web/packages/phia/vignettes/phia.pdf) par Helios De Rosario Martínez
+
+## webin-R
+
+Les interactions sont abordées dans le webin-R #07 (*régression logistique partie 2*) sur [YouTube](https://youtu.be/BUo9i7XTLYQ?t=2750).
+
+{{< video https://youtu.be/BUo9i7XTLYQ start='2750' >}}
