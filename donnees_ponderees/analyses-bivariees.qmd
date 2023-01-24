@@ -1,0 +1,246 @@
+# Analyses uni- et bivariées pondérées {#sec-analyses-bivariees-ponderees}
+
+## La fonction `tbl_svysummary()`
+
+Dans les chapitres sur la statistique univariée (cf. @sec-statistique-univariee) et la statistique bivariée (cf. @sec-statistique-bivariee), nous avons abordé la fonction `gtsummary::tbl_summary()` qui permet de générer des tris à plats et des tableaux croisés prêts à être publiés.
+
+Son équivalent pour les objets `{survey}` existe : il s'agit de la fonction `gtsummary::tbl_svysummary()` qui fonctionne de manière similaire.
+
+Pour illustrer son fonctionnement, nous allons utiliser le jeu de données *fecondite* fournit dans le package `{questionr}`. Ce jeu de données fournit un tableau de données `femmes` comportant une variable *poids* de pondération que nous allons utiliser. Les données catégorielles étant stockées sous forme de vecteurs numériques avec étiquettes de valeurs (cf. @sec-etiquettes-valeurs), nous allons les convertir en facteurs avec `labelled::unlabelled()`. De même, certaines valeurs manquantes sont indiquées sous formes de *user NAs* (cf. @sec-user-na) : nous allons les convertir en valeurs manquantes classiques (*regular NAs*) avec `labelled::user_na_to_na()`.
+
+```{r}
+data("fecondite", package = "questionr")
+library(srvyr)
+dp <- femmes |> 
+  labelled::user_na_to_na() |> 
+  labelled::unlabelled() |> 
+  as_survey_design(weights = poids)
+dp
+```
+
+Chargeons `{gtsummary}` et définissons le français comme langue de rendu des tableaux.
+
+```{r}
+library(gtsummary)
+theme_gtsummary_language(
+  language = "fr", 
+  decimal.mark = ",", 
+  big.mark = " "
+)
+```
+
+Pour réaliser un tableau croisé, il nous suffit d'appeler `gtsummary::tbl_svysummary()` de la même manière que l'on aurait procédé avec `gtsummary::tbl_summary()`. En arrière plan, `gtsummary::tbl_svysummary()` appellera les différentes fonctions statistiques de `{survey}` : la pondération ainsi que les spécificités du plan d'échantillonnage seront donc correctement prises en compte.
+
+```{r}
+#| label: tbl-tbl_svysummary
+#| tbl-cap: Tableau croisé sur des données pondérées
+dp |> 
+  tbl_svysummary(
+    by = milieu,
+    include = c(age, educ, travail)
+  ) |> 
+  add_overall(last = TRUE) |> 
+  bold_labels()
+```
+
+::: callout-important
+Par défaut, les effectifs (ainsi que les pourcentages et autres statistiques) affichés sont pondérés. Il est important de bien comprendre ce que représentent ces effectifs pondérés pour les interpréter correctement. Pour cela, il faut savoir comment les poids de l'enquête ont été calculés.
+
+Dans certains cas, lorsque la population totale est connue, la somme des poids est égale à cette population totale dans laquelle l'échantillon a été tiré au sort. Les effectifs pondérés représentent donc une estimation des effectifs dans la population totale et ne représentent en rien le nombre d'observations dans l'enquête.
+
+Dans d'autres enquêtes, les poids sont générés de telle manière que la somme des poids correspondent au nombre total de personnes enquêtées. Dans ce genre de situation, on a souvent tendance, à tort, à interpréter les effectifs pondérés comme un nombre d'observations. Or, il peut y avoir un écart important entre le nombre d'observations dans l'enquête et les effectifs pondérés.
+
+On pourra éventuellement présenter séparément le nombre d'observations (i.e. les effectifs non pondérés) et les proportions pondérées. `gtsummary::tbl_svysummary()` fournit justement à la fois ces données pondérées et non pondérées. Il est vrai que cela nécessite quand même quelques manipulations. Pour les cellules, on précisera le type d'effectifs à afficher avec l'argument `statistic`. Pour personnaliser l'affiche du nombre de valeurs manquantes, cela doit se faire à un niveau plus global via `gtsummary::set_gtsummary_theme()`. Enfin, on passera par `gtsummary::modify_header()` pour personnaliser les en-têtes de colonne.
+
+```{r}
+set_gtsummary_theme(
+  list("tbl_summary-str:missing_stat" = "{N_miss_unweighted} obs.")
+)
+dp |> 
+  tbl_svysummary(
+    by = milieu,
+    include = c(educ, travail),
+    statistic = all_categorical() ~ "{p}% ({n_unweighted} obs.)",
+    digits = all_categorical() ~ c(1, 0)
+  ) |> 
+  modify_header(
+    all_stat_cols() ~ "**{level}** ({n_unweighted} obs.)"
+  ) |> 
+  bold_labels()
+```
+
+Il faut noter qu'une modification du thème impactera tous les tableaux suivants, jusqu'à ce que le thème soit à nouveau modifié ou bien que l'on fasse appel à `gtsummary::reset_gtsummary_theme()`.
+
+```{r}
+#| eval: false
+#| include: false
+# On peut forcer l'utilisation des effectifs non pondérés aux différents endroits via une personnalisation du thème, pour éviter d'avoir à le faire tableau par tableau.
+# BUG pour header, cf. https://github.com/ddsjoberg/gtsummary/issues/1452
+list(
+  "tbl_summary-str:header-noby" = "{N_unweighted} obs.",
+  "tbl_summary-str:header-withby" = "**{level}** ({n_unweighted} obs.)",
+  "tbl_summary-str:missing_stat" = "{N_miss_unweighted} obs.",
+  "tbl_summary-str:categorical_stat" = "{p}% ({n_unweighted} obs.)"
+) |> 
+  set_gtsummary_theme()
+
+dp |> 
+  tbl_svysummary(
+    by = milieu,
+    include = c(educ, travail),
+) |> 
+  add_overall(last = TRUE) |> 
+  bold_labels()
+```
+:::
+
+## Calcul manuel avec `{survey}`
+
+Lorsque l'on travail avec un plan d'échantillonnage, on ne peut utiliser les fonctions statistiques classiques de **R**. On aura recours à leurs équivalents fournis par `{survey}` :
+
+-   `survey::svymean()`, `survey::svyvar()`, `survey::svytotal()`, `survey::svyquantile()` : moyenne, variance, total, quantiles
+
+-   `survey::svytable()` : tri à plat et tableau croisé
+
+-   `survey::svychisq()` : test du χ²
+
+-   `survey::svyby()` : statistiques selon un facteur
+
+-   `survey::svyttest()` : test t de Student de comparaison de moyennes
+
+-   `survey::svyciprop()` : intervalle de confiance d'une proportion
+
+-   `survey::svyratio()` : ratio de deux variables continues
+
+Ces fonctions prennent leurs arguments sous forme de formules pour spécifier les variables d'intérêt.
+
+```{r}
+survey::svymean(~ age, dp)
+survey::svymean(~ age, dp) |> confint()
+survey::svyquantile(~age, dp, quantile = c(0.25, 0.5, 0.75), ci = TRUE)
+```
+
+Les tris à plat se déclarent en passant comme argument le nom de la variable précédé d'un tilde (`~`), tandis que les tableaux croisés utilisent les noms des deux variables séparés par un signe plus (`+`) et précédés par un tilde (`~`)[^analyses-bivariees-1].
+
+[^analyses-bivariees-1]: Cette syntaxe est similaire à celle de `xtabs()`.
+
+```{r}
+survey::svytable(~region, dp)
+survey::svytable(~milieu + educ, dp)
+```
+
+La fonction `questionr::freq()` peut être utilisée si on lui passe en argument non pas la variable elle-même, mais son tri à plat obtenu avec `survey::svytable()` :
+
+```{r}
+survey::svytable(~region, dp) |> 
+  questionr::freq(total = TRUE)
+```
+
+Les fonctions `questionr::rprop()` et `questionr::cprop()` peuvent être utilisées pour calculer les pourcentages en ligne ou en colonne.
+
+```{r}
+survey::svytable(~milieu + educ, dp) |> 
+  questionr::cprop()
+```
+
+Le principe de la fonction `survey::svyby()` est similaire à celui de `tapply()` (cf. @sec-tapply). Elle permet de calculer des statistiques selon plusieurs sous-groupes définis par un facteur.
+
+```{r}
+survey::svyby(~age, ~region, dp, survey::svymean)
+```
+
+## Intervalles de confiance et tests statistiques
+
+La fonction `gtsummary::add_ci()` peut être appliquée à des tableaux produits avec `gtsummary::tbl_svysummary()`[^analyses-bivariees-2]. Les méthodes utilisées sont adaptées à la prise en compte d'un plan d'échantillonnage. On se référera à la document de la fonction pour plus de détails sur les méthodes statistiques utilisées. **Rappel :** pour les variables continues, on sera vigilant à ce que la statistique affichée (médiane par défaut) corresponde au type d'intervalle de confiance calculé (moyenne par défaut).
+
+[^analyses-bivariees-2]: Cela requiert une version récente (≥1.7.0) de `{gtsummary}`.
+
+```{r}
+#| label: tbl-tbl_svysummary-add_ci
+#| tbl-cap: Intervalles de confiance avec prise en compte du plan d'échantillonnage
+dp |> 
+  tbl_svysummary(
+    include = c(age, region),
+    statistic = all_continuous() ~ "{mean} ({sd})"
+  ) |> 
+  add_ci() |> 
+  bold_labels()
+```
+
+De même, on peut aisément effectuer des tests de comparaison avec `gtsummary::add_p()`. Là aussi, les tests utilisés sont des adaptations des tests classiques avec différentes corrections pour tenir compte à la fois de la pondération et du plan d'échantillonnage.
+
+```{r}
+#| label: tbl-tbl_svysummary-add_p
+#| tbl-cap: Tests de comparaison avec prise en compte du plan d'échantillonnage
+dp |> 
+  tbl_svysummary(
+    include = c(age, region),
+    by = milieu
+  ) |> 
+  add_p() |> 
+  bold_labels()
+```
+
+## Impact du plan d'échantillonnage
+
+Lorsque l'on calcul des proportions, moyennes ou médianes pondérées, seuls les poids entrent en ligne de compte. Le plan d'échantillonnage (strates et/ou grappes) n'a de son côté pas d'effet. Par contre, le plan d'échantillonnage a un impact important sur le calcul des variances et, par extension, sur le calcul des intervalles de confiance et des tests de comparaison.
+
+Pour illustrer cela, nous allons considérer un même jeu de données, avec la même variable de poids, mais en faisant varier la présence de strates et de grappes.
+
+Commençons par regarder le jeu de données *apistrat* fourni par `{survey}`.
+
+```{r}
+data("api", package = "survey")
+nrow(apistrat)
+summary(apistrat$pw)
+sum(apistrat$pw)
+```
+
+Nous avons ici un tableau de données de 200 lignes, avec des poids variant entre 15 et 44. Nous pouvons définir une pondération simple et croiser deux variables.
+
+```{r}
+d_ponderation_simple <- apistrat |> 
+  as_survey_design(weights = pw)
+tbl <- survey::svytable(~ awards + yr.rnd, design = d_ponderation_simple)
+tbl
+```
+
+Réalisons un test du Chi² entre ces deux variables. Si nous appliquions la fonction classique `chisq.test()` sur ce tableau, cette fonction considérait que nous avons 6194 observations (somme des poids) et dès lors nous obtiendrions une p-valeur très faible.
+
+```{r}
+tbl |> chisq.test()
+```
+
+Le calcul précédent ne tient pas compte que nous n'avons que 200 observations dans notre échantillon. Refaisons le calcul `survey::svychisq()` qui est adaptée aux plans d'échantillonnage.
+
+```{r}
+survey::svychisq(~ awards + yr.rnd, design = d_ponderation_simple)
+```
+
+Le résultat est ici tout autre et notre test n'est plus significatif au seuil de 5% ! Ici, les corrections de Rao & Scott permettent justement de tenir compte que nous avons un échantillon de seulement 200 observations.
+
+Regardons maintenant si, à poids égal, il y a une différence entre une enquête stratifiée et une enquête en grappes.
+
+```{r}
+# Pondération simple
+survey::svytable(~ awards + yr.rnd, design = d_ponderation_simple)
+survey::svychisq(~ awards + yr.rnd, design = d_ponderation_simple)
+
+# Enquête stratifiée
+d_strates <- apistrat |> 
+  as_survey_design(weights = pw, strata = stype)
+survey::svytable(~ awards + yr.rnd, design = d_strates)
+survey::svychisq(~ awards + yr.rnd, design = d_strates)
+
+# Enquête en grappes
+d_grappes <- apistrat |> 
+  as_survey_design(weights = pw, ids = dnum)
+survey::svytable(~ awards + yr.rnd, design = d_grappes)
+survey::svychisq(~ awards + yr.rnd, design = d_grappes)
+```
+
+On le constate : dans les trois cas les tableaux croisés sont identiques, mais pour autant les trois p-valeurs diffèrent.
+
+**Dès lors qu'un calcul de variance est impliqué, la simple prise en compte des poids est insuffisante : il faut appliquer des corrections en fonction du plan d'échantillonnage !**
+
+Pas d'inquiétude, `{survey}` s'en occupe pour vous, dès lors que le plan d'échantillonnage a correctement été défini.

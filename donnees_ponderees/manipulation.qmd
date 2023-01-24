@@ -9,7 +9,7 @@ t_titanic <- titanic |>
 t_titanic$variables |> dplyr::glimpse()
 ```
 
-Il n'est pas aisé de modifier des variables dans un objet de ce type. Il est donc préférable de procéder à l'ensemble des nettoyages, recodages de variables (et au besoin transformation des vecteurs labellisés en facteur), avant de définir le plan d\'échantillonnage et de procéder aux analyses.
+Il n'est pas aisé de modifier des variables dans un objet de ce type. Il est donc préférable de procéder à l'ensemble des nettoyages, recodages de variables (et au besoin transformation des vecteurs labellisés en facteur), avant de définir le plan d'échantillonnage et de procéder aux analyses.
 
 Si l'on souhaite manipuler les données, le plus simple est d'avoir recours au package `{srvyr}` qui étend les verbes de `{dplyr}` (cf. @sec-dplyr) aux objets `{survey}`.
 
@@ -28,6 +28,15 @@ On peut aussi utiliser `srvyr::pull()` pour extraire le contenu d'une colonne ou
 ::: callout-warning
 Par contre, le verbe `arrange()` (tri du tableau) ou encore les fonctions de jointures (telles que `left_join()`) ne sont pas implémentées car ce type d'opération entraînerait des modifications du plan d'échantillonnage. Il est donc préférable de réaliser ce type d'opérations avant la déclaration du plan d'échantillonnage (quand les données sont donc encore stockées dans un tableau de données classiques).
 :::
+
+`srvyr` fournit également le verbe `srvyr::summarize()` permettant de calculer des statistiques sur l'ensemble du fichier ou par sous-groupe (en combinant `summarize()` avec `group_by()`). Afin de prendre en compte correctement la pondération et le plan d'échantillonnage, `srvyr` fournit des fonctions adaptées pour un usage au sein de `summarize()` : `srvyr::survey_mean()`, `srvyr::survey_total()`, `srvyr::survey_prop()`, `srvyr::survey_ratio()`, `srvyr::survey_quantile()` ou encore `srvyr::survey_median()`.
+
+```{r}
+t_titanic |> 
+  group_by(Sex, Class, Survived) |> 
+  summarise(taux_survie = survey_prop()) |> 
+  filter(Survived == "Yes")
+```
 
 ## Lister / Rechercher des variables
 
