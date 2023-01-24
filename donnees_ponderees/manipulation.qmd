@@ -1,0 +1,64 @@
+# Manipulation de données pondérées {#sec-manipulation-donnees-ponderees}
+
+L'objet créé avec `survey::svydesign()` ou `srvyr::as_survey_design()` n'est plus un tableau de données, mais plutôt un tableau de données auquel est attaché un plan d'échantillonnage. Les colonnes du tableau d'origine ne sont plus directement accessibles avec l'opérateur `$`. En fait, elles sont stockées dans un sous-objet `$variables`.
+
+```{r}
+titanic <- dplyr::as_tibble(Titanic)
+t_titanic <- titanic |> 
+  srvyr::as_survey_design(weights = n)
+t_titanic$variables |> dplyr::glimpse()
+```
+
+Il n'est pas aisé de modifier des variables dans un objet de ce type. Il est donc préférable de procéder à l'ensemble des nettoyages, recodages de variables (et au besoin transformation des vecteurs labellisés en facteur), avant de définir le plan d\'échantillonnage et de procéder aux analyses.
+
+Si l'on souhaite manipuler les données, le plus simple est d'avoir recours au package `{srvyr}` qui étend les verbes de `{dplyr}` (cf. @sec-dplyr) aux objets `{survey}`.
+
+## Utilisation de `{srvyr}`
+
+`{srvyr}` fournit les verbes `srvyr::select()` et `srvyr::filter()` pour sélectionner respectivement des colonnes et des lignes.
+
+```{r}
+library(srvyr)
+t_titanic |> select(Sex, Age)
+t_titanic |> filter(Sex == "Female")
+```
+
+On peut aussi utiliser `srvyr::pull()` pour extraire le contenu d'une colonne ou `srvyr::drop_na()` pour supprimer les observations contenant des valeurs manquantes.
+
+::: callout-warning
+Par contre, le verbe `arrange()` (tri du tableau) ou encore les fonctions de jointures (telles que `left_join()`) ne sont pas implémentées car ce type d'opération entraînerait des modifications du plan d'échantillonnage. Il est donc préférable de réaliser ce type d'opérations avant la déclaration du plan d'échantillonnage (quand les données sont donc encore stockées dans un tableau de données classiques).
+:::
+
+## Lister / Rechercher des variables
+
+La fonction `labelled::look_for()`, que nous avons déjà abordée (cf. @sec-afficher-donnees), est compatible avec les objets `{survey}` et peut donc être utilisée pour lister ou rechercher des variables.
+
+```{r}
+t_titanic <- titanic |> 
+  labelled::set_variable_labels(
+    Class = "Class du passager",
+    Sex = "Sexe du passager",
+    Age = "Enfant ou adulte ?",
+    Survived = "A survécu au naufrage ?",
+    n = "Nombre d'observations"
+  ) |> 
+  srvyr::as_survey_design(weights = n)
+t_titanic |> labelled::look_for()
+t_titanic |> labelled::look_for("nau")
+```
+
+## Extraire un sous-échantillon
+
+Si l'on souhaite travailler sur un sous-échantillon de l'enquête, il importe de définir le plan d'échantillonnage sur l'ensemble du jeu de données **avant** de procéder à la sélection des observations.
+
+La fonction classique pour sélectionner des lignes est `subset()`. Cependant, elle a un inconvénient lorsque nos données comportent des étiquettes de variables (cf. @sec-etiquettes-variables) ou de valeurs ( @sec-etiquettes-valeurs), car les étiquettes ne sont pas conservées après l'opération.
+
+On préférera donc avoir recours à `srvyr::filter()` qui conservent les attributs associés aux colonnes du tableau de données.
+
+```{r}
+t_subset <- t_titanic |> subset(Sex == "Female")
+t_subset |> labelled::look_for()
+
+t_filter <- t_titanic |> filter(Sex == "Female")
+t_filter |> labelled::look_for()
+```
