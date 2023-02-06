@@ -1,7 +1,7 @@
 # Prédictions marginales, contrastes marginaux & effets marginaux {#sec-estimations-marginales}
 
 ::: callout-warning
-Ce chapitre nécessite une version en cours de développement de `{broom.helpers}` installable avec la commande `remotes::install_github("larmarange/broom.helpers")`, ainsi qu'une version récente de `{gtsummary}` (version ≥ 1.6.3) et de `{ggstats}` (version ≥ 0.2.1).
+Ce chapitre nécessite une version en cours de développement de `{broom.helpers}` installable avec la commande `remotes::install_github("larmarange/broom.helpers")`, ainsi qu'une version récente de `{gtsummary}` (version ≥ 1.6.3), de `{ggstats}` (version ≥ 0.2.1) et de `{marginaleffects}` (version ≥ 0.9.0).
 :::
 
 <!--- ajout lien vignette broom.helpers --->
@@ -18,15 +18,13 @@ Si vous n'êtes pas familier des estimations marginales et souhaitez aller à l'
 
 ## Terminologie
 
-Dans ce guide, nous avons décidé d'adopter une terminologie consistente avec celle du package `{broom.helpers}`, elle même basée sur celle du package [`{marginaleffects}`](https://vincentarelbundock.github.io/marginaleffects/#definitions), dont la première version a été publié en septembre 2021, et avec le [billet d'Andrew Heiss intitulé *Marginalia*](https://www.andrewheiss.com/blog/2022/05/20/marginalia/) et publié en mai 2022.
+Dans ce guide, nous avons décidé d'adopter une terminologie consistante avec celle du package `{broom.helpers}`, elle même basée sur celle du package [`{marginaleffects}`](https://vincentarelbundock.github.io/marginaleffects/#definitions), dont la première version a été publié en septembre 2021, et avec le [billet d'Andrew Heiss intitulé *Marginalia*](https://www.andrewheiss.com/blog/2022/05/20/marginalia/) et publié en mai 2022.
 
-Lorsque l'on utilise un modèle ajusté pour prédire l'*outcome* selon certaines combinaisons de valeurs des régresseurs / variables explicatives, par exemple leurs valeurs observées ou leur moyenne, on obtient des **prédictions ajustées**. Lorsque ces denières sont moyennées selon un regresseur spécique, nous parlerons alors de **prédictions marginales**.
-
-Les **moyennes marginales** s'apparentent aux prédictions marginales mais avec une petite différence. Elles ne sont définies que pour les variables catégorielles et correspondent à une moyenne de prédictions marginales.
+Lorsque l'on utilise un modèle ajusté pour prédire l'*outcome* selon certaines combinaisons de valeurs des régresseurs / variables explicatives, par exemple leurs valeurs observées ou leur moyenne, on obtient des **prédictions ajustées**. Lorsque ces dernières sont moyennées selon un régresseur spécifique, nous parlerons alors de **prédictions marginales**.
 
 Les **contrastes marginaux** correspondent au calcul d'une différence entre des prédictions marginales, que ce soit pour une variable catégorielle (e.g. différence entre deux modalités) ou pour une variable continue (différence observée au niveau de l'*outcome* pour un certain changement du prédicteur).
 
-Les **effets marginaux** sont définis, pour des variables continues, comme la dérivée partielle (*slope*) de l'équation de régression pour certains valeurs de la variable explicative. Dit autrement, un effet marginal correspond à la pente locale de la fonction de régression pour certaines valeurs choisies d'un prédicteur continue. De manière pratique, les effets marginaux sont similaires aux contrastes marginaux.
+Les **pentes marginales** ou **effets marginaux** sont définis, pour des variables continues, comme la dérivée partielle (*slope*) de l'équation de régression pour certains valeurs de la variable explicative. Dit autrement, un effet marginal correspond à la pente locale de la fonction de régression pour certaines valeurs choisies d'un prédicteur continue. De manière pratique, les effets marginaux sont similaires aux contrastes marginaux.
 
 L'ensemble de ces indicateurs marginaux se calculent pour certaines valeurs <q>typiques</q> des variables explicatives, avec plusieurs approches possibles pour définir des valeurs <q>typiques</q> : moyenne / mode, valeurs observées, valeurs personnalisées...
 
@@ -114,7 +112,7 @@ colnames(mf)
 
 ### Prédictions marginales moyennes
 
-Pour illuster et mieux comprendre ce que représente la différence entre les femmes et les hommes, nous allons effectuer des pridictions avec notre modèle en ne faisant varier que la variable *sexe*.
+Pour illustrer et mieux comprendre ce que représente la différence entre les femmes et les hommes, nous allons effectuer des prédictions avec notre modèle en ne faisant varier que la variable *sexe*.
 
 Une première approche consiste à dupliquer nos données observées et à supposer que tous les individus sont des femmes, puis à supposer que tous les individus sont des hommes.
 
@@ -147,7 +145,7 @@ mod |>
   predictions(variables = "heures.tv", by = "heures.tv")
 ```
 
-Le package `{broom.helpers}` fournit la fonction `broom.helpers::tidy_marginalpredictions()` qui génèrent les prédictions marginales de chaque variable[^estimations-marginales-1] avec `marginaleffects::predictions()` et renvoie les résultat dans un format directement utilisable avec `gtsummary::tbl_regression()`.
+Le package `{broom.helpers}` fournit la fonction `broom.helpers::tidy_marginal_predictions()` qui génèrent les prédictions marginales de chaque variable[^estimations-marginales-1] avec `marginaleffects::predictions()` et renvoie les résultat dans un format directement utilisable avec `gtsummary::tbl_regression()`.
 
 [^estimations-marginales-1]: La fonction `broom.helpers::tidy_marginalpredictions()` peut également gérer des combinaisons de variables ou interactions, voir @sec-interactions).
 
@@ -156,18 +154,18 @@ Le package `{broom.helpers}` fournit la fonction `broom.helpers::tidy_marginalpr
 #| tbl-cap: Prédictions marginales moyennes
 mod |> 
   tbl_regression(
-    tidy_fun = broom.helpers::tidy_marginalpredictions,
+    tidy_fun = broom.helpers::tidy_marginal_predictions,
     estimate_fun = scales::label_percent(accuracy = 0.1)
   ) |> 
   bold_labels()
 ```
 
-La fonction `broom.helpers::plot_marginalpredictions()` permet de visualiser les prédictions marginales à la moyenne en réalisant une liste de graphiques, un par variable, que nous pouvons combiner avec `patchwork::wrap_plots()`. L'opérateur `&` permet d'appliquer une fonction de `{ggplot2}` à chaque sous-graphique. Ici, nous allons uniformiser l'axe des *y*.
+La fonction `broom.helpers::plot_marginal_predictions()` permet de visualiser les prédictions marginales à la moyenne en réalisant une liste de graphiques, un par variable, que nous pouvons combiner avec `patchwork::wrap_plots()`. L'opérateur `&` permet d'appliquer une fonction de `{ggplot2}` à chaque sous-graphique. Ici, nous allons uniformiser l'axe des *y*.
 
 ```{r}
 #| results: hide
 p <- mod |> 
-  broom.helpers::plot_marginalpredictions() |> 
+  broom.helpers::plot_marginal_predictions() |> 
   patchwork::wrap_plots() &
   scale_y_continuous(
     limits = c(0, .8),
@@ -196,7 +194,7 @@ Une alternative possible avec d'avoir recours à `ggtstats::ggcoef_model()`.
 #| fig-cap: Prédictions marginales moyennes
 mod |> 
   ggstats::ggcoef_model(
-    tidy_fun = broom.helpers::tidy_marginalpredictions,
+    tidy_fun = broom.helpers::tidy_marginal_predictions,
     show_p_values = FALSE,
     signif_stars = FALSE,
     significance = NULL,
@@ -219,9 +217,9 @@ On peut réaliser cela avec `{marginaleffects}` en précisant `newdata = "mean"`
 mod |> predictions(variables = "sexe", newdata = "mean")
 ```
 
-Dans ce cas de figure, `{marginaleffects}` considèrepour chaque variable continue sa moyenne (ici `2.246` pour *heures.tv*) et pour chaque variable catégorielle son mode (la valeur observée la plus fréquente, ici `"Technique / Professionnel"` pour la variable *etudes*). On fait juste varier les modalités de *sexe* puis on calculer la probabilité de faire du sport de ces individus moyens.
+Dans ce cas de figure, `{marginaleffects}` considère pour chaque variable continue sa moyenne (ici `2.246` pour *heures.tv*) et pour chaque variable catégorielle son mode (la valeur observée la plus fréquente, ici `"Technique / Professionnel"` pour la variable *etudes*). On fait juste varier les modalités de *sexe* puis on calculer la probabilité de faire du sport de ces individus moyens.
 
-On peut également passer le paramètre `newdata = "mean"` à `broom.helpers::tidy_marginalpredictions()` ou même à `gtsummary::tbl_regression()`[^estimations-marginales-2].
+On peut également passer le paramètre `newdata = "mean"` à `broom.helpers::tidy_marginal_predictions()` ou même à `gtsummary::tbl_regression()`[^estimations-marginales-2].
 
 [^estimations-marginales-2]: Les paramètres additionnels indiqués à `gtsummary::tbl_regression()` sont transmis en cascade à `broom.helpers::tidy_plus_plus()` puis à `broom.helpers::tidy_marginalpredictions()` et enfin à `marginaleffects::predictions()`.
 
@@ -230,7 +228,7 @@ On peut également passer le paramètre `newdata = "mean"` à `broom.helpers::ti
 #| tbl-cap: Prédictions marginales à la moyenne
 mod |> 
   tbl_regression(
-    tidy_fun = broom.helpers::tidy_marginalpredictions,
+    tidy_fun = broom.helpers::tidy_marginal_predictions,
     newdata = "mean",
     estimate_fun = scales::label_percent(accuracy = 0.1)
   ) |> 
@@ -242,7 +240,7 @@ De même, on peut générer une représentation graphique :
 ```{r}
 #| results: hide
 p <- mod |> 
-  broom.helpers::plot_marginalpredictions() |> 
+  broom.helpers::plot_marginal_predictions() |> 
   patchwork::wrap_plots() &
   scale_y_continuous(
     limits = c(0, .8),
@@ -264,7 +262,7 @@ Si l'on souhaite utiliser `ggstats::ggcoef_model()`, on peut directement indique
 #| fig-cap: Prédictions marginales à la moyenne
 mod |> 
   ggstats::ggcoef_model(
-    tidy_fun = broom.helpers::tidy_marginalpredictions,
+    tidy_fun = broom.helpers::tidy_marginal_predictions,
     tidy_args = list(newdata = "mean"),
     show_p_values = FALSE,
     signif_stars = FALSE,
@@ -333,69 +331,6 @@ mod |>
   scale_x_continuous(labels = scales::label_percent())
 ```
 
-### Moyennes marginales et prédictions marginales aux moyennes marginales
-
-Le package `{emmeans}` adopte, quant à lui et par défaut, une autre approche basée sur les **moyennes marginales** ou *estimated marginal means* (d'où le nom du package).
-
-Il génère une grille d'individus correspondant à toutes les combinaisons possibles des modalités des variables catégorielles. Les variables continues sont elles fixées à leur moyenne observée.
-
-Pour illustrer cela, appelons `marginaleffects::predictions()` avec `newdata = "marginalmeans"`.
-
-```{r}
-pred <- predictions(mod, newdata = "marginalmeans")
-```
-
-Le tableau `pred` contient 40 lignes (2×4×5), une pour chaque combinaison de *sexe* (2 modalités), *groupe_ages* (4 modalités) et *etudes* (5 modalités)[^estimations-marginales-5]. La variable *heures.tv* est fixe et correspond à `mean(mf$heures.tv)`.
-
-[^estimations-marginales-5]: Si vous avez une version de `{marginaleffects}` ≤ 0.8.1, vous obtiendrez 80 lignes en raison d'un bug qui dupliquait les lignes pour chaque modalité de *sport*.
-
-Calculons la prédiction moyenne pour chaque valeur de *sexe*.
-
-```{r}
-pred |> 
-  group_by(sexe) |> 
-  summarise(mean(predicted))
-```
-
-Nous pouvons vérifier que nous obtenons le même résultat avec `emmeans::emmeans()`.
-
-```{r}
-emmeans::emmeans(mod, "sexe", type = "response")
-```
-
-La fonction `marginaleffects::marginalmeans()` permet de calculer directement toutes les moyennes marginales des variables catégorielles.
-
-```{r}
-marginalmeans(mod)
-```
-
-`{broom.helpers}` fournit une fonction `tidy_marginalmeans()` .
-
-```{r}
-#| label: tbl-moyennes-marginales
-#| tbl-cap: Moyennes marginales
-mod |> 
-  tbl_regression(
-    tidy_fun = broom.helpers::tidy_marginalmeans,
-    estimate_fun = scales::label_percent(accuracy = 0.1)
-  ) |> 
-  bold_labels()
-```
-
-Les moyennes marginales ne sont définies que pour les variables catégorielles. Il est cependant possible d'estimer des **prédictions marginales aux moyennes marginales** à la fois pour les variables continues et les variables catégorielles. Pour les variables catégorielles, les prédictions marginales aux moyennes marginales seront égales à leurs moyennes marginales. On appellera `tidy_marginalpredictions()` avec l'option `newdata = "marginalmeans"`.
-
-```{r}
-#| label: tbl-predictions-marginales-moyennes-marginales
-#| tbl-cap: Prédictions marginales aux moyennes marginales
-mod |> 
-  tbl_regression(
-    tidy_fun = broom.helpers::tidy_marginalpredictions,
-    newdata = "marginalmeans",
-    estimate_fun = scales::label_percent(accuracy = 0.1)
-  ) |> 
-  bold_labels()
-```
-
 ### Variantes
 
 Le package `{ggeffects}` propose une fonction `ggeffects::ggpredict()` qui calcule des prédictions marginales à la moyenne des variables continues et à la première modalité (utilisée comme référence) des variables catégorielles. On ne peut donc plus, au sens strict, parler de prédictions <q>à la moyenne</q>. `{broom.helpers}` fournit une fonction `tidy_ggpredict()`.
@@ -439,18 +374,17 @@ pred
 Le contraste entre les hommes et les femmes est tout simplement la différence et les deux prédictions marginales.
 
 ```{r}
-pred$predicted[2] - pred$predicted[1]
+pred$estimate[2] - pred$estimate[1]
 ```
 
-La fonction `marginaleffects::comparisons()` permet de réaliser directement ce calcul.
+La fonction `marginaleffects::avg_comparisons()` permet de réaliser directement ce calcul.
 
 ```{r}
-comp <- comparisons(mod, variables = "sexe")
-tidy(comp)
+avg_comparisons(mod, variables = "sexe")
 ```
 
 ::: callout-tip
-Dans les faits, `marginaleffects::comparisons()` a calculé la différence entre les hommes et les femmes pour chaque observation d'origine (le tableau `comp` contient 1995 lignes) puis a réalisé la moyenne des différences. Mathématiquement, la moyenne des différences est équivalente à la différence des moyennes.
+Dans les faits, `marginaleffects::avg_comparisons()` a calculé la différence entre les hommes et les femmes pour chaque observation d'origine puis a réalisé la moyenne des différences. Mathématiquement, la moyenne des différences est équivalente à la différence des moyennes.
 :::
 
 Les contrastes calculés ici ont été moyennés sur l'ensemble des valeurs observées. On parle donc de **contrastes marginaux moyens** (*average marginal contrasts*).
@@ -460,29 +394,29 @@ Par défaut, chaque modalité est contrastée avec la première modalité prise 
 Regardons maintenant une variable continue.
 
 ```{r}
-comparisons(mod, variables = "heures.tv") %>% tidy()
+avg_comparisons(mod, variables = "heures.tv")
 ```
 
-Par défaut, `marginaleffects::comparisons()` calcule, pour chaque valeur observée de *heures.tv*, l'effet sur la probabilité de pratiquer un sport d'augmenter de 1 le nombre d'heures quotidiennes de télévision (plus précisément la différence des valeurs prédites pour la valeur observée plus 0,5 et la valeur observée moins 0,5).
+Par défaut, `marginaleffects::avg_comparisons()` calcule, pour chaque valeur observée de *heures.tv*, l'effet sur la probabilité de pratiquer un sport d'augmenter de 1 le nombre d'heures quotidiennes de télévision (plus précisément la différence des valeurs prédites pour la valeur observée plus 0,5 et la valeur observée moins 0,5).
 
 On peut facilement obtenir la liste des contrastes marginaux pour l'ensemble des variables.
 
 ```{r}
-comparisons(mod) |> tidy()
+avg_comparisons(mod)
 ```
 
-Il est important de noter que le nom des colonnes n'est pas compatible avec les fonctions de `{broom.helpers}` et par extension avec `gtsummary::tbl_regression()` et `ggstats::ggcoef_model()`. On utilisera donc `broom.helpers::tidy_marginalcontrasts()`[^estimations-marginales-6] qui remets en forme le tableau de résultats dans un format compatible. On pourra ainsi produire un tableau propre des résultats[^estimations-marginales-7].
+Il est important de noter que le nom des colonnes n'est pas compatible avec les fonctions de `{broom.helpers}` et par extension avec `gtsummary::tbl_regression()` et `ggstats::ggcoef_model()`. On utilisera donc `broom.helpers::tidy_marginal_contrasts()`[^estimations-marginales-5] qui remets en forme le tableau de résultats dans un format compatible. On pourra ainsi produire un tableau propre des résultats[^estimations-marginales-6].
 
-[^estimations-marginales-6]: Il existe également une fonction `broom.helpers::tidy_comparisons()` mais on lui préférera `broom.helpers::tidy_marginalcontrasts()`. Pour un modèle sans interaction, les résultats sont identiques. Mais `broom.helpers::tidy_marginalcontrasts()` peut gérer des termes d'interactions, ce qui sera utile dans un prochain chapitre (cf. @sec-interactions).
+[^estimations-marginales-5]: Il existe également une fonction `broom.helpers::tidy_avg_comparisons()` mais on lui préférera `broom.helpers::tidy_marginal_contrasts()`. Pour un modèle sans interaction, les résultats sont identiques. Mais `broom.helpers::tidy_marginal_contrasts()` peut gérer des termes d'interactions, ce qui sera utile dans un prochain chapitre (cf. @sec-interactions).
 
-[^estimations-marginales-7]: Notez l'utilisation de `style_positive = "plus"` dans l'appel de `scales::label_percent()` pour ajouter un signe `+` devant les valeurs positives, afin de bien indiquer que l'on représente le résultat d'une différence.
+[^estimations-marginales-6]: Notez l'utilisation de `style_positive = "plus"` dans l'appel de `scales::label_percent()` pour ajouter un signe `+` devant les valeurs positives, afin de bien indiquer que l'on représente le résultat d'une différence.
 
 ```{r}
 #| label: tbl-contrastes-marginaux-moyens
 #| tbl-cap: Contrastes marginaux moyens
 mod |> 
   tbl_regression(
-    tidy_fun = broom.helpers::tidy_marginalcontrasts,
+    tidy_fun = broom.helpers::tidy_marginal_contrasts,
     estimate_fun = scales::label_percent(
       accuracy = 0.1,
       style_positive = "plus"
@@ -498,7 +432,7 @@ De même, on peut représenter les contrastes marginaux moyens avec `ggstats::gg
 #| fig-cap: Contrastes marginaux moyens
 ggstats::ggcoef_model(
   mod,
-  tidy_fun = broom.helpers::tidy_marginalcontrasts
+  tidy_fun = broom.helpers::tidy_marginal_contrasts
 ) +
   ggplot2::scale_x_continuous(
     labels = scales::label_percent(style_positive = "plus")
@@ -506,16 +440,35 @@ ggstats::ggcoef_model(
 ```
 
 ::: callout-tip
-Il est possible de personnaliser le type de contrastes calculés, variable par variable, avec l'option `variables_list` de `broom.helpers::tidy_marginalcontrasts()`. La syntaxe est un peu particulière : il faut transmettre une liste de listes.
+Il est possible de personnaliser le type de contrastes calculés, variable par variable, avec l'option `variables_list` de `broom.helpers::tidy_marginal_contrasts()`. La syntaxe est un peu particulière : il faut transmettre une liste de listes.
 
 ```{r}
 mod |> 
   tbl_regression(
-    tidy_fun = broom.helpers::tidy_marginalcontrasts,
+    tidy_fun = broom.helpers::tidy_marginal_contrasts,
     variables_list = list(
       list(heures.tv = 2),
       list(groupe_ages = "pairwise"),
       list(etudes = "sequential")
+    ),
+    estimate_fun = scales::label_percent(
+      accuracy = 0.1,
+      style_positive = "plus"
+    )
+  ) |> 
+  bold_labels()
+```
+
+On peut obtenir le même résultat avec `broom.helpers::tidy_avg_comparison()` avec une syntaxe un peu plus simple (en passant une liste via `variables` au lieu d'une liste de listes via `variables_list`).
+
+```{r}
+mod |> 
+  tbl_regression(
+    tidy_fun = broom.helpers::tidy_avg_comparisons,
+    variables = list(
+      heures.tv = 2,
+      groupe_ages = "pairwise",
+      etudes = "sequential"
     ),
     estimate_fun = scales::label_percent(
       accuracy = 0.1,
@@ -537,7 +490,7 @@ Avec `{marginaleffects}`, il suffit de spécifier `newdata = "mean"`. Les variab
 #| tbl-cap: Contrastes marginaux à la moyenne
 mod |> 
   tbl_regression(
-    tidy_fun = broom.helpers::tidy_marginalcontrasts,
+    tidy_fun = broom.helpers::tidy_marginal_contrasts,
     newdata = "mean",
     estimate_fun = scales::label_percent(
       accuracy = 0.1,
@@ -554,7 +507,7 @@ Pour la fonction `ggstats::ggcoef_model()`, on utilisera l'argument `tidy_args` 
 #| fig-cap: Contrastes marginaux à la moyenne
 ggstats::ggcoef_model(
   mod,
-  tidy_fun = broom.helpers::tidy_marginalcontrasts,
+  tidy_fun = broom.helpers::tidy_marginal_contrasts,
   tidy_args = list(newdata = "mean")
 ) +
   ggplot2::scale_x_continuous(
@@ -562,11 +515,7 @@ ggstats::ggcoef_model(
   )
 ```
 
-### Alternatives
-
-Comme pour les prédictions marginales, d'autres options telles que `"marginalmeans"` ou `"median"` peuvenţêtre indiquées à `newdata`. On se référerra à la documentation de `marginaleffects::comparisons()`.
-
-## Effets marginaux / Pentes marginales
+## Pentes marginales / Effets marginaux
 
 Les effets marginaux, ou plus précisément les pentes marginales, sont similaires aux contrastes marginaux, avec un différence subtile. Pour une variable continue, les contrastes marginaux sont une différence entre deux prédictions tandis que les **effets marginaux** (*marginal effects*) ou **pentes marginales** (*marginal slopes*). Dis autrement, l'effect marginal d'un régresseur continu $x$ est la pente / dérivée ${\partial y}/{\partial x}$ la fonction de prédiction $y$, mesurée à des valeurs spécifiques de $x$.
 
@@ -574,26 +523,26 @@ Les effets marginaux sont le plus souvent calculés selon l'échelle de l'*outco
 
 Par définition, les effets marginaux ne sont pas définis pour les variables catégorielles. La plupart des fonctions rapportent, à la place, les contrastes marginaux pour ces variables catégorielles.
 
-Comme pour les prédictions marginales et les contrastes marginaux, plusieurs approches existent (voir par exemple la [vignette dédiée](https://vincentarelbundock.github.io/marginaleffects/articles/marginaleffects.html) du package `{marginaleffects}`).
+Comme pour les prédictions marginales et les contrastes marginaux, plusieurs approches existent (voir par exemple la [vignette dédiée](https://vincentarelbundock.github.io/marginaleffects/articles/slopes.html) du package `{marginaleffects}`).
 
-### Effets marginaux moyens
+### Pentes marginales moyennes / Effets marginaux moyens
 
 Les **effets marginaux moyens** (*average marginal effects*) sont calculés en deux temps : (1) un effet marginal est calculé pour chaque individu observé dans le modèle ; (ii) puis la moyenne de ces effets individuels est calculée.
 
-On aura tout simplement recours à la fonction `marginaleffects::marginaleffects()`.
+On aura tout simplement recours à la fonction `marginaleffects::avg_slopes()`.
 
 ```{r}
-marginaleffects(mod) |> tidy()
+avg_slopes(mod)
 ```
 
-Pour un usage avec `broom.helpers::tidy_plus_plus()`, `gtsummary::tbl_regression()` ou `ggstats::ggcoef_model()`, on utilisera `broom.helpers::tidy_marginaleffects()`.
+Pour un usage avec `broom.helpers::tidy_plus_plus()`, `gtsummary::tbl_regression()` ou `ggstats::ggcoef_model()`, on utilisera `broom.helpers::tidy_avg_slopes()`.
 
 ```{r}
 #| label: tbl-effets-marginaux-moyens
 #| tbl-cap: Effets marginaux moyens
 mod |> 
   tbl_regression(
-    tidy_fun = broom.helpers::tidy_marginaleffects,
+    tidy_fun = broom.helpers::tidy_avg_slopes,
     estimate_fun = scales::label_percent(
       accuracy = 0.1,
       style_positive = "plus"
@@ -607,7 +556,7 @@ mod |>
 #| fig-cap: Effets marginaux moyens
 ggstats::ggcoef_model(
   mod,
-  tidy_fun = broom.helpers::tidy_marginaleffects
+  tidy_fun = broom.helpers::tidy_avg_slopes
 ) +
   ggplot2::scale_x_continuous(
     labels = scales::label_percent(style_positive = "plus")
@@ -648,7 +597,7 @@ ggstats::ggcoef_model(
   )
 ```
 
-### Effets marginaux à la moyenne
+### Pentes marginales à la moyenne / Effets marginaux à la moyenne
 
 Pour les **effets marginaux à la moyenne** (*marginal effect at the mean*), simplement indiquer `newdata = "mean"` à `broom.helpers::tidy_marginaleffects()`.
 
