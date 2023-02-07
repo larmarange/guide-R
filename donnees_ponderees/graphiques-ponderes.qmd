@@ -1,0 +1,58 @@
+# Graphiques pondérés {#sec-graphiques-ponderes}
+
+Le package `{ggplot2}` n'est compatible directement avec les objets `{survey}`. Cependant, il accepte une esthétique *weight* qui permet de définir une variable de pondération.
+
+::: callout-warning
+**ATTENTION :** les graphiques obtenus ne sont corrects qu'à la condition que seuls les poids soient nécessaires pour les construire, ce qui est le cas d'un nuage de points ou d'un diagramme en barres.
+
+Par contre, si le calcul du graphique implique le calcul de variances, la représentation sera incorrecte. Par exemple, avec `ggplot2::geom_smooth()`, les intervalles de confiance affichés ne prendront pas correctement en compte le plan d'échantillonnage.
+:::
+
+Reprenons le jeu de données *fecondite* que nous avons abordé dans le chapitre sur les analyses bivariées pondérées, cf. @sec-analyses-bivariees-ponderees. Les poids d'enquête y sont indiqués dans la colonne *poids*. Pour rappel, les données catégorielles étant stockées sous forme de vecteurs numériques avec étiquettes de valeurs (cf. @sec-etiquettes-valeurs), nous allons les convertir en facteurs avec `labelled::unlabelled()`.
+
+```{r}
+data("fecondite", package = "questionr")
+library(tidyverse)
+d <- labelled::unlabelled(femmes)
+```
+
+Pour réaliser un graphique, nous pouvons reprendre ce que nous avons vu dans notre chapitre introductif sur `{ggplot2}`, cf. @sec-ggplot2, en spécifiant simplement l'esthétique *weight*.
+
+```{r}
+#| label: fig-graph-pondere-1
+#| fig-cap: Un graphique en barres pondéré
+ggplot(d) +
+  aes(x = region, fill = test, weight = poids) +
+  geom_bar(position = "fill")
+```
+
+Si l'on a déjà créé un objet `{survey}`, on peut obtenir les poids des observations avec la fonction `weights()`. Les données sont quant à elle accessibles via le sous-élément nommé *variables*.
+
+```{r}
+library(srvyr)
+dp <- femmes |> 
+  labelled::unlabelled() |> 
+  as_survey_design(weights = poids)
+```
+
+```{r}
+#| label: fig-graph-pondere-2
+#| fig-cap: Un graphique en barres pondéré
+ggplot(dp$variables) +
+  aes(x = region, fill = test, weight = weights(dp)) +
+  geom_bar(position = "fill")
+```
+
+Pour se faciliter les choses, on peut avoir directement recours à la fonction `ggstats::ggsurvey()`, que l'on utilisera à la place de `ggplot2::ggplot()`, et qui fait exactement la même chose que dans notre exemple précédent : on lui passe un objet de type `{survey}` et la fonction en extrait le sous-élément *variables* pour le passer à `ggplot2::ggplot()` et les poids qui sont automatiquement associés à l'esthétique *weight*.
+
+Ainsi, le code de notre graphique précédent s'écrit tout simplement[^graphiques-ponderes-1] :
+
+[^graphiques-ponderes-1]: Notez que les poids ont déjà été associés à la bonne esthétique et qu'il n'est donc pas nécessaire de le refaire dans l'appel à `aes()`.
+
+```{r}
+#| label: fig-graph-pondere-3
+#| fig-cap: Un graphique en barres pondéré
+ggstats::ggsurvey(dp) +
+  aes(x = region, fill = test) +
+  geom_bar(position = "fill")
+```
