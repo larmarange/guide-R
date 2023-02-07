@@ -1,0 +1,131 @@
+# Régression logistique binaire pondérée {#sec-regression-logistique-binaire-ponderee}
+
+Nous avons abordé la régression logistique binaire non pondérée dans un chapitre dédié, cf. @sec-regression-logistique-binaire. Elle se réalise classiquement avec la fonction `glm()` en spécifiant `family = binomial`.
+
+Lorsque l'on utilise des données d'enquêtes, l'approche est similaire sauf que l'on aura recours à la fonction `survey::svyglm()` qui sait gérer des objets `{survey}` : non seulement la pondération sera prise en compte, mais le calcul des intervalles de confiance et des p-valeurs sera ajusté en fonction du plan d'échantillonnage.
+
+## Données des exemples
+
+Nous allons reprendre les même données issues de l'enquête *Histoire de vie 2003*, mais en tenant compte cette fois-ci des poids de pondération fourni dans la variable *poids*.
+
+```{r}
+#| message: false
+library(tidyverse)
+library(labelled)
+data(hdv2003, package = "questionr")
+d <-
+  hdv2003 |> 
+  mutate(
+    sexe = sexe |> fct_relevel("Femme"),
+    groupe_ages = age |>
+      cut(
+        c(18, 25, 45, 65, 99),
+        right = FALSE,
+        include.lowest = TRUE,
+        labels = c("18-24 ans", "25-44 ans",
+                   "45-64 ans", "65 ans et plus")
+      ),
+    etudes = nivetud |> 
+      fct_recode(
+        "Primaire" = "N'a jamais fait d'etudes",
+        "Primaire" = "A arrete ses etudes, avant la derniere annee d'etudes primaires",
+        "Primaire" = "Derniere annee d'etudes primaires",
+        "Secondaire" = "1er cycle",
+        "Secondaire" = "2eme cycle",
+        "Technique / Professionnel" = "Enseignement technique ou professionnel court",
+        "Technique / Professionnel" = "Enseignement technique ou professionnel long",
+        "Supérieur" = "Enseignement superieur y compris technique superieur"
+    ) |> 
+    fct_na_value_to_level("Non documenté")  
+  ) |> 
+  set_variable_labels(
+    sport = "Pratique un sport ?",
+    sexe = "Sexe",
+    groupe_ages = "Groupe d'âges",
+    etudes = "Niveau d'études",
+    relig = "Rapport à la religion",
+    heures.tv = "Heures de télévision / jour",
+    poids = "Pondération de l'enquête"
+  )
+```
+
+Il ne nous reste qu'à définir notre objet `{survey}` en spécifiant la pondération fournie avec l'enquête. La documentation ne mentionne ni strates ni grappes.
+
+```{r}
+#| message: false
+library(srvyr)
+library(survey)
+dp <- d |> 
+  as_survey_design(weights = poids)
+```
+
+## Calcul de la régression logistique binaire
+
+La syntaxe de `survey::svyglm()` est similaire à celle de `glm()` sauf qu'elle a un argument `design` au lieu de `data`.
+
+La plupart du temps, les poids de pondération ne sont pas des nombres entiers, mais des nombres décimaux. Dès lors, on ne peut plus utiliser la famille de modèles binomiale (qui repose sur des nombres entiers de succès et d'échecs)[^regression-logistique-binaire-1]. On aura plutôt recours à la famille quasi-binomiale, que l'on spécifie avec `family = quasibinomial` et qui constitue une extension de la famille binomiale pouvant gérer des poids non entiers.
+
+[^regression-logistique-binaire-1]: Si l'on indique `family = binomial`, vous obtiendrez avec une version récente de **R** un message d'avertissement du type `Avis : nombre de succès non entier dans un glm binomial !`. Avec une version plus ancienne de **R**, vous devriez même avoir un message d'erreur.
+
+```{r}
+mod <- svyglm(
+  sport ~ sexe + groupe_ages + etudes + relig + heures.tv,
+  family = quasibinomial,
+  design = dp
+)
+```
+
+Simple, non ?
+
+## Sélection de modèle
+
+Comme précédemment, il est possible de procéder à une sélection de modèle pas à pas, par minimisation de l'AIC, avec `step()`.
+
+```{r}
+mod2 <- step(mod)
+```
+
+## Affichage des résultats
+
+Nous pouvons tout à fait utiliser `gtsumarry::tbl_regression()` avec ce type de modèles. De même, on peut utiliser `gtsummary::add_global_p()` pour calculer les p-valeurs globales des variables ou encore `gtsummary::add_vif()` pour vérifier la multicolinéarité (cf. @sec-multicolinearite).
+
+```{r}
+#| message: false
+library(gtsummary)
+theme_gtsummary_language("fr", decimal.mark = ",", big.mark = " ")
+```
+
+```{r}
+#| label: tbl-regression-logistique-ponderee
+#| tbl-cap: Facteurs associés à la pratique d'un sport (régression logistique pondérée)
+mod2 |> 
+  tbl_regression(exponentiate = TRUE) |> 
+  add_global_p(keep = TRUE) |> 
+  add_vif() |> 
+  bold_labels()
+```
+
+Pour un graphique des coefficients, nous pouvons utiliser `ggstats::ggcoef_model()`.
+
+```{r}
+#| label: fig-forest-plot-regression-logistique-ponderee
+#| fig-cap: Facteurs associés à la pratique d'un sport (régression logistique pondérée)
+mod2 |> 
+  ggstats::ggcoef_model(exponentiate = TRUE)
+```
+
+## Prédictions marginales
+
+Pour visualiser les prédictions marginales moyennes du modèle (cf. @sec-predictions-marginales), nous pouvons utiliser `broom.helpers::plot_marginal_predictions()`.
+
+```{r}
+#| label: fig-predictions-marginales-moyennes-regression-ponderee
+#| fig-cap: Prédictions marginales moyennes du modèle pondéré
+mod2 |> 
+  broom.helpers::plot_marginal_predictions() |> 
+  patchwork::wrap_plots() &
+  scale_y_continuous(
+    limits = c(0, .8),
+    labels = scales::label_percent()
+  )
+```
