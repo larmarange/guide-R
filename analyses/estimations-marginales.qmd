@@ -1,7 +1,7 @@
 # Prédictions marginales, contrastes marginaux & effets marginaux {#sec-estimations-marginales}
 
 ::: callout-warning
-Ce chapitre nécessite une version récente de `{broom.helpers}` (version ≥ 1.12.0), de `{gtsummary}` (version ≥ 1.6.3), de `{ggstats}` (version ≥ 0.2.1) et de `{marginaleffects}` (version ≥ 0.9.0).
+Ce chapitre nécessite une version récente de `{broom.helpers}` (version ≥ 1.12.0), de `{gtsummary}` (version ≥ 1.6.3), de `{ggstats}` (version ≥ 0.2.1) et de `{marginaleffects}` (version ≥ 0.10.0).
 :::
 
 Les coefficients d'une régression multivariée ne sont pas toujours facile à interpréter car ils ne sont pas forcément exprimés dans la même dimension que la variable d'intérêt. C'est notamment le cas pour une régression logistique binaire (cf. @sec-regression-logistique-binaire). Comment traduire la valeur d'un *odds ratio* en écart de probabilité ?
@@ -133,14 +133,14 @@ Le même résultat, avec en plus un intervalle de confiance, peut s'obtenir avec
 ```{r}
 library(marginaleffects)
 mod |> 
-  predictions(variables = "sexe", by = "sexe")
+  predictions(variables = "sexe", by = "sexe", type = "response")
 ```
 
 Pour une variable continue, on peut procéder de la même manière en générant des prédictions marginales pour certaines valeurs de la variable. Par défaut, `marginaleffects::predictions()` réalise des prédictions selon les 5 nombres de Tukey (*Tukey's five numbers*, à savoir minimum, premier quartile, médiane, troisième quartile et maximum).
 
 ```{r}
 mod |> 
-  predictions(variables = "heures.tv", by = "heures.tv")
+  predictions(variables = "heures.tv", by = "heures.tv", type = "response")
 ```
 
 Le package `{broom.helpers}` fournit la fonction `broom.helpers::tidy_marginal_predictions()` qui génèrent les prédictions marginales de chaque variable[^estimations-marginales-1] avec `marginaleffects::predictions()` et renvoie les résultat dans un format directement utilisable avec `gtsummary::tbl_regression()`.
@@ -153,6 +153,7 @@ Le package `{broom.helpers}` fournit la fonction `broom.helpers::tidy_marginal_p
 mod |> 
   tbl_regression(
     tidy_fun = broom.helpers::tidy_marginal_predictions,
+    type = "response",
     estimate_fun = scales::label_percent(accuracy = 0.1)
   ) |> 
   bold_labels()
@@ -163,7 +164,7 @@ La fonction `broom.helpers::plot_marginal_predictions()` permet de visualiser le
 ```{r}
 #| results: hide
 p <- mod |> 
-  broom.helpers::plot_marginal_predictions() |> 
+  broom.helpers::plot_marginal_predictions(type = "response") |> 
   patchwork::wrap_plots() &
   scale_y_continuous(
     limits = c(0, .8),
@@ -193,6 +194,7 @@ Une alternative possible avec d'avoir recours à `ggtstats::ggcoef_model()`.
 mod |> 
   ggstats::ggcoef_model(
     tidy_fun = broom.helpers::tidy_marginal_predictions,
+    tidy_args = list(type = "response"),
     show_p_values = FALSE,
     signif_stars = FALSE,
     significance = NULL,
@@ -200,6 +202,37 @@ mod |>
   ) +
   scale_x_continuous(labels = scales::label_percent())
 ```
+
+::: callout-important
+## Importance de l'argument `type` pour les modèles `glm`
+
+Lorsque l'on a recours à des modèles calculés avec `glm()`, il est possible de réaliser des prédictions selon deux échelles : l'échelle de notre *outcome* ou variable à expliquer (`type = "response"`), ici exprimée en probabilités ou proportions puisqu'il s'agit d'une régression logistique, ou bien selon l'échelle de la fonction de lien (`type = "link"`) du modèle, ici la fonction *logit* (voir @sec-interpreter-coefficients-regression-logistique).
+
+Avec l'option `type = "reponse"`, on indique à `{marginaleffects}` de calculer pour chaque individu une prédiction selon l'échelle de l'outcome puis de procéder à la moyenne, ce que nous avons fait dans les exemples précédents.
+
+Si nous avions indiqué `type = "link"`, les prédictions auraient été faites selon l'échelle de la fonction de lien avant d'être moyennée.
+
+```{r}
+mod |> predict(type = "link", newdata = mf_femmes) |> mean()
+mod |> predict(type = "link", newdata = mf_hommes) |> mean()
+mod |> 
+  predictions(variables = "sexe", by = "sexe", type = "link")
+```
+
+Depuis la version 0.10.0 de `{marginaleffects}`, si l'on ne précise pas le paramètre `type` (i.e. si `type = NULL`), la fonction `marginaleffects::predictions()` réalise les prédictions selon l'échelle de la fonction de lien, calcule les moyennes puis re-transforme ce résultat selon l'échelle de la variable à expliquer.
+
+```{r}
+logit_inverse <- binomial("logit") |> purrr::pluck("linkinv")
+mod |> predict(type = "link", newdata = mf_femmes) |> mean() |> logit_inverse()
+mod |> predict(type = "link", newdata = mf_hommes) |> mean() |> logit_inverse()
+mod |> 
+  predictions(variables = "sexe", by = "sexe")
+```
+
+Or, la plupart du temps, le logit inverse de la moyenne des prédictions est différent de la moyenne des logit inverse des prédictions !
+
+Les résultats seront similaires et du même ordre de grandeur, mais pas identique.
+:::
 
 ### Prédictions marginales à la moyenne
 
@@ -238,7 +271,7 @@ De même, on peut générer une représentation graphique :
 ```{r}
 #| results: hide
 p <- mod |> 
-  broom.helpers::plot_marginal_predictions() |> 
+  broom.helpers::plot_marginal_predictions(newdata = "mean") |> 
   patchwork::wrap_plots() &
   scale_y_continuous(
     limits = c(0, .8),
@@ -365,7 +398,7 @@ Maintenant que nous savons estimer des prédictions marginales, nous pouvons fac
 Considérons tout d'abord la variable catégorielle *sexe* et calculons les prédictions marginales moyennes avec `marginaleffects::predictions()`.
 
 ```{r}
-pred <- predictions(mod, variables = "sexe", by = "sexe")
+pred <- predictions(mod, variables = "sexe", by = "sexe", type = "response")
 pred
 ```
 
