@@ -147,6 +147,10 @@ Le package `{broom.helpers}` fournit la fonction `broom.helpers::tidy_marginal_p
 
 [^estimations-marginales-1]: La fonction `broom.helpers::tidy_marginal_predictions()` peut également gérer des combinaisons de variables ou interactions, voir @sec-interactions).
 
+::: callout-note
+Il est à noter que `broom.helpers::tidy_marginal_predictions()` renvoie des p-valeurs qui, par défaut, teste si les valeurs prédites sont différentes de 0 (sur l'échelle de la fonction de lien, donc différentes de 50% dans le cas d'une régression logistique). Ce type de tests n'est pas vraiment pertinent dans le cas présent. On peut facilement masquer la colonne des p-valeurs avec `modify_column_hide("p.value")`.
+:::
+
 ```{r}
 #| label: tbl-predictions-marginales-moyennes
 #| tbl-cap: Prédictions marginales moyennes
@@ -156,7 +160,8 @@ mod |>
     type = "response",
     estimate_fun = scales::label_percent(accuracy = 0.1)
   ) |> 
-  bold_labels()
+  bold_labels() |> 
+  modify_column_hide("p.value")
 ```
 
 La fonction `broom.helpers::plot_marginal_predictions()` permet de visualiser les prédictions marginales à la moyenne en réalisant une liste de graphiques, un par variable, que nous pouvons combiner avec `patchwork::wrap_plots()`. L'opérateur `&` permet d'appliquer une fonction de `{ggplot2}` à chaque sous-graphique. Ici, nous allons uniformiser l'axe des *y*.
@@ -263,7 +268,8 @@ mod |>
     newdata = "mean",
     estimate_fun = scales::label_percent(accuracy = 0.1)
   ) |> 
-  bold_labels()
+  bold_labels() |> 
+  modify_column_hide("p.value")
 ```
 
 De même, on peut générer une représentation graphique :
