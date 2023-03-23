@@ -604,6 +604,51 @@ ggplot(iris) +
   theme_light()
 ```
 
+::: callout-tip
+## Astuce pour afficher l'intercept
+
+Supposons que nous souhaitions montrer l'endroit où la droite de régression coupe l'axe des ordonnées (soit le point sur l'axe *y* pour *x = 0*).
+
+Nous pouvons étendre la surface du graphique avec `ggplot2::expand_limits()`. Cependant, cela n'étend pas pour autant la droite de régression.
+
+```{r}
+ggplot(iris) +
+  aes(x = Petal.Length, y = Petal.Width) +
+  geom_smooth(method = "lm") +
+  geom_point(colour = "blue", alpha = .25) +
+  theme_light() +
+  expand_limits(x = 0, y = -0.5)
+```
+
+Une solution simple consiste à utiliser l'option `fullrange = TRUE` dans `ggplot2::geom_smooth()` pour étendre la droite de régression à l'ensemble du graphique.
+
+```{r}
+ggplot(iris) +
+  aes(x = Petal.Length, y = Petal.Width) +
+  geom_smooth(method = "lm", fullrange = TRUE) +
+  geom_point(colour = "blue", alpha = .25) +
+  theme_light() +
+  expand_limits(x = 0, y = -0.5)
+```
+
+On peut contrôler plus finement la partie de droite à afficher avec l'argument `xseq` (liste des valeurs pour lesquelles on prédit et affiche le lissage). On peut coupler deux appels à `ggplot2::geom_smooth()` pour afficher l'extension de la droite vers la gauche en pointillés. L'option `se = FALSE` permet de ne pas calculer d'intervalles de confiance pour ce second appel.
+
+```{r}
+ggplot(iris) +
+  aes(x = Petal.Length, y = Petal.Width) +
+  geom_smooth(
+    method = "lm", 
+    xseq = seq(0, 1, by = .1),
+    linetype = "dotted",
+    se = FALSE
+  ) +
+  geom_smooth(method = "lm") +
+  geom_point(colour = "blue", alpha = .25) +
+  theme_light() +
+  expand_limits(x = 0, y = -0.5)
+```
+:::
+
 La géométrie `ggplot2::geom_rug()` permet d'afficher une représentation synthétique de la densité de chaque variable sur les deux axes.
 
 ```{r}
