@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="fr" xml:lang="fr"><head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.2.313">
+<meta name="generator" content="quarto-1.2.475">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 <title>guide-R - 10&nbsp; Combiner plusieurs variables</title>
 <style>
@@ -641,22 +641,21 @@ Homme, 60 et plus  238 11.9 11.9</code></pre>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1"></a>df <span class="sc">|&gt;</span> </span>
 <span id="cb19-2"><a href="#cb19-2"></a>  <span class="fu">mutate</span>(<span class="at">pref =</span> <span class="fu">if_else</span>(autre_details <span class="sc">==</span> <span class="st">"bleu ciel"</span>, <span class="st">"bleu"</span>, pref))</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-error">
-<pre><code>Error in `mutate()`:
-! Problem while computing `pref = if_else(autre_details == "bleu ciel",
-  "bleu", pref)`.
-Caused by error in `if_else()`:
-! `false` must be a character vector, not a `factor` object.</code></pre>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 5 × 2
+  pref  autre_details
+  &lt;chr&gt; &lt;chr&gt;        
+1 &lt;NA&gt;  &lt;NA&gt;         
+2 &lt;NA&gt;  &lt;NA&gt;         
+3 bleu  bleu ciel    
+4 &lt;NA&gt;  &lt;NA&gt;         
+5 autre jaune        </code></pre>
 </div>
 </div>
 <p>On obtient une erreur, car <code><a href="https://dplyr.tidyverse.org/reference/if_else.html">dplyr::if_else()</a></code> exige les valeurs fournie pour <code>true</code> et <code>false</code> soient de même type. Essayons alors&nbsp;:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1"></a>df <span class="sc">|&gt;</span> </span>
 <span id="cb21-2"><a href="#cb21-2"></a>  <span class="fu">mutate</span>(<span class="at">pref =</span> <span class="fu">if_else</span>(autre_details <span class="sc">==</span> <span class="st">"bleu ciel"</span>, <span class="fu">factor</span>(<span class="st">"bleu"</span>), pref))</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning in `[&lt;-.factor`(`*tmp*`, i, value = structure(1L, levels = c("autre", :
-niveau de facteur incorrect, NAs générés</code></pre>
-</div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 5 × 2
   pref  autre_details
@@ -665,18 +664,18 @@ niveau de facteur incorrect, NAs générés</code></pre>
 2 &lt;NA&gt;  &lt;NA&gt;         
 3 bleu  bleu ciel    
 4 &lt;NA&gt;  &lt;NA&gt;         
-5 &lt;NA&gt;  jaune        </code></pre>
+5 autre jaune        </code></pre>
 </div>
 </div>
 <p>Ici nous avons un autre problème, signalé par un message d’avertissement (<em>warning</em>)&nbsp;: <code><a href="https://dplyr.tidyverse.org/reference/if_else.html">dplyr::if_else()</a></code> ne préserve que les attributs du vecteur passé en <code>true</code> et non ceux passés à <code>false</code>. Or l’ensemble des modalités (niveaux du facteur) de la variable <em>pref</em> n’ont pas été définis dans <code>factor("bleu")</code> et sont ainsi perdus, générant une perte de données (valeurs manquantes <code>NA</code>).</p>
 <p>Pour obtenir le bon résultat, il faudrait inverser la condition&nbsp;:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1"></a>df <span class="sc">|&gt;</span> </span>
-<span id="cb24-2"><a href="#cb24-2"></a>  <span class="fu">mutate</span>(<span class="at">pref =</span> <span class="fu">if_else</span>(</span>
-<span id="cb24-3"><a href="#cb24-3"></a>    autre_details <span class="sc">!=</span> <span class="st">"bleu ciel"</span>, </span>
-<span id="cb24-4"><a href="#cb24-4"></a>    pref, </span>
-<span id="cb24-5"><a href="#cb24-5"></a>    <span class="fu">factor</span>(<span class="st">"bleu"</span>)</span>
-<span id="cb24-6"><a href="#cb24-6"></a>  ))</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1"></a>df <span class="sc">|&gt;</span> </span>
+<span id="cb23-2"><a href="#cb23-2"></a>  <span class="fu">mutate</span>(<span class="at">pref =</span> <span class="fu">if_else</span>(</span>
+<span id="cb23-3"><a href="#cb23-3"></a>    autre_details <span class="sc">!=</span> <span class="st">"bleu ciel"</span>, </span>
+<span id="cb23-4"><a href="#cb23-4"></a>    pref, </span>
+<span id="cb23-5"><a href="#cb23-5"></a>    <span class="fu">factor</span>(<span class="st">"bleu"</span>)</span>
+<span id="cb23-6"><a href="#cb23-6"></a>  ))</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 5 × 2
   pref  autre_details
@@ -690,13 +689,13 @@ niveau de facteur incorrect, NAs générés</code></pre>
 </div>
 <p>Mais ce n’est toujours pas suffisant. En effet, la variable <em>autre_details</em> a des valeurs manquantes pour lesquelles le test <code>autre_details != "bleu ciel"</code> renvoie <code>NA</code> ce qui une fois encore génère des valeurs manquantes non souhaitées. Dès lors, il nous faut soit définir l’argument <code>missing</code> de <code><a href="https://dplyr.tidyverse.org/reference/if_else.html">dplyr::if_else()</a></code>, soit être plus précis dans notre test.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1"></a>df <span class="sc">|&gt;</span> </span>
-<span id="cb26-2"><a href="#cb26-2"></a>  <span class="fu">mutate</span>(<span class="at">pref =</span> <span class="fu">if_else</span>(</span>
-<span id="cb26-3"><a href="#cb26-3"></a>    autre_details <span class="sc">!=</span> <span class="st">"bleu ciel"</span>, </span>
-<span id="cb26-4"><a href="#cb26-4"></a>    pref, </span>
-<span id="cb26-5"><a href="#cb26-5"></a>    <span class="fu">factor</span>(<span class="st">"bleu"</span>),</span>
-<span id="cb26-6"><a href="#cb26-6"></a>    <span class="at">missing =</span> pref</span>
-<span id="cb26-7"><a href="#cb26-7"></a>  ))</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1"></a>df <span class="sc">|&gt;</span> </span>
+<span id="cb25-2"><a href="#cb25-2"></a>  <span class="fu">mutate</span>(<span class="at">pref =</span> <span class="fu">if_else</span>(</span>
+<span id="cb25-3"><a href="#cb25-3"></a>    autre_details <span class="sc">!=</span> <span class="st">"bleu ciel"</span>, </span>
+<span id="cb25-4"><a href="#cb25-4"></a>    pref, </span>
+<span id="cb25-5"><a href="#cb25-5"></a>    <span class="fu">factor</span>(<span class="st">"bleu"</span>),</span>
+<span id="cb25-6"><a href="#cb25-6"></a>    <span class="at">missing =</span> pref</span>
+<span id="cb25-7"><a href="#cb25-7"></a>  ))</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 5 × 2
   pref  autre_details
@@ -707,12 +706,12 @@ niveau de facteur incorrect, NAs générés</code></pre>
 4 rouge &lt;NA&gt;         
 5 autre jaune        </code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1"></a>df <span class="sc">|&gt;</span> </span>
-<span id="cb28-2"><a href="#cb28-2"></a>  <span class="fu">mutate</span>(<span class="at">pref =</span> <span class="fu">if_else</span>(</span>
-<span id="cb28-3"><a href="#cb28-3"></a>    autre_details <span class="sc">!=</span> <span class="st">"bleu ciel"</span> <span class="sc">|</span> <span class="fu">is.na</span>(autre_details), </span>
-<span id="cb28-4"><a href="#cb28-4"></a>    pref, </span>
-<span id="cb28-5"><a href="#cb28-5"></a>    <span class="fu">factor</span>(<span class="st">"bleu"</span>)</span>
-<span id="cb28-6"><a href="#cb28-6"></a>  ))</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1"></a>df <span class="sc">|&gt;</span> </span>
+<span id="cb27-2"><a href="#cb27-2"></a>  <span class="fu">mutate</span>(<span class="at">pref =</span> <span class="fu">if_else</span>(</span>
+<span id="cb27-3"><a href="#cb27-3"></a>    autre_details <span class="sc">!=</span> <span class="st">"bleu ciel"</span> <span class="sc">|</span> <span class="fu">is.na</span>(autre_details), </span>
+<span id="cb27-4"><a href="#cb27-4"></a>    pref, </span>
+<span id="cb27-5"><a href="#cb27-5"></a>    <span class="fu">factor</span>(<span class="st">"bleu"</span>)</span>
+<span id="cb27-6"><a href="#cb27-6"></a>  ))</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 5 × 2
   pref  autre_details
@@ -727,13 +726,13 @@ niveau de facteur incorrect, NAs générés</code></pre>
 <p>Bref, on peut s’en sortir avec <code><a href="https://dplyr.tidyverse.org/reference/if_else.html">dplyr::if_else()</a></code> mais ce n’est pas forcément le plus pratique dans le cas présent. La syntaxe en base <strong>R</strong> fonctionne très bien, mais ne peut pas être intégrée à un enchainement d’opérations utilisant le <em>pipe</em>.</p>
 <p>Dans ce genre de situation, on pourra être intéressé par la fonction <code><a href="http://larmarange.github.io/labelled/reference/recode_if.html">labelled::recode_if()</a></code> disponible dans le package <a href="http://larmarange.github.io/labelled/">labelled</a>. Elle permet de ne modifier que certaines observations d’un vecteur en fonction d’une condition. Si la condition vaut <code>FALSE</code> ou <code>NA</code>, les observations concernées restent inchangées. Voyons comment cela s’écrit&nbsp;:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1"></a>df <span class="ot">&lt;-</span></span>
-<span id="cb30-2"><a href="#cb30-2"></a>  df <span class="sc">|&gt;</span> </span>
-<span id="cb30-3"><a href="#cb30-3"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb30-4"><a href="#cb30-4"></a>    <span class="at">pref =</span> pref <span class="sc">|&gt;</span> </span>
-<span id="cb30-5"><a href="#cb30-5"></a>      labelled<span class="sc">::</span><span class="fu">recode_if</span>(autre_details <span class="sc">==</span> <span class="st">"bleu ciel"</span>, <span class="st">"bleu"</span>)</span>
-<span id="cb30-6"><a href="#cb30-6"></a>  )</span>
-<span id="cb30-7"><a href="#cb30-7"></a>df</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1"></a>df <span class="ot">&lt;-</span></span>
+<span id="cb29-2"><a href="#cb29-2"></a>  df <span class="sc">|&gt;</span> </span>
+<span id="cb29-3"><a href="#cb29-3"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb29-4"><a href="#cb29-4"></a>    <span class="at">pref =</span> pref <span class="sc">|&gt;</span> </span>
+<span id="cb29-5"><a href="#cb29-5"></a>      labelled<span class="sc">::</span><span class="fu">recode_if</span>(autre_details <span class="sc">==</span> <span class="st">"bleu ciel"</span>, <span class="st">"bleu"</span>)</span>
+<span id="cb29-6"><a href="#cb29-6"></a>  )</span>
+<span id="cb29-7"><a href="#cb29-7"></a>df</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 5 × 2
   pref  autre_details
