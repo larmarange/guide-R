@@ -540,6 +540,83 @@ mod2 |>
   add_glance_source_note()
 ```
 
+::: callout-warning
+## Sélection pas à pas et valeurs manquantes
+
+Si certaines de nos variables explications contiennent des valeurs manquantes `NA`, cela peut entraîner des erreurs au moment d'avoir recours à `step()`, car le nombre d'observations dans le modèle va changer si on retire du modèle une variable explicative avec des valeurs manquantes.
+
+Prenons un exemple, en ajoutant des valeurs manquantes à la variable *relig* (pour cela nous allons recoder les refus et les ne sait pas en `NA`).
+
+```{r}
+d$relig_na <- 
+  d$relig |> 
+  fct_recode(
+    NULL = "Rejet",
+    NULL = "NSP ou NVPR"
+  )
+
+mod_na <- glm(
+  sport ~ sexe + groupe_ages + etudes + relig_na + heures.tv,
+  family = binomial,
+  data = d
+)
+```
+
+Au moment d'exécuter `step()` nous obtenons l'erreur mentionnée précédemment.
+
+```{r}
+#| error: true
+step(mod_na)
+```
+
+Pas d'inquiétude ! Il y a moyen de s'en sortir en adoptant la stratégie suivante :
+
+1.  créer une copie du jeu de données avec uniquement des observations sans valeur manquante pour nos variables explicatives ;
+
+2.  calculer notre modèle complet à partir de ce jeu de données ;
+
+3.  appliquer `step()` ;
+
+4.  recalculer le modèle réduit en repartant du jeu de données complet.
+
+Première étape, ne garder que les observations complètes à l'aide de `tidyr::drop_na()`, en lui indiquant la liste des variables dans lesquelles vérifier la présence ou non de `NA`.
+
+```{r}
+d_complet <- d |> 
+  drop_na(sexe, groupe_ages, etudes, relig_na, heures.tv)
+```
+
+Deuxième étape, calculons le modèle complet avec ce jeu données.
+
+```{r}
+mod_na_alt <- glm(
+  sport ~ sexe + groupe_ages + etudes + relig_na + heures.tv,
+  family = binomial,
+  data = d_complet
+)
+```
+
+Le modèle `mod_na_alt` est tout à fait identique au modèle `mod_na`, car `glm()` supprime de lui-même les valeurs manquantes quand elles existent. Nous pouvons maintenant utiliser `step().`
+
+```{r}
+mod_na_reduit <- step(mod_na_alt)
+```
+
+Cela s'exécute sans problème car tous les sous-modèles sont calculés à partir de `d_complet` et donc ont bien le même nombre d'observations. Cependant, dans notre modèle réduit, on a retiré 137 observations en raison d'une valeur manquante sur la variable *relig_na*, variable qui n'est plus présente dans notre modèle réduit. Il serait donc pertinent de réintégrer ces observations.
+
+Nous allons donc recalculer le modèle réduit mais à partir de `d`. Inutile de recopier à la main la formule du modèle réduit, car nous pouvons l'obtenir directement avec `mod_na_reduit$formula`.
+
+```{r}
+mod_na_reduit2 <- glm(
+  mod_na_reduit$formula,
+  family = binomial,
+  data = d
+)
+```
+
+**Attention :** `mod_na_reduit` et `mod_na_reduit2` ne sont pas identiques puisque le second a été calculé sur un plus grand nombre d'observations, ce qui change très légèrement les valeurs des coefficients.
+:::
+
 ## Régressions logistiques univariées
 
 Les usages varient selon les disciplines et les revues scientifiques, mais il n'est pas rare de présenter, avant le modèle logistique multivarié, une succession de modèles logistiques univariés (i.e. avec une seule variable explicative à la fois) afin de présenter les *odds ratios* et leur intervalle de confiance et p-valeur associés avant l'ajustement multiniveau.
