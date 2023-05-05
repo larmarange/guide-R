@@ -615,7 +615,34 @@ mod_na_reduit2 <- glm(
 ```
 
 **Attention :** `mod_na_reduit` et `mod_na_reduit2` ne sont pas identiques puisque le second a été calculé sur un plus grand nombre d'observations, ce qui change très légèrement les valeurs des coefficients.
+
+Pour automatiser l'ensemble de ce processus, on peut copier/coller le code de la fonction générique suivante[^regression-logistique-binaire-9] :
+
+```{r}
+step_with_na <- function(model, ...) {
+  # refit the model without NAs
+  model_no_na <- update(model, data = model.frame(model))  
+  # apply step()
+  model_simplified <- step(model_no_na, ...)
+  # recompute simplified model using full data
+  update(model, formula = terms(model_simplified))
+}
+```
+
+Elle réalise l'ensemble des opérations décrites plus haut en profitant de la flexibilité offerte par la fonction `update()`.
+
+```{r}
+mod_na_reduit_direct <- step_with_na(mod_na, trace = 0)
+```
+
+Le résultat obtenu est structement identique.
+
+```{r}
+anova(mod_na_reduit2, mod_na_reduit_direct)
+```
 :::
+
+[^regression-logistique-binaire-9]: **Attention :** il s'agit d'une fonction expérimentale et elle n'est peut-être pas compatible avec tous types de modèles.
 
 ## Régressions logistiques univariées
 
