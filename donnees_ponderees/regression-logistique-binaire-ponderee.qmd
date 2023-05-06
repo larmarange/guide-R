@@ -85,6 +85,34 @@ Comme précédemment, il est possible de procéder à une sélection de modèle 
 mod2 <- step(mod)
 ```
 
+::: callout-warning
+## Sélection pas à pas et valeurs manquantes
+
+Nous avons abordé dans le chapitre sur la régression logistique binaire la problématique des valeurs manquantes lors d'une sélection pas à pas descendante par minimisation de l'AIC (cf. encadré de la @sec-step ). La même approche peut être appliquée avec des données pondérées. Cependant, la fonction `step_with_na()` que nous avons présenté n'est pas compatible avec les modèles `survey::svyglm()` puisqu'ils prennent en entrée un argument `design` et non `data`. La fonction `step_with_na_svyglm()` ci-dessous est une adaptation de `step_with_na()` pour les modèles `svyglm()`.
+
+```{r}
+step_with_na_svyglm <- function(model, ...) {
+  # list all variables
+  variables <- model.frame(model) |> colnames()
+  variables <- variables[variables != "(weights)"]
+  # generate design with no na
+  design_no_na <- 
+    model$survey.design |> 
+    srvyr::drop_na(dplyr::all_of(variables))
+  # refit the model without NAs
+  model_no_na <- update(
+    model,
+    formula = model$formula,
+    design = design_no_na
+  )  
+  # apply step()
+  model_simplified <- step(model_no_na, ...)
+  # recompute simplified model using full data
+  update(model, formula = terms(model_simplified))
+}
+```
+:::
+
 ## Affichage des résultats
 
 Nous pouvons tout à fait utiliser `gtsumarry::tbl_regression()` avec ce type de modèles. De même, on peut utiliser `gtsummary::add_global_p()` pour calculer les p-valeurs globales des variables ou encore `gtsummary::add_vif()` pour vérifier la multicolinéarité (cf. @sec-multicolinearite).
