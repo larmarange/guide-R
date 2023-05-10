@@ -644,6 +644,32 @@ anova(mod_na_reduit2, mod_na_reduit_direct)
 ```
 :::
 
+::: callout-tip
+## Forcer certaines variables dans le modèle réduit
+
+Même si l'on a recourt à `step()`, on peut vouloir forcer la présence de certaines variables dans le modèle, même si leur suppression minimiserait l'AIC, en général parce que l'on a des hypothèses spécifiques pour ces variables et que l'on peut avoir intérêt à montrer qu'elles n'ont pas d'effet dans le modèle multivarié.
+
+Prenons un exemple :
+
+```{r}
+autre_modele <- glm(
+  sport ~ sexe + relig + heures.tv + cinema + lecture.bd,
+  family = binomial,
+  data = d
+)
+step(autre_modele)
+```
+
+Ici, deux variables sont retirées du modèle par `step()` : *relig* et *lecture.bd*. Nous souhaiterions néanmoins que *lecture.bd* ne soit jamais retirée. Nous allons donc indiquer à `step()` un modèle minimum, via l'élément `lower` passé dans une liste nommée à l'argument `scope`s
+
+```{r}
+step(
+  autre_modele,
+  scope = list(lower = ~ lecture.bd)
+)
+```
+:::
+
 ## Régressions logistiques univariées
 
 Les usages varient selon les disciplines et les revues scientifiques, mais il n'est pas rare de présenter, avant le modèle logistique multivarié, une succession de modèles logistiques univariés (i.e. avec une seule variable explicative à la fois) afin de présenter les *odds ratios* et leur intervalle de confiance et p-valeur associés avant l'ajustement multiniveau.
