@@ -1,0 +1,128 @@
+# Échelles de Likert {#sec-likert}
+
+Les échelles de Likert tirent leur nom du psychologue américain Rensis Likert qui les a développées. Elles sont le plus souvent utilisées pour des variables d'opinion. Elles sont codées sous forme de variable catégorielle et chaque item est codé selone une graduation comprenant en général cinq ou sept choix de réponse, par exemple : Tout à fait d'accord, D'accord, Ni en désaccord ni d'accord, Pas d'accord, Pas du tout d'accord.
+
+Pour les échelles à nombre impair de choix, le niveau central permet d'exprimer une absence d'avis, ce qui rend inutile une modalité « Ne sait pas ». Les échelles à nombre pair de modalités voient l'omission de la modalité neutre et sont dites « à choix forcé ».
+
+## Exemple de données
+
+Générons un jeu de données qui nous servira pour les différents exemples.
+
+```{r}
+library(tidyverse)
+library(labelled)
+niveaux <- c(
+  "Pas du tout d'accord",
+  "Plutôt pas d'accord",
+  "Ni d'accord, ni pas d'accord",
+  "Plutôt d'accord",
+  "Tout à fait d'accord"
+)
+set.seed(42)
+df <-
+  tibble(
+    groupe = sample(c("A", "B"), 150, replace = TRUE),
+    q1 = sample(niveaux, 150, replace = TRUE),
+    q2 = sample(niveaux, 150, replace = TRUE, prob = 5:1),
+    q3 = sample(niveaux, 150, replace = TRUE, prob = 1:5),
+    q4 = sample(niveaux, 150, replace = TRUE, prob = 1:5),
+    q5 = sample(c(niveaux, NA), 150, replace = TRUE),
+    q6 = sample(niveaux, 150, replace = TRUE, prob = c(1, 0, 1, 1, 0))
+  ) |> 
+  mutate(across(q1:q6, ~ factor(.x, levels = niveaux))) |> 
+  set_variable_labels(
+    q1 = "Première question",
+    q2 = "Seconde question",
+    q3 = "Troisième question",
+    q4 = "Quatrième question",
+    q5 = "Cinquième question",
+    q6 = "Sixième question"
+  )
+```
+
+## Tableau de fréquence
+
+On peut tout à fait réaliser un tableau de fréquence classique avec `gtsummary::tbl_summary()`.
+
+```{r}
+library(gtsummary)
+df |> 
+  tbl_summary(include = q1:q6)
+```
+
+Cependant, cela produit un tableau inutilement long, d'autant plus que les variables *q1* à *q6* ont les mêmes modalités de réponse. Le package `{bstfun}` propose une fonction expérimentale `bstfun::tbl_likert()` offrant un affichage plus compact.
+
+::: callout-important
+Ce package n'est pas disponible sur **CRAN** : il est donc nécessaire de l'installer depuis **GitHub** avec la commande suivante : `remotes::install_github("MSKCC-Epi-Bio/bstfun")`. Si vous êtes sous **Windows**, il vous faudra probablement installer au préalable **RTools** qui peut être téléchargé à l'adresse <https://cran.r-project.org/bin/windows/Rtools/>.
+:::
+
+```{r}
+library(bstfun)
+df |> 
+  tbl_likert(
+    include = q1:q6
+  )
+```
+
+On peut utiliser `add_n()` pour ajouter les effectifs totaux et `add_continuous_stat()` pour ajouter une statistique continue en traitant la variable comme un score (ici nous allons attribuer les valeurs -2, -1, 0, +1 et +2).
+
+```{r}
+df |> 
+  tbl_likert(
+    include = q1:q6,
+    statistic = ~ "{p}%"
+  ) |> 
+  add_n() |> 
+  add_continuous_stat(score_values = -2:2)
+```
+
+## Représentations graphiques
+
+À partir de sa version 0.3.0, le package `{ggstats}` propose une fonction `ggstats::gglikert()` pour représenter des données de Likert sous forme d'un diagramme en barre centré sur la modalité centrale.
+
+```{r}
+library(ggstats)
+gglikert(df, include = q1:q6)
+```
+
+Par défaut, les pourcentages totaux ne prennent pas en compte la modalité centrale (lorsque le nombre de modalité est impair). On peut inclure la modalité centrale avec `totals_include_center = TRUE`, auquel cas la modalité centrale seront comptabilisée pour moitié de chaque côté. Le paramètre `sort` permet de trier les modalités (voir l'aide de `ggstats::gglikert()` pour plus de détails sur les différentes méthodes de tri).
+
+```{r}
+df |> 
+  gglikert(
+    include = q1:q6,
+    totals_include_center = TRUE,
+    sort = "ascending"
+  ) +
+  guides(
+    fill = guide_legend(nrow = 2)
+  )
+```
+
+Il est possible de séparer les résultats par sous-groupe avec des facettes.
+
+```{r}
+df |> 
+  gglikert(
+    include = q1:q6,
+    facet_cols = vars(groupe)
+  )
+df |> 
+  gglikert(
+    include = q1:q6,
+    y = "groupe",
+    facet_rows = vars(.question),
+    facet_label_wrap = 15
+  )
+```
+
+Une représentation alternative consiste à réaliser un graphique en barres classiques, ce que l'on peut aisément obtenir avec `ggstats::gglikert_stacked()`.
+
+```{r}
+df |>
+  gglikert_stacked(
+    include = q1:q6,
+    sort = "ascending",
+    add_median_line = TRUE
+  )
+```
