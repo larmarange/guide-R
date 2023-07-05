@@ -1,1 +1,510 @@
 # Dates avec `lubridate` {#sec-dates}
+
+Dans cette section, nous aborderons la gestion des dates des heures dans **R**. Si ce type de données peut paraître simple à première vue, la situation se complique dès lors que l'on souhaite effectuer des calculs entre dates. En effet, le nombre de jours varie d'un mois à un autre, voir d'une année à l'autre si l'on tient compte des années bissextiles. Quand on manipule des heures, il faut aussi pouvoir prendre en compte les différents fuseaux horaires ainsi que les changements liés à l'heure d'été.
+
+Heureusement, le package `{lubridate}` permet de résoudre la plupart des problèmes posés par la manipulation de date. Il est chargé par défaut avec la commande `library(tidyverse)`. Nous allons également charger en mémoire le package `{nycflights13}` qui nous fournira les données utilisées dans nos exemples.
+
+```{r}
+#| message: false
+library(tidyverse)
+library(nycflights13)
+```
+
+## Création de dates / de dates-heures
+
+Il existe trois types de variables pour représenter des dates et des heures :
+
+-   une **date**, de la classe `Date` et représentée dans un tibble avec `<date>`
+
+-   une **heure**, de la classe `hms` et représentée dans un tibble avec `<time>`
+
+-   une **date-heure**, de la classe `POSIXct` et représentée dans un tibble avec `<dttm>`
+
+Les classes `Date` et `POSIXct` sont gérées nativement par **R** tandis que la classe `hms` est fournies par le package homonyme `{hms}`. Cette dernière classe est d'un usage plus spécifique. Dans cette section, nous allons nous concentrer sur les dates et les dates-heures.
+
+Il est toujours préférable d'utiliser la classe la plus simple. Si vous gérez uniquement des dates, privilégiez la classe `Date`. La classe `POSIXct`, plus complexe, permet d'ajouter une heure associée à un fuseau horaire.
+
+Pour obtenir la date ou la date-heure courante, vous pouvez appeler `today()` ou `now()` :
+
+```{r}
+today()
+now()
+```
+
+### lors de l'import d'un fichier CSV
+
+Si le fichier CSV contient des dates ou des dates-heures au format ISO8601, `readr::read_csv()` saura les reconnaître automatiquement :
+
+```{r}
+#| message: false
+csv <- "
+  date,datetime
+  2022-01-02,2022-01-02 05:12
+"
+read_csv(csv)
+```
+
+::: callout-tip
+Le format [**ISO8601**](https://fr.wikipedia.org/wiki/ISO_8601) est un standard international pour l'écriture de dates[^dates-1] sous la forme `AAAA-MM-JJ` afin d'éviter la confusion entre les habitudes de différents pays, par exemple `JJ/MM/AAAA` en France ou `MM/JJ/AA` dans les pays anglosaxons.
+:::
+
+[^dates-1]: <https://xkcd.com/1179/>
+
+Pour les autres formats, non standards, il sera nécessaire d'utiliser `col_types` avec `col_date()` pour spécifier comme lire et interpréter les chaînes de caractères. `{readr}` comprend la spécification **POSIX** qui permet de décrire une format de date[^dates-2]. Il s'agit de codes commençant par le symbole `%` et indiquant un composant d'une date. Par exemple, `%Y-%m-%d` correspond au format ISO8601, par exemple `2023-10-03` pour le 3 octobre 2023. Le tableau @tbl-date-formats liste les principales options.
+
+[^dates-2]: La spécification complète est décrite dans l'aide de la fonction `strptime()`.
+
+| Type           | Code  | Signification                                                    | Exemple         |
+|--------------|--------------|-------------------------------|--------------|
+| Année          | `%Y`  | année sur 4 chiffres                                             | 2021            |
+|                | `%y`  | année sur 2 chiffres                                             | 21              |
+| Mois           | `%m`  | numéro du mois                                                   | 2               |
+|                | `%b`  | nom abrégé                                                       | Feb             |
+|                | `%B`  | nom complet                                                      | February        |
+| Jour           | `%d`  | jour sur 2 chiffres                                              | 02              |
+|                | `%e`  | jour sur 1 ou 2 chiffres                                         | 2               |
+| Heure          | `%H`  | heure sur 24 heures                                              | 13              |
+|                | `%I`  | heure sur 12 heures                                              | 1               |
+|                | `%p`  | AM ou PM                                                         | pm              |
+| Minute         | `%M`  | minutes                                                          | 35              |
+| Seconde        | `%S`  | secondes                                                         | 45              |
+|                | `%OS` | secondes avec une composante décimale                            | 45.35           |
+| Fuseau horaire | `%Z`  | nom du fuseau                                                    | America/Chicago |
+|                | `%z`  | décalage du fuseau par rapport au temps universel UTC            | +0800           |
+| Autre          | `%.`  | sauter un caractère (autre qu'un chiffre)                        | :               |
+|                | `%*`  | sauter un nombre quelconque de caractères (autres qu'un chiffre) |                 |
+
+: Les formats de dates compris par readr {#tbl-date-formats}
+
+Et voici un exemple de code induisant une lecture différente d'une date ambiguë.
+
+```{r}
+#| messages: false
+
+csv <- "
+  date
+  01/02/15
+"
+
+read_csv(csv, col_types = cols(date = col_date("%m/%d/%y")))
+
+read_csv(csv, col_types = cols(date = col_date("%d/%m/%y")))
+
+read_csv(csv, col_types = cols(date = col_date("%y/%m/%d")))
+```
+
+Quel que soit le format original, les dates importées seront toujours affichées par **R** au format ISO.
+
+::: callout-tip
+Si vous utilisez `%b` ou `%B`, il est essentiel de spécifier la langue utilisée avec le paramètre `local` de `col_date()`. Pour voir l'ensemble des langues couvertes, vous pouvez appelez `readr::date_names_langs()` et pour voir les chaînes de langues correspondantes `readr::date_names_lang()`. Si vos données n'utilise pas des noms standards, vous pouvez créer votre propre jeu de correspondance avec `readr::date_names()`.
+
+```{r}
+date_names_langs()
+date_names_lang("fr")
+date_names_lang("en")
+
+csv <- "date
+3 de febrero de 2001"
+
+read_csv(
+  csv,
+  col_types = cols(date = col_date("%d de %B de %Y")),
+  locale = locale("es")
+)
+```
+:::
+
+### à partir d'une chaîne de caractères
+
+Le langage de spécification de la date et du temps est puissant, mais il nécessite une analyse minutieuse du format de la date. Une autre approche consiste à utiliser les fonctions de `{lubridate}` qui tentent de déterminer automatiquement le format une fois que vous avez spécifié l'ordre des composants. Pour les utiliser, identifiez l'ordre dans lequel l'année, le mois et le jour apparaissent dans vos dates, puis placez "y", "m" et "d" dans le même ordre. Cela vous donne le nom de la fonction `{lubridate}` qui analysera votre date. Par exemple :
+
+```{r}
+ymd("2017-01-31")
+mdy("January 31st, 2017")
+dmy("31-Jan-2017")
+```
+
+`ymd()` et ses soeurs crééent des dates. Pour des dates-heures, ajoutez un tiret bas et les lettres "h", "m" et/ou "s" :
+
+```{r}
+ymd_hms("2017-01-31 20:11:59")
+mdy_hm("01/31/2017 08:01")
+```
+
+### à partir des composants
+
+Parfois, les différentes composantes d'une date (jour, mois, année...) sont stockées dans des colonnes séparées. C'est le cas par exemple dans la table `flights` issue du package `{nycflights13}`.
+
+```{r}
+flights |> 
+  select(year, month, day, hour, minute) |> 
+  head()
+```
+
+Pour créer une date ou une date-heure à partir de colonnes séparées, il suffit d'utiliser `lubridate::make_date()` pour les dates et `lubridate::make_datetime()` pour les dates-heures :
+
+```{r}
+flights |> 
+  select(year, month, day, hour, minute) |> 
+  mutate(
+    departure = make_datetime(year, month, day, hour, minute),
+    departure_date = make_date(year, month, day)
+  ) |> 
+  head()
+```
+
+### conversion
+
+Pour convertir une date en date-heure, ou l'inverse, utilisez `lubridate::as_datetime()` ou `lubridate::as_date()` :
+
+```{r}
+as_datetime(today())
+as_date(now())
+```
+
+## Manipuler les composants d'une date/date-heure
+
+### Extraire un composant
+
+Pour extraire un composant d'une date ou d'une date-heure, il suffit d'utiliser l'une des fonctions suivantes : `year()` (année), `month()` (mois), `mday()` (jour du mois), `yday()` (jours de l'année), `wday()` (jour de la semaine), `hour()` (heure), `minute()` (minute), ou `second()` (seconde).
+
+```{r}
+datetime <- ymd_hms("2026-07-08 12:34:56")
+
+year(datetime)
+month(datetime)
+mday(datetime)
+
+yday(datetime)
+wday(datetime)
+```
+
+Pour `month()` et `wday()`, vous pouvez indiquer `label = TRUE` pour récupérer le nom abrégé du mois ou du jours de la semaine. Ajoutez `abbr = FALSE` pour le nom complet.
+
+```{r}
+month(datetime, label = TRUE)
+wday(datetime, label = TRUE, abbr = FALSE)
+```
+
+Les noms sont affichés dans la langue de votre ordinateur. On peut utiliser le paramètre `locale` pour changer la langue. Attention : le code peut varier selon votre système d'exploitation. Vous pouvez essayer déjà de simplement indiquer le code à 2 lettres de la langue visée, par exemple `"de"` pour l'allemand. Si cela ne fonctionne pas, essayez `"de_DE"` (allemand utilisé en Allemagne), `"de_DE.UTF-8"` (format utilisé par MacOS et plusieurs distributions Linux), la variante `"de_DE.utf8"` (utilisée par certaines distributions Linux) ou bien encore `"German.UTF-8"` (utilisé par Windows).
+
+```{r}
+month(datetime, label = TRUE, abbr = FALSE, locale = "en")
+month(datetime, label = TRUE, abbr = FALSE, locale = "es_ES.utf8")
+month(datetime, label = TRUE, abbr = FALSE, locale = "German.UTF-8")
+```
+
+### Arrondis
+
+Les fonctions `lubridate::round_date()`, `lubridate::floor_date()` et `lubridate::ceiling_date()` permettent d'arrondir une date à l'unité la plus proche, inférieure ou supérieure. On devra préciser avec `unit` l'unité utilisée pour arrondir. Les valeurs acceptées sont `"second"`, `"minute"`, `"hour"`, `"day"`, `"week"`, `"month"`, `"bimonth"` (bimestre, i.e. période de 2 mois), `"quarter"` (trimestre), `season` (saison), `halfyear` (semestre) et `year`, ou un multiple de ces valeurs.
+
+```{r}
+d <- ymd("2022-05-14")
+floor_date(d, unit = "week")
+floor_date(d, unit = "month")
+floor_date(d, unit = "3 months")
+floor_date(d, unit = "year")
+```
+
+### Modifier un composant
+
+Les mêmes fonctions peuvent être utilisées pour modifier un composant particulier d'une date-heure.
+
+```{r}
+datetime <- ymd_hms("2026-07-08 12:34:56")
+
+year(datetime) <- 2030
+datetime
+month(datetime) <- 01
+datetime
+hour(datetime) <- hour(datetime) + 1
+datetime
+```
+
+Une alternative, plutôt que de modifier une date-heure, consiste à créer une copie modifiée avec `lubridate::update()`. Cela permet également de modifier plusieurs éléments à la fois :
+
+```{r}
+update(datetime, year = 2030, month = 2, mday = 2, hour = 2)
+```
+
+Si les valeurs sont trop importantes (trop de jours par exemple), la fonction ajoutera les unités en trop pour générer une date valide :
+
+```{r}
+update(ymd("2023-02-01"), mday = 30)
+update(ymd("2023-02-01"), hour = 400)
+```
+
+## Durées, périodes, intervalles & Arithmétique
+
+Il existe plusieurs manières de représenter les intervalles de temps entre deux dates :
+
+-   les **durées** (*Duration*), qui représentent un nombre exact de secondes ;
+-   les **périodes** (*Periods*), qui représentent une durée sous la forme d'unités de temps telles que des semaines ou des mois ;
+-   les **intervalles** (*Intervals*), qui sont définis par une date-heure de début et une date-heure de fin.
+
+### Durées (Duration)
+
+Avec **R**, lorsque l'on soustrait deux dates, on obtient un objet de la classe `difftime`.
+
+```{r}
+diff <- ymd("2021-06-30") - ymd("1979-10-14")
+diff
+```
+
+Un objet `difftime` enregistre une durée sous la forme d'un nombre de secondes, de minutes, d'heures, de jours ou de semaines. Du fait de variations de l'unité d'un objet à l'autre, ils ne sont pas toujours faciles à manipuler. Pour lever toute ambiguïté, on préférera les objets de la class `Duration` qui stockent les durées sous la forme d'un nombre de secondes. La conversion peut se faire avec `lubridate::as.duration()`.
+
+```{r}
+as.duration(diff)
+```
+
+Il est possible de créer facilement des durées avec une série de fonctions dédiées dont le nom commence par `"d"`
+
+```{r}
+dseconds(15)
+dminutes(10)
+dhours(c(12, 24))
+ddays(0:5)
+dweeks(3)
+dyears(1)
+```
+
+Les durées sont toujours exprimées en secondes. Des unités plus grandes sont créées en convertissant les minutes, les heures, les jours, les semaines et les années en secondes : 60 secondes dans une minute, 60 minutes dans une heure, 24 heures dans un jour et 7 jours dans une semaine. Les unités de temps plus grandes posent davantage de problèmes. Une année utilise le nombre « moyen » de jours dans une année, c'est-à-dire 365,25. Il n'existe aucun moyen de convertir un mois en durée, car les variations sont trop importantes.
+
+Il est possible d'additionner et de multiplier les durées :
+
+```{r}
+2 * dyears(1)
+dyears(1) + dweeks(12) + dhours(15)
+```
+
+On peut ajouter ou soustraire des durées à une date.
+
+```{r}
+demain <- today() + ddays(1)
+il_y_a_un_an <- today() - dyears(1)
+```
+
+Cependant, comme les durées représentent un nombre exact de secondes, vous pouvez parfois obtenir un résultat inattendu :
+
+```{r}
+one_am <- ymd_hms("2026-03-08 01:00:00", tz = "America/New_York")
+
+one_am
+one_am + ddays(1)
+```
+
+Pourquoi lorsqu'on ajoute un jour, on passe de 1 heure du matin à 2 heures du matin ? Si vous regardez attentivement la date, vous remarquerez que le fuseau a changé. Le 8 mars 2026 n'aura que 23 heures aux États-Unis en raison du passage à l'heure d'été. En ajoutant une durée de 1 jour, nous avons ajouté exactement 24 heures. Le même type de phénomène peut s'observer en ajoutant une durée d'une année, car on considère que cela représente en moyenne 365.25 jours.
+
+### Périodes (Period)
+
+Pour résoudre ce problème, `{lubridate}` a introduit les périodes (de classe `Period`) qui représentent une durée en nombre de secondes, minutes, heures, jours, mois et années, sans préciser la durée exacte de chaque mois ou année. Cela permet de faire des calculs plus intuitifs :
+
+```{r}
+one_am
+one_am + days(1)
+```
+
+Comme pour les durées, on peut créer facilement des périodes avec des fonctions dédiées (notez ici le pluriel des noms de fonction, alors que celles permettant d'extraire un composant d'une date étaient au singulier) :
+
+```{r}
+hours(c(12, 24))
+days(7)
+months(1:6)
+```
+
+On peut ajouter, soustraire et multiplier les périodes entre elles.
+
+```{r}
+10 * (months(6) + days(1))
+days(50) + hours(25) + minutes(2)
+```
+
+Bien sûr, on peut ajouter ou soustraire une période à une date :
+
+```{r}
+# Exemple avec une année bissextile
+ymd("2024-01-01") + dyears(1)
+ymd("2024-01-01") + years(1)
+
+# Exemple avec un passage à l'heure d'été
+one_am + ddays(1)
+one_am + days(1)
+```
+
+Restent malgré tout quelques cas problématiques. Essayons d'ajouter 1 mois à la date du 31 janvier 2021.
+
+```{r}
+ymd("2021-01-31") + months(1)
+```
+
+Ce calcul a jouté 1 au mois, sans toucher à l'année ni au jour, produisant la date du 31 février 2021 qui n'existe pas, produisant ainsi `NA`. Pour du calcul impliquant des dates et des périodes, il est préférable d'utiliser les opérateurs dédiés `%m+%` pour l'addition et `%m-%` pour la soustraction.
+
+```{r}
+ymd("2021-01-31") %m+% months(1)
+```
+
+Lorsque le résultat produit une date inexistante, cela renvoie la dernière date correcte, ici le 28 février 2021, ce qui correspond bien à la fin du mois considéré.
+
+### Intervalles (Interval) {#sec-intervals}
+
+Quelle est la durée réelle d'une année ? En 2015, il s'agissait de 365 jours alors qu'en 2016 on en comptait 366. Quand on s'intéresse aux mois, la situation est encore plus compliquée car il y a une grande variation du nombre de jours d'un mois à l'autre.
+
+Pour des calculs précis entre deux dates, les durées et les intervalles sont souvent insuffisants. On pourra alors avoir recours aux intervalles (de la classe `Interval`) qui sont définis avec une date de début et une date de fin.
+
+On peut créer un intervalle avec la fonction `lubridate::interval()` :
+
+```{r}
+interval(ymd("2022-05-13"), ymd("2022-08-15"))
+```
+
+On peut également utiliser l'opérateur `%--%` :
+
+```{r}
+y2023 <- ymd("2023-01-01") %--% ymd("2024-01-01")
+y2024 <- ymd("2024-01-01") %--% ymd("2025-01-01")
+
+y2023
+y2024
+```
+
+On peut tester si une date est située dans un intervalle donné avec l'opérateur `%within%`.
+
+```{r}
+int <- interval(ymd("2001-01-01"), ymd("2002-01-01"))
+ymd("2001-05-03") %within% int
+```
+
+On peut même tester si un intervalle est situé à l'intérieur d'un intervalle :
+
+```{r}
+int2 <- interval(ymd("2001-06-01"), ymd("2001-11-11"))
+int2 %within% int
+```
+
+Cela n'est valable que si l'ensemble du premier intervalle est situé à l'intérieur du second intervalle.
+
+```{r}
+int3 <- interval(ymd("2001-06-01"), ymd("2002-06-01"))
+int3 %within% int
+```
+
+Pour tester si deux intervalles ont une partie en commun, on pourra utiliser `lubridate::int_overlaps()`. La fonction `intersect()` renvoie la partie partagée par les deux intervalles.
+
+```{r}
+int_overlaps(int3, int)
+intersect(int3, int)
+```
+
+`{lubridate}` fournie plusieurs fonctions, de la forme `int_*()`, pour manipuler les intervalles.
+
+```{r}
+int
+int_start(int)
+int_end(int)
+int_flip(int)
+```
+
+On peut calculer facilement la durée d'un intervalle avec la fonction `lubridate::time_length()` :
+
+```{r}
+time_length(int) # en seconde par défaut
+time_length(int, unit = "weeks")
+time_length(int, unit = "days")
+```
+
+La fonction `time_length()` permet notamment de calculer correctement un âge.
+
+## Calcul d'un âge
+
+En tant que démographe, je suis toujours attentif au calcul des âges. Les démographes distinguent l'**âge exact**, exprimé en années avec une partie décimale, et qui correspond à la durée entre la date considérée et la date de naissance ; l'**âge révolu**, qui correspond à l'âge au dernier anniversaire et exprimé avec un nombre entier d'années (c'est l'âge que nous utilisons dans notre vie quotidienne)·; et l'**âge atteint** ou **âge par différence de millésimes**, qui correspond à la différence entre l'année en cours et l'année de naissance (c'est l'âge que l'on aura cette année le jour de son anniversaire).
+
+Pour calculer un âge exact en années, nous ne pouvons pendre la durée en jours entre les deux dates et diviser par 365 puisqu'il y a des années bissextiles. Une approche correcte est déjà de considérer l'âge au dernière anniversaire pour la partie entière, puis de calculer la partie décimale comme étant le ratio entre la durée depuis le dernière anniversaire et la durée entre le dernier et le prochain anniversaire. C'est exactement ce que fait `lubridate::time_length()`.
+
+```{r}
+naiss <- ymd("1979-11-28")
+evt <- ymd("2022-07-14")
+age_exact <- time_length(naiss %--% evt, unit = "years")
+age_exact
+```
+
+Pour un âge révolu, il suffit de ne garder que la partie entière de l'âge exact avec `trunc()`.
+
+```{r}
+age_revolu <- trunc(age_exact)
+age_revolu
+```
+
+Enfin, pour un âge atteint ou un âge par différence de millésimes, nous extrairons les deux années avant d'en faire la soustraction.
+
+```{r}
+age_atteint <- year(evt) - year(naiss)
+age_atteint
+```
+
+::: callout-tip
+Le calcul d\'un âge moyen s\'effectue normalement à partir d\'âges exacts. Il arrive fréquemment que l\'on ne dispose dans les données d\'enquêtes que de l\'âge révolu. Auquel cas, il faut bien penser à rajouter 0,5 au résultat obtenu. En effet, un âge révolu peut être vu comme une classe d\'âges exacts : les individus ayant 20 ans révolus ont entre 20 et 21 ans exacts, soit en moyenne 20,5 ans !
+:::
+
+## Fuseaux horaires
+
+Les [fuseaux horaires](https://fr.wikipedia.org/wiki/Fuseau_horaire) sont un sujet extrêmement complexe en raison de leur interaction avec les entités géopolitiques. Heureusement, nous n'avons pas besoin d'entrer dans tous les détails, car ils ne sont pas tous importants pour l'analyse des données, mais il y a quelques défis que nous devrons relever.
+
+Le premier défi est que les noms courants des fuseaux horaires ont tendance à être ambigus. Par exemple, si vous êtes américain, vous connaissez probablement l'EST (*Eastern Standard Time*). Cependant, l'Australie et le Canada ont également une heure normale de l'Est ! Pour éviter toute confusion, **R** utilise les fuseaux horaires standard internationaux de l'IANA. Ceux-ci utilisent un schéma de dénomination cohérent `{zone}/{lieu}`, généralement sous la forme **{continent}/{ville}** ou `{océan}/{ville}`. Parmi les exemples, citons `"America/New_York"`, **"Europe/Paris"** et **"Pacific/Auckland"**.
+
+On peut se demander pourquoi le fuseau horaire utilise une ville, alors que l'on pense généralement que les fuseaux horaires sont associés à un pays ou à une région à l'intérieur d'un pays. La raison en est que la base de données de l'IANA doit enregistrer des dizaines d'années de règles relatives aux fuseaux horaires. Au fil des décennies, les pays changent de nom (ou se séparent) assez fréquemment, mais les noms de villes ont tendance à rester inchangés. Un autre problème réside dans le fait que le nom doit refléter non seulement le comportement actuel, mais aussi l'ensemble de l'histoire. Par exemple, il existe des fuseaux horaires pour `"America/New_York"` et `"America/Detroit"`. Cela vaut la peine de lire la base de données brute des fuseaux horaires (disponible à l'adresse <https://www.iana.org/time-zones>) rien que pour lire certaines de ces histoires !
+
+Vous pouvez découvrir ce que **R** pense être votre fuseau horaire actuel avec `Sys.timezone()` :
+
+```{r}
+Sys.timezone()
+```
+
+La liste complète des fuseaux horaires est disponible avec `OlsonNames()`:
+
+```{r}
+length(OlsonNames())
+head(OlsonNames())
+```
+
+Dans **R**, le fuseau horaire est un attribut de la date-heure qui ne contrôle que l'affichage. Par exemple, ces trois objets représentent le même instant dans le temps :
+
+```{r}
+x1 <- ymd_hms("2024-06-01 12:00:00", tz = "America/New_York")
+x1
+
+x2 <- ymd_hms("2024-06-01 18:00:00", tz = "Europe/Copenhagen")
+x2
+
+x3 <- ymd_hms("2024-06-02 04:00:00", tz = "Pacific/Auckland")
+x3
+```
+
+Sauf indication contraire, `{lubridate}` utilise toujours l'heure UTC. UTC ([Temps universel coordonné](https://www.wikiwand.com/fr/Temps_universel_coordonn%C3%A9 "Temps universel coordonné"), compromis entre l'anglais CUT *Coordinated universal time* et le français TUC *Temps universel coordonné*) est le fuseau horaire standard utilisé par la communauté scientifique et est à peu près équivalent à GMT (*Greenwich Mean Time*). Il n'y a pas d'heure d'été, ce qui en fait une représentation pratique pour les calculs. Les opérations qui combinent des dates-heure, comme `c()`, ne tiennent souvent pas compte du fuseau horaire. Dans ce cas, les dates-heure s'afficheront dans le fuseau horaire du premier élément :
+
+```{r}
+x4 <- c(x1, x2, x3)
+x4
+```
+
+Vous pouvez modifier le fuseau horaire de deux manières :
+
+-   Conserver le même instant dans le temps, mais modifier la façon dont il est affiché. Utilisez cette option lorsque l'instant est correct, mais que vous souhaitez un affichage plus naturel.
+
+    ```{r}
+    x4a <- with_tz(x4, tzone = "Australia/Lord_Howe")
+    x4a
+    x4a - x4
+    ```
+
+-   Modifier l'instant sous-jacent dans le temps. Utilisez cette option lorsqu'un instant a été étiqueté avec un fuseau horaire incorrect et que vous devez le corriger.
+
+    ```{r}
+    x4b <- force_tz(x4, tzone = "Australia/Lord_Howe")
+    x4b
+    x4b - x4
+    ```
+
+## Pour aller plus loin
+
+-   le chapitre [Dates and times](https://r4ds.hadley.nz/datetimes.html) de l'ouvrage *R for Data Science* (2e édition)
+-   la documentation du package `{lubridate}` : <https://lubridate.tidyverse.org/>
