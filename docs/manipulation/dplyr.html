@@ -1,0 +1,1892 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="fr" xml:lang="fr"><head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.2.475">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<title>guide-R - 8&nbsp; dplyr</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1.6em;
+  vertical-align: middle;
+}
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../manipulation/facteurs.html" rel="next">
+<link href="../manipulation/pipe.html" rel="prev">
+<link href="../ressources/favicon.png" rel="icon" type="image/png">
+<script src="../site_libs/cookie-consent/cookie-consent.js"></script>
+<link href="../site_libs/cookie-consent/cookie-consent.css" rel="stylesheet">
+<script src="../site_libs/quarto-html/quarto.js"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light"><script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "Pas de résultats",
+    "search-matching-documents-text": "documents trouvés",
+    "search-copy-link-title": "Copier le lien vers la recherche",
+    "search-hide-matches-text": "Cacher les correspondances additionnelles",
+    "search-more-match-text": "correspondance de plus dans ce document",
+    "search-more-matches-text": "correspondances de plus dans ce document",
+    "search-clear-button-title": "Effacer",
+    "search-detached-cancel-button-title": "Annuler",
+    "search-submit-button-title": "Envoyer"
+  }
+}</script><script async="" src="https://www.googletagmanager.com/gtag/js?id=G-8BT7D9P85Y"></script><script type="text/plain" cookie-consent="tracking">
+
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-8BT7D9P85Y', { 'anonymize_ip': true});
+</script><script type="text/javascript" charset="UTF-8">
+document.addEventListener('DOMContentLoaded', function () {
+cookieconsent.run({
+  "notice_banner_type":"simple",
+  "consent_type":"implied",
+  "palette":"light",
+  "language":"en",
+  "page_load_consent_levels":["strictly-necessary","functionality","tracking","targeting"],
+  "notice_banner_reject_button_hide":false,
+  "preferences_center_close_button_hide":false,
+  "website_name":""
+  });
+});
+</script><style>html{ scroll-behavior: smooth; }</style>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body class="nav-sidebar floating slimcontent">
+
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top"><nav class="quarto-secondary-nav" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }"><div class="container-fluid d-flex justify-content-between">
+      <h1 class="quarto-secondary-nav-title"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title"><code>dplyr</code></span></h1>
+      <button type="button" class="quarto-btn-toggle btn" aria-label="Show secondary navigation">
+        <i class="bi bi-chevron-right"></i>
+      </button>
+    </div>
+  </nav></header><!-- content --><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse sidebar-navigation floating overflow-auto"><div class="pt-lg-2 mt-2 text-left sidebar-header sidebar-header-stacked">
+      <a href="../index.html" class="sidebar-logo-link">
+      <img src="../ressources/typewriter.png" alt="" class="sidebar-logo py-0 d-lg-inline d-none"></a>
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../">guide-R</a> 
+        <div class="sidebar-tools-main tools-wide">
+    <a href="https://github.com/larmarange/guide-R/" title="Source Code" class="sidebar-tool px-1"><i class="bi bi-github"></i></a>
+    <a href="../guide-R.pdf" title="Download PDF" class="sidebar-tool px-1"><i class="bi bi-file-pdf"></i></a>
+    <a href="" title="Share" id="sidebar-tool-dropdown-0" class="sidebar-tool dropdown-toggle px-1" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-share"></i></a>
+    <ul class="dropdown-menu" aria-labelledby="sidebar-tool-dropdown-0">
+<li>
+          <a class="dropdown-item sidebar-tools-main-item" href="https://twitter.com/intent/tweet?url=%7Curl%7C">
+            <i class="bi bi-bi-twitter pe-1"></i>
+          Twitter
+          </a>
+        </li>
+        <li>
+          <a class="dropdown-item sidebar-tools-main-item" href="https://www.facebook.com/sharer/sharer.php?u=%7Curl%7C">
+            <i class="bi bi-bi-facebook pe-1"></i>
+          Facebook
+          </a>
+        </li>
+        <li>
+          <a class="dropdown-item sidebar-tools-main-item" href="https://www.linkedin.com/sharing/share-offsite/?url=%7Curl%7C">
+            <i class="bi bi-bi-linkedin pe-1"></i>
+          LinkedIn
+          </a>
+        </li>
+    </ul>
+</div>
+    </div>
+      </div>
+      <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+      </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+<li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../index.html" class="sidebar-item-text sidebar-link">Préface</a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true"><strong>Bases du langage</strong></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">
+<li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../bases/packages.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Packages</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../bases/vecteurs.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Vecteurs</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../bases/listes.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Listes</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../bases/tableaux_donnees.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Tableaux de données</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../bases/tibbles.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Tibbles</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../bases/attributs.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Attributs</span></a>
+  </div>
+</li>
+      </ul>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="true"><strong>Manipulation de données</strong></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="true">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">
+<li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../manipulation/pipe.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Le pipe</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../manipulation/dplyr.html" class="sidebar-item-text sidebar-link active"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title"><code>dplyr</code></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../manipulation/facteurs.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Facteurs et <code>forcats</code></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../manipulation/combiner-variables.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Combiner plusieurs variables</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../manipulation/etiquettes-variables.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Étiquettes de variables</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../manipulation/etiquettes-valeurs.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Étiquettes de valeurs</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../manipulation/valeurs-manquantes.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Valeurs manquantes</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../manipulation/import-export.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Import &amp; Export de données</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../manipulation/formater-nombre.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Mettre en forme des nombres</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../manipulation/couleurs.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Couleurs &amp; Palettes</span></a>
+  </div>
+</li>
+      </ul>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" aria-expanded="true"><strong>Analyses</strong></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" aria-expanded="true">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">
+<li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses/ggplot2.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Graphiques avec <code>ggplot2</code></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses/statistique-univariee.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Statistique univariée &amp; Intervalles de confiance</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses/statistique-bivariee.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Statistique bivariée &amp; Tests de comparaison</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses/likert.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Échelles de Likert</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses/regression-lineaire.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Régression linéaire</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses/regression-logistique-binaire.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Régression logistique binaire</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses/estimations-marginales.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">23</span>&nbsp; <span class="chapter-title">Prédictions marginales, contrastes marginaux &amp; effets marginaux</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses/contrastes.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">24</span>&nbsp; <span class="chapter-title">Contrastes (variables catégorielles)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses/interactions.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">25</span>&nbsp; <span class="chapter-title">Interactions</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses/multicolinearite.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">26</span>&nbsp; <span class="chapter-title">Multicolinéarité</span></a>
+  </div>
+</li>
+      </ul>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" aria-expanded="true"><strong>Données pondérées avec <code>survey</code></strong></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" aria-expanded="true">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">
+<li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../donnees_ponderees/plan-echantillonnage.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">27</span>&nbsp; <span class="chapter-title">Définir un plan d’échantillonnage</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../donnees_ponderees/manipulation.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">28</span>&nbsp; <span class="chapter-title">Manipulation de données pondérées</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../donnees_ponderees/analyses-bivariees.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">29</span>&nbsp; <span class="chapter-title">Analyses uni- et bivariées pondérées</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../donnees_ponderees/graphiques-ponderes.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">30</span>&nbsp; <span class="chapter-title">Graphiques pondérés</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../donnees_ponderees/regression-logistique-binaire-ponderee.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">31</span>&nbsp; <span class="chapter-title">Régression logistique binaire pondérée</span></a>
+  </div>
+</li>
+      </ul>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" aria-expanded="true"><strong>Manipulation avancée</strong></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" aria-expanded="true">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">
+<li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../manipulation_avancee/fusion_tables.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">32</span>&nbsp; <span class="chapter-title">Fusion de tables</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../manipulation_avancee/dates.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">33</span>&nbsp; <span class="chapter-title">Dates avec <code>lubridate</code></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../manipulation_avancee/tidyr.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">34</span>&nbsp; <span class="chapter-title">Réorganisation avec <code>tidyr</code></span></a>
+  </div>
+</li>
+      </ul>
+</li>
+    </ul>
+</div>
+</nav><!-- margin-sidebar --><div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active"><h2 id="toc-title">Table des matières</h2>
+   
+  <ul>
+<li>
+<a href="#op%C3%A9rations-sur-les-lignes" id="toc-opérations-sur-les-lignes" class="nav-link active" data-scroll-target="#op%C3%A9rations-sur-les-lignes"><span class="toc-section-number">8.1</span>  Opérations sur les lignes</a>
+  <ul class="collapse">
+<li><a href="#filter" id="toc-filter" class="nav-link" data-scroll-target="#filter"><span class="toc-section-number">8.1.1</span>  filter()</a></li>
+  <li><a href="#slice" id="toc-slice" class="nav-link" data-scroll-target="#slice"><span class="toc-section-number">8.1.2</span>  slice()</a></li>
+  <li><a href="#arrange" id="toc-arrange" class="nav-link" data-scroll-target="#arrange"><span class="toc-section-number">8.1.3</span>  arrange()</a></li>
+  <li><a href="#slice_sample" id="toc-slice_sample" class="nav-link" data-scroll-target="#slice_sample"><span class="toc-section-number">8.1.4</span>  slice_sample()</a></li>
+  <li><a href="#distinct" id="toc-distinct" class="nav-link" data-scroll-target="#distinct"><span class="toc-section-number">8.1.5</span>  distinct()</a></li>
+  </ul>
+</li>
+  <li>
+<a href="#op%C3%A9rations-sur-les-colonnes" id="toc-opérations-sur-les-colonnes" class="nav-link" data-scroll-target="#op%C3%A9rations-sur-les-colonnes"><span class="toc-section-number">8.2</span>  Opérations sur les colonnes</a>
+  <ul class="collapse">
+<li><a href="#sec-dplyr-select" id="toc-sec-dplyr-select" class="nav-link" data-scroll-target="#sec-dplyr-select"><span class="toc-section-number">8.2.1</span>  select()</a></li>
+  <li><a href="#relocate" id="toc-relocate" class="nav-link" data-scroll-target="#relocate"><span class="toc-section-number">8.2.2</span>  relocate()</a></li>
+  <li><a href="#rename" id="toc-rename" class="nav-link" data-scroll-target="#rename"><span class="toc-section-number">8.2.3</span>  rename()</a></li>
+  <li><a href="#rename_with" id="toc-rename_with" class="nav-link" data-scroll-target="#rename_with"><span class="toc-section-number">8.2.4</span>  rename_with()</a></li>
+  <li><a href="#pull" id="toc-pull" class="nav-link" data-scroll-target="#pull"><span class="toc-section-number">8.2.5</span>  pull()</a></li>
+  <li><a href="#mutate" id="toc-mutate" class="nav-link" data-scroll-target="#mutate"><span class="toc-section-number">8.2.6</span>  mutate()</a></li>
+  </ul>
+</li>
+  <li>
+<a href="#op%C3%A9rations-group%C3%A9es" id="toc-opérations-groupées" class="nav-link" data-scroll-target="#op%C3%A9rations-group%C3%A9es"><span class="toc-section-number">8.3</span>  Opérations groupées</a>
+  <ul class="collapse">
+<li><a href="#group_by" id="toc-group_by" class="nav-link" data-scroll-target="#group_by"><span class="toc-section-number">8.3.1</span>  group_by()</a></li>
+  <li><a href="#summarise" id="toc-summarise" class="nav-link" data-scroll-target="#summarise"><span class="toc-section-number">8.3.2</span>  summarise()</a></li>
+  <li><a href="#count" id="toc-count" class="nav-link" data-scroll-target="#count"><span class="toc-section-number">8.3.3</span>  count()</a></li>
+  <li><a href="#grouper-selon-plusieurs-variables" id="toc-grouper-selon-plusieurs-variables" class="nav-link" data-scroll-target="#grouper-selon-plusieurs-variables"><span class="toc-section-number">8.3.4</span>  Grouper selon plusieurs variables</a></li>
+  </ul>
+</li>
+  <li><a href="#cheatsheet" id="toc-cheatsheet" class="nav-link" data-scroll-target="#cheatsheet"><span class="toc-section-number">8.4</span>  Cheatsheet</a></li>
+  <li><a href="#webin-r" id="toc-webin-r" class="nav-link" data-scroll-target="#webin-r"><span class="toc-section-number">8.5</span>  webin-R</a></li>
+  </ul><div class="toc-actions"><div><i class="bi bi-github"></i></div><div class="action-links"><p><a href="https://github.com/larmarange/guide-R/blob/main/manipulation/dplyr.qmd" class="toc-action">Voir la source</a></p><p><a href="https://github.com/larmarange/guide-R/issues/new" class="toc-action">Faire part d'un problème</a></p></div></div></nav>
+    </div>
+<!-- main -->
+<main class="content page-columns page-full" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block default"><div class="quarto-title">
+<h1 class="title"><span id="sec-dplyr" class="quarto-section-identifier d-none d-lg-block"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title"><code>dplyr</code></span></span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+</header><p><a href="https://dplyr.tidyverse.org">dplyr</a> est l’un des packages les plus connus du <em>tidyverse</em>. Il facilite le traitement et la manipulation des tableaux de données (qu’il s’agisse de <em>data frame</em> ou de <em>tibble</em>). Il propose une syntaxe claire et cohérente, sous formes de <q>verbes</q> correspondant à des fonctions.</p>
+<div class="page-columns page-full"><p><a href="https://dplyr.tidyverse.org">dplyr</a> part du principe que les données sont <em>tidy</em> (chaque variable est une colonne, chaque observation est une ligne, voir <a href="#sec-tibbles"><span class="quarto-unresolved-ref">sec-tibbles</span></a>). Les verbes de <a href="https://dplyr.tidyverse.org">dplyr</a> prennent en entrée un tableau de données<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> (<em>data frame</em> ou <em>tibble</em>) et renvoient systématiquement un <em>tibble</em>.</p><div class="no-row-height column-margin column-container"><li id="fn1"><p><sup>1</sup>&nbsp;Le package <a href="https://dbplyr.tidyverse.org/">dbplyr</a> permets d’étendre les verbes de <a href="https://dplyr.tidyverse.org">dplyr</a> à des tables de bases de données <strong>SQL,</strong> <a href="https://dtplyr.tidyverse.org">dtplyr</a> à des tableaux de données du type <a href="https://r-datatable.com">data.table</a> et <a href="http://gdfe.co/srvyr/">srvyr</a> à des données pondérées du type <a href="http://r-survey.r-forge.r-project.org/survey/">survey</a>.</p></li></div></div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="fu">library</span>(dplyr)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Dans ce qui suit on va utiliser le jeu de données <a href="https://github.com/hadley/nycflights13">nycflights13</a>, contenu dans l’extension du même nom (qu’il faut donc avoir installée). Celui-ci correspond aux données de tous les vols au départ d’un des trois aéroports de New-York en 2013. Il a la particularité d’être réparti en trois tables&nbsp;:</p>
+<ul>
+<li>
+<code><a href="https://rdrr.io/pkg/nycflights13/man/flights.html">nycflights13::flights</a></code> contient des informations sur les vols&nbsp;: date, départ, destination, horaires, retard…</li>
+<li>
+<code><a href="https://rdrr.io/pkg/nycflights13/man/airports.html">nycflights13::airports</a></code> contient des informations sur les aéroports</li>
+<li>
+<code><a href="https://rdrr.io/pkg/nycflights13/man/airlines.html">nycflights13::airlines</a></code> contient des données sur les compagnies aériennes</li>
+</ul>
+<p>On va charger les trois tables du jeu de données&nbsp;:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a><span class="fu">library</span>(nycflights13)</span>
+<span id="cb2-2"><a href="#cb2-2"></a><span class="do">## Chargement des trois tables du jeu de données</span></span>
+<span id="cb2-3"><a href="#cb2-3"></a><span class="fu">data</span>(flights)</span>
+<span id="cb2-4"><a href="#cb2-4"></a><span class="fu">data</span>(airports)</span>
+<span id="cb2-5"><a href="#cb2-5"></a><span class="fu">data</span>(airlines)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Normalement trois objets correspondant aux trois tables ont dû apparaître dans votre environnement.</p>
+<section id="opérations-sur-les-lignes" class="level2 page-columns page-full" data-number="8.1"><h2 data-number="8.1" class="anchored" data-anchor-id="opérations-sur-les-lignes">
+<span class="header-section-number">8.1</span> Opérations sur les lignes</h2>
+<section id="filter" class="level3 page-columns page-full" data-number="8.1.1"><h3 data-number="8.1.1" class="anchored" data-anchor-id="filter">
+<span class="header-section-number">8.1.1</span> filter()</h3>
+<div class="page-columns page-full"><p><code><a href="https://dplyr.tidyverse.org/reference/filter.html">dplyr::filter()</a></code> sélectionne des lignes d’un tableau de données selon une condition. On lui passe en paramètre un test, et seules les lignes pour lesquelles ce test renvoit <code>TRUE</code> (vrai) sont conservées<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a>.</p><div class="no-row-height column-margin column-container"><li id="fn2"><p><sup>2</sup>&nbsp;Si le test renvoie faux (<code>FALSE</code>) ou une valeur manquante (<code>NA</code>), les lignes correspondantes ne seront donc pas sélectionnées.</p></li></div></div>
+<p>Par exemple, si on veut sélectionner les vols du mois de janvier, on peut filtrer sur la variable <em>month</em> de la manière suivante&nbsp;:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a><span class="fu">filter</span>(flights, month <span class="sc">==</span> <span class="dv">1</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 27,004 × 19
+    year month   day dep_time sched_dep_time dep_delay arr_time sched_arr_time
+   &lt;int&gt; &lt;int&gt; &lt;int&gt;    &lt;int&gt;          &lt;int&gt;     &lt;dbl&gt;    &lt;int&gt;          &lt;int&gt;
+ 1  2013     1     1      517            515         2      830            819
+ 2  2013     1     1      533            529         4      850            830
+ 3  2013     1     1      542            540         2      923            850
+ 4  2013     1     1      544            545        -1     1004           1022
+ 5  2013     1     1      554            600        -6      812            837
+ 6  2013     1     1      554            558        -4      740            728
+ 7  2013     1     1      555            600        -5      913            854
+ 8  2013     1     1      557            600        -3      709            723
+ 9  2013     1     1      557            600        -3      838            846
+10  2013     1     1      558            600        -2      753            745
+# ℹ 26,994 more rows
+# ℹ 11 more variables: arr_delay &lt;dbl&gt;, carrier &lt;chr&gt;, flight &lt;int&gt;,
+#   tailnum &lt;chr&gt;, origin &lt;chr&gt;, dest &lt;chr&gt;, air_time &lt;dbl&gt;, distance &lt;dbl&gt;,
+#   hour &lt;dbl&gt;, minute &lt;dbl&gt;, time_hour &lt;dttm&gt;</code></pre>
+</div>
+</div>
+<p>Cela peut s’écrire plus simplement avec un pipe&nbsp;:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a>flights <span class="sc">|&gt;</span> <span class="fu">filter</span>(month <span class="sc">==</span> <span class="dv">1</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 27,004 × 19
+    year month   day dep_time sched_dep_time dep_delay arr_time sched_arr_time
+   &lt;int&gt; &lt;int&gt; &lt;int&gt;    &lt;int&gt;          &lt;int&gt;     &lt;dbl&gt;    &lt;int&gt;          &lt;int&gt;
+ 1  2013     1     1      517            515         2      830            819
+ 2  2013     1     1      533            529         4      850            830
+ 3  2013     1     1      542            540         2      923            850
+ 4  2013     1     1      544            545        -1     1004           1022
+ 5  2013     1     1      554            600        -6      812            837
+ 6  2013     1     1      554            558        -4      740            728
+ 7  2013     1     1      555            600        -5      913            854
+ 8  2013     1     1      557            600        -3      709            723
+ 9  2013     1     1      557            600        -3      838            846
+10  2013     1     1      558            600        -2      753            745
+# ℹ 26,994 more rows
+# ℹ 11 more variables: arr_delay &lt;dbl&gt;, carrier &lt;chr&gt;, flight &lt;int&gt;,
+#   tailnum &lt;chr&gt;, origin &lt;chr&gt;, dest &lt;chr&gt;, air_time &lt;dbl&gt;, distance &lt;dbl&gt;,
+#   hour &lt;dbl&gt;, minute &lt;dbl&gt;, time_hour &lt;dttm&gt;</code></pre>
+</div>
+</div>
+<p>Si l’on veut uniquement les vols avec un retard au départ (variable <em>dep_delay</em>) compris entre 10 et 15 minutes&nbsp;:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a>flights <span class="sc">|&gt;</span> </span>
+<span id="cb7-2"><a href="#cb7-2"></a>  <span class="fu">filter</span>(dep_delay <span class="sc">&gt;=</span> <span class="dv">10</span> <span class="sc">&amp;</span> dep_delay <span class="sc">&lt;=</span> <span class="dv">15</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 14,919 × 19
+    year month   day dep_time sched_dep_time dep_delay arr_time sched_arr_time
+   &lt;int&gt; &lt;int&gt; &lt;int&gt;    &lt;int&gt;          &lt;int&gt;     &lt;dbl&gt;    &lt;int&gt;          &lt;int&gt;
+ 1  2013     1     1      611            600        11      945            931
+ 2  2013     1     1      623            610        13      920            915
+ 3  2013     1     1      743            730        13     1107           1100
+ 4  2013     1     1      743            730        13     1059           1056
+ 5  2013     1     1      851            840        11     1215           1206
+ 6  2013     1     1      912            900        12     1241           1220
+ 7  2013     1     1      914            900        14     1058           1043
+ 8  2013     1     1      920            905        15     1039           1025
+ 9  2013     1     1     1011           1001        10     1133           1128
+10  2013     1     1     1112           1100        12     1440           1438
+# ℹ 14,909 more rows
+# ℹ 11 more variables: arr_delay &lt;dbl&gt;, carrier &lt;chr&gt;, flight &lt;int&gt;,
+#   tailnum &lt;chr&gt;, origin &lt;chr&gt;, dest &lt;chr&gt;, air_time &lt;dbl&gt;, distance &lt;dbl&gt;,
+#   hour &lt;dbl&gt;, minute &lt;dbl&gt;, time_hour &lt;dttm&gt;</code></pre>
+</div>
+</div>
+<p>Si l’on passe plusieurs arguments à <code><a href="https://dplyr.tidyverse.org/reference/filter.html">dplyr::filter()</a></code>, celui-ci rajoute automatiquement une condition <strong>ET</strong>. La ligne ci-dessus peut donc également être écrite de la manière suivante, avec le même résultat&nbsp;:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a>flights <span class="sc">|&gt;</span> </span>
+<span id="cb9-2"><a href="#cb9-2"></a>  <span class="fu">filter</span>(dep_delay <span class="sc">&gt;=</span> <span class="dv">10</span>, dep_delay <span class="sc">&lt;=</span> <span class="dv">15</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Enfin, on peut également placer des fonctions dans les tests, qui nous permettent par exemple de sélectionner les vols avec la plus grande distance&nbsp;:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a>flights <span class="sc">|&gt;</span> </span>
+<span id="cb10-2"><a href="#cb10-2"></a>  <span class="fu">filter</span>(distance <span class="sc">==</span> <span class="fu">max</span>(distance))</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 342 × 19
+    year month   day dep_time sched_dep_time dep_delay arr_time sched_arr_time
+   &lt;int&gt; &lt;int&gt; &lt;int&gt;    &lt;int&gt;          &lt;int&gt;     &lt;dbl&gt;    &lt;int&gt;          &lt;int&gt;
+ 1  2013     1     1      857            900        -3     1516           1530
+ 2  2013     1     2      909            900         9     1525           1530
+ 3  2013     1     3      914            900        14     1504           1530
+ 4  2013     1     4      900            900         0     1516           1530
+ 5  2013     1     5      858            900        -2     1519           1530
+ 6  2013     1     6     1019            900        79     1558           1530
+ 7  2013     1     7     1042            900       102     1620           1530
+ 8  2013     1     8      901            900         1     1504           1530
+ 9  2013     1     9      641            900      1301     1242           1530
+10  2013     1    10      859            900        -1     1449           1530
+# ℹ 332 more rows
+# ℹ 11 more variables: arr_delay &lt;dbl&gt;, carrier &lt;chr&gt;, flight &lt;int&gt;,
+#   tailnum &lt;chr&gt;, origin &lt;chr&gt;, dest &lt;chr&gt;, air_time &lt;dbl&gt;, distance &lt;dbl&gt;,
+#   hour &lt;dbl&gt;, minute &lt;dbl&gt;, time_hour &lt;dttm&gt;</code></pre>
+</div>
+</div>
+<div class="callout-tip callout callout-style-default callout-captioned">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-caption-container flex-fill">
+Évaluation contextuelle
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Il est important de noter que <a href="https://dplyr.tidyverse.org">dplyr</a> procède à une évaluation contextuelle des expressions qui lui sont passées. Ainsi, on peut indiquer directement le nom d’une variable et <a href="https://dplyr.tidyverse.org">dplyr</a> l’interprétera dans le contexte du tableau de données, c’est-à-dire regardera s’il existe une colonne portant ce nom dans le tableau.</p>
+<p>Dans l’expression <code>flights |&gt; filter(month == 1)</code>, <code>month</code> est interprété comme la colonne <em>month</em> du tableau <code>flights</code>, à savoir <code>flights$month</code>.</p>
+<p>Il est également possible d’indiquer des objets extérieurs au tableau&nbsp;:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a>m <span class="ot">&lt;-</span> <span class="dv">2</span></span>
+<span id="cb12-2"><a href="#cb12-2"></a>flights <span class="sc">|&gt;</span> </span>
+<span id="cb12-3"><a href="#cb12-3"></a>  <span class="fu">filter</span>(month <span class="sc">==</span> m)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 24,951 × 19
+    year month   day dep_time sched_dep_time dep_delay arr_time sched_arr_time
+   &lt;int&gt; &lt;int&gt; &lt;int&gt;    &lt;int&gt;          &lt;int&gt;     &lt;dbl&gt;    &lt;int&gt;          &lt;int&gt;
+ 1  2013     2     1      456            500        -4      652            648
+ 2  2013     2     1      520            525        -5      816            820
+ 3  2013     2     1      527            530        -3      837            829
+ 4  2013     2     1      532            540        -8     1007           1017
+ 5  2013     2     1      540            540         0      859            850
+ 6  2013     2     1      552            600        -8      714            715
+ 7  2013     2     1      552            600        -8      919            910
+ 8  2013     2     1      552            600        -8      655            709
+ 9  2013     2     1      553            600        -7      833            815
+10  2013     2     1      553            600        -7      821            825
+# ℹ 24,941 more rows
+# ℹ 11 more variables: arr_delay &lt;dbl&gt;, carrier &lt;chr&gt;, flight &lt;int&gt;,
+#   tailnum &lt;chr&gt;, origin &lt;chr&gt;, dest &lt;chr&gt;, air_time &lt;dbl&gt;, distance &lt;dbl&gt;,
+#   hour &lt;dbl&gt;, minute &lt;dbl&gt;, time_hour &lt;dttm&gt;</code></pre>
+</div>
+</div>
+<p>Cela fonctionne car il n’y a pas de colonne <em>m</em> dans <code>flights</code>. Dès lors, <a href="https://dplyr.tidyverse.org">dplyr</a> regarde s’il existe un objet <code>m</code> dans l’environnement de travail.</p>
+<p>Par contre, si une colonne existe dans le tableau, elle aura priorité sur les objets du même nom dans l’environnement. Dans l’exemple ci-dessous, le résultat obtenu n’est pas celui voulu. Il est interprété comme <q>sélectionner toutes les lignes où la colonne <em>mois</em> est égale à elle-même</q> et donc cela sélectionne toutes les lignes du tableau.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a>month <span class="ot">&lt;-</span> <span class="dv">3</span></span>
+<span id="cb14-2"><a href="#cb14-2"></a>flights <span class="sc">|&gt;</span> </span>
+<span id="cb14-3"><a href="#cb14-3"></a>  <span class="fu">filter</span>(month <span class="sc">==</span> month)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 336,776 × 19
+    year month   day dep_time sched_dep_time dep_delay arr_time sched_arr_time
+   &lt;int&gt; &lt;int&gt; &lt;int&gt;    &lt;int&gt;          &lt;int&gt;     &lt;dbl&gt;    &lt;int&gt;          &lt;int&gt;
+ 1  2013     1     1      517            515         2      830            819
+ 2  2013     1     1      533            529         4      850            830
+ 3  2013     1     1      542            540         2      923            850
+ 4  2013     1     1      544            545        -1     1004           1022
+ 5  2013     1     1      554            600        -6      812            837
+ 6  2013     1     1      554            558        -4      740            728
+ 7  2013     1     1      555            600        -5      913            854
+ 8  2013     1     1      557            600        -3      709            723
+ 9  2013     1     1      557            600        -3      838            846
+10  2013     1     1      558            600        -2      753            745
+# ℹ 336,766 more rows
+# ℹ 11 more variables: arr_delay &lt;dbl&gt;, carrier &lt;chr&gt;, flight &lt;int&gt;,
+#   tailnum &lt;chr&gt;, origin &lt;chr&gt;, dest &lt;chr&gt;, air_time &lt;dbl&gt;, distance &lt;dbl&gt;,
+#   hour &lt;dbl&gt;, minute &lt;dbl&gt;, time_hour &lt;dttm&gt;</code></pre>
+</div>
+</div>
+<p>Afin de distinguer ce qui correspond à une colonne du tableau et à un objet de l’environnement, on pourra avoir recours à <code>.data</code> et <code>.env</code> (voir <code><a href="https://rlang.r-lib.org/reference/dot-data.html">help(".env", package = "rlang")</a></code>).</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1"></a>month <span class="ot">&lt;-</span> <span class="dv">3</span></span>
+<span id="cb16-2"><a href="#cb16-2"></a>flights <span class="sc">|&gt;</span> </span>
+<span id="cb16-3"><a href="#cb16-3"></a>  <span class="fu">filter</span>(.data<span class="sc">$</span>month <span class="sc">==</span> .env<span class="sc">$</span>month)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 28,834 × 19
+    year month   day dep_time sched_dep_time dep_delay arr_time sched_arr_time
+   &lt;int&gt; &lt;int&gt; &lt;int&gt;    &lt;int&gt;          &lt;int&gt;     &lt;dbl&gt;    &lt;int&gt;          &lt;int&gt;
+ 1  2013     3     1        4           2159       125      318             56
+ 2  2013     3     1       50           2358        52      526            438
+ 3  2013     3     1      117           2245       152      223           2354
+ 4  2013     3     1      454            500        -6      633            648
+ 5  2013     3     1      505            515       -10      746            810
+ 6  2013     3     1      521            530        -9      813            827
+ 7  2013     3     1      537            540        -3      856            850
+ 8  2013     3     1      541            545        -4     1014           1023
+ 9  2013     3     1      549            600       -11      639            703
+10  2013     3     1      550            600       -10      747            801
+# ℹ 28,824 more rows
+# ℹ 11 more variables: arr_delay &lt;dbl&gt;, carrier &lt;chr&gt;, flight &lt;int&gt;,
+#   tailnum &lt;chr&gt;, origin &lt;chr&gt;, dest &lt;chr&gt;, air_time &lt;dbl&gt;, distance &lt;dbl&gt;,
+#   hour &lt;dbl&gt;, minute &lt;dbl&gt;, time_hour &lt;dttm&gt;</code></pre>
+</div>
+</div>
+</div>
+</div>
+</section><section id="slice" class="level3" data-number="8.1.2"><h3 data-number="8.1.2" class="anchored" data-anchor-id="slice">
+<span class="header-section-number">8.1.2</span> slice()</h3>
+<p>Le verbe <code><a href="https://dplyr.tidyverse.org/reference/slice.html">dplyr::slice()</a></code> sélectionne des lignes du tableau selon leur position. On lui passe un chiffre ou un vecteur de chiffres.</p>
+<p>Si l’on souhaite sélectionner la 345<sup>e</sup> ligne du tableau <code>airports</code>&nbsp;:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1"></a>airports <span class="sc">|&gt;</span> </span>
+<span id="cb18-2"><a href="#cb18-2"></a>  <span class="fu">slice</span>(<span class="dv">345</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 8
+  faa   name                lat   lon   alt    tz dst   tzone            
+  &lt;chr&gt; &lt;chr&gt;             &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;            
+1 CYF   Chefornak Airport  60.1 -164.    40    -9 A     America/Anchorage</code></pre>
+</div>
+</div>
+<p>Si l’on veut sélectionner les 5 premières lignes&nbsp;:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1"></a>airports <span class="sc">|&gt;</span> </span>
+<span id="cb20-2"><a href="#cb20-2"></a>  <span class="fu">slice</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 5 × 8
+  faa   name                            lat   lon   alt    tz dst   tzone       
+  &lt;chr&gt; &lt;chr&gt;                         &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;       
+1 04G   Lansdowne Airport              41.1 -80.6  1044    -5 A     America/New…
+2 06A   Moton Field Municipal Airport  32.5 -85.7   264    -6 A     America/Chi…
+3 06C   Schaumburg Regional            42.0 -88.1   801    -6 A     America/Chi…
+4 06N   Randall Airport                41.4 -74.4   523    -5 A     America/New…
+5 09J   Jekyll Island Airport          31.1 -81.4    11    -5 A     America/New…</code></pre>
+</div>
+</div>
+</section><section id="arrange" class="level3" data-number="8.1.3"><h3 data-number="8.1.3" class="anchored" data-anchor-id="arrange">
+<span class="header-section-number">8.1.3</span> arrange()</h3>
+<p><code><a href="https://dplyr.tidyverse.org/reference/arrange.html">dplyr::arrange()</a></code> réordonne les lignes d’un tableau selon une ou plusieurs colonnes.</p>
+<p>Ainsi, si l’on veut trier le tableau <code>flights</code> selon le retard au départ, dans l’ordre croissant&nbsp;:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1"></a>flights <span class="sc">|&gt;</span> </span>
+<span id="cb22-2"><a href="#cb22-2"></a>  <span class="fu">arrange</span>(dep_delay)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 336,776 × 19
+    year month   day dep_time sched_dep_time dep_delay arr_time sched_arr_time
+   &lt;int&gt; &lt;int&gt; &lt;int&gt;    &lt;int&gt;          &lt;int&gt;     &lt;dbl&gt;    &lt;int&gt;          &lt;int&gt;
+ 1  2013    12     7     2040           2123       -43       40           2352
+ 2  2013     2     3     2022           2055       -33     2240           2338
+ 3  2013    11    10     1408           1440       -32     1549           1559
+ 4  2013     1    11     1900           1930       -30     2233           2243
+ 5  2013     1    29     1703           1730       -27     1947           1957
+ 6  2013     8     9      729            755       -26     1002            955
+ 7  2013    10    23     1907           1932       -25     2143           2143
+ 8  2013     3    30     2030           2055       -25     2213           2250
+ 9  2013     3     2     1431           1455       -24     1601           1631
+10  2013     5     5      934            958       -24     1225           1309
+# ℹ 336,766 more rows
+# ℹ 11 more variables: arr_delay &lt;dbl&gt;, carrier &lt;chr&gt;, flight &lt;int&gt;,
+#   tailnum &lt;chr&gt;, origin &lt;chr&gt;, dest &lt;chr&gt;, air_time &lt;dbl&gt;, distance &lt;dbl&gt;,
+#   hour &lt;dbl&gt;, minute &lt;dbl&gt;, time_hour &lt;dttm&gt;</code></pre>
+</div>
+</div>
+<p>On peut trier selon plusieurs colonnes. Par exemple selon le mois, puis selon le retard au départ&nbsp;:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1"></a>flights <span class="sc">|&gt;</span> </span>
+<span id="cb24-2"><a href="#cb24-2"></a>  <span class="fu">arrange</span>(month, dep_delay)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 336,776 × 19
+    year month   day dep_time sched_dep_time dep_delay arr_time sched_arr_time
+   &lt;int&gt; &lt;int&gt; &lt;int&gt;    &lt;int&gt;          &lt;int&gt;     &lt;dbl&gt;    &lt;int&gt;          &lt;int&gt;
+ 1  2013     1    11     1900           1930       -30     2233           2243
+ 2  2013     1    29     1703           1730       -27     1947           1957
+ 3  2013     1    12     1354           1416       -22     1606           1650
+ 4  2013     1    21     2137           2159       -22     2232           2316
+ 5  2013     1    20      704            725       -21     1025           1035
+ 6  2013     1    12     2050           2110       -20     2310           2355
+ 7  2013     1    12     2134           2154       -20        4             50
+ 8  2013     1    14     2050           2110       -20     2329           2355
+ 9  2013     1     4     2140           2159       -19     2241           2316
+10  2013     1    11     1947           2005       -18     2209           2230
+# ℹ 336,766 more rows
+# ℹ 11 more variables: arr_delay &lt;dbl&gt;, carrier &lt;chr&gt;, flight &lt;int&gt;,
+#   tailnum &lt;chr&gt;, origin &lt;chr&gt;, dest &lt;chr&gt;, air_time &lt;dbl&gt;, distance &lt;dbl&gt;,
+#   hour &lt;dbl&gt;, minute &lt;dbl&gt;, time_hour &lt;dttm&gt;</code></pre>
+</div>
+</div>
+<p>Si l’on veut trier selon une colonne par ordre décroissant, on lui applique la fonction <code data-pkg="dplyr"><a href="https://dplyr.tidyverse.org/reference/desc.html">dplyr::desc()</a></code>&nbsp;:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1"></a>flights <span class="sc">|&gt;</span> </span>
+<span id="cb26-2"><a href="#cb26-2"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(dep_delay))</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 336,776 × 19
+    year month   day dep_time sched_dep_time dep_delay arr_time sched_arr_time
+   &lt;int&gt; &lt;int&gt; &lt;int&gt;    &lt;int&gt;          &lt;int&gt;     &lt;dbl&gt;    &lt;int&gt;          &lt;int&gt;
+ 1  2013     1     9      641            900      1301     1242           1530
+ 2  2013     6    15     1432           1935      1137     1607           2120
+ 3  2013     1    10     1121           1635      1126     1239           1810
+ 4  2013     9    20     1139           1845      1014     1457           2210
+ 5  2013     7    22      845           1600      1005     1044           1815
+ 6  2013     4    10     1100           1900       960     1342           2211
+ 7  2013     3    17     2321            810       911      135           1020
+ 8  2013     6    27      959           1900       899     1236           2226
+ 9  2013     7    22     2257            759       898      121           1026
+10  2013    12     5      756           1700       896     1058           2020
+# ℹ 336,766 more rows
+# ℹ 11 more variables: arr_delay &lt;dbl&gt;, carrier &lt;chr&gt;, flight &lt;int&gt;,
+#   tailnum &lt;chr&gt;, origin &lt;chr&gt;, dest &lt;chr&gt;, air_time &lt;dbl&gt;, distance &lt;dbl&gt;,
+#   hour &lt;dbl&gt;, minute &lt;dbl&gt;, time_hour &lt;dttm&gt;</code></pre>
+</div>
+</div>
+<p>Combiné avec <code><a href="https://dplyr.tidyverse.org/reference/slice.html">dplyr::slice()</a></code>, <code><a href="https://dplyr.tidyverse.org/reference/arrange.html">dplyr::arrange()</a></code> permet par exemple de sélectionner les trois vols ayant eu le plus de retard&nbsp;:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1"></a>flights <span class="sc">|&gt;</span> </span>
+<span id="cb28-2"><a href="#cb28-2"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(dep_delay)) <span class="sc">|&gt;</span> </span>
+<span id="cb28-3"><a href="#cb28-3"></a>  <span class="fu">slice</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 3 × 19
+   year month   day dep_time sched_dep_time dep_delay arr_time sched_arr_time
+  &lt;int&gt; &lt;int&gt; &lt;int&gt;    &lt;int&gt;          &lt;int&gt;     &lt;dbl&gt;    &lt;int&gt;          &lt;int&gt;
+1  2013     1     9      641            900      1301     1242           1530
+2  2013     6    15     1432           1935      1137     1607           2120
+3  2013     1    10     1121           1635      1126     1239           1810
+# ℹ 11 more variables: arr_delay &lt;dbl&gt;, carrier &lt;chr&gt;, flight &lt;int&gt;,
+#   tailnum &lt;chr&gt;, origin &lt;chr&gt;, dest &lt;chr&gt;, air_time &lt;dbl&gt;, distance &lt;dbl&gt;,
+#   hour &lt;dbl&gt;, minute &lt;dbl&gt;, time_hour &lt;dttm&gt;</code></pre>
+</div>
+</div>
+</section><section id="slice_sample" class="level3" data-number="8.1.4"><h3 data-number="8.1.4" class="anchored" data-anchor-id="slice_sample">
+<span class="header-section-number">8.1.4</span> slice_sample()</h3>
+<p><code><a href="https://dplyr.tidyverse.org/reference/slice.html">dplyr::slice_sample()</a></code> permet de sélectionner aléatoirement un nombre de lignes ou une fraction des lignes d’un tableau. Ainsi si l’on veut choisir 5 lignes au hasard dans le tableau <code>airports</code>&nbsp;:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1"></a>airports <span class="sc">|&gt;</span> </span>
+<span id="cb30-2"><a href="#cb30-2"></a>  <span class="fu">slice_sample</span>(<span class="at">n =</span> <span class="dv">5</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 5 × 8
+  faa   name                  lat    lon   alt    tz dst   tzone              
+  &lt;chr&gt; &lt;chr&gt;               &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;              
+1 SEA   Seattle Tacoma Intl  47.4 -122.    433    -8 A     America/Los_Angeles
+2 PNC   Ponca City Rgnl      36.7  -97.1  1007    -6 A     America/Chicago    
+3 CYT   Yakataga Airport     60.1 -142.     12    -9 A     America/Anchorage  
+4 HCR   Holy Cross Airport   62.2 -160.     70    -9 A     America/Anchorage  
+5 EVV   Evansville Regional  38.0  -87.5   418    -6 A     America/Chicago    </code></pre>
+</div>
+</div>
+<p>Si l’on veut tirer au hasard 10% des lignes de <code>flights</code>&nbsp;:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1"></a>flights <span class="sc">|&gt;</span> </span>
+<span id="cb32-2"><a href="#cb32-2"></a>  <span class="fu">slice_sample</span>(<span class="at">prop =</span> .<span class="dv">1</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 33,677 × 19
+    year month   day dep_time sched_dep_time dep_delay arr_time sched_arr_time
+   &lt;int&gt; &lt;int&gt; &lt;int&gt;    &lt;int&gt;          &lt;int&gt;     &lt;dbl&gt;    &lt;int&gt;          &lt;int&gt;
+ 1  2013    12    16     1931           1800        91     2224           2102
+ 2  2013    12     8     1059           1100        -1     1300           1253
+ 3  2013     4    13     1449           1455        -6     1649           1640
+ 4  2013    12    18     1142           1129        13     1456           1442
+ 5  2013     4     5      813            815        -2     1130           1115
+ 6  2013    10    11       NA           1559        NA       NA           1719
+ 7  2013     3    31      910            915        -5     1258           1316
+ 8  2013     2    17     1655           1700        -5     2024           2036
+ 9  2013     5    28      740            740         0     1045           1055
+10  2013     2     4     1448           1450        -2     1659           1645
+# ℹ 33,667 more rows
+# ℹ 11 more variables: arr_delay &lt;dbl&gt;, carrier &lt;chr&gt;, flight &lt;int&gt;,
+#   tailnum &lt;chr&gt;, origin &lt;chr&gt;, dest &lt;chr&gt;, air_time &lt;dbl&gt;, distance &lt;dbl&gt;,
+#   hour &lt;dbl&gt;, minute &lt;dbl&gt;, time_hour &lt;dttm&gt;</code></pre>
+</div>
+</div>
+<p>Ces fonctions sont utiles notamment pour faire de l’<q>“échantillonnage”</q> en tirant au hasard un certain nombre d’observations du tableau.</p>
+</section><section id="distinct" class="level3" data-number="8.1.5"><h3 data-number="8.1.5" class="anchored" data-anchor-id="distinct">
+<span class="header-section-number">8.1.5</span> distinct()</h3>
+<p><code><a href="https://dplyr.tidyverse.org/reference/distinct.html">dplyr::distinct()</a></code> filtre les lignes du tableau pour ne conserver que les lignes distinctes, en supprimant toutes les lignes en double.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1"></a>flights <span class="sc">|&gt;</span></span>
+<span id="cb34-2"><a href="#cb34-2"></a>  <span class="fu">select</span>(day, month) <span class="sc">|&gt;</span></span>
+<span id="cb34-3"><a href="#cb34-3"></a>  <span class="fu">distinct</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 365 × 2
+     day month
+   &lt;int&gt; &lt;int&gt;
+ 1     1     1
+ 2     2     1
+ 3     3     1
+ 4     4     1
+ 5     5     1
+ 6     6     1
+ 7     7     1
+ 8     8     1
+ 9     9     1
+10    10     1
+# ℹ 355 more rows</code></pre>
+</div>
+</div>
+<p>On peut lui spécifier une liste de variables&nbsp;: dans ce cas, pour toutes les observations ayant des valeurs identiques pour les variables en question, <code><a href="https://dplyr.tidyverse.org/reference/distinct.html">dplyr::distinct()</a></code> ne conservera que la première d’entre elles.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1"></a>flights <span class="sc">|&gt;</span></span>
+<span id="cb36-2"><a href="#cb36-2"></a>  <span class="fu">distinct</span>(month, day)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 365 × 2
+   month   day
+   &lt;int&gt; &lt;int&gt;
+ 1     1     1
+ 2     1     2
+ 3     1     3
+ 4     1     4
+ 5     1     5
+ 6     1     6
+ 7     1     7
+ 8     1     8
+ 9     1     9
+10     1    10
+# ℹ 355 more rows</code></pre>
+</div>
+</div>
+<p>L’option <code>.keep_all</code> permet, dans l’opération précédente, de conserver l’ensemble des colonnes du tableau&nbsp;:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1"></a>flights <span class="sc">|&gt;</span></span>
+<span id="cb38-2"><a href="#cb38-2"></a>  <span class="fu">distinct</span>(month, day, <span class="at">.keep_all =</span> <span class="cn">TRUE</span>) </span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 365 × 19
+    year month   day dep_time sched_dep_time dep_delay arr_time sched_arr_time
+   &lt;int&gt; &lt;int&gt; &lt;int&gt;    &lt;int&gt;          &lt;int&gt;     &lt;dbl&gt;    &lt;int&gt;          &lt;int&gt;
+ 1  2013     1     1      517            515         2      830            819
+ 2  2013     1     2       42           2359        43      518            442
+ 3  2013     1     3       32           2359        33      504            442
+ 4  2013     1     4       25           2359        26      505            442
+ 5  2013     1     5       14           2359        15      503            445
+ 6  2013     1     6       16           2359        17      451            442
+ 7  2013     1     7       49           2359        50      531            444
+ 8  2013     1     8      454            500        -6      625            648
+ 9  2013     1     9        2           2359         3      432            444
+10  2013     1    10        3           2359         4      426            437
+# ℹ 355 more rows
+# ℹ 11 more variables: arr_delay &lt;dbl&gt;, carrier &lt;chr&gt;, flight &lt;int&gt;,
+#   tailnum &lt;chr&gt;, origin &lt;chr&gt;, dest &lt;chr&gt;, air_time &lt;dbl&gt;, distance &lt;dbl&gt;,
+#   hour &lt;dbl&gt;, minute &lt;dbl&gt;, time_hour &lt;dttm&gt;</code></pre>
+</div>
+</div>
+</section></section><section id="opérations-sur-les-colonnes" class="level2 page-columns page-full" data-number="8.2"><h2 data-number="8.2" class="anchored" data-anchor-id="opérations-sur-les-colonnes">
+<span class="header-section-number">8.2</span> Opérations sur les colonnes</h2>
+<section id="sec-dplyr-select" class="level3 page-columns page-full" data-number="8.2.1"><h3 data-number="8.2.1" class="anchored" data-anchor-id="sec-dplyr-select">
+<span class="header-section-number">8.2.1</span> select()</h3>
+<p><code><a href="https://dplyr.tidyverse.org/reference/select.html">dplyr::select()</a></code> permet de sélectionner des colonnes d’un tableau de données. Ainsi, si l’on veut extraire les colonnes <code>lat</code> et <code>lon</code> du tableau <code>airports</code>&nbsp;:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1"></a>airports <span class="sc">|&gt;</span> </span>
+<span id="cb40-2"><a href="#cb40-2"></a>  <span class="fu">select</span>(lat, lon)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1,458 × 2
+     lat    lon
+   &lt;dbl&gt;  &lt;dbl&gt;
+ 1  41.1  -80.6
+ 2  32.5  -85.7
+ 3  42.0  -88.1
+ 4  41.4  -74.4
+ 5  31.1  -81.4
+ 6  36.4  -82.2
+ 7  41.5  -84.5
+ 8  42.9  -76.8
+ 9  39.8  -76.6
+10  48.1 -123. 
+# ℹ 1,448 more rows</code></pre>
+</div>
+</div>
+<p>Si on fait précéder le nom d’un <code>-</code>, la colonne est éliminée plutôt que sélectionnée&nbsp;:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1"></a>airports <span class="sc">|&gt;</span> </span>
+<span id="cb42-2"><a href="#cb42-2"></a>  <span class="fu">select</span>(<span class="sc">-</span>lat, <span class="sc">-</span>lon)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1,458 × 6
+   faa   name                             alt    tz dst   tzone              
+   &lt;chr&gt; &lt;chr&gt;                          &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;              
+ 1 04G   Lansdowne Airport               1044    -5 A     America/New_York   
+ 2 06A   Moton Field Municipal Airport    264    -6 A     America/Chicago    
+ 3 06C   Schaumburg Regional              801    -6 A     America/Chicago    
+ 4 06N   Randall Airport                  523    -5 A     America/New_York   
+ 5 09J   Jekyll Island Airport             11    -5 A     America/New_York   
+ 6 0A9   Elizabethton Municipal Airport  1593    -5 A     America/New_York   
+ 7 0G6   Williams County Airport          730    -5 A     America/New_York   
+ 8 0G7   Finger Lakes Regional Airport    492    -5 A     America/New_York   
+ 9 0P2   Shoestring Aviation Airfield    1000    -5 U     America/New_York   
+10 0S9   Jefferson County Intl            108    -8 A     America/Los_Angeles
+# ℹ 1,448 more rows</code></pre>
+</div>
+</div>
+<p><code><a href="https://dplyr.tidyverse.org/reference/select.html">dplyr::select()</a></code> comprend toute une série de fonctions facilitant la sélection de multiples colonnes. Par exemple, <code><a href="https://tidyselect.r-lib.org/reference/starts_with.html">dplyr::starts_with()</a></code>, <code>dplyr::ends_width()</code>, <code><a href="https://tidyselect.r-lib.org/reference/starts_with.html">dplyr::contains()</a></code> ou <code><a href="https://tidyselect.r-lib.org/reference/starts_with.html">dplyr::matches()</a></code> permettent d’exprimer des conditions sur les noms de variables&nbsp;:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1"></a>flights <span class="sc">|&gt;</span> </span>
+<span id="cb44-2"><a href="#cb44-2"></a>  <span class="fu">select</span>(<span class="fu">starts_with</span>(<span class="st">"dep_"</span>))</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 336,776 × 2
+   dep_time dep_delay
+      &lt;int&gt;     &lt;dbl&gt;
+ 1      517         2
+ 2      533         4
+ 3      542         2
+ 4      544        -1
+ 5      554        -6
+ 6      554        -4
+ 7      555        -5
+ 8      557        -3
+ 9      557        -3
+10      558        -2
+# ℹ 336,766 more rows</code></pre>
+</div>
+</div>
+<div class="page-columns page-full"><p>La syntaxe <code>colonne1:colonne2</code> permet de sélectionner toutes les colonnes situées entre <em>colonne1</em> et <em>colonne2</em> incluses<a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a>&nbsp;:</p><div class="no-row-height column-margin column-container"><li id="fn3"><p><sup>3</sup>&nbsp;À noter que cette opération est un peu plus “fragile” que les autres, car si l’ordre des colonnes change elle peut renvoyer un résultat différent.</p></li></div></div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1"></a>flights <span class="sc">|&gt;</span> </span>
+<span id="cb46-2"><a href="#cb46-2"></a>  <span class="fu">select</span>(year<span class="sc">:</span>day)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 336,776 × 3
+    year month   day
+   &lt;int&gt; &lt;int&gt; &lt;int&gt;
+ 1  2013     1     1
+ 2  2013     1     1
+ 3  2013     1     1
+ 4  2013     1     1
+ 5  2013     1     1
+ 6  2013     1     1
+ 7  2013     1     1
+ 8  2013     1     1
+ 9  2013     1     1
+10  2013     1     1
+# ℹ 336,766 more rows</code></pre>
+</div>
+</div>
+<p><code data-data_pkg="tidyselect"><a href="https://tidyselect.r-lib.org/reference/all_of.html">dplyr::all_of()</a></code> et <code data-data_pkg="tidyselect"><a href="https://tidyselect.r-lib.org/reference/all_of.html">dplyr::any_of()</a></code> permettent de fournir une liste de variables à extraire sous forme de vecteur textuel. Alors que <code data-data_pkg="tidyselect"><a href="https://tidyselect.r-lib.org/reference/all_of.html">dplyr::all_of()</a></code> renverra une erreur si une variable n’est pas trouvée dans le tableau de départ, <code data-data_pkg="tidyselect"><a href="https://tidyselect.r-lib.org/reference/all_of.html">dplyr::any_of()</a></code> sera moins stricte.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1"></a>flights <span class="sc">|&gt;</span> </span>
+<span id="cb48-2"><a href="#cb48-2"></a>  <span class="fu">select</span>(<span class="fu">all_of</span>(<span class="fu">c</span>(<span class="st">"year"</span>, <span class="st">"month"</span>, <span class="st">"day"</span>)))</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 336,776 × 3
+    year month   day
+   &lt;int&gt; &lt;int&gt; &lt;int&gt;
+ 1  2013     1     1
+ 2  2013     1     1
+ 3  2013     1     1
+ 4  2013     1     1
+ 5  2013     1     1
+ 6  2013     1     1
+ 7  2013     1     1
+ 8  2013     1     1
+ 9  2013     1     1
+10  2013     1     1
+# ℹ 336,766 more rows</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1"></a>flights <span class="sc">|&gt;</span> </span>
+<span id="cb50-2"><a href="#cb50-2"></a>  <span class="fu">select</span>(<span class="fu">all_of</span>(<span class="fu">c</span>(<span class="st">"century"</span>, <span class="st">"year"</span>, <span class="st">"month"</span>, <span class="st">"day"</span>)))</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-error">
+<pre><code>Error in `all_of()`:
+! Can't subset columns that don't exist.
+✖ Column `century` doesn't exist.</code></pre>
+</div>
+</div>
+<pre><code>Erreur : Can't subset columns that don't exist. 
+x Column `century` doesn't exist.</code></pre>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb53"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1"></a>flights <span class="sc">|&gt;</span> </span>
+<span id="cb53-2"><a href="#cb53-2"></a>  <span class="fu">select</span>(<span class="fu">any_of</span>(<span class="fu">c</span>(<span class="st">"century"</span>, <span class="st">"year"</span>, <span class="st">"month"</span>, <span class="st">"day"</span>)))</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 336,776 × 3
+    year month   day
+   &lt;int&gt; &lt;int&gt; &lt;int&gt;
+ 1  2013     1     1
+ 2  2013     1     1
+ 3  2013     1     1
+ 4  2013     1     1
+ 5  2013     1     1
+ 6  2013     1     1
+ 7  2013     1     1
+ 8  2013     1     1
+ 9  2013     1     1
+10  2013     1     1
+# ℹ 336,766 more rows</code></pre>
+</div>
+</div>
+<p><code data-data_pkg="tidyselect"><a href="https://tidyselect.r-lib.org/reference/where.html">dplyr::where()</a></code> permets de sélectionner des variables à partir d’une fonction qui renvoie une valeur logique. Par exemple, pour sélectionner seulement les variables textuelles&nbsp;:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb55"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1"></a>flights <span class="sc">|&gt;</span> </span>
+<span id="cb55-2"><a href="#cb55-2"></a>  <span class="fu">select</span>(<span class="fu">where</span>(is.character))</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 336,776 × 4
+   carrier tailnum origin dest 
+   &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;  &lt;chr&gt;
+ 1 UA      N14228  EWR    IAH  
+ 2 UA      N24211  LGA    IAH  
+ 3 AA      N619AA  JFK    MIA  
+ 4 B6      N804JB  JFK    BQN  
+ 5 DL      N668DN  LGA    ATL  
+ 6 UA      N39463  EWR    ORD  
+ 7 B6      N516JB  EWR    FLL  
+ 8 EV      N829AS  LGA    IAD  
+ 9 B6      N593JB  JFK    MCO  
+10 AA      N3ALAA  LGA    ORD  
+# ℹ 336,766 more rows</code></pre>
+</div>
+</div>
+<p><code><a href="https://dplyr.tidyverse.org/reference/select.html">dplyr::select()</a></code> peut être utilisée pour réordonner les colonnes d’une table en utilisant la fonction <code data-pkg="dplyr" data-rdoc="select_helpers"><a href="https://tidyselect.r-lib.org/reference/everything.html">dplyr::everything()</a></code>, qui sélectionne l’ensemble des colonnes non encore sélectionnées. Ainsi, si l’on souhaite faire passer la colonne <em>name</em> en première position de la table <code>airports</code>, on peut faire&nbsp;:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb57"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb57-1"><a href="#cb57-1"></a>airports <span class="sc">|&gt;</span> </span>
+<span id="cb57-2"><a href="#cb57-2"></a>  <span class="fu">select</span>(name, <span class="fu">everything</span>())</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1,458 × 8
+   name                           faa     lat    lon   alt    tz dst   tzone    
+   &lt;chr&gt;                          &lt;chr&gt; &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;    
+ 1 Lansdowne Airport              04G    41.1  -80.6  1044    -5 A     America/…
+ 2 Moton Field Municipal Airport  06A    32.5  -85.7   264    -6 A     America/…
+ 3 Schaumburg Regional            06C    42.0  -88.1   801    -6 A     America/…
+ 4 Randall Airport                06N    41.4  -74.4   523    -5 A     America/…
+ 5 Jekyll Island Airport          09J    31.1  -81.4    11    -5 A     America/…
+ 6 Elizabethton Municipal Airport 0A9    36.4  -82.2  1593    -5 A     America/…
+ 7 Williams County Airport        0G6    41.5  -84.5   730    -5 A     America/…
+ 8 Finger Lakes Regional Airport  0G7    42.9  -76.8   492    -5 A     America/…
+ 9 Shoestring Aviation Airfield   0P2    39.8  -76.6  1000    -5 U     America/…
+10 Jefferson County Intl          0S9    48.1 -123.    108    -8 A     America/…
+# ℹ 1,448 more rows</code></pre>
+</div>
+</div>
+</section><section id="relocate" class="level3" data-number="8.2.2"><h3 data-number="8.2.2" class="anchored" data-anchor-id="relocate">
+<span class="header-section-number">8.2.2</span> relocate()</h3>
+<p>Pour réordonner des colonnes, on pourra aussi avoir recours à <code><a href="https://dplyr.tidyverse.org/reference/relocate.html">dplyr::relocate()</a></code> en indiquant les premières variables. Il n’est pas nécessaire d’ajouter <code data-pkg="dplyr">everything()</code> car avec <code><a href="https://dplyr.tidyverse.org/reference/relocate.html">dplyr::relocate()</a></code> toutes les variables sont conservées.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb59"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb59-1"><a href="#cb59-1"></a>airports <span class="sc">|&gt;</span> </span>
+<span id="cb59-2"><a href="#cb59-2"></a>  <span class="fu">relocate</span>(lon, lat, name)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1,458 × 8
+      lon   lat name                           faa     alt    tz dst   tzone    
+    &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;                          &lt;chr&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;    
+ 1  -80.6  41.1 Lansdowne Airport              04G    1044    -5 A     America/…
+ 2  -85.7  32.5 Moton Field Municipal Airport  06A     264    -6 A     America/…
+ 3  -88.1  42.0 Schaumburg Regional            06C     801    -6 A     America/…
+ 4  -74.4  41.4 Randall Airport                06N     523    -5 A     America/…
+ 5  -81.4  31.1 Jekyll Island Airport          09J      11    -5 A     America/…
+ 6  -82.2  36.4 Elizabethton Municipal Airport 0A9    1593    -5 A     America/…
+ 7  -84.5  41.5 Williams County Airport        0G6     730    -5 A     America/…
+ 8  -76.8  42.9 Finger Lakes Regional Airport  0G7     492    -5 A     America/…
+ 9  -76.6  39.8 Shoestring Aviation Airfield   0P2    1000    -5 U     America/…
+10 -123.   48.1 Jefferson County Intl          0S9     108    -8 A     America/…
+# ℹ 1,448 more rows</code></pre>
+</div>
+</div>
+</section><section id="rename" class="level3 page-columns page-full" data-number="8.2.3"><h3 data-number="8.2.3" class="anchored" data-anchor-id="rename">
+<span class="header-section-number">8.2.3</span> rename()</h3>
+<div class="page-columns page-full"><p>Une variante de <code><a href="https://dplyr.tidyverse.org/reference/select.html">dplyr::select()</a></code> est <code><a href="https://dplyr.tidyverse.org/reference/rename.html">dplyr::rename()</a></code><a href="#fn4" class="footnote-ref" id="fnref4" role="doc-noteref"><sup>4</sup></a>, qui permet de renommer facilement des colonnes. On l’utilise en lui passant des paramètres de la forme <code>nouveau_nom = ancien_nom</code>. Ainsi, si on veut renommer les colonnes <em>lon</em> et <em>lat</em> de <code>airports</code> en <em>longitude</em> et <em>latitude</em>&nbsp;:</p><div class="no-row-height column-margin column-container"><li id="fn4"><p><sup>4</sup>&nbsp;Il est également possible de renommer des colonnes directement avec <code>select()</code>, avec la même syntaxe que pour <code>rename()</code>.</p></li></div></div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb61"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb61-1"><a href="#cb61-1"></a>airports <span class="sc">|&gt;</span> </span>
+<span id="cb61-2"><a href="#cb61-2"></a>  <span class="fu">rename</span>(<span class="at">longitude =</span> lon, <span class="at">latitude =</span> lat)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1,458 × 8
+   faa   name                         latitude longitude   alt    tz dst   tzone
+   &lt;chr&gt; &lt;chr&gt;                           &lt;dbl&gt;     &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;
+ 1 04G   Lansdowne Airport                41.1     -80.6  1044    -5 A     Amer…
+ 2 06A   Moton Field Municipal Airpo…     32.5     -85.7   264    -6 A     Amer…
+ 3 06C   Schaumburg Regional              42.0     -88.1   801    -6 A     Amer…
+ 4 06N   Randall Airport                  41.4     -74.4   523    -5 A     Amer…
+ 5 09J   Jekyll Island Airport            31.1     -81.4    11    -5 A     Amer…
+ 6 0A9   Elizabethton Municipal Airp…     36.4     -82.2  1593    -5 A     Amer…
+ 7 0G6   Williams County Airport          41.5     -84.5   730    -5 A     Amer…
+ 8 0G7   Finger Lakes Regional Airpo…     42.9     -76.8   492    -5 A     Amer…
+ 9 0P2   Shoestring Aviation Airfield     39.8     -76.6  1000    -5 U     Amer…
+10 0S9   Jefferson County Intl            48.1    -123.    108    -8 A     Amer…
+# ℹ 1,448 more rows</code></pre>
+</div>
+</div>
+<p>Si les noms de colonnes comportent des espaces ou des caractères spéciaux, on peut les entourer de guillemets (<code>"</code>) ou de quotes inverses (<code>`</code>)&nbsp;:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb63"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb63-1"><a href="#cb63-1"></a>flights <span class="sc">|&gt;</span> </span>
+<span id="cb63-2"><a href="#cb63-2"></a>  <span class="fu">rename</span>(</span>
+<span id="cb63-3"><a href="#cb63-3"></a>    <span class="st">"retard départ"</span> <span class="ot">=</span> dep_delay,</span>
+<span id="cb63-4"><a href="#cb63-4"></a>    <span class="st">"retard arrivée"</span> <span class="ot">=</span> arr_delay</span>
+<span id="cb63-5"><a href="#cb63-5"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb63-6"><a href="#cb63-6"></a>  <span class="fu">select</span>(<span class="st">`</span><span class="at">retard départ</span><span class="st">`</span>, <span class="st">`</span><span class="at">retard arrivée</span><span class="st">`</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 336,776 × 2
+   `retard départ` `retard arrivée`
+             &lt;dbl&gt;            &lt;dbl&gt;
+ 1               2               11
+ 2               4               20
+ 3               2               33
+ 4              -1              -18
+ 5              -6              -25
+ 6              -4               12
+ 7              -5               19
+ 8              -3              -14
+ 9              -3               -8
+10              -2                8
+# ℹ 336,766 more rows</code></pre>
+</div>
+</div>
+</section><section id="rename_with" class="level3 page-columns page-full" data-number="8.2.4"><h3 data-number="8.2.4" class="anchored" data-anchor-id="rename_with">
+<span class="header-section-number">8.2.4</span> rename_with()</h3>
+<p>La fonction <code><a href="https://dplyr.tidyverse.org/reference/rename.html">dplyr::rename_with()</a></code> permets de renommer plusieurs colonnes d’un coup en transmettant une fonction, par exemple <code><a href="https://rdrr.io/r/base/chartr.html">toupper()</a></code> qui passe tous les caractères en majuscule.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb65"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb65-1"><a href="#cb65-1"></a>airports <span class="sc">|&gt;</span> </span>
+<span id="cb65-2"><a href="#cb65-2"></a>  <span class="fu">rename_with</span>(toupper)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1,458 × 8
+   FAA   NAME                             LAT    LON   ALT    TZ DST   TZONE    
+   &lt;chr&gt; &lt;chr&gt;                          &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;    
+ 1 04G   Lansdowne Airport               41.1  -80.6  1044    -5 A     America/…
+ 2 06A   Moton Field Municipal Airport   32.5  -85.7   264    -6 A     America/…
+ 3 06C   Schaumburg Regional             42.0  -88.1   801    -6 A     America/…
+ 4 06N   Randall Airport                 41.4  -74.4   523    -5 A     America/…
+ 5 09J   Jekyll Island Airport           31.1  -81.4    11    -5 A     America/…
+ 6 0A9   Elizabethton Municipal Airport  36.4  -82.2  1593    -5 A     America/…
+ 7 0G6   Williams County Airport         41.5  -84.5   730    -5 A     America/…
+ 8 0G7   Finger Lakes Regional Airport   42.9  -76.8   492    -5 A     America/…
+ 9 0P2   Shoestring Aviation Airfield    39.8  -76.6  1000    -5 U     America/…
+10 0S9   Jefferson County Intl           48.1 -123.    108    -8 A     America/…
+# ℹ 1,448 more rows</code></pre>
+</div>
+</div>
+<div class="page-columns page-full"><p>On pourra notamment utiliser les fonctions du package <code>snakecase</code> et, en particulier, <code><a href="https://rdrr.io/pkg/snakecase/man/caseconverter.html">snakecase::to_snake_case()</a></code> que je recommande pour nommer de manière consistante les variables<a href="#fn5" class="footnote-ref" id="fnref5" role="doc-noteref"><sup>5</sup></a>.</p><div class="no-row-height column-margin column-container"><li id="fn5"><p><sup>5</sup>&nbsp;Le <a href="https://fr.wikipedia.org/wiki/Snake_case"><strong><em>snake case</em></strong></a> est une convention typographique en informatique consistant à écrire des ensembles de mots, généralement, en minuscules en les séparant par des tirets bas.</p></li></div></div>
+</section><section id="pull" class="level3" data-number="8.2.5"><h3 data-number="8.2.5" class="anchored" data-anchor-id="pull">
+<span class="header-section-number">8.2.5</span> pull()</h3>
+<p>La fonction <code><a href="https://dplyr.tidyverse.org/reference/pull.html">dplyr::pull()</a></code> permet d’accéder au contenu d’une variable. C’est un équivalent aux opérateurs <code>$</code> ou <code>[[]]</code>. On peut lui passer un nom de variable ou bien sa position.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb67"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb67-1"><a href="#cb67-1"></a>airports <span class="sc">|&gt;</span> </span>
+<span id="cb67-2"><a href="#cb67-2"></a>  <span class="fu">pull</span>(alt) <span class="sc">|&gt;</span> </span>
+<span id="cb67-3"><a href="#cb67-3"></a>  <span class="fu">mean</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 1001.416</code></pre>
+</div>
+</div>
+<div class="callout-note callout callout-style-default callout-captioned">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-caption-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><code><a href="https://dplyr.tidyverse.org/reference/pull.html">dplyr::pull()</a></code> ressemble à la fonction <code><a href="https://purrr.tidyverse.org/reference/chuck.html">purrr::chuck()</a></code> que nous avons déjà abordée (cf.&nbsp;<a href="#sec-pluck-chuck"><span class="quarto-unresolved-ref">sec-pluck-chuck</span></a>). Cependant, <code><a href="https://dplyr.tidyverse.org/reference/pull.html">dplyr::pull()</a></code> ne fonctionne que sur des tableaux de données tandis que <code><a href="https://purrr.tidyverse.org/reference/chuck.html">purrr::chuck()</a></code> est plus générique et peut s’appliquer à tous types de listes.</p>
+</div>
+</div>
+</section><section id="mutate" class="level3" data-number="8.2.6"><h3 data-number="8.2.6" class="anchored" data-anchor-id="mutate">
+<span class="header-section-number">8.2.6</span> mutate()</h3>
+<p><code><a href="https://dplyr.tidyverse.org/reference/mutate.html">dplyr::mutate()</a></code> permet de créer de nouvelles colonnes dans le tableau de données, en général à partir de variables existantes.</p>
+<p>Par exemple, la table <code>airports</code> contient l’altitude de l’aéroport en pieds. Si l’on veut créer une nouvelle variable <em>alt_m</em> avec l’altitude en mètres, on peut faire&nbsp;:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb69"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb69-1"><a href="#cb69-1"></a>airports <span class="ot">&lt;-</span> </span>
+<span id="cb69-2"><a href="#cb69-2"></a>  airports <span class="sc">|&gt;</span> </span>
+<span id="cb69-3"><a href="#cb69-3"></a>  <span class="fu">mutate</span>(<span class="at">alt_m =</span> alt <span class="sc">/</span> <span class="fl">3.2808</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>On peut créer plusieurs nouvelles colonnes en une seule fois, et les expressions successives peuvent prendre en compte les résultats des calculs précédents. L’exemple suivant convertit d’abord la distance en kilomètres dans une variable <em>distance_km</em>, puis utilise cette nouvelle colonne pour calculer la vitesse en km/h.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb70"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb70-1"><a href="#cb70-1"></a>flights <span class="ot">&lt;-</span> </span>
+<span id="cb70-2"><a href="#cb70-2"></a>  flights <span class="sc">|&gt;</span> </span>
+<span id="cb70-3"><a href="#cb70-3"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb70-4"><a href="#cb70-4"></a>    <span class="at">distance_km =</span> distance <span class="sc">/</span> <span class="fl">0.62137</span>,</span>
+<span id="cb70-5"><a href="#cb70-5"></a>    <span class="at">vitesse =</span> distance_km <span class="sc">/</span> air_time <span class="sc">*</span> <span class="dv">60</span></span>
+<span id="cb70-6"><a href="#cb70-6"></a>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section></section><section id="opérations-groupées" class="level2 page-columns page-full" data-number="8.3"><h2 data-number="8.3" class="anchored" data-anchor-id="opérations-groupées">
+<span class="header-section-number">8.3</span> Opérations groupées</h2>
+<section id="group_by" class="level3" data-number="8.3.1"><h3 data-number="8.3.1" class="anchored" data-anchor-id="group_by">
+<span class="header-section-number">8.3.1</span> group_by()</h3>
+<p>Un élément très important de <a href="https://dplyr.tidyverse.org">dplyr</a> est la fonction <code><a href="https://dplyr.tidyverse.org/reference/group_by.html">dplyr::group_by()</a></code>. Elle permet de définir des groupes de lignes à partir des valeurs d’une ou plusieurs colonnes. Par exemple, on peut grouper les vols selon leur mois&nbsp;:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb71"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb71-1"><a href="#cb71-1"></a>flights <span class="sc">|&gt;</span> </span>
+<span id="cb71-2"><a href="#cb71-2"></a>  <span class="fu">group_by</span>(month)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 336,776 × 21
+# Groups:   month [12]
+    year month   day dep_time sched_dep_time dep_delay arr_time sched_arr_time
+   &lt;int&gt; &lt;int&gt; &lt;int&gt;    &lt;int&gt;          &lt;int&gt;     &lt;dbl&gt;    &lt;int&gt;          &lt;int&gt;
+ 1  2013     1     1      517            515         2      830            819
+ 2  2013     1     1      533            529         4      850            830
+ 3  2013     1     1      542            540         2      923            850
+ 4  2013     1     1      544            545        -1     1004           1022
+ 5  2013     1     1      554            600        -6      812            837
+ 6  2013     1     1      554            558        -4      740            728
+ 7  2013     1     1      555            600        -5      913            854
+ 8  2013     1     1      557            600        -3      709            723
+ 9  2013     1     1      557            600        -3      838            846
+10  2013     1     1      558            600        -2      753            745
+# ℹ 336,766 more rows
+# ℹ 13 more variables: arr_delay &lt;dbl&gt;, carrier &lt;chr&gt;, flight &lt;int&gt;,
+#   tailnum &lt;chr&gt;, origin &lt;chr&gt;, dest &lt;chr&gt;, air_time &lt;dbl&gt;, distance &lt;dbl&gt;,
+#   hour &lt;dbl&gt;, minute &lt;dbl&gt;, time_hour &lt;dttm&gt;, distance_km &lt;dbl&gt;,
+#   vitesse &lt;dbl&gt;</code></pre>
+</div>
+</div>
+<p>Par défaut ceci ne fait rien de visible, à part l’apparition d’une mention <em>Groups</em> dans l’affichage du résultat. Mais à partir du moment où des groupes ont été définis, les verbes comme <code><a href="https://dplyr.tidyverse.org/reference/slice.html">dplyr::slice()</a></code> ou <code><a href="https://dplyr.tidyverse.org/reference/mutate.html">dplyr::mutate()</a></code> vont en tenir compte lors de leurs opérations.</p>
+<p>Par exemple, si on applique <code><a href="https://dplyr.tidyverse.org/reference/slice.html">dplyr::slice()</a></code> à un tableau préalablement groupé, il va sélectionner les lignes aux positions indiquées <em>pour chaque groupe</em>. Ainsi la commande suivante affiche le premier vol de chaque mois, selon leur ordre d’apparition dans le tableau&nbsp;:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb73"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb73-1"><a href="#cb73-1"></a>flights <span class="sc">|&gt;</span> </span>
+<span id="cb73-2"><a href="#cb73-2"></a>  <span class="fu">group_by</span>(month) <span class="sc">|&gt;</span> </span>
+<span id="cb73-3"><a href="#cb73-3"></a>  <span class="fu">slice</span>(<span class="dv">1</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 12 × 21
+# Groups:   month [12]
+    year month   day dep_time sched_dep_time dep_delay arr_time sched_arr_time
+   &lt;int&gt; &lt;int&gt; &lt;int&gt;    &lt;int&gt;          &lt;int&gt;     &lt;dbl&gt;    &lt;int&gt;          &lt;int&gt;
+ 1  2013     1     1      517            515         2      830            819
+ 2  2013     2     1      456            500        -4      652            648
+ 3  2013     3     1        4           2159       125      318             56
+ 4  2013     4     1      454            500        -6      636            640
+ 5  2013     5     1        9           1655       434      308           2020
+ 6  2013     6     1        2           2359         3      341            350
+ 7  2013     7     1        1           2029       212      236           2359
+ 8  2013     8     1       12           2130       162      257             14
+ 9  2013     9     1        9           2359        10      343            340
+10  2013    10     1      447            500       -13      614            648
+11  2013    11     1        5           2359         6      352            345
+12  2013    12     1       13           2359        14      446            445
+# ℹ 13 more variables: arr_delay &lt;dbl&gt;, carrier &lt;chr&gt;, flight &lt;int&gt;,
+#   tailnum &lt;chr&gt;, origin &lt;chr&gt;, dest &lt;chr&gt;, air_time &lt;dbl&gt;, distance &lt;dbl&gt;,
+#   hour &lt;dbl&gt;, minute &lt;dbl&gt;, time_hour &lt;dttm&gt;, distance_km &lt;dbl&gt;,
+#   vitesse &lt;dbl&gt;</code></pre>
+</div>
+</div>
+<p>Idem pour <code><a href="https://dplyr.tidyverse.org/reference/mutate.html">dplyr::mutate()</a></code>&nbsp;: les opérations appliquées lors du calcul des valeurs des nouvelles colonnes sont appliquée groupe de lignes par groupe de lignes. Dans l’exemple suivant, on ajoute une nouvelle colonne qui contient le retard moyen <em>du mois correspondant</em>&nbsp;:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb75"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb75-1"><a href="#cb75-1"></a>flights <span class="sc">|&gt;</span> </span>
+<span id="cb75-2"><a href="#cb75-2"></a>  <span class="fu">group_by</span>(month) <span class="sc">|&gt;</span> </span>
+<span id="cb75-3"><a href="#cb75-3"></a>  <span class="fu">mutate</span>(<span class="at">mean_delay_month =</span> <span class="fu">mean</span>(dep_delay, <span class="at">na.rm =</span> <span class="cn">TRUE</span>))</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 336,776 × 22
+# Groups:   month [12]
+    year month   day dep_time sched_dep_time dep_delay arr_time sched_arr_time
+   &lt;int&gt; &lt;int&gt; &lt;int&gt;    &lt;int&gt;          &lt;int&gt;     &lt;dbl&gt;    &lt;int&gt;          &lt;int&gt;
+ 1  2013     1     1      517            515         2      830            819
+ 2  2013     1     1      533            529         4      850            830
+ 3  2013     1     1      542            540         2      923            850
+ 4  2013     1     1      544            545        -1     1004           1022
+ 5  2013     1     1      554            600        -6      812            837
+ 6  2013     1     1      554            558        -4      740            728
+ 7  2013     1     1      555            600        -5      913            854
+ 8  2013     1     1      557            600        -3      709            723
+ 9  2013     1     1      557            600        -3      838            846
+10  2013     1     1      558            600        -2      753            745
+# ℹ 336,766 more rows
+# ℹ 14 more variables: arr_delay &lt;dbl&gt;, carrier &lt;chr&gt;, flight &lt;int&gt;,
+#   tailnum &lt;chr&gt;, origin &lt;chr&gt;, dest &lt;chr&gt;, air_time &lt;dbl&gt;, distance &lt;dbl&gt;,
+#   hour &lt;dbl&gt;, minute &lt;dbl&gt;, time_hour &lt;dttm&gt;, distance_km &lt;dbl&gt;,
+#   vitesse &lt;dbl&gt;, mean_delay_month &lt;dbl&gt;</code></pre>
+</div>
+</div>
+<p>Ceci peut permettre, par exemple, de déterminer si un retard donné est supérieur ou inférieur au retard moyen du mois en cours.</p>
+<p><code><a href="https://dplyr.tidyverse.org/reference/group_by.html">dplyr::group_by()</a></code> peut aussi être utile avec <code><a href="https://dplyr.tidyverse.org/reference/filter.html">dplyr::filter()</a></code>, par exemple pour sélectionner les vols avec le retard au départ le plus important <em>pour chaque mois</em>&nbsp;:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb77"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb77-1"><a href="#cb77-1"></a>flights <span class="sc">|&gt;</span> </span>
+<span id="cb77-2"><a href="#cb77-2"></a>  <span class="fu">group_by</span>(month) <span class="sc">|&gt;</span> </span>
+<span id="cb77-3"><a href="#cb77-3"></a>  <span class="fu">filter</span>(dep_delay <span class="sc">==</span> <span class="fu">max</span>(dep_delay, <span class="at">na.rm =</span> <span class="cn">TRUE</span>))</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 12 × 21
+# Groups:   month [12]
+    year month   day dep_time sched_dep_time dep_delay arr_time sched_arr_time
+   &lt;int&gt; &lt;int&gt; &lt;int&gt;    &lt;int&gt;          &lt;int&gt;     &lt;dbl&gt;    &lt;int&gt;          &lt;int&gt;
+ 1  2013     1     9      641            900      1301     1242           1530
+ 2  2013    10    14     2042            900       702     2255           1127
+ 3  2013    11     3      603           1645       798      829           1913
+ 4  2013    12     5      756           1700       896     1058           2020
+ 5  2013     2    10     2243            830       853      100           1106
+ 6  2013     3    17     2321            810       911      135           1020
+ 7  2013     4    10     1100           1900       960     1342           2211
+ 8  2013     5     3     1133           2055       878     1250           2215
+ 9  2013     6    15     1432           1935      1137     1607           2120
+10  2013     7    22      845           1600      1005     1044           1815
+11  2013     8     8     2334           1454       520      120           1710
+12  2013     9    20     1139           1845      1014     1457           2210
+# ℹ 13 more variables: arr_delay &lt;dbl&gt;, carrier &lt;chr&gt;, flight &lt;int&gt;,
+#   tailnum &lt;chr&gt;, origin &lt;chr&gt;, dest &lt;chr&gt;, air_time &lt;dbl&gt;, distance &lt;dbl&gt;,
+#   hour &lt;dbl&gt;, minute &lt;dbl&gt;, time_hour &lt;dttm&gt;, distance_km &lt;dbl&gt;,
+#   vitesse &lt;dbl&gt;</code></pre>
+</div>
+</div>
+<div class="important">
+<p><strong>Attention&nbsp;:</strong> la clause <code>dplyr::roup_by()</code> marche pour les verbes déjà vus précédemment, <em>sauf</em> pour <code><a href="https://dplyr.tidyverse.org/reference/arrange.html">dplyr::arrange()</a></code>, qui par défaut trie la table sans tenir compte des groupes. Pour obtenir un tri par groupe, il faut lui ajouter l’argument <code>.by_group = TRUE</code>.</p>
+</div>
+<p>On peut voir la différence en comparant les deux résultats suivants&nbsp;:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb79"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb79-1"><a href="#cb79-1"></a>flights <span class="sc">|&gt;</span> </span>
+<span id="cb79-2"><a href="#cb79-2"></a>  <span class="fu">group_by</span>(month) <span class="sc">|&gt;</span> </span>
+<span id="cb79-3"><a href="#cb79-3"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(dep_delay))</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 336,776 × 21
+# Groups:   month [12]
+    year month   day dep_time sched_dep_time dep_delay arr_time sched_arr_time
+   &lt;int&gt; &lt;int&gt; &lt;int&gt;    &lt;int&gt;          &lt;int&gt;     &lt;dbl&gt;    &lt;int&gt;          &lt;int&gt;
+ 1  2013     1     9      641            900      1301     1242           1530
+ 2  2013     6    15     1432           1935      1137     1607           2120
+ 3  2013     1    10     1121           1635      1126     1239           1810
+ 4  2013     9    20     1139           1845      1014     1457           2210
+ 5  2013     7    22      845           1600      1005     1044           1815
+ 6  2013     4    10     1100           1900       960     1342           2211
+ 7  2013     3    17     2321            810       911      135           1020
+ 8  2013     6    27      959           1900       899     1236           2226
+ 9  2013     7    22     2257            759       898      121           1026
+10  2013    12     5      756           1700       896     1058           2020
+# ℹ 336,766 more rows
+# ℹ 13 more variables: arr_delay &lt;dbl&gt;, carrier &lt;chr&gt;, flight &lt;int&gt;,
+#   tailnum &lt;chr&gt;, origin &lt;chr&gt;, dest &lt;chr&gt;, air_time &lt;dbl&gt;, distance &lt;dbl&gt;,
+#   hour &lt;dbl&gt;, minute &lt;dbl&gt;, time_hour &lt;dttm&gt;, distance_km &lt;dbl&gt;,
+#   vitesse &lt;dbl&gt;</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb81"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb81-1"><a href="#cb81-1"></a>flights <span class="sc">|&gt;</span> </span>
+<span id="cb81-2"><a href="#cb81-2"></a>  <span class="fu">group_by</span>(month) <span class="sc">|&gt;</span> </span>
+<span id="cb81-3"><a href="#cb81-3"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(dep_delay), <span class="at">.by_group =</span> <span class="cn">TRUE</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 336,776 × 21
+# Groups:   month [12]
+    year month   day dep_time sched_dep_time dep_delay arr_time sched_arr_time
+   &lt;int&gt; &lt;int&gt; &lt;int&gt;    &lt;int&gt;          &lt;int&gt;     &lt;dbl&gt;    &lt;int&gt;          &lt;int&gt;
+ 1  2013     1     9      641            900      1301     1242           1530
+ 2  2013     1    10     1121           1635      1126     1239           1810
+ 3  2013     1     1      848           1835       853     1001           1950
+ 4  2013     1    13     1809            810       599     2054           1042
+ 5  2013     1    16     1622            800       502     1911           1054
+ 6  2013     1    23     1551            753       478     1812           1006
+ 7  2013     1    10     1525            900       385     1713           1039
+ 8  2013     1     1     2343           1724       379      314           1938
+ 9  2013     1     2     2131           1512       379     2340           1741
+10  2013     1     7     2021           1415       366     2332           1724
+# ℹ 336,766 more rows
+# ℹ 13 more variables: arr_delay &lt;dbl&gt;, carrier &lt;chr&gt;, flight &lt;int&gt;,
+#   tailnum &lt;chr&gt;, origin &lt;chr&gt;, dest &lt;chr&gt;, air_time &lt;dbl&gt;, distance &lt;dbl&gt;,
+#   hour &lt;dbl&gt;, minute &lt;dbl&gt;, time_hour &lt;dttm&gt;, distance_km &lt;dbl&gt;,
+#   vitesse &lt;dbl&gt;</code></pre>
+</div>
+</div>
+</section><section id="summarise" class="level3" data-number="8.3.2"><h3 data-number="8.3.2" class="anchored" data-anchor-id="summarise">
+<span class="header-section-number">8.3.2</span> summarise()</h3>
+<p><code><a href="https://dplyr.tidyverse.org/reference/summarise.html">dplyr::summarise()</a></code> permet d’agréger les lignes du tableau en effectuant une opération <q>résumée</q> sur une ou plusieurs colonnes. Il s’agit de toutes les fonctions qui prennent en entrée un ensemble de valeurs et renvoie une valeur unique, comme la moyenne (<code><a href="https://rdrr.io/r/base/mean.html">mean()</a></code>). Par exemple, si l’on souhaite connaître les retards moyens au départ et à l’arrivée pour l’ensemble des vols du tableau <code>flights</code>&nbsp;:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb83"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb83-1"><a href="#cb83-1"></a>flights <span class="sc">|&gt;</span> </span>
+<span id="cb83-2"><a href="#cb83-2"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb83-3"><a href="#cb83-3"></a>    <span class="at">retard_dep =</span> <span class="fu">mean</span>(dep_delay, <span class="at">na.rm=</span><span class="cn">TRUE</span>),</span>
+<span id="cb83-4"><a href="#cb83-4"></a>    <span class="at">retard_arr =</span> <span class="fu">mean</span>(arr_delay, <span class="at">na.rm=</span><span class="cn">TRUE</span>)</span>
+<span id="cb83-5"><a href="#cb83-5"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 2
+  retard_dep retard_arr
+       &lt;dbl&gt;      &lt;dbl&gt;
+1       12.6       6.90</code></pre>
+</div>
+</div>
+<p>Cette fonction est en général utilisée avec <code><a href="https://dplyr.tidyverse.org/reference/group_by.html">dplyr::group_by()</a></code>, puisqu’elle permet du coup d’agréger et de résumer les lignes du tableau groupe par groupe. Si l’on souhaite calculer le délai maximum, le délai minimum et le délai moyen au départ pour chaque mois, on pourra faire&nbsp;:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb85"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb85-1"><a href="#cb85-1"></a>flights <span class="sc">|&gt;</span></span>
+<span id="cb85-2"><a href="#cb85-2"></a>  <span class="fu">group_by</span>(month) <span class="sc">|&gt;</span></span>
+<span id="cb85-3"><a href="#cb85-3"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb85-4"><a href="#cb85-4"></a>    <span class="at">max_delay =</span> <span class="fu">max</span>(dep_delay, <span class="at">na.rm=</span><span class="cn">TRUE</span>),</span>
+<span id="cb85-5"><a href="#cb85-5"></a>    <span class="at">min_delay =</span> <span class="fu">min</span>(dep_delay, <span class="at">na.rm=</span><span class="cn">TRUE</span>),</span>
+<span id="cb85-6"><a href="#cb85-6"></a>    <span class="at">mean_delay =</span> <span class="fu">mean</span>(dep_delay, <span class="at">na.rm=</span><span class="cn">TRUE</span>)</span>
+<span id="cb85-7"><a href="#cb85-7"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 12 × 4
+   month max_delay min_delay mean_delay
+   &lt;int&gt;     &lt;dbl&gt;     &lt;dbl&gt;      &lt;dbl&gt;
+ 1     1      1301       -30      10.0 
+ 2     2       853       -33      10.8 
+ 3     3       911       -25      13.2 
+ 4     4       960       -21      13.9 
+ 5     5       878       -24      13.0 
+ 6     6      1137       -21      20.8 
+ 7     7      1005       -22      21.7 
+ 8     8       520       -26      12.6 
+ 9     9      1014       -24       6.72
+10    10       702       -25       6.24
+11    11       798       -32       5.44
+12    12       896       -43      16.6 </code></pre>
+</div>
+</div>
+<p><code><a href="https://dplyr.tidyverse.org/reference/summarise.html">dplyr::summarise()</a></code> dispose d’une fonction spéciale <code data-pkg="dplyr"><a href="https://dplyr.tidyverse.org/reference/context.html">dplyr::n()</a></code>, qui retourne le nombre de lignes du groupe. Ainsi si l’on veut le nombre de vols par destination, on peut utiliser&nbsp;:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb87"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb87-1"><a href="#cb87-1"></a>flights <span class="sc">|&gt;</span></span>
+<span id="cb87-2"><a href="#cb87-2"></a>  <span class="fu">group_by</span>(dest) <span class="sc">|&gt;</span></span>
+<span id="cb87-3"><a href="#cb87-3"></a>  <span class="fu">summarise</span>(<span class="at">n =</span> <span class="fu">n</span>())</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 105 × 2
+   dest      n
+   &lt;chr&gt; &lt;int&gt;
+ 1 ABQ     254
+ 2 ACK     265
+ 3 ALB     439
+ 4 ANC       8
+ 5 ATL   17215
+ 6 AUS    2439
+ 7 AVL     275
+ 8 BDL     443
+ 9 BGR     375
+10 BHM     297
+# ℹ 95 more rows</code></pre>
+</div>
+</div>
+<p><code data-pkg="dplyr"><a href="https://dplyr.tidyverse.org/reference/context.html">dplyr::n()</a></code> peut aussi être utilisée avec <code><a href="https://dplyr.tidyverse.org/reference/filter.html">dplyr::filter()</a></code> et <code><a href="https://dplyr.tidyverse.org/reference/mutate.html">dplyr::mutate()</a></code>.</p>
+</section><section id="count" class="level3" data-number="8.3.3"><h3 data-number="8.3.3" class="anchored" data-anchor-id="count">
+<span class="header-section-number">8.3.3</span> count()</h3>
+<p>À noter que quand l’on veut compter le nombre de lignes par groupe, on peut utiliser directement la fonction <code><a href="https://dplyr.tidyverse.org/reference/count.html">dplyr::count()</a></code>. Ainsi le code suivant est identique au précédent&nbsp;:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb89"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb89-1"><a href="#cb89-1"></a>flights <span class="sc">|&gt;</span></span>
+<span id="cb89-2"><a href="#cb89-2"></a>  <span class="fu">count</span>(dest)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 105 × 2
+   dest      n
+   &lt;chr&gt; &lt;int&gt;
+ 1 ABQ     254
+ 2 ACK     265
+ 3 ALB     439
+ 4 ANC       8
+ 5 ATL   17215
+ 6 AUS    2439
+ 7 AVL     275
+ 8 BDL     443
+ 9 BGR     375
+10 BHM     297
+# ℹ 95 more rows</code></pre>
+</div>
+</div>
+</section><section id="grouper-selon-plusieurs-variables" class="level3 page-columns page-full" data-number="8.3.4"><h3 data-number="8.3.4" class="anchored" data-anchor-id="grouper-selon-plusieurs-variables">
+<span class="header-section-number">8.3.4</span> Grouper selon plusieurs variables</h3>
+<p>On peut grouper selon plusieurs variables à la fois, il suffit de les indiquer dans la clause du <code><a href="https://dplyr.tidyverse.org/reference/group_by.html">dplyr::group_by()</a></code>&nbsp;:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb91"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb91-1"><a href="#cb91-1"></a>flights <span class="sc">|&gt;</span></span>
+<span id="cb91-2"><a href="#cb91-2"></a>  <span class="fu">group_by</span>(month, dest) <span class="sc">|&gt;</span></span>
+<span id="cb91-3"><a href="#cb91-3"></a>  <span class="fu">summarise</span>(<span class="at">nb =</span> <span class="fu">n</span>()) <span class="sc">|&gt;</span></span>
+<span id="cb91-4"><a href="#cb91-4"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(nb))</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`summarise()` has grouped output by 'month'. You can override using the
+`.groups` argument.</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1,113 × 3
+# Groups:   month [12]
+   month dest     nb
+   &lt;int&gt; &lt;chr&gt; &lt;int&gt;
+ 1     8 ORD    1604
+ 2    10 ORD    1604
+ 3     5 ORD    1582
+ 4     9 ORD    1582
+ 5     7 ORD    1573
+ 6     6 ORD    1547
+ 7     7 ATL    1511
+ 8     8 ATL    1507
+ 9     8 LAX    1505
+10     7 LAX    1500
+# ℹ 1,103 more rows</code></pre>
+</div>
+</div>
+<p>On peut également compter selon plusieurs variables&nbsp;:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb94"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb94-1"><a href="#cb94-1"></a>flights <span class="sc">|&gt;</span> </span>
+<span id="cb94-2"><a href="#cb94-2"></a>  <span class="fu">count</span>(origin, dest) <span class="sc">|&gt;</span> </span>
+<span id="cb94-3"><a href="#cb94-3"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(n))</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 224 × 3
+   origin dest      n
+   &lt;chr&gt;  &lt;chr&gt; &lt;int&gt;
+ 1 JFK    LAX   11262
+ 2 LGA    ATL   10263
+ 3 LGA    ORD    8857
+ 4 JFK    SFO    8204
+ 5 LGA    CLT    6168
+ 6 EWR    ORD    6100
+ 7 JFK    BOS    5898
+ 8 LGA    MIA    5781
+ 9 JFK    MCO    5464
+10 EWR    BOS    5327
+# ℹ 214 more rows</code></pre>
+</div>
+</div>
+<p>On peut utiliser plusieurs opérations de groupage dans le même <em>pipeline</em>. Ainsi, si l’on souhaite déterminer le couple origine/destination ayant le plus grand nombre de vols selon le mois de l’année, on devra procéder en deux étapes&nbsp;:</p>
+<ul>
+<li>d’abord grouper selon mois, origine et destination pour calculer le nombre de vols</li>
+<li>puis grouper uniquement selon le mois pour sélectionner la ligne avec la valeur maximale.</li>
+</ul>
+<p>Au final, on obtient le code suivant&nbsp;:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb96"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb96-1"><a href="#cb96-1"></a>flights <span class="sc">|&gt;</span></span>
+<span id="cb96-2"><a href="#cb96-2"></a>  <span class="fu">group_by</span>(month, origin, dest) <span class="sc">|&gt;</span></span>
+<span id="cb96-3"><a href="#cb96-3"></a>  <span class="fu">summarise</span>(<span class="at">nb =</span> <span class="fu">n</span>()) <span class="sc">|&gt;</span></span>
+<span id="cb96-4"><a href="#cb96-4"></a>  <span class="fu">group_by</span>(month) <span class="sc">|&gt;</span></span>
+<span id="cb96-5"><a href="#cb96-5"></a>  <span class="fu">filter</span>(nb <span class="sc">==</span> <span class="fu">max</span>(nb))</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`summarise()` has grouped output by 'month', 'origin'. You can override using
+the `.groups` argument.</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 12 × 4
+# Groups:   month [12]
+   month origin dest     nb
+   &lt;int&gt; &lt;chr&gt;  &lt;chr&gt; &lt;int&gt;
+ 1     1 JFK    LAX     937
+ 2     2 JFK    LAX     834
+ 3     3 JFK    LAX     960
+ 4     4 JFK    LAX     935
+ 5     5 JFK    LAX     960
+ 6     6 JFK    LAX     928
+ 7     7 JFK    LAX     985
+ 8     8 JFK    LAX     979
+ 9     9 JFK    LAX     925
+10    10 JFK    LAX     965
+11    11 JFK    LAX     907
+12    12 JFK    LAX     947</code></pre>
+</div>
+</div>
+<div class="page-columns page-full"><p>Lorsqu’on effectue un <code><a href="https://dplyr.tidyverse.org/reference/group_by.html">dplyr::group_by()</a></code> suivi d’un <code><a href="https://dplyr.tidyverse.org/reference/summarise.html">dplyr::summarise()</a></code>, le tableau résultat est automatiquement dégroupé <em>de la dernière variable de regroupement</em>. Ainsi le tableau généré par le code suivant est groupé par <em>month</em> et <em>origin</em><a href="#fn6" class="footnote-ref" id="fnref6" role="doc-noteref"><sup>6</sup></a>&nbsp;:</p><div class="no-row-height column-margin column-container"><li id="fn6"><p><sup>6</sup>&nbsp;Comme expliqué dans le message affiché dans la console, cela peut être contrôlé avec l’argument <code>.groups</code> de <code><a href="https://dplyr.tidyverse.org/reference/summarise.html">dplyr::summarise()</a></code>, dont les options sont décrites dans l’aide de la fonction.</p></li></div></div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb99"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb99-1"><a href="#cb99-1"></a>flights <span class="sc">|&gt;</span></span>
+<span id="cb99-2"><a href="#cb99-2"></a>  <span class="fu">group_by</span>(month, origin, dest) <span class="sc">|&gt;</span></span>
+<span id="cb99-3"><a href="#cb99-3"></a>  <span class="fu">summarise</span>(<span class="at">nb =</span> <span class="fu">n</span>())</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`summarise()` has grouped output by 'month', 'origin'. You can override using
+the `.groups` argument.</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 2,313 × 4
+# Groups:   month, origin [36]
+   month origin dest     nb
+   &lt;int&gt; &lt;chr&gt;  &lt;chr&gt; &lt;int&gt;
+ 1     1 EWR    ALB      64
+ 2     1 EWR    ATL     362
+ 3     1 EWR    AUS      51
+ 4     1 EWR    AVL       2
+ 5     1 EWR    BDL      37
+ 6     1 EWR    BNA     111
+ 7     1 EWR    BOS     430
+ 8     1 EWR    BQN      31
+ 9     1 EWR    BTV     100
+10     1 EWR    BUF     119
+# ℹ 2,303 more rows</code></pre>
+</div>
+</div>
+<p>Cela peut permettre d’<q>enchaîner</q> les opérations groupées. Dans l’exemple suivant, on calcule le pourcentage des trajets pour chaque destination par rapport à tous les trajets du mois&nbsp;:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb102"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb102-1"><a href="#cb102-1"></a>flights <span class="sc">|&gt;</span></span>
+<span id="cb102-2"><a href="#cb102-2"></a>  <span class="fu">group_by</span>(month, dest) <span class="sc">|&gt;</span></span>
+<span id="cb102-3"><a href="#cb102-3"></a>  <span class="fu">summarise</span>(<span class="at">nb =</span> <span class="fu">n</span>()) <span class="sc">|&gt;</span> </span>
+<span id="cb102-4"><a href="#cb102-4"></a>  <span class="fu">mutate</span>(<span class="at">pourcentage =</span> nb <span class="sc">/</span> <span class="fu">sum</span>(nb) <span class="sc">*</span> <span class="dv">100</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`summarise()` has grouped output by 'month'. You can override using the
+`.groups` argument.</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1,113 × 4
+# Groups:   month [12]
+   month dest     nb pourcentage
+   &lt;int&gt; &lt;chr&gt; &lt;int&gt;       &lt;dbl&gt;
+ 1     1 ALB      64     0.237  
+ 2     1 ATL    1396     5.17   
+ 3     1 AUS     169     0.626  
+ 4     1 AVL       2     0.00741
+ 5     1 BDL      37     0.137  
+ 6     1 BHM      25     0.0926 
+ 7     1 BNA     399     1.48   
+ 8     1 BOS    1245     4.61   
+ 9     1 BQN      93     0.344  
+10     1 BTV     223     0.826  
+# ℹ 1,103 more rows</code></pre>
+</div>
+</div>
+<p>On peut à tout moment <q>dégrouper</q> un tableau à l’aide de <code><a href="https://dplyr.tidyverse.org/reference/group_by.html">dplyr::ungroup()</a></code>. Ce serait par exemple nécessaire, dans l’exemple précédent, si on voulait calculer le pourcentage sur le nombre total de vols plutôt que sur le nombre de vols par mois&nbsp;:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb105"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb105-1"><a href="#cb105-1"></a>flights <span class="sc">|&gt;</span></span>
+<span id="cb105-2"><a href="#cb105-2"></a>  <span class="fu">group_by</span>(month, dest) <span class="sc">|&gt;</span></span>
+<span id="cb105-3"><a href="#cb105-3"></a>  <span class="fu">summarise</span>(<span class="at">nb =</span> <span class="fu">n</span>()) <span class="sc">|&gt;</span> </span>
+<span id="cb105-4"><a href="#cb105-4"></a>  <span class="fu">ungroup</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb105-5"><a href="#cb105-5"></a>  <span class="fu">mutate</span>(<span class="at">pourcentage =</span> nb <span class="sc">/</span> <span class="fu">sum</span>(nb) <span class="sc">*</span> <span class="dv">100</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`summarise()` has grouped output by 'month'. You can override using the
+`.groups` argument.</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1,113 × 4
+   month dest     nb pourcentage
+   &lt;int&gt; &lt;chr&gt; &lt;int&gt;       &lt;dbl&gt;
+ 1     1 ALB      64    0.0190  
+ 2     1 ATL    1396    0.415   
+ 3     1 AUS     169    0.0502  
+ 4     1 AVL       2    0.000594
+ 5     1 BDL      37    0.0110  
+ 6     1 BHM      25    0.00742 
+ 7     1 BNA     399    0.118   
+ 8     1 BOS    1245    0.370   
+ 9     1 BQN      93    0.0276  
+10     1 BTV     223    0.0662  
+# ℹ 1,103 more rows</code></pre>
+</div>
+</div>
+<p>À noter que <code><a href="https://dplyr.tidyverse.org/reference/count.html">dplyr::count()</a></code>, par contre, renvoit un tableau non groupé&nbsp;:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb108"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb108-1"><a href="#cb108-1"></a>flights <span class="sc">|&gt;</span> </span>
+<span id="cb108-2"><a href="#cb108-2"></a>  <span class="fu">count</span>(month, dest)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1,113 × 3
+   month dest      n
+   &lt;int&gt; &lt;chr&gt; &lt;int&gt;
+ 1     1 ALB      64
+ 2     1 ATL    1396
+ 3     1 AUS     169
+ 4     1 AVL       2
+ 5     1 BDL      37
+ 6     1 BHM      25
+ 7     1 BNA     399
+ 8     1 BOS    1245
+ 9     1 BQN      93
+10     1 BTV     223
+# ℹ 1,103 more rows</code></pre>
+</div>
+</div>
+</section></section><section id="cheatsheet" class="level2" data-number="8.4"><h2 data-number="8.4" class="anchored" data-anchor-id="cheatsheet">
+<span class="header-section-number">8.4</span> Cheatsheet</h2>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure"><p><a href="https://github.com/rstudio/cheatsheets/blob/main/data-transformation.pdf"><img src="ressources/dplyr-cheatsheet-thumbs.png" class="img-fluid figure-img"></a></p>
+</figure>
+</div>
+</section><section id="webin-r" class="level2" data-number="8.5"><h2 data-number="8.5" class="anchored" data-anchor-id="webin-r">
+<span class="header-section-number">8.5</span> webin-R</h2>
+<p>On pourra également se référer au webin-R #04 (<em>manipuler les données avec dplyr</em>) sur <a href="https://youtu.be/aFvBhgmawcs">YouTube</a>.</p>
+<div class="quarto-video ratio ratio-16x9"><iframe src="https://www.youtube.com/embed/aFvBhgmawcs" title="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe></div>
+
+
+</section></main><!-- /main --><script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copié");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copié");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script><script src="https://giscus.app/client.js" data-repo="larmarange/guide-R" data-repo-id="R_kgDOH6-xnw" data-category="Forum" data-category-id="DIC_kwDOH6-xn84CRLQy" data-mapping="pathname" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="top" data-theme="light" data-lang="fr" crossorigin="anonymous" data-loading="lazy" async="">
+</script><nav class="page-navigation"><div class="nav-page nav-page-previous">
+      <a href="../manipulation/pipe.html" class="pagination-link">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Le pipe</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../manipulation/facteurs.html" class="pagination-link">
+        <span class="nav-page-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Facteurs et <code>forcats</code></span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+<footer class="footer"><div class="nav-footer">
+    <div class="nav-footer-left">
+      <ul class="footer-items list-unstyled">
+<li class="nav-item">
+ guide-R : Guide pour l'analyse de données d'enquêtes avec R
+  </li>  
+</ul>
+</div>   
+      <div class="nav-footer-center"><div class="cookie-consent-footer"><a href="#" id="open_preferences_center">Cookie Preferences</a></div></div>
+    <div class="nav-footer-right">
+      <ul class="footer-items list-unstyled">
+<li class="nav-item compact">
+    <a class="nav-link" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">
+      <i class="bi bi-badge-cc-fill" role="img">
+</i> 
+    </a>
+  </li>  
+    <li class="nav-item compact">
+    <a class="nav-link active" href="https://github.com/larmarange/guide-R/" aria-current="page">
+      <i class="bi bi-github" role="img">
+</i> 
+    </a>
+  </li>  
+    <li class="nav-item compact">
+    <a class="nav-link" href="https://www.youtube.com/c/webinR">
+      <i class="bi bi-youtube" role="img">
+</i> 
+    </a>
+  </li>  
+    <li class="nav-item">
+    <a class="nav-link" href="https://larmarange.github.io/analyse-R/">analyse-R</a>
+  </li>  
+    <li class="nav-item">
+    <a class="nav-link" href="https://larmarange.github.io/webin-R/">webin-R</a>
+  </li>  
+</ul>
+</div>
+  </div>
+</footer>
+
+
+<script src="../site_libs/quarto-html/zenscroll-min.js"></script>
+</body></html>
