@@ -146,7 +146,8 @@ mod2_trt |>
     exponentiate = TRUE,
     intercept = TRUE, 
     add_estimate_to_reference_rows = TRUE
-  )
+  ) |> 
+  bold_labels()
 ```
 
 Or, 0,64 correspond bien à l'odds ratio entre 61% et 71% (que l'on peut calculer avec `questionr::odds.ratio()`).
@@ -188,7 +189,8 @@ mod2_trt_bis <- glm(
   contrasts = list(groupe_ages = contr.treatment(4, 3))
 )
 mod2_trt_bis |>
-  tbl_regression(exponentiate = TRUE, intercept = TRUE)
+  tbl_regression(exponentiate = TRUE, intercept = TRUE) |> 
+  bold_labels()
 ```
 
 Comme les modalités de référence ont changé, l'intercept et les différents termes ont également changé (puisque l'on ne compare plus à la même référence).
@@ -268,7 +270,8 @@ mod1_sum |>
   tbl_regression(
     intercept = TRUE, 
     add_estimate_to_reference_rows = TRUE
-  )
+  ) |> 
+  bold_labels()
 ```
 
 De même, cette valeur est correctement affichée par `ggstats::ggcoef_model()`.
@@ -299,7 +302,8 @@ mod2_sum |>
     exponentiate = TRUE,
     intercept = TRUE, 
     add_estimate_to_reference_rows = TRUE
-  )
+  ) |> 
+  bold_labels()
 ```
 
 ```{r}
@@ -308,7 +312,7 @@ ggstats::ggcoef_model(mod2_sum, exponentiate = TRUE)
 
 Cette fois-ci, l'*intercept* capture la situation à la <q>grande moyenne</q> à la fois du sexe et du groupe d'âges, et les coefficients s'interprètent donc comme modificateurs de chaque modalité par rapport à cette <q>grande moyenne</q>. En ce sens, les contrastes de type <q>somme</q> permettent donc de capturer l'effet de chaque modalité.
 
-Du point de vue explicatif et prédictif, le fait d'avoir recours à des contrastes de type somme ou traitement n'a aucun impact : les deux modèles sont rigoureusement identiques. Il n'y a que la manière d'interpréter les coeffcients qui chagnge.
+Du point de vue explicatif et prédictif, le fait d'avoir recours à des contrastes de type somme ou traitement n'a aucun impact : les deux modèles sont rigoureusement identiques. Il n'y a que la manière d'interpréter les coeffcients qui change.
 
 ```{r}
 anova(mod2_trt, mod2_sum, test = "Chisq")
@@ -324,6 +328,82 @@ ggstats::ggcoef_compare(
   vline = FALSE
 )
 ```
+
+## Contrastes par différences successives
+
+Les contrastes par différences successives consistent à comparer la deuxième modalité à la première, puis la troisième modalité à la seconde, etc. Ils sont disponibles avec la fonction `MASS::contr.sdif()`.
+
+Illustrons cela avec un exemple.
+
+### Exemple 1 : un modèle linéaire avec une variable catégorielle
+
+```{r}
+mod1_sdif <- lm(
+  marker ~ grade,
+  data = trial,
+  contrasts = list(grade = MASS::contr.sdif)
+)
+mod1_sdif |> 
+  tbl_regression(intercept = TRUE) |> 
+  bold_labels()
+```
+
+En premier lieu, on notera que l'intercept, comme avec les contrastes de type somme, correspond ici à la grande moyenne.[^contrastes-1]
+
+[^contrastes-1]: On peut remarquer que la même valeur était obtenue avec un contraste de type traitement où toutes les modalités étaient comparées à la modalité de référence I.
+
+```{r}
+mean(moy_groupe$moyenne_marker)
+```
+
+Le coefficient `gradeII-I` correspond à la différence entre la moyenne du grade de niveau II et celle du niveau I.
+
+```{r}
+moy_groupe$moyenne_marker[2] - moy_groupe$moyenne_marker[1]
+```
+
+Et le coefficient `gradeIII-II` à l'écart entre la moyenne du niveau III et celle du niveau II.
+
+```{r}
+moy_groupe$moyenne_marker[3] - moy_groupe$moyenne_marker[2]
+```
+
+### Exemple 2 : une régression logistique avec deux variables catégorielles
+
+La même approche peut être appliquée à une régression logistique.
+
+```{r}
+library(MASS)
+mod2_sdif <- glm(
+  sport ~ sexe + groupe_ages,
+  family = binomial,
+  data = hdv2003,
+  contrasts = list(sexe = contr.sdif, groupe_ages = contr.sdif)
+)
+mod2_sdif |>
+  tbl_regression(
+    exponentiate = TRUE,
+    intercept = TRUE
+  ) |> 
+  bold_labels()
+```
+
+On pourra noter que les *odds ratios* "femme/homme" et "25-44/16-24" obtenus ici sont équivalents à ceux que l'on avait obtenus précédemment avec des contrastes de types de traitement. Pour la modalité "45-64 ans" par contre, elle est ici comparée aux 25-44 ans, alors qu'avec un contraste de type traitement, toutes les comparaisons auraient eu lieu avec la même modalité de référence, à savoir les 16-24 ans.
+
+Les contrastes par différences successives font donc plutôt sens lorsque les modalités sont ordonnées (d'où l'intérêt de comparer avec la modalité précédente), ce qui n'est pas forcément le cas lorsque les modalités ne sont pas ordonnées.
+
+::: callout-tip
+De manière générale, et quels que soient les contrastes utilisés pour le calcul du modèle, il est toujours possible de recalculer *a posteriori* les différences entre chaque combinaison de modalité deux à deux avec `emmeans::emmeans()`. Cela peut se faire encore plus facilement en passant l'argument `add_pairwise_contrasts = TRUE` à `tbl_regression()`.
+
+```{r}
+mod2_trt |> 
+  tbl_regression(
+    exponentiate = TRUE,
+    add_pairwise_contrasts = TRUE
+  ) |> 
+  bold_labels()
+```
+:::
 
 ## Autres types de contrastes
 
