@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="fr" xml:lang="fr"><head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.2.475">
+<meta name="generator" content="quarto-1.3.433">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 <title>guide-R - 29&nbsp; Analyses uni- et bivariées pondérées</title>
 <style>
@@ -14,9 +14,10 @@ div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 ul.task-list{list-style: none;}
 ul.task-list li input[type="checkbox"] {
   width: 0.8em;
-  margin: 0 0.8em 0.2em -1.6em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
 pre > code.sourceCode { white-space: pre; position: relative; }
 pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
@@ -43,43 +44,13 @@ pre.numberSource code > span > a:first-child::before
     -khtml-user-select: none; -moz-user-select: none;
     -ms-user-select: none; user-select: none;
     padding: 0 4px; width: 4em;
-    color: #aaaaaa;
   }
-pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
 div.sourceCode
   {   }
 @media screen {
 pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
-code span.al { color: #ff0000; font-weight: bold; } /* Alert */
-code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
-code span.at { color: #7d9029; } /* Attribute */
-code span.bn { color: #40a070; } /* BaseN */
-code span.bu { color: #008000; } /* BuiltIn */
-code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
-code span.ch { color: #4070a0; } /* Char */
-code span.cn { color: #880000; } /* Constant */
-code span.co { color: #60a0b0; font-style: italic; } /* Comment */
-code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
-code span.do { color: #ba2121; font-style: italic; } /* Documentation */
-code span.dt { color: #902000; } /* DataType */
-code span.dv { color: #40a070; } /* DecVal */
-code span.er { color: #ff0000; font-weight: bold; } /* Error */
-code span.ex { } /* Extension */
-code span.fl { color: #40a070; } /* Float */
-code span.fu { color: #06287e; } /* Function */
-code span.im { color: #008000; font-weight: bold; } /* Import */
-code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
-code span.kw { color: #007020; font-weight: bold; } /* Keyword */
-code span.op { color: #666666; } /* Operator */
-code span.ot { color: #007020; } /* Other */
-code span.pp { color: #bc7a00; } /* Preprocessor */
-code span.sc { color: #4070a0; } /* SpecialChar */
-code span.ss { color: #bb6688; } /* SpecialString */
-code span.st { color: #4070a0; } /* String */
-code span.va { color: #19177c; } /* Variable */
-code span.vs { color: #4070a0; } /* VerbatimString */
-code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
 </style>
 
 <script src="../site_libs/quarto-nav/quarto-nav.js"></script>
@@ -118,7 +89,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
     "search-more-matches-text": "correspondances de plus dans ce document",
     "search-clear-button-title": "Effacer",
     "search-detached-cancel-button-title": "Annuler",
-    "search-submit-button-title": "Envoyer"
+    "search-submit-button-title": "Envoyer",
+    "search-label": "Recherche"
   }
 }</script><script async="" src="https://www.googletagmanager.com/gtag/js?id=G-8BT7D9P85Y"></script><script type="text/plain" cookie-consent="tracking">
 
@@ -146,293 +118,342 @@ cookieconsent.run({
 
 
 <div id="quarto-search-results"></div>
-  <header id="quarto-header" class="headroom fixed-top"><nav class="quarto-secondary-nav" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }"><div class="container-fluid d-flex justify-content-between">
-      <h1 class="quarto-secondary-nav-title"><span class="chapter-number">29</span>&nbsp; <span class="chapter-title">Analyses uni- et bivariées pondérées</span></h1>
-      <button type="button" class="quarto-btn-toggle btn" aria-label="Show secondary navigation">
-        <i class="bi bi-chevron-right"></i>
+  <header id="quarto-header" class="headroom fixed-top"><nav class="quarto-secondary-nav"><div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Basculer la barre latérale" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../donnees_ponderees/plan-echantillonnage.html"><strong>Données pondérées avec <code>survey</code></strong></a></li><li class="breadcrumb-item"><a href="../donnees_ponderees/analyses-bivariees.html"><span class="chapter-number">29</span>&nbsp; <span class="chapter-title">Analyses uni- et bivariées pondérées</span></a></li></ol></nav>
+      <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Basculer la barre latérale" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+      </a>
+      <button type="button" class="btn quarto-search-button" aria-label="" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
       </button>
     </div>
   </nav></header><!-- content --><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
 <!-- sidebar -->
-  <nav id="quarto-sidebar" class="sidebar collapse sidebar-navigation floating overflow-auto"><div class="pt-lg-2 mt-2 text-left sidebar-header sidebar-header-stacked">
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal sidebar-navigation floating overflow-auto"><div class="pt-lg-2 mt-2 text-left sidebar-header sidebar-header-stacked">
       <a href="../index.html" class="sidebar-logo-link">
       <img src="../ressources/typewriter.png" alt="" class="sidebar-logo py-0 d-lg-inline d-none"></a>
     <div class="sidebar-title mb-0 py-0">
       <a href="../">guide-R</a> 
         <div class="sidebar-tools-main tools-wide">
-    <a href="https://github.com/larmarange/guide-R/" title="Source Code" class="sidebar-tool px-1"><i class="bi bi-github"></i></a>
-    <a href="../guide-R.pdf" title="Download PDF" class="sidebar-tool px-1"><i class="bi bi-file-pdf"></i></a>
-    <a href="" title="Share" id="sidebar-tool-dropdown-0" class="sidebar-tool dropdown-toggle px-1" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-share"></i></a>
-    <ul class="dropdown-menu" aria-labelledby="sidebar-tool-dropdown-0">
+    <a href="https://github.com/larmarange/guide-R/" rel="" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
+    <a href="../guide-R.pdf" rel="" title="Download PDF" class="quarto-navigation-tool px-1" aria-label="Download PDF"><i class="bi bi-file-pdf"></i></a>
+    <div class="dropdown">
+      <a href="" title="Share" id="quarto-navigation-tool-dropdown-0" class="quarto-navigation-tool dropdown-toggle px-1" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Share"><i class="bi bi-share"></i></a>
+      <ul class="dropdown-menu" aria-labelledby="quarto-navigation-tool-dropdown-0">
 <li>
-          <a class="dropdown-item sidebar-tools-main-item" href="https://twitter.com/intent/tweet?url=%7Curl%7C">
-            <i class="bi bi-bi-twitter pe-1"></i>
-          Twitter
-          </a>
-        </li>
-        <li>
-          <a class="dropdown-item sidebar-tools-main-item" href="https://www.facebook.com/sharer/sharer.php?u=%7Curl%7C">
-            <i class="bi bi-bi-facebook pe-1"></i>
-          Facebook
-          </a>
-        </li>
-        <li>
-          <a class="dropdown-item sidebar-tools-main-item" href="https://www.linkedin.com/sharing/share-offsite/?url=%7Curl%7C">
-            <i class="bi bi-bi-linkedin pe-1"></i>
-          LinkedIn
-          </a>
-        </li>
-    </ul>
+            <a class="dropdown-item sidebar-tools-main-item" href="https://twitter.com/intent/tweet?url=%7Curl%7C">
+              <i class="bi bi-bi-twitter pe-1"></i>
+            Twitter
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item sidebar-tools-main-item" href="https://www.facebook.com/sharer/sharer.php?u=%7Curl%7C">
+              <i class="bi bi-bi-facebook pe-1"></i>
+            Facebook
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item sidebar-tools-main-item" href="https://www.linkedin.com/sharing/share-offsite/?url=%7Curl%7C">
+              <i class="bi bi-bi-linkedin pe-1"></i>
+            LinkedIn
+            </a>
+          </li>
+      </ul>
+</div>
 </div>
     </div>
       </div>
-      <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="mt-2 flex-shrink-0 align-items-center">
         <div class="sidebar-search">
-        <div id="quarto-search" class="" title="Search"></div>
+        <div id="quarto-search" class="" title="Recherche"></div>
         </div>
-      </div>
+        </div>
     <div class="sidebar-menu-container"> 
     <ul class="list-unstyled mt-1">
 <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../index.html" class="sidebar-item-text sidebar-link">Préface</a>
+  <a href="../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Préface</span></a>
   </div>
 </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true"><strong>Bases du langage</strong></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true">
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true">
+ <span class="menu-text"><strong>Bases du langage</strong></span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true" aria-label="Basculer la section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
       <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">
 <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../bases/packages.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Packages</span></a>
+  <a href="../bases/packages.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Packages</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../bases/vecteurs.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Vecteurs</span></a>
+  <a href="../bases/vecteurs.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Vecteurs</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../bases/listes.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Listes</span></a>
+  <a href="../bases/listes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Listes</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../bases/tableaux_donnees.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Tableaux de données</span></a>
+  <a href="../bases/tableaux_donnees.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Tableaux de données</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../bases/tibbles.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Tibbles</span></a>
+  <a href="../bases/tibbles.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Tibbles</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../bases/attributs.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Attributs</span></a>
+  <a href="../bases/attributs.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Attributs</span></span></a>
   </div>
 </li>
       </ul>
 </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="true"><strong>Manipulation de données</strong></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="true">
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="true">
+ <span class="menu-text"><strong>Manipulation de données</strong></span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="true" aria-label="Basculer la section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
       <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">
 <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../manipulation/pipe.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Le pipe</span></a>
+  <a href="../manipulation/pipe.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Le pipe</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../manipulation/dplyr.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title"><code>dplyr</code></span></a>
+  <a href="../manipulation/dplyr.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title"><code>dplyr</code></span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../manipulation/facteurs.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Facteurs et <code>forcats</code></span></a>
+  <a href="../manipulation/facteurs.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Facteurs et <code>forcats</code></span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../manipulation/combiner-variables.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Combiner plusieurs variables</span></a>
+  <a href="../manipulation/combiner-variables.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Combiner plusieurs variables</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../manipulation/etiquettes-variables.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Étiquettes de variables</span></a>
+  <a href="../manipulation/etiquettes-variables.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Étiquettes de variables</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../manipulation/etiquettes-valeurs.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Étiquettes de valeurs</span></a>
+  <a href="../manipulation/etiquettes-valeurs.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Étiquettes de valeurs</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../manipulation/valeurs-manquantes.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Valeurs manquantes</span></a>
+  <a href="../manipulation/valeurs-manquantes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Valeurs manquantes</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../manipulation/import-export.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Import &amp; Export de données</span></a>
+  <a href="../manipulation/import-export.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Import &amp; Export de données</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../manipulation/formater-nombre.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Mettre en forme des nombres</span></a>
+  <a href="../manipulation/formater-nombre.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Mettre en forme des nombres</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../manipulation/couleurs.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Couleurs &amp; Palettes</span></a>
+  <a href="../manipulation/couleurs.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Couleurs &amp; Palettes</span></span></a>
   </div>
 </li>
       </ul>
 </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" aria-expanded="true"><strong>Analyses</strong></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" aria-expanded="true">
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" aria-expanded="true">
+ <span class="menu-text"><strong>Analyses</strong></span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" aria-expanded="true" aria-label="Basculer la section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
       <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">
 <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../analyses/ggplot2.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Graphiques avec <code>ggplot2</code></span></a>
+  <a href="../analyses/ggplot2.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Graphiques avec <code>ggplot2</code></span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../analyses/statistique-univariee.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Statistique univariée &amp; Intervalles de confiance</span></a>
+  <a href="../analyses/statistique-univariee.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Statistique univariée &amp; Intervalles de confiance</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../analyses/statistique-bivariee.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Statistique bivariée &amp; Tests de comparaison</span></a>
+  <a href="../analyses/statistique-bivariee.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Statistique bivariée &amp; Tests de comparaison</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../analyses/likert.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Échelles de Likert</span></a>
+  <a href="../analyses/likert.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Échelles de Likert</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../analyses/regression-lineaire.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Régression linéaire</span></a>
+  <a href="../analyses/regression-lineaire.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Régression linéaire</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../analyses/regression-logistique-binaire.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Régression logistique binaire</span></a>
+  <a href="../analyses/regression-logistique-binaire.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Régression logistique binaire</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../analyses/estimations-marginales.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">23</span>&nbsp; <span class="chapter-title">Prédictions marginales, contrastes marginaux &amp; effets marginaux</span></a>
+  <a href="../analyses/estimations-marginales.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">23</span>&nbsp; <span class="chapter-title">Prédictions marginales, contrastes marginaux &amp; effets marginaux</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../analyses/contrastes.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">24</span>&nbsp; <span class="chapter-title">Contrastes (variables catégorielles)</span></a>
+  <a href="../analyses/contrastes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">24</span>&nbsp; <span class="chapter-title">Contrastes (variables catégorielles)</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../analyses/interactions.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">25</span>&nbsp; <span class="chapter-title">Interactions</span></a>
+  <a href="../analyses/interactions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">25</span>&nbsp; <span class="chapter-title">Interactions</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../analyses/multicolinearite.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">26</span>&nbsp; <span class="chapter-title">Multicolinéarité</span></a>
+  <a href="../analyses/multicolinearite.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">26</span>&nbsp; <span class="chapter-title">Multicolinéarité</span></span></a>
   </div>
 </li>
       </ul>
 </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" aria-expanded="true"><strong>Données pondérées avec <code>survey</code></strong></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" aria-expanded="true">
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" aria-expanded="true">
+ <span class="menu-text"><strong>Données pondérées avec <code>survey</code></strong></span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" aria-expanded="true" aria-label="Basculer la section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
       <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">
 <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../donnees_ponderees/plan-echantillonnage.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">27</span>&nbsp; <span class="chapter-title">Définir un plan d’échantillonnage</span></a>
+  <a href="../donnees_ponderees/plan-echantillonnage.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">27</span>&nbsp; <span class="chapter-title">Définir un plan d’échantillonnage</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../donnees_ponderees/manipulation.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">28</span>&nbsp; <span class="chapter-title">Manipulation de données pondérées</span></a>
+  <a href="../donnees_ponderees/manipulation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">28</span>&nbsp; <span class="chapter-title">Manipulation de données pondérées</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../donnees_ponderees/analyses-bivariees.html" class="sidebar-item-text sidebar-link active"><span class="chapter-number">29</span>&nbsp; <span class="chapter-title">Analyses uni- et bivariées pondérées</span></a>
+  <a href="../donnees_ponderees/analyses-bivariees.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">29</span>&nbsp; <span class="chapter-title">Analyses uni- et bivariées pondérées</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../donnees_ponderees/graphiques-ponderes.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">30</span>&nbsp; <span class="chapter-title">Graphiques pondérés</span></a>
+  <a href="../donnees_ponderees/graphiques-ponderes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">30</span>&nbsp; <span class="chapter-title">Graphiques pondérés</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../donnees_ponderees/regression-logistique-binaire-ponderee.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">31</span>&nbsp; <span class="chapter-title">Régression logistique binaire pondérée</span></a>
+  <a href="../donnees_ponderees/regression-logistique-binaire-ponderee.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">31</span>&nbsp; <span class="chapter-title">Régression logistique binaire pondérée</span></span></a>
   </div>
 </li>
       </ul>
 </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" aria-expanded="true"><strong>Manipulation avancée</strong></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" aria-expanded="true">
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" aria-expanded="true">
+ <span class="menu-text"><strong>Manipulation avancée</strong></span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" aria-expanded="true" aria-label="Basculer la section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
       <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">
 <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../manipulation_avancee/fusion_tables.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">32</span>&nbsp; <span class="chapter-title">Fusion de tables</span></a>
+  <a href="../manipulation_avancee/fusion_tables.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">32</span>&nbsp; <span class="chapter-title">Fusion de tables</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../manipulation_avancee/dates.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">33</span>&nbsp; <span class="chapter-title">Dates avec <code>lubridate</code></span></a>
+  <a href="../manipulation_avancee/dates.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">33</span>&nbsp; <span class="chapter-title">Dates avec <code>lubridate</code></span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../manipulation_avancee/tidyr.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">34</span>&nbsp; <span class="chapter-title">Réorganisation avec <code>tidyr</code></span></a>
+  <a href="../manipulation_avancee/tidyr.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">34</span>&nbsp; <span class="chapter-title">Réorganisation avec <code>tidyr</code></span></span></a>
   </div>
 </li>
       </ul>
 </li>
     </ul>
 </div>
-</nav><!-- margin-sidebar --><div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+</nav><div id="quarto-sidebar-glass" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
         <nav id="TOC" role="doc-toc" class="toc-active"><h2 id="toc-title">Table des matières</h2>
    
   <ul>
-<li><a href="#la-fonction-tbl_svysummary" id="toc-la-fonction-tbl_svysummary" class="nav-link active" data-scroll-target="#la-fonction-tbl_svysummary"><span class="toc-section-number">29.1</span>  La fonction <code>tbl_svysummary()</code></a></li>
-  <li><a href="#calcul-manuel-avec-survey" id="toc-calcul-manuel-avec-survey" class="nav-link" data-scroll-target="#calcul-manuel-avec-survey"><span class="toc-section-number">29.2</span>  Calcul manuel avec <code>{survey}</code></a></li>
-  <li><a href="#intervalles-de-confiance-et-tests-statistiques" id="toc-intervalles-de-confiance-et-tests-statistiques" class="nav-link" data-scroll-target="#intervalles-de-confiance-et-tests-statistiques"><span class="toc-section-number">29.3</span>  Intervalles de confiance et tests statistiques</a></li>
-  <li><a href="#impact-du-plan-d%C3%A9chantillonnage" id="toc-impact-du-plan-déchantillonnage" class="nav-link" data-scroll-target="#impact-du-plan-d%C3%A9chantillonnage"><span class="toc-section-number">29.4</span>  Impact du plan d’échantillonnage</a></li>
+<li><a href="#la-fonction-tbl_svysummary" id="toc-la-fonction-tbl_svysummary" class="nav-link active" data-scroll-target="#la-fonction-tbl_svysummary"><span class="header-section-number">29.1</span> La fonction <code>tbl_svysummary()</code></a></li>
+  <li><a href="#calcul-manuel-avec-survey" id="toc-calcul-manuel-avec-survey" class="nav-link" data-scroll-target="#calcul-manuel-avec-survey"><span class="header-section-number">29.2</span> Calcul manuel avec <code>{survey}</code></a></li>
+  <li><a href="#intervalles-de-confiance-et-tests-statistiques" id="toc-intervalles-de-confiance-et-tests-statistiques" class="nav-link" data-scroll-target="#intervalles-de-confiance-et-tests-statistiques"><span class="header-section-number">29.3</span> Intervalles de confiance et tests statistiques</a></li>
+  <li><a href="#impact-du-plan-d%C3%A9chantillonnage" id="toc-impact-du-plan-déchantillonnage" class="nav-link" data-scroll-target="#impact-du-plan-d%C3%A9chantillonnage"><span class="header-section-number">29.4</span> Impact du plan d’échantillonnage</a></li>
   </ul><div class="toc-actions"><div><i class="bi bi-github"></i></div><div class="action-links"><p><a href="https://github.com/larmarange/guide-R/blob/main/donnees_ponderees/analyses-bivariees.qmd" class="toc-action">Voir la source</a></p><p><a href="https://github.com/larmarange/guide-R/issues/new" class="toc-action">Faire part d'un problème</a></p></div></div></nav>
     </div>
 <!-- main -->
 <main class="content page-columns page-full" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block default"><div class="quarto-title">
-<h1 class="title"><span id="sec-analyses-bivariees-ponderees" class="quarto-section-identifier d-none d-lg-block"><span class="chapter-number">29</span>&nbsp; <span class="chapter-title">Analyses uni- et bivariées pondérées</span></span></h1>
+<h1 class="title"><span id="sec-analyses-bivariees-ponderees" class="quarto-section-identifier"><span class="chapter-number">29</span>&nbsp; <span class="chapter-title">Analyses uni- et bivariées pondérées</span></span></h1>
 </div>
 
 
@@ -448,9 +469,9 @@ cookieconsent.run({
 </header><section id="la-fonction-tbl_svysummary" class="level2 page-columns page-full" data-number="29.1"><h2 data-number="29.1" class="anchored" data-anchor-id="la-fonction-tbl_svysummary">
 <span class="header-section-number">29.1</span> La fonction <code>tbl_svysummary()</code>
 </h2>
-<p>Dans les chapitres sur la statistique univariée (cf. <a href="#sec-statistique-univariee"><span class="quarto-unresolved-ref">sec-statistique-univariee</span></a>) et la statistique bivariée (cf. <a href="#sec-statistique-bivariee"><span class="quarto-unresolved-ref">sec-statistique-bivariee</span></a>), nous avons abordé la fonction <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/tbl_summary.html">gtsummary::tbl_summary()</a></code> qui permet de générer des tris à plats et des tableaux croisés prêts à être publiés.</p>
+<p>Dans les chapitres sur la statistique univariée (cf. <a href="../analyses/statistique-univariee.html"><span>Chapitre&nbsp;18</span></a>) et la statistique bivariée (cf. <a href="../analyses/statistique-bivariee.html"><span>Chapitre&nbsp;19</span></a>), nous avons abordé la fonction <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/tbl_summary.html">gtsummary::tbl_summary()</a></code> qui permet de générer des tris à plats et des tableaux croisés prêts à être publiés.</p>
 <p>Son équivalent pour les objets <a href="http://r-survey.r-forge.r-project.org/survey/">survey</a> existe&nbsp;: il s’agit de la fonction <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/tbl_svysummary.html">gtsummary::tbl_svysummary()</a></code> qui fonctionne de manière similaire.</p>
-<p>Pour illustrer son fonctionnement, nous allons utiliser le jeu de données <em>fecondite</em> fournit dans le package <a href="https://juba.github.io/questionr/">questionr</a>. Ce jeu de données fournit un tableau de données <code>femmes</code> comportant une variable <em>poids</em> de pondération que nous allons utiliser. Les données catégorielles étant stockées sous forme de vecteurs numériques avec étiquettes de valeurs (cf. <a href="#sec-etiquettes-valeurs"><span class="quarto-unresolved-ref">sec-etiquettes-valeurs</span></a>), nous allons les convertir en facteurs avec <code><a href="https://larmarange.github.io/labelled/reference/to_factor.html">labelled::unlabelled()</a></code>. De même, certaines valeurs manquantes sont indiquées sous formes de <em>user NAs</em> (cf. <a href="#sec-user-na"><span class="quarto-unresolved-ref">sec-user-na</span></a>)&nbsp;: nous allons les convertir en valeurs manquantes classiques (<em>regular NAs</em>) avec <code><a href="https://larmarange.github.io/labelled/reference/na_values.html">labelled::user_na_to_na()</a></code>.</p>
+<p>Pour illustrer son fonctionnement, nous allons utiliser le jeu de données <em>fecondite</em> fournit dans le package <a href="https://juba.github.io/questionr/">questionr</a>. Ce jeu de données fournit un tableau de données <code>femmes</code> comportant une variable <em>poids</em> de pondération que nous allons utiliser. Les données catégorielles étant stockées sous forme de vecteurs numériques avec étiquettes de valeurs (cf. <a href="../manipulation/etiquettes-valeurs.html"><span>Chapitre&nbsp;12</span></a>), nous allons les convertir en facteurs avec <code><a href="https://larmarange.github.io/labelled/reference/to_factor.html">labelled::unlabelled()</a></code>. De même, certaines valeurs manquantes sont indiquées sous formes de <em>user NAs</em> (cf. <a href="../manipulation/valeurs-manquantes.html#sec-user-na"><span>Section&nbsp;13.2</span></a>)&nbsp;: nous allons les convertir en valeurs manquantes classiques (<em>regular NAs</em>) avec <code><a href="https://larmarange.github.io/labelled/reference/na_values.html">labelled::user_na_to_na()</a></code>.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="fu">data</span>(<span class="st">"fecondite"</span>, <span class="at">package =</span> <span class="st">"questionr"</span>)</span>
 <span id="cb1-2"><a href="#cb1-2"></a><span class="fu">library</span>(srvyr)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -502,14 +523,13 @@ Data variables: id_femme (dbl), id_menage (dbl), poids (dbl), date_entretien
 <span id="cb8-6"><a href="#cb8-6"></a>  <span class="fu">add_overall</span>(<span class="at">last =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span> </span>
 <span id="cb8-7"><a href="#cb8-7"></a>  <span class="fu">bold_labels</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display page-columns page-full">
-<div id="tbl-tbl_svysummary" class="anchored page-columns page-full">
 
 <div id="ovipsrzofu" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;" class="page-columns page-full">
 <style>html {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
 }
 
-:where(#ovipsrzofu) .gt_table {
+#ovipsrzofu .gt_table {
   display: table;
   border-collapse: collapse;
   margin-left: auto;
@@ -534,7 +554,7 @@ Data variables: id_femme (dbl), id_menage (dbl), poids (dbl), date_entretien
   border-left-color: #D3D3D3;
 }
 
-:where(#ovipsrzofu) .gt_heading {
+#ovipsrzofu .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -546,12 +566,12 @@ Data variables: id_femme (dbl), id_menage (dbl), poids (dbl), date_entretien
   border-right-color: #D3D3D3;
 }
 
-:where(#ovipsrzofu) .gt_caption {
+#ovipsrzofu .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-:where(#ovipsrzofu) .gt_title {
+#ovipsrzofu .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -563,7 +583,7 @@ Data variables: id_femme (dbl), id_menage (dbl), poids (dbl), date_entretien
   border-bottom-width: 0;
 }
 
-:where(#ovipsrzofu) .gt_subtitle {
+#ovipsrzofu .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -575,13 +595,13 @@ Data variables: id_femme (dbl), id_menage (dbl), poids (dbl), date_entretien
   border-top-width: 0;
 }
 
-:where(#ovipsrzofu) .gt_bottom_border {
+#ovipsrzofu .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-:where(#ovipsrzofu) .gt_col_headings {
+#ovipsrzofu .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -596,7 +616,7 @@ Data variables: id_femme (dbl), id_menage (dbl), poids (dbl), date_entretien
   border-right-color: #D3D3D3;
 }
 
-:where(#ovipsrzofu) .gt_col_heading {
+#ovipsrzofu .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -616,7 +636,7 @@ Data variables: id_femme (dbl), id_menage (dbl), poids (dbl), date_entretien
   overflow-x: hidden;
 }
 
-:where(#ovipsrzofu) .gt_column_spanner_outer {
+#ovipsrzofu .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -628,15 +648,15 @@ Data variables: id_femme (dbl), id_menage (dbl), poids (dbl), date_entretien
   padding-right: 4px;
 }
 
-:where(#ovipsrzofu) .gt_column_spanner_outer:first-child {
+#ovipsrzofu .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-:where(#ovipsrzofu) .gt_column_spanner_outer:last-child {
+#ovipsrzofu .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-:where(#ovipsrzofu) .gt_column_spanner {
+#ovipsrzofu .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -648,7 +668,7 @@ Data variables: id_femme (dbl), id_menage (dbl), poids (dbl), date_entretien
   width: 100%;
 }
 
-:where(#ovipsrzofu) .gt_group_heading {
+#ovipsrzofu .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -674,7 +694,7 @@ Data variables: id_femme (dbl), id_menage (dbl), poids (dbl), date_entretien
   text-align: left;
 }
 
-:where(#ovipsrzofu) .gt_empty_group_heading {
+#ovipsrzofu .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -689,15 +709,15 @@ Data variables: id_femme (dbl), id_menage (dbl), poids (dbl), date_entretien
   vertical-align: middle;
 }
 
-:where(#ovipsrzofu) .gt_from_md > :first-child {
+#ovipsrzofu .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-:where(#ovipsrzofu) .gt_from_md > :last-child {
+#ovipsrzofu .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-:where(#ovipsrzofu) .gt_row {
+#ovipsrzofu .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -716,7 +736,7 @@ Data variables: id_femme (dbl), id_menage (dbl), poids (dbl), date_entretien
   overflow-x: hidden;
 }
 
-:where(#ovipsrzofu) .gt_stub {
+#ovipsrzofu .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -729,7 +749,7 @@ Data variables: id_femme (dbl), id_menage (dbl), poids (dbl), date_entretien
   padding-right: 5px;
 }
 
-:where(#ovipsrzofu) .gt_stub_row_group {
+#ovipsrzofu .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -743,11 +763,11 @@ Data variables: id_femme (dbl), id_menage (dbl), poids (dbl), date_entretien
   vertical-align: top;
 }
 
-:where(#ovipsrzofu) .gt_row_group_first td {
+#ovipsrzofu .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-:where(#ovipsrzofu) .gt_summary_row {
+#ovipsrzofu .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -757,16 +777,16 @@ Data variables: id_femme (dbl), id_menage (dbl), poids (dbl), date_entretien
   padding-right: 5px;
 }
 
-:where(#ovipsrzofu) .gt_first_summary_row {
+#ovipsrzofu .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-:where(#ovipsrzofu) .gt_first_summary_row.thick {
+#ovipsrzofu .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-:where(#ovipsrzofu) .gt_last_summary_row {
+#ovipsrzofu .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -776,7 +796,7 @@ Data variables: id_femme (dbl), id_menage (dbl), poids (dbl), date_entretien
   border-bottom-color: #D3D3D3;
 }
 
-:where(#ovipsrzofu) .gt_grand_summary_row {
+#ovipsrzofu .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -786,7 +806,7 @@ Data variables: id_femme (dbl), id_menage (dbl), poids (dbl), date_entretien
   padding-right: 5px;
 }
 
-:where(#ovipsrzofu) .gt_first_grand_summary_row {
+#ovipsrzofu .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -796,11 +816,11 @@ Data variables: id_femme (dbl), id_menage (dbl), poids (dbl), date_entretien
   border-top-color: #D3D3D3;
 }
 
-:where(#ovipsrzofu) .gt_striped {
+#ovipsrzofu .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-:where(#ovipsrzofu) .gt_table_body {
+#ovipsrzofu .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -809,7 +829,7 @@ Data variables: id_femme (dbl), id_menage (dbl), poids (dbl), date_entretien
   border-bottom-color: #D3D3D3;
 }
 
-:where(#ovipsrzofu) .gt_footnotes {
+#ovipsrzofu .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -823,7 +843,7 @@ Data variables: id_femme (dbl), id_menage (dbl), poids (dbl), date_entretien
   border-right-color: #D3D3D3;
 }
 
-:where(#ovipsrzofu) .gt_footnote {
+#ovipsrzofu .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-left: 4px;
@@ -832,7 +852,7 @@ Data variables: id_femme (dbl), id_menage (dbl), poids (dbl), date_entretien
   padding-right: 5px;
 }
 
-:where(#ovipsrzofu) .gt_sourcenotes {
+#ovipsrzofu .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -846,7 +866,7 @@ Data variables: id_femme (dbl), id_menage (dbl), poids (dbl), date_entretien
   border-right-color: #D3D3D3;
 }
 
-:where(#ovipsrzofu) .gt_sourcenote {
+#ovipsrzofu .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -854,159 +874,160 @@ Data variables: id_femme (dbl), id_menage (dbl), poids (dbl), date_entretien
   padding-right: 5px;
 }
 
-:where(#ovipsrzofu) .gt_left {
+#ovipsrzofu .gt_left {
   text-align: left;
 }
 
-:where(#ovipsrzofu) .gt_center {
+#ovipsrzofu .gt_center {
   text-align: center;
 }
 
-:where(#ovipsrzofu) .gt_right {
+#ovipsrzofu .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-:where(#ovipsrzofu) .gt_font_normal {
+#ovipsrzofu .gt_font_normal {
   font-weight: normal;
 }
 
-:where(#ovipsrzofu) .gt_font_bold {
+#ovipsrzofu .gt_font_bold {
   font-weight: bold;
 }
 
-:where(#ovipsrzofu) .gt_font_italic {
+#ovipsrzofu .gt_font_italic {
   font-style: italic;
 }
 
-:where(#ovipsrzofu) .gt_super {
+#ovipsrzofu .gt_super {
   font-size: 65%;
 }
 
-:where(#ovipsrzofu) .gt_footnote_marks {
+#ovipsrzofu .gt_footnote_marks {
   font-style: italic;
   font-weight: normal;
   font-size: 75%;
   vertical-align: 0.4em;
 }
 
-:where(#ovipsrzofu) .gt_asterisk {
+#ovipsrzofu .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-:where(#ovipsrzofu) .gt_indent_1 {
+#ovipsrzofu .gt_indent_1 {
   text-indent: 5px;
 }
 
-:where(#ovipsrzofu) .gt_indent_2 {
+#ovipsrzofu .gt_indent_2 {
   text-indent: 10px;
 }
 
-:where(#ovipsrzofu) .gt_indent_3 {
+#ovipsrzofu .gt_indent_3 {
   text-indent: 15px;
 }
 
-:where(#ovipsrzofu) .gt_indent_4 {
+#ovipsrzofu .gt_indent_4 {
   text-indent: 20px;
 }
 
-:where(#ovipsrzofu) .gt_indent_5 {
+#ovipsrzofu .gt_indent_5 {
   text-indent: 25px;
 }
 </style>
-<table class="gt_table">
+<div id="tbl-tbl_svysummary" class="anchored page-columns page-full">
+<table class="gt_table table table-sm table-striped small" data-quarto-postprocess="true">
 
-  
-  <thead class="gt_col_headings"><tr>
-<th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="<strong>Caractéristique</strong>"><strong>Caractéristique</strong></th>
-      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="<strong>urbain</strong>, N = 1 026<sup class=&quot;gt_footnote_marks&quot;>1</sup>">
-<strong>urbain</strong>, N = 1 026<sup class="gt_footnote_marks">1</sup>
+<thead class="gt_col_headings"><tr class="header">
+<th id="<strong>Caractéristique</strong>" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col"><strong>Caractéristique</strong></th>
+<th id="<strong>urbain</strong>, N = 1 026<sup class=&quot;gt_footnote_marks&quot;>1</sup>" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col">
+<strong>urbain</strong>, N = 1 026<sup>1</sup>
 </th>
-      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="<strong>rural</strong>, N = 1 002<sup class=&quot;gt_footnote_marks&quot;>1</sup>">
-<strong>rural</strong>, N = 1 002<sup class="gt_footnote_marks">1</sup>
+<th id="<strong>rural</strong>, N = 1 002<sup class=&quot;gt_footnote_marks&quot;>1</sup>" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col">
+<strong>rural</strong>, N = 1 002<sup>1</sup>
 </th>
-      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="<strong>Total</strong>, N = 2 027<sup class=&quot;gt_footnote_marks&quot;>1</sup>">
-<strong>Total</strong>, N = 2 027<sup class="gt_footnote_marks">1</sup>
+<th id="<strong>Total</strong>, N = 2 027<sup class=&quot;gt_footnote_marks&quot;>1</sup>" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col">
+<strong>Total</strong>, N = 2 027<sup>1</sup>
 </th>
-    </tr></thead>
+</tr></thead>
 <tbody class="gt_table_body">
-<tr>
-<td headers="label" class="gt_row gt_left" style="font-weight: bold;">Âge révolu (en années) à la date de passation du questionnaire</td>
-<td headers="stat_1" class="gt_row gt_center">26 (20 – 33)</td>
-<td headers="stat_2" class="gt_row gt_center">28 (22 – 36)</td>
-<td headers="stat_0" class="gt_row gt_center">27 (21 – 35)</td>
+<tr class="odd">
+<td class="gt_row gt_left" headers="label" style="font-weight: bold">Âge révolu (en années) à la date de passation du questionnaire</td>
+<td class="gt_row gt_center" headers="stat_1">26 (20 – 33)</td>
+<td class="gt_row gt_center" headers="stat_2">28 (22 – 36)</td>
+<td class="gt_row gt_center" headers="stat_0">27 (21 – 35)</td>
 </tr>
-<tr>
-<td headers="label" class="gt_row gt_left" style="font-weight: bold;">Niveau d'éducation</td>
-<td headers="stat_1" class="gt_row gt_center"></td>
-<td headers="stat_2" class="gt_row gt_center"></td>
-<td headers="stat_0" class="gt_row gt_center"></td>
+<tr class="even">
+<td class="gt_row gt_left" headers="label" style="font-weight: bold">Niveau d'éducation</td>
+<td class="gt_row gt_center" headers="stat_1"></td>
+<td class="gt_row gt_center" headers="stat_2"></td>
+<td class="gt_row gt_center" headers="stat_0"></td>
 </tr>
-<tr>
-<td headers="label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;aucun</td>
-<td headers="stat_1" class="gt_row gt_center">414 (40%)</td>
-<td headers="stat_2" class="gt_row gt_center">681 (68%)</td>
-<td headers="stat_0" class="gt_row gt_center">1 095 (54%)</td>
+<tr class="odd">
+<td class="gt_row gt_left" headers="label">&nbsp;&nbsp;&nbsp;&nbsp;aucun</td>
+<td class="gt_row gt_center" headers="stat_1">414 (40%)</td>
+<td class="gt_row gt_center" headers="stat_2">681 (68%)</td>
+<td class="gt_row gt_center" headers="stat_0">1 095 (54%)</td>
 </tr>
-<tr>
-<td headers="label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;primaire</td>
-<td headers="stat_1" class="gt_row gt_center">251 (24%)</td>
-<td headers="stat_2" class="gt_row gt_center">257 (26%)</td>
-<td headers="stat_0" class="gt_row gt_center">507 (25%)</td>
+<tr class="even">
+<td class="gt_row gt_left" headers="label">&nbsp;&nbsp;&nbsp;&nbsp;primaire</td>
+<td class="gt_row gt_center" headers="stat_1">251 (24%)</td>
+<td class="gt_row gt_center" headers="stat_2">257 (26%)</td>
+<td class="gt_row gt_center" headers="stat_0">507 (25%)</td>
 </tr>
-<tr>
-<td headers="label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;secondaire</td>
-<td headers="stat_1" class="gt_row gt_center">303 (30%)</td>
-<td headers="stat_2" class="gt_row gt_center">61 (6,1%)</td>
-<td headers="stat_0" class="gt_row gt_center">364 (18%)</td>
+<tr class="odd">
+<td class="gt_row gt_left" headers="label">&nbsp;&nbsp;&nbsp;&nbsp;secondaire</td>
+<td class="gt_row gt_center" headers="stat_1">303 (30%)</td>
+<td class="gt_row gt_center" headers="stat_2">61 (6,1%)</td>
+<td class="gt_row gt_center" headers="stat_0">364 (18%)</td>
 </tr>
-<tr>
-<td headers="label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;supérieur</td>
-<td headers="stat_1" class="gt_row gt_center">58 (5,7%)</td>
-<td headers="stat_2" class="gt_row gt_center">3 (0,3%)</td>
-<td headers="stat_0" class="gt_row gt_center">61 (3,0%)</td>
+<tr class="even">
+<td class="gt_row gt_left" headers="label">&nbsp;&nbsp;&nbsp;&nbsp;supérieur</td>
+<td class="gt_row gt_center" headers="stat_1">58 (5,7%)</td>
+<td class="gt_row gt_center" headers="stat_2">3 (0,3%)</td>
+<td class="gt_row gt_center" headers="stat_0">61 (3,0%)</td>
 </tr>
-<tr>
-<td headers="label" class="gt_row gt_left" style="font-weight: bold;">A un emploi ?</td>
-<td headers="stat_1" class="gt_row gt_center"></td>
-<td headers="stat_2" class="gt_row gt_center"></td>
-<td headers="stat_0" class="gt_row gt_center"></td>
+<tr class="odd">
+<td class="gt_row gt_left" headers="label" style="font-weight: bold">A un emploi ?</td>
+<td class="gt_row gt_center" headers="stat_1"></td>
+<td class="gt_row gt_center" headers="stat_2"></td>
+<td class="gt_row gt_center" headers="stat_0"></td>
 </tr>
-<tr>
-<td headers="label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;non</td>
-<td headers="stat_1" class="gt_row gt_center">401 (39%)</td>
-<td headers="stat_2" class="gt_row gt_center">269 (27%)</td>
-<td headers="stat_0" class="gt_row gt_center">670 (33%)</td>
+<tr class="even">
+<td class="gt_row gt_left" headers="label">&nbsp;&nbsp;&nbsp;&nbsp;non</td>
+<td class="gt_row gt_center" headers="stat_1">401 (39%)</td>
+<td class="gt_row gt_center" headers="stat_2">269 (27%)</td>
+<td class="gt_row gt_center" headers="stat_0">670 (33%)</td>
 </tr>
-<tr>
-<td headers="label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;oui</td>
-<td headers="stat_1" class="gt_row gt_center">621 (61%)</td>
-<td headers="stat_2" class="gt_row gt_center">731 (73%)</td>
-<td headers="stat_0" class="gt_row gt_center">1 351 (67%)</td>
+<tr class="odd">
+<td class="gt_row gt_left" headers="label">&nbsp;&nbsp;&nbsp;&nbsp;oui</td>
+<td class="gt_row gt_center" headers="stat_1">621 (61%)</td>
+<td class="gt_row gt_center" headers="stat_2">731 (73%)</td>
+<td class="gt_row gt_center" headers="stat_0">1 351 (67%)</td>
 </tr>
-<tr>
-<td headers="label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;Manquant</td>
-<td headers="stat_1" class="gt_row gt_center">5</td>
-<td headers="stat_2" class="gt_row gt_center">1</td>
-<td headers="stat_0" class="gt_row gt_center">6</td>
+<tr class="even">
+<td class="gt_row gt_left" headers="label">&nbsp;&nbsp;&nbsp;&nbsp;Manquant</td>
+<td class="gt_row gt_center" headers="stat_1">5</td>
+<td class="gt_row gt_center" headers="stat_2">1</td>
+<td class="gt_row gt_center" headers="stat_0">6</td>
 </tr>
 </tbody>
-<tfoot class="gt_footnotes"><tr>
-<td class="gt_footnote" colspan="4">
-<sup class="gt_footnote_marks">1</sup> Médiane (EI); n (%)</td>
-    </tr></tfoot>
+<tfoot class="gt_footnotes"><tr class="odd">
+<td colspan="4" class="gt_footnote">
+<sup>1</sup> Médiane (EI); n (%)</td>
+</tr></tfoot>
 </table>
-<div class="quarto-table-caption margin-caption">Table&nbsp;29.1:  Tableau croisé sur des données pondérées </div></div>
+<div class="quarto-table-caption margin-caption">Table&nbsp;29.1: Tableau croisé sur des données pondérées</div></div>
+
 </div>
 </div>
 </div>
-<div class="callout-important callout callout-style-default callout-captioned">
+<div class="callout callout-style-default callout-important callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
-<div class="callout-caption-container flex-fill">
+<div class="callout-title-container flex-fill">
 Important
 </div>
 </div>
@@ -1037,7 +1058,7 @@ Important
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
 }
 
-:where(#zsbgqywhpy) .gt_table {
+#zsbgqywhpy .gt_table {
   display: table;
   border-collapse: collapse;
   margin-left: auto;
@@ -1062,7 +1083,7 @@ Important
   border-left-color: #D3D3D3;
 }
 
-:where(#zsbgqywhpy) .gt_heading {
+#zsbgqywhpy .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -1074,12 +1095,12 @@ Important
   border-right-color: #D3D3D3;
 }
 
-:where(#zsbgqywhpy) .gt_caption {
+#zsbgqywhpy .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-:where(#zsbgqywhpy) .gt_title {
+#zsbgqywhpy .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -1091,7 +1112,7 @@ Important
   border-bottom-width: 0;
 }
 
-:where(#zsbgqywhpy) .gt_subtitle {
+#zsbgqywhpy .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -1103,13 +1124,13 @@ Important
   border-top-width: 0;
 }
 
-:where(#zsbgqywhpy) .gt_bottom_border {
+#zsbgqywhpy .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-:where(#zsbgqywhpy) .gt_col_headings {
+#zsbgqywhpy .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1124,7 +1145,7 @@ Important
   border-right-color: #D3D3D3;
 }
 
-:where(#zsbgqywhpy) .gt_col_heading {
+#zsbgqywhpy .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1144,7 +1165,7 @@ Important
   overflow-x: hidden;
 }
 
-:where(#zsbgqywhpy) .gt_column_spanner_outer {
+#zsbgqywhpy .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1156,15 +1177,15 @@ Important
   padding-right: 4px;
 }
 
-:where(#zsbgqywhpy) .gt_column_spanner_outer:first-child {
+#zsbgqywhpy .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-:where(#zsbgqywhpy) .gt_column_spanner_outer:last-child {
+#zsbgqywhpy .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-:where(#zsbgqywhpy) .gt_column_spanner {
+#zsbgqywhpy .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -1176,7 +1197,7 @@ Important
   width: 100%;
 }
 
-:where(#zsbgqywhpy) .gt_group_heading {
+#zsbgqywhpy .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1202,7 +1223,7 @@ Important
   text-align: left;
 }
 
-:where(#zsbgqywhpy) .gt_empty_group_heading {
+#zsbgqywhpy .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -1217,15 +1238,15 @@ Important
   vertical-align: middle;
 }
 
-:where(#zsbgqywhpy) .gt_from_md > :first-child {
+#zsbgqywhpy .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-:where(#zsbgqywhpy) .gt_from_md > :last-child {
+#zsbgqywhpy .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-:where(#zsbgqywhpy) .gt_row {
+#zsbgqywhpy .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1244,7 +1265,7 @@ Important
   overflow-x: hidden;
 }
 
-:where(#zsbgqywhpy) .gt_stub {
+#zsbgqywhpy .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1257,7 +1278,7 @@ Important
   padding-right: 5px;
 }
 
-:where(#zsbgqywhpy) .gt_stub_row_group {
+#zsbgqywhpy .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1271,11 +1292,11 @@ Important
   vertical-align: top;
 }
 
-:where(#zsbgqywhpy) .gt_row_group_first td {
+#zsbgqywhpy .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-:where(#zsbgqywhpy) .gt_summary_row {
+#zsbgqywhpy .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1285,16 +1306,16 @@ Important
   padding-right: 5px;
 }
 
-:where(#zsbgqywhpy) .gt_first_summary_row {
+#zsbgqywhpy .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-:where(#zsbgqywhpy) .gt_first_summary_row.thick {
+#zsbgqywhpy .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-:where(#zsbgqywhpy) .gt_last_summary_row {
+#zsbgqywhpy .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1304,7 +1325,7 @@ Important
   border-bottom-color: #D3D3D3;
 }
 
-:where(#zsbgqywhpy) .gt_grand_summary_row {
+#zsbgqywhpy .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1314,7 +1335,7 @@ Important
   padding-right: 5px;
 }
 
-:where(#zsbgqywhpy) .gt_first_grand_summary_row {
+#zsbgqywhpy .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1324,11 +1345,11 @@ Important
   border-top-color: #D3D3D3;
 }
 
-:where(#zsbgqywhpy) .gt_striped {
+#zsbgqywhpy .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-:where(#zsbgqywhpy) .gt_table_body {
+#zsbgqywhpy .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1337,7 +1358,7 @@ Important
   border-bottom-color: #D3D3D3;
 }
 
-:where(#zsbgqywhpy) .gt_footnotes {
+#zsbgqywhpy .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1351,7 +1372,7 @@ Important
   border-right-color: #D3D3D3;
 }
 
-:where(#zsbgqywhpy) .gt_footnote {
+#zsbgqywhpy .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-left: 4px;
@@ -1360,7 +1381,7 @@ Important
   padding-right: 5px;
 }
 
-:where(#zsbgqywhpy) .gt_sourcenotes {
+#zsbgqywhpy .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1374,7 +1395,7 @@ Important
   border-right-color: #D3D3D3;
 }
 
-:where(#zsbgqywhpy) .gt_sourcenote {
+#zsbgqywhpy .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -1382,128 +1403,128 @@ Important
   padding-right: 5px;
 }
 
-:where(#zsbgqywhpy) .gt_left {
+#zsbgqywhpy .gt_left {
   text-align: left;
 }
 
-:where(#zsbgqywhpy) .gt_center {
+#zsbgqywhpy .gt_center {
   text-align: center;
 }
 
-:where(#zsbgqywhpy) .gt_right {
+#zsbgqywhpy .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-:where(#zsbgqywhpy) .gt_font_normal {
+#zsbgqywhpy .gt_font_normal {
   font-weight: normal;
 }
 
-:where(#zsbgqywhpy) .gt_font_bold {
+#zsbgqywhpy .gt_font_bold {
   font-weight: bold;
 }
 
-:where(#zsbgqywhpy) .gt_font_italic {
+#zsbgqywhpy .gt_font_italic {
   font-style: italic;
 }
 
-:where(#zsbgqywhpy) .gt_super {
+#zsbgqywhpy .gt_super {
   font-size: 65%;
 }
 
-:where(#zsbgqywhpy) .gt_footnote_marks {
+#zsbgqywhpy .gt_footnote_marks {
   font-style: italic;
   font-weight: normal;
   font-size: 75%;
   vertical-align: 0.4em;
 }
 
-:where(#zsbgqywhpy) .gt_asterisk {
+#zsbgqywhpy .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-:where(#zsbgqywhpy) .gt_indent_1 {
+#zsbgqywhpy .gt_indent_1 {
   text-indent: 5px;
 }
 
-:where(#zsbgqywhpy) .gt_indent_2 {
+#zsbgqywhpy .gt_indent_2 {
   text-indent: 10px;
 }
 
-:where(#zsbgqywhpy) .gt_indent_3 {
+#zsbgqywhpy .gt_indent_3 {
   text-indent: 15px;
 }
 
-:where(#zsbgqywhpy) .gt_indent_4 {
+#zsbgqywhpy .gt_indent_4 {
   text-indent: 20px;
 }
 
-:where(#zsbgqywhpy) .gt_indent_5 {
+#zsbgqywhpy .gt_indent_5 {
   text-indent: 25px;
 }
 </style>
-<table class="gt_table">
-<thead class="gt_col_headings"><tr>
-<th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="<strong>Caractéristique</strong>"><strong>Caractéristique</strong></th>
-      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="<strong>urbain</strong> (912 obs.)<sup class=&quot;gt_footnote_marks&quot;>1</sup>">
-<strong>urbain</strong> (912 obs.)<sup class="gt_footnote_marks">1</sup>
+<table class="gt_table table table-sm table-striped small" data-quarto-postprocess="true">
+<thead class="gt_col_headings"><tr class="header">
+<th id="<strong>Caractéristique</strong>" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col"><strong>Caractéristique</strong></th>
+<th id="<strong>urbain</strong> (912 obs.)<sup class=&quot;gt_footnote_marks&quot;>1</sup>" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col">
+<strong>urbain</strong> (912 obs.)<sup>1</sup>
 </th>
-      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="<strong>rural</strong> (1088 obs.)<sup class=&quot;gt_footnote_marks&quot;>1</sup>">
-<strong>rural</strong> (1088 obs.)<sup class="gt_footnote_marks">1</sup>
+<th id="<strong>rural</strong> (1088 obs.)<sup class=&quot;gt_footnote_marks&quot;>1</sup>" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col">
+<strong>rural</strong> (1088 obs.)<sup>1</sup>
 </th>
-    </tr></thead>
+</tr></thead>
 <tbody class="gt_table_body">
-<tr>
-<td headers="label" class="gt_row gt_left" style="font-weight: bold;">Niveau d'éducation</td>
-<td headers="stat_1" class="gt_row gt_center"></td>
-<td headers="stat_2" class="gt_row gt_center"></td>
+<tr class="odd">
+<td class="gt_row gt_left" headers="label" style="font-weight: bold">Niveau d'éducation</td>
+<td class="gt_row gt_center" headers="stat_1"></td>
+<td class="gt_row gt_center" headers="stat_2"></td>
 </tr>
-<tr>
-<td headers="label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;aucun</td>
-<td headers="stat_1" class="gt_row gt_center">40,3% (375 obs.)</td>
-<td headers="stat_2" class="gt_row gt_center">68,0% (763 obs.)</td>
+<tr class="even">
+<td class="gt_row gt_left" headers="label">&nbsp;&nbsp;&nbsp;&nbsp;aucun</td>
+<td class="gt_row gt_center" headers="stat_1">40,3% (375 obs.)</td>
+<td class="gt_row gt_center" headers="stat_2">68,0% (763 obs.)</td>
 </tr>
-<tr>
-<td headers="label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;primaire</td>
-<td headers="stat_1" class="gt_row gt_center">24,4% (213 obs.)</td>
-<td headers="stat_2" class="gt_row gt_center">25,6% (247 obs.)</td>
+<tr class="odd">
+<td class="gt_row gt_left" headers="label">&nbsp;&nbsp;&nbsp;&nbsp;primaire</td>
+<td class="gt_row gt_center" headers="stat_1">24,4% (213 obs.)</td>
+<td class="gt_row gt_center" headers="stat_2">25,6% (247 obs.)</td>
 </tr>
-<tr>
-<td headers="label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;secondaire</td>
-<td headers="stat_1" class="gt_row gt_center">29,5% (275 obs.)</td>
-<td headers="stat_2" class="gt_row gt_center">6,1% (73 obs.)</td>
+<tr class="even">
+<td class="gt_row gt_left" headers="label">&nbsp;&nbsp;&nbsp;&nbsp;secondaire</td>
+<td class="gt_row gt_center" headers="stat_1">29,5% (275 obs.)</td>
+<td class="gt_row gt_center" headers="stat_2">6,1% (73 obs.)</td>
 </tr>
-<tr>
-<td headers="label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;supérieur</td>
-<td headers="stat_1" class="gt_row gt_center">5,7% (49 obs.)</td>
-<td headers="stat_2" class="gt_row gt_center">0,3% (5 obs.)</td>
+<tr class="odd">
+<td class="gt_row gt_left" headers="label">&nbsp;&nbsp;&nbsp;&nbsp;supérieur</td>
+<td class="gt_row gt_center" headers="stat_1">5,7% (49 obs.)</td>
+<td class="gt_row gt_center" headers="stat_2">0,3% (5 obs.)</td>
 </tr>
-<tr>
-<td headers="label" class="gt_row gt_left" style="font-weight: bold;">A un emploi ?</td>
-<td headers="stat_1" class="gt_row gt_center"></td>
-<td headers="stat_2" class="gt_row gt_center"></td>
+<tr class="even">
+<td class="gt_row gt_left" headers="label" style="font-weight: bold">A un emploi ?</td>
+<td class="gt_row gt_center" headers="stat_1"></td>
+<td class="gt_row gt_center" headers="stat_2"></td>
 </tr>
-<tr>
-<td headers="label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;non</td>
-<td headers="stat_1" class="gt_row gt_center">39,2% (370 obs.)</td>
-<td headers="stat_2" class="gt_row gt_center">26,9% (296 obs.)</td>
+<tr class="odd">
+<td class="gt_row gt_left" headers="label">&nbsp;&nbsp;&nbsp;&nbsp;non</td>
+<td class="gt_row gt_center" headers="stat_1">39,2% (370 obs.)</td>
+<td class="gt_row gt_center" headers="stat_2">26,9% (296 obs.)</td>
 </tr>
-<tr>
-<td headers="label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;oui</td>
-<td headers="stat_1" class="gt_row gt_center">60,8% (537 obs.)</td>
-<td headers="stat_2" class="gt_row gt_center">73,1% (790 obs.)</td>
+<tr class="even">
+<td class="gt_row gt_left" headers="label">&nbsp;&nbsp;&nbsp;&nbsp;oui</td>
+<td class="gt_row gt_center" headers="stat_1">60,8% (537 obs.)</td>
+<td class="gt_row gt_center" headers="stat_2">73,1% (790 obs.)</td>
 </tr>
-<tr>
-<td headers="label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;Manquant</td>
-<td headers="stat_1" class="gt_row gt_center">5 obs.</td>
-<td headers="stat_2" class="gt_row gt_center">2 obs.</td>
+<tr class="odd">
+<td class="gt_row gt_left" headers="label">&nbsp;&nbsp;&nbsp;&nbsp;Manquant</td>
+<td class="gt_row gt_center" headers="stat_1">5 obs.</td>
+<td class="gt_row gt_center" headers="stat_2">2 obs.</td>
 </tr>
 </tbody>
-<tfoot class="gt_footnotes"><tr>
-<td class="gt_footnote" colspan="3">
-<sup class="gt_footnote_marks">1</sup> % (n (unweighted) obs.)</td>
-    </tr></tfoot>
+<tfoot class="gt_footnotes"><tr class="even">
+<td colspan="3" class="gt_footnote">
+<sup>1</sup> % (n (unweighted) obs.)</td>
+</tr></tfoot>
 </table>
 </div>
 </div>
@@ -1591,7 +1612,7 @@ milieu   aucun primaire secondaire supérieur Ensemble
   Total  100.0 100.0    100.0      100.0     100.0   </code></pre>
 </div>
 </div>
-<p>Le principe de la fonction <code><a href="https://rdrr.io/pkg/survey/man/svyby.html">survey::svyby()</a></code> est similaire à celui de <code><a href="https://rdrr.io/r/base/tapply.html">tapply()</a></code> (cf. <a href="#sec-tapply"><span class="quarto-unresolved-ref">sec-tapply</span></a>). Elle permet de calculer des statistiques selon plusieurs sous-groupes définis par un facteur.</p>
+<p>Le principe de la fonction <code><a href="https://rdrr.io/pkg/survey/man/svyby.html">survey::svyby()</a></code> est similaire à celui de <code><a href="https://rdrr.io/r/base/tapply.html">tapply()</a></code> (cf. <a href="../analyses/statistique-bivariee.html#sec-tapply"><span>Section&nbsp;19.2.3</span></a>). Elle permet de calculer des statistiques selon plusieurs sous-groupes définis par un facteur.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb24"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1"></a>survey<span class="sc">::</span><span class="fu">svyby</span>(<span class="sc">~</span>age, <span class="sc">~</span>region, dp, survey<span class="sc">::</span>svymean)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -1614,14 +1635,13 @@ Ouest  Ouest 28.08626 0.4458201</code></pre>
 <span id="cb26-6"><a href="#cb26-6"></a>  <span class="fu">add_ci</span>() <span class="sc">|&gt;</span> </span>
 <span id="cb26-7"><a href="#cb26-7"></a>  <span class="fu">bold_labels</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display page-columns page-full">
-<div id="tbl-tbl_svysummary-add_ci" class="anchored page-columns page-full">
 
 <div id="lhdpfrarnb" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;" class="page-columns page-full">
 <style>html {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
 }
 
-:where(#lhdpfrarnb) .gt_table {
+#lhdpfrarnb .gt_table {
   display: table;
   border-collapse: collapse;
   margin-left: auto;
@@ -1646,7 +1666,7 @@ Ouest  Ouest 28.08626 0.4458201</code></pre>
   border-left-color: #D3D3D3;
 }
 
-:where(#lhdpfrarnb) .gt_heading {
+#lhdpfrarnb .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -1658,12 +1678,12 @@ Ouest  Ouest 28.08626 0.4458201</code></pre>
   border-right-color: #D3D3D3;
 }
 
-:where(#lhdpfrarnb) .gt_caption {
+#lhdpfrarnb .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-:where(#lhdpfrarnb) .gt_title {
+#lhdpfrarnb .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -1675,7 +1695,7 @@ Ouest  Ouest 28.08626 0.4458201</code></pre>
   border-bottom-width: 0;
 }
 
-:where(#lhdpfrarnb) .gt_subtitle {
+#lhdpfrarnb .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -1687,13 +1707,13 @@ Ouest  Ouest 28.08626 0.4458201</code></pre>
   border-top-width: 0;
 }
 
-:where(#lhdpfrarnb) .gt_bottom_border {
+#lhdpfrarnb .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-:where(#lhdpfrarnb) .gt_col_headings {
+#lhdpfrarnb .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1708,7 +1728,7 @@ Ouest  Ouest 28.08626 0.4458201</code></pre>
   border-right-color: #D3D3D3;
 }
 
-:where(#lhdpfrarnb) .gt_col_heading {
+#lhdpfrarnb .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1728,7 +1748,7 @@ Ouest  Ouest 28.08626 0.4458201</code></pre>
   overflow-x: hidden;
 }
 
-:where(#lhdpfrarnb) .gt_column_spanner_outer {
+#lhdpfrarnb .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1740,15 +1760,15 @@ Ouest  Ouest 28.08626 0.4458201</code></pre>
   padding-right: 4px;
 }
 
-:where(#lhdpfrarnb) .gt_column_spanner_outer:first-child {
+#lhdpfrarnb .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-:where(#lhdpfrarnb) .gt_column_spanner_outer:last-child {
+#lhdpfrarnb .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-:where(#lhdpfrarnb) .gt_column_spanner {
+#lhdpfrarnb .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -1760,7 +1780,7 @@ Ouest  Ouest 28.08626 0.4458201</code></pre>
   width: 100%;
 }
 
-:where(#lhdpfrarnb) .gt_group_heading {
+#lhdpfrarnb .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1786,7 +1806,7 @@ Ouest  Ouest 28.08626 0.4458201</code></pre>
   text-align: left;
 }
 
-:where(#lhdpfrarnb) .gt_empty_group_heading {
+#lhdpfrarnb .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -1801,15 +1821,15 @@ Ouest  Ouest 28.08626 0.4458201</code></pre>
   vertical-align: middle;
 }
 
-:where(#lhdpfrarnb) .gt_from_md > :first-child {
+#lhdpfrarnb .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-:where(#lhdpfrarnb) .gt_from_md > :last-child {
+#lhdpfrarnb .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-:where(#lhdpfrarnb) .gt_row {
+#lhdpfrarnb .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1828,7 +1848,7 @@ Ouest  Ouest 28.08626 0.4458201</code></pre>
   overflow-x: hidden;
 }
 
-:where(#lhdpfrarnb) .gt_stub {
+#lhdpfrarnb .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1841,7 +1861,7 @@ Ouest  Ouest 28.08626 0.4458201</code></pre>
   padding-right: 5px;
 }
 
-:where(#lhdpfrarnb) .gt_stub_row_group {
+#lhdpfrarnb .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1855,11 +1875,11 @@ Ouest  Ouest 28.08626 0.4458201</code></pre>
   vertical-align: top;
 }
 
-:where(#lhdpfrarnb) .gt_row_group_first td {
+#lhdpfrarnb .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-:where(#lhdpfrarnb) .gt_summary_row {
+#lhdpfrarnb .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1869,16 +1889,16 @@ Ouest  Ouest 28.08626 0.4458201</code></pre>
   padding-right: 5px;
 }
 
-:where(#lhdpfrarnb) .gt_first_summary_row {
+#lhdpfrarnb .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-:where(#lhdpfrarnb) .gt_first_summary_row.thick {
+#lhdpfrarnb .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-:where(#lhdpfrarnb) .gt_last_summary_row {
+#lhdpfrarnb .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1888,7 +1908,7 @@ Ouest  Ouest 28.08626 0.4458201</code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-:where(#lhdpfrarnb) .gt_grand_summary_row {
+#lhdpfrarnb .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1898,7 +1918,7 @@ Ouest  Ouest 28.08626 0.4458201</code></pre>
   padding-right: 5px;
 }
 
-:where(#lhdpfrarnb) .gt_first_grand_summary_row {
+#lhdpfrarnb .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1908,11 +1928,11 @@ Ouest  Ouest 28.08626 0.4458201</code></pre>
   border-top-color: #D3D3D3;
 }
 
-:where(#lhdpfrarnb) .gt_striped {
+#lhdpfrarnb .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-:where(#lhdpfrarnb) .gt_table_body {
+#lhdpfrarnb .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1921,7 +1941,7 @@ Ouest  Ouest 28.08626 0.4458201</code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-:where(#lhdpfrarnb) .gt_footnotes {
+#lhdpfrarnb .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1935,7 +1955,7 @@ Ouest  Ouest 28.08626 0.4458201</code></pre>
   border-right-color: #D3D3D3;
 }
 
-:where(#lhdpfrarnb) .gt_footnote {
+#lhdpfrarnb .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-left: 4px;
@@ -1944,7 +1964,7 @@ Ouest  Ouest 28.08626 0.4458201</code></pre>
   padding-right: 5px;
 }
 
-:where(#lhdpfrarnb) .gt_sourcenotes {
+#lhdpfrarnb .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1958,7 +1978,7 @@ Ouest  Ouest 28.08626 0.4458201</code></pre>
   border-right-color: #D3D3D3;
 }
 
-:where(#lhdpfrarnb) .gt_sourcenote {
+#lhdpfrarnb .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -1966,123 +1986,124 @@ Ouest  Ouest 28.08626 0.4458201</code></pre>
   padding-right: 5px;
 }
 
-:where(#lhdpfrarnb) .gt_left {
+#lhdpfrarnb .gt_left {
   text-align: left;
 }
 
-:where(#lhdpfrarnb) .gt_center {
+#lhdpfrarnb .gt_center {
   text-align: center;
 }
 
-:where(#lhdpfrarnb) .gt_right {
+#lhdpfrarnb .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-:where(#lhdpfrarnb) .gt_font_normal {
+#lhdpfrarnb .gt_font_normal {
   font-weight: normal;
 }
 
-:where(#lhdpfrarnb) .gt_font_bold {
+#lhdpfrarnb .gt_font_bold {
   font-weight: bold;
 }
 
-:where(#lhdpfrarnb) .gt_font_italic {
+#lhdpfrarnb .gt_font_italic {
   font-style: italic;
 }
 
-:where(#lhdpfrarnb) .gt_super {
+#lhdpfrarnb .gt_super {
   font-size: 65%;
 }
 
-:where(#lhdpfrarnb) .gt_footnote_marks {
+#lhdpfrarnb .gt_footnote_marks {
   font-style: italic;
   font-weight: normal;
   font-size: 75%;
   vertical-align: 0.4em;
 }
 
-:where(#lhdpfrarnb) .gt_asterisk {
+#lhdpfrarnb .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-:where(#lhdpfrarnb) .gt_indent_1 {
+#lhdpfrarnb .gt_indent_1 {
   text-indent: 5px;
 }
 
-:where(#lhdpfrarnb) .gt_indent_2 {
+#lhdpfrarnb .gt_indent_2 {
   text-indent: 10px;
 }
 
-:where(#lhdpfrarnb) .gt_indent_3 {
+#lhdpfrarnb .gt_indent_3 {
   text-indent: 15px;
 }
 
-:where(#lhdpfrarnb) .gt_indent_4 {
+#lhdpfrarnb .gt_indent_4 {
   text-indent: 20px;
 }
 
-:where(#lhdpfrarnb) .gt_indent_5 {
+#lhdpfrarnb .gt_indent_5 {
   text-indent: 25px;
 }
 </style>
-<table class="gt_table">
+<div id="tbl-tbl_svysummary-add_ci" class="anchored page-columns page-full">
+<table class="gt_table table table-sm table-striped small" data-quarto-postprocess="true">
 
-  
-  <thead class="gt_col_headings"><tr>
-<th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="<strong>Caractéristique</strong>"><strong>Caractéristique</strong></th>
-      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="<strong>N = 2 027</strong><sup class=&quot;gt_footnote_marks&quot;>1</sup>">
-<strong>N = 2 027</strong><sup class="gt_footnote_marks">1</sup>
+<thead class="gt_col_headings"><tr class="header">
+<th id="<strong>Caractéristique</strong>" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col"><strong>Caractéristique</strong></th>
+<th id="<strong>N = 2 027</strong><sup class=&quot;gt_footnote_marks&quot;>1</sup>" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col">
+<strong>N = 2 027</strong><sup>1</sup>
 </th>
-      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="<strong>95% CI</strong><sup class=&quot;gt_footnote_marks&quot;>2</sup>">
-<strong>95% CI</strong><sup class="gt_footnote_marks">2</sup>
+<th id="<strong>95% CI</strong><sup class=&quot;gt_footnote_marks&quot;>2</sup>" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col">
+<strong>95% CI</strong><sup>2</sup>
 </th>
-    </tr></thead>
+</tr></thead>
 <tbody class="gt_table_body">
-<tr>
-<td headers="label" class="gt_row gt_left" style="font-weight: bold;">Âge révolu (en années) à la date de passation du questionnaire</td>
-<td headers="stat_0" class="gt_row gt_center">28 (9)</td>
-<td headers="ci_stat_0" class="gt_row gt_center">28, 29</td>
+<tr class="odd">
+<td class="gt_row gt_left" headers="label" style="font-weight: bold">Âge révolu (en années) à la date de passation du questionnaire</td>
+<td class="gt_row gt_center" headers="stat_0">28 (9)</td>
+<td class="gt_row gt_center" headers="ci_stat_0">28, 29</td>
 </tr>
-<tr>
-<td headers="label" class="gt_row gt_left" style="font-weight: bold;">Région de résidence</td>
-<td headers="stat_0" class="gt_row gt_center"></td>
-<td headers="ci_stat_0" class="gt_row gt_center"></td>
+<tr class="even">
+<td class="gt_row gt_left" headers="label" style="font-weight: bold">Région de résidence</td>
+<td class="gt_row gt_center" headers="stat_0"></td>
+<td class="gt_row gt_center" headers="ci_stat_0"></td>
 </tr>
-<tr>
-<td headers="label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;Nord</td>
-<td headers="stat_0" class="gt_row gt_center">611 (30%)</td>
-<td headers="ci_stat_0" class="gt_row gt_center">28%, 33%</td>
+<tr class="odd">
+<td class="gt_row gt_left" headers="label">&nbsp;&nbsp;&nbsp;&nbsp;Nord</td>
+<td class="gt_row gt_center" headers="stat_0">611 (30%)</td>
+<td class="gt_row gt_center" headers="ci_stat_0">28%, 33%</td>
 </tr>
-<tr>
-<td headers="label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;Est</td>
-<td headers="stat_0" class="gt_row gt_center">176 (8,7%)</td>
-<td headers="ci_stat_0" class="gt_row gt_center">7,7%, 9,8%</td>
+<tr class="even">
+<td class="gt_row gt_left" headers="label">&nbsp;&nbsp;&nbsp;&nbsp;Est</td>
+<td class="gt_row gt_center" headers="stat_0">176 (8,7%)</td>
+<td class="gt_row gt_center" headers="ci_stat_0">7,7%, 9,8%</td>
 </tr>
-<tr>
-<td headers="label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;Sud</td>
-<td headers="stat_0" class="gt_row gt_center">329 (16%)</td>
-<td headers="ci_stat_0" class="gt_row gt_center">14%, 18%</td>
+<tr class="odd">
+<td class="gt_row gt_left" headers="label">&nbsp;&nbsp;&nbsp;&nbsp;Sud</td>
+<td class="gt_row gt_center" headers="stat_0">329 (16%)</td>
+<td class="gt_row gt_center" headers="ci_stat_0">14%, 18%</td>
 </tr>
-<tr>
-<td headers="label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;Ouest</td>
-<td headers="stat_0" class="gt_row gt_center">911 (45%)</td>
-<td headers="ci_stat_0" class="gt_row gt_center">42%, 48%</td>
+<tr class="even">
+<td class="gt_row gt_left" headers="label">&nbsp;&nbsp;&nbsp;&nbsp;Ouest</td>
+<td class="gt_row gt_center" headers="stat_0">911 (45%)</td>
+<td class="gt_row gt_center" headers="ci_stat_0">42%, 48%</td>
 </tr>
 </tbody>
 <tfoot class="gt_footnotes">
-<tr>
-<td class="gt_footnote" colspan="3">
-<sup class="gt_footnote_marks">1</sup> Moyenne (ET); n (%)</td>
-    </tr>
-<tr>
-<td class="gt_footnote" colspan="3">
-<sup class="gt_footnote_marks">2</sup> IC = intervalle de confiance</td>
-    </tr>
+<tr class="odd">
+<td colspan="3" class="gt_footnote">
+<sup>1</sup> Moyenne (ET); n (%)</td>
+</tr>
+<tr class="even">
+<td colspan="3" class="gt_footnote">
+<sup>2</sup> IC = intervalle de confiance</td>
+</tr>
 </tfoot>
 </table>
-<div class="quarto-table-caption margin-caption">Table&nbsp;29.2:  Intervalles de confiance avec prise en compte du plan d’échantillonnage </div></div>
+<div class="quarto-table-caption margin-caption">Table&nbsp;29.2: Intervalles de confiance avec prise en compte du plan d’échantillonnage</div></div>
+
 </div>
 </div>
 </div>
@@ -2096,14 +2117,13 @@ Ouest  Ouest 28.08626 0.4458201</code></pre>
 <span id="cb27-6"><a href="#cb27-6"></a>  <span class="fu">add_p</span>() <span class="sc">|&gt;</span> </span>
 <span id="cb27-7"><a href="#cb27-7"></a>  <span class="fu">bold_labels</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display page-columns page-full">
-<div id="tbl-tbl_svysummary-add_p" class="anchored page-columns page-full">
 
 <div id="ibctiuyfnm" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;" class="page-columns page-full">
 <style>html {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
 }
 
-:where(#ibctiuyfnm) .gt_table {
+#ibctiuyfnm .gt_table {
   display: table;
   border-collapse: collapse;
   margin-left: auto;
@@ -2128,7 +2148,7 @@ Ouest  Ouest 28.08626 0.4458201</code></pre>
   border-left-color: #D3D3D3;
 }
 
-:where(#ibctiuyfnm) .gt_heading {
+#ibctiuyfnm .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -2140,12 +2160,12 @@ Ouest  Ouest 28.08626 0.4458201</code></pre>
   border-right-color: #D3D3D3;
 }
 
-:where(#ibctiuyfnm) .gt_caption {
+#ibctiuyfnm .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-:where(#ibctiuyfnm) .gt_title {
+#ibctiuyfnm .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -2157,7 +2177,7 @@ Ouest  Ouest 28.08626 0.4458201</code></pre>
   border-bottom-width: 0;
 }
 
-:where(#ibctiuyfnm) .gt_subtitle {
+#ibctiuyfnm .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -2169,13 +2189,13 @@ Ouest  Ouest 28.08626 0.4458201</code></pre>
   border-top-width: 0;
 }
 
-:where(#ibctiuyfnm) .gt_bottom_border {
+#ibctiuyfnm .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-:where(#ibctiuyfnm) .gt_col_headings {
+#ibctiuyfnm .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -2190,7 +2210,7 @@ Ouest  Ouest 28.08626 0.4458201</code></pre>
   border-right-color: #D3D3D3;
 }
 
-:where(#ibctiuyfnm) .gt_col_heading {
+#ibctiuyfnm .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2210,7 +2230,7 @@ Ouest  Ouest 28.08626 0.4458201</code></pre>
   overflow-x: hidden;
 }
 
-:where(#ibctiuyfnm) .gt_column_spanner_outer {
+#ibctiuyfnm .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2222,15 +2242,15 @@ Ouest  Ouest 28.08626 0.4458201</code></pre>
   padding-right: 4px;
 }
 
-:where(#ibctiuyfnm) .gt_column_spanner_outer:first-child {
+#ibctiuyfnm .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-:where(#ibctiuyfnm) .gt_column_spanner_outer:last-child {
+#ibctiuyfnm .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-:where(#ibctiuyfnm) .gt_column_spanner {
+#ibctiuyfnm .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -2242,7 +2262,7 @@ Ouest  Ouest 28.08626 0.4458201</code></pre>
   width: 100%;
 }
 
-:where(#ibctiuyfnm) .gt_group_heading {
+#ibctiuyfnm .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2268,7 +2288,7 @@ Ouest  Ouest 28.08626 0.4458201</code></pre>
   text-align: left;
 }
 
-:where(#ibctiuyfnm) .gt_empty_group_heading {
+#ibctiuyfnm .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -2283,15 +2303,15 @@ Ouest  Ouest 28.08626 0.4458201</code></pre>
   vertical-align: middle;
 }
 
-:where(#ibctiuyfnm) .gt_from_md > :first-child {
+#ibctiuyfnm .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-:where(#ibctiuyfnm) .gt_from_md > :last-child {
+#ibctiuyfnm .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-:where(#ibctiuyfnm) .gt_row {
+#ibctiuyfnm .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2310,7 +2330,7 @@ Ouest  Ouest 28.08626 0.4458201</code></pre>
   overflow-x: hidden;
 }
 
-:where(#ibctiuyfnm) .gt_stub {
+#ibctiuyfnm .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2323,7 +2343,7 @@ Ouest  Ouest 28.08626 0.4458201</code></pre>
   padding-right: 5px;
 }
 
-:where(#ibctiuyfnm) .gt_stub_row_group {
+#ibctiuyfnm .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2337,11 +2357,11 @@ Ouest  Ouest 28.08626 0.4458201</code></pre>
   vertical-align: top;
 }
 
-:where(#ibctiuyfnm) .gt_row_group_first td {
+#ibctiuyfnm .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-:where(#ibctiuyfnm) .gt_summary_row {
+#ibctiuyfnm .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -2351,16 +2371,16 @@ Ouest  Ouest 28.08626 0.4458201</code></pre>
   padding-right: 5px;
 }
 
-:where(#ibctiuyfnm) .gt_first_summary_row {
+#ibctiuyfnm .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-:where(#ibctiuyfnm) .gt_first_summary_row.thick {
+#ibctiuyfnm .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-:where(#ibctiuyfnm) .gt_last_summary_row {
+#ibctiuyfnm .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2370,7 +2390,7 @@ Ouest  Ouest 28.08626 0.4458201</code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-:where(#ibctiuyfnm) .gt_grand_summary_row {
+#ibctiuyfnm .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -2380,7 +2400,7 @@ Ouest  Ouest 28.08626 0.4458201</code></pre>
   padding-right: 5px;
 }
 
-:where(#ibctiuyfnm) .gt_first_grand_summary_row {
+#ibctiuyfnm .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2390,11 +2410,11 @@ Ouest  Ouest 28.08626 0.4458201</code></pre>
   border-top-color: #D3D3D3;
 }
 
-:where(#ibctiuyfnm) .gt_striped {
+#ibctiuyfnm .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-:where(#ibctiuyfnm) .gt_table_body {
+#ibctiuyfnm .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -2403,7 +2423,7 @@ Ouest  Ouest 28.08626 0.4458201</code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-:where(#ibctiuyfnm) .gt_footnotes {
+#ibctiuyfnm .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -2417,7 +2437,7 @@ Ouest  Ouest 28.08626 0.4458201</code></pre>
   border-right-color: #D3D3D3;
 }
 
-:where(#ibctiuyfnm) .gt_footnote {
+#ibctiuyfnm .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-left: 4px;
@@ -2426,7 +2446,7 @@ Ouest  Ouest 28.08626 0.4458201</code></pre>
   padding-right: 5px;
 }
 
-:where(#ibctiuyfnm) .gt_sourcenotes {
+#ibctiuyfnm .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -2440,7 +2460,7 @@ Ouest  Ouest 28.08626 0.4458201</code></pre>
   border-right-color: #D3D3D3;
 }
 
-:where(#ibctiuyfnm) .gt_sourcenote {
+#ibctiuyfnm .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -2448,132 +2468,133 @@ Ouest  Ouest 28.08626 0.4458201</code></pre>
   padding-right: 5px;
 }
 
-:where(#ibctiuyfnm) .gt_left {
+#ibctiuyfnm .gt_left {
   text-align: left;
 }
 
-:where(#ibctiuyfnm) .gt_center {
+#ibctiuyfnm .gt_center {
   text-align: center;
 }
 
-:where(#ibctiuyfnm) .gt_right {
+#ibctiuyfnm .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-:where(#ibctiuyfnm) .gt_font_normal {
+#ibctiuyfnm .gt_font_normal {
   font-weight: normal;
 }
 
-:where(#ibctiuyfnm) .gt_font_bold {
+#ibctiuyfnm .gt_font_bold {
   font-weight: bold;
 }
 
-:where(#ibctiuyfnm) .gt_font_italic {
+#ibctiuyfnm .gt_font_italic {
   font-style: italic;
 }
 
-:where(#ibctiuyfnm) .gt_super {
+#ibctiuyfnm .gt_super {
   font-size: 65%;
 }
 
-:where(#ibctiuyfnm) .gt_footnote_marks {
+#ibctiuyfnm .gt_footnote_marks {
   font-style: italic;
   font-weight: normal;
   font-size: 75%;
   vertical-align: 0.4em;
 }
 
-:where(#ibctiuyfnm) .gt_asterisk {
+#ibctiuyfnm .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-:where(#ibctiuyfnm) .gt_indent_1 {
+#ibctiuyfnm .gt_indent_1 {
   text-indent: 5px;
 }
 
-:where(#ibctiuyfnm) .gt_indent_2 {
+#ibctiuyfnm .gt_indent_2 {
   text-indent: 10px;
 }
 
-:where(#ibctiuyfnm) .gt_indent_3 {
+#ibctiuyfnm .gt_indent_3 {
   text-indent: 15px;
 }
 
-:where(#ibctiuyfnm) .gt_indent_4 {
+#ibctiuyfnm .gt_indent_4 {
   text-indent: 20px;
 }
 
-:where(#ibctiuyfnm) .gt_indent_5 {
+#ibctiuyfnm .gt_indent_5 {
   text-indent: 25px;
 }
 </style>
-<table class="gt_table">
+<div id="tbl-tbl_svysummary-add_p" class="anchored page-columns page-full">
+<table class="gt_table table table-sm table-striped small" data-quarto-postprocess="true">
 
-  
-  <thead class="gt_col_headings"><tr>
-<th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="<strong>Caractéristique</strong>"><strong>Caractéristique</strong></th>
-      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="<strong>urbain</strong>, N = 1 026<sup class=&quot;gt_footnote_marks&quot;>1</sup>">
-<strong>urbain</strong>, N = 1 026<sup class="gt_footnote_marks">1</sup>
+<thead class="gt_col_headings"><tr class="header">
+<th id="<strong>Caractéristique</strong>" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col"><strong>Caractéristique</strong></th>
+<th id="<strong>urbain</strong>, N = 1 026<sup class=&quot;gt_footnote_marks&quot;>1</sup>" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col">
+<strong>urbain</strong>, N = 1 026<sup>1</sup>
 </th>
-      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="<strong>rural</strong>, N = 1 002<sup class=&quot;gt_footnote_marks&quot;>1</sup>">
-<strong>rural</strong>, N = 1 002<sup class="gt_footnote_marks">1</sup>
+<th id="<strong>rural</strong>, N = 1 002<sup class=&quot;gt_footnote_marks&quot;>1</sup>" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col">
+<strong>rural</strong>, N = 1 002<sup>1</sup>
 </th>
-      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="<strong>p-valeur</strong><sup class=&quot;gt_footnote_marks&quot;>2</sup>">
-<strong>p-valeur</strong><sup class="gt_footnote_marks">2</sup>
+<th id="<strong>p-valeur</strong><sup class=&quot;gt_footnote_marks&quot;>2</sup>" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col">
+<strong>p-valeur</strong><sup>2</sup>
 </th>
-    </tr></thead>
+</tr></thead>
 <tbody class="gt_table_body">
-<tr>
-<td headers="label" class="gt_row gt_left" style="font-weight: bold;">Âge révolu (en années) à la date de passation du questionnaire</td>
-<td headers="stat_1" class="gt_row gt_center">26 (20 – 33)</td>
-<td headers="stat_2" class="gt_row gt_center">28 (22 – 36)</td>
-<td headers="p.value" class="gt_row gt_center">&lt;0,001</td>
+<tr class="odd">
+<td class="gt_row gt_left" headers="label" style="font-weight: bold">Âge révolu (en années) à la date de passation du questionnaire</td>
+<td class="gt_row gt_center" headers="stat_1">26 (20 – 33)</td>
+<td class="gt_row gt_center" headers="stat_2">28 (22 – 36)</td>
+<td class="gt_row gt_center" headers="p.value">&lt;0,001</td>
 </tr>
-<tr>
-<td headers="label" class="gt_row gt_left" style="font-weight: bold;">Région de résidence</td>
-<td headers="stat_1" class="gt_row gt_center"></td>
-<td headers="stat_2" class="gt_row gt_center"></td>
-<td headers="p.value" class="gt_row gt_center">&lt;0,001</td>
+<tr class="even">
+<td class="gt_row gt_left" headers="label" style="font-weight: bold">Région de résidence</td>
+<td class="gt_row gt_center" headers="stat_1"></td>
+<td class="gt_row gt_center" headers="stat_2"></td>
+<td class="gt_row gt_center" headers="p.value">&lt;0,001</td>
 </tr>
-<tr>
-<td headers="label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;Nord</td>
-<td headers="stat_1" class="gt_row gt_center">265 (26%)</td>
-<td headers="stat_2" class="gt_row gt_center">346 (35%)</td>
-<td headers="p.value" class="gt_row gt_center"></td>
+<tr class="odd">
+<td class="gt_row gt_left" headers="label">&nbsp;&nbsp;&nbsp;&nbsp;Nord</td>
+<td class="gt_row gt_center" headers="stat_1">265 (26%)</td>
+<td class="gt_row gt_center" headers="stat_2">346 (35%)</td>
+<td class="gt_row gt_center" headers="p.value"></td>
 </tr>
-<tr>
-<td headers="label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;Est</td>
-<td headers="stat_1" class="gt_row gt_center">48 (4,7%)</td>
-<td headers="stat_2" class="gt_row gt_center">128 (13%)</td>
-<td headers="p.value" class="gt_row gt_center"></td>
+<tr class="even">
+<td class="gt_row gt_left" headers="label">&nbsp;&nbsp;&nbsp;&nbsp;Est</td>
+<td class="gt_row gt_center" headers="stat_1">48 (4,7%)</td>
+<td class="gt_row gt_center" headers="stat_2">128 (13%)</td>
+<td class="gt_row gt_center" headers="p.value"></td>
 </tr>
-<tr>
-<td headers="label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;Sud</td>
-<td headers="stat_1" class="gt_row gt_center">79 (7,7%)</td>
-<td headers="stat_2" class="gt_row gt_center">250 (25%)</td>
-<td headers="p.value" class="gt_row gt_center"></td>
+<tr class="odd">
+<td class="gt_row gt_left" headers="label">&nbsp;&nbsp;&nbsp;&nbsp;Sud</td>
+<td class="gt_row gt_center" headers="stat_1">79 (7,7%)</td>
+<td class="gt_row gt_center" headers="stat_2">250 (25%)</td>
+<td class="gt_row gt_center" headers="p.value"></td>
 </tr>
-<tr>
-<td headers="label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;Ouest</td>
-<td headers="stat_1" class="gt_row gt_center">633 (62%)</td>
-<td headers="stat_2" class="gt_row gt_center">278 (28%)</td>
-<td headers="p.value" class="gt_row gt_center"></td>
+<tr class="even">
+<td class="gt_row gt_left" headers="label">&nbsp;&nbsp;&nbsp;&nbsp;Ouest</td>
+<td class="gt_row gt_center" headers="stat_1">633 (62%)</td>
+<td class="gt_row gt_center" headers="stat_2">278 (28%)</td>
+<td class="gt_row gt_center" headers="p.value"></td>
 </tr>
 </tbody>
 <tfoot class="gt_footnotes">
-<tr>
-<td class="gt_footnote" colspan="4">
-<sup class="gt_footnote_marks">1</sup> Médiane (EI); n (%)</td>
-    </tr>
-<tr>
-<td class="gt_footnote" colspan="4">
-<sup class="gt_footnote_marks">2</sup> test de Wilcoxon sur la somme des rangs adapté aux plans d'échantillonnage complexes; test du Chi² avec la correction du second ordre de Rao &amp; Scott</td>
-    </tr>
+<tr class="odd">
+<td colspan="4" class="gt_footnote">
+<sup>1</sup> Médiane (EI); n (%)</td>
+</tr>
+<tr class="even">
+<td colspan="4" class="gt_footnote">
+<sup>2</sup> test de Wilcoxon sur la somme des rangs adapté aux plans d'échantillonnage complexes; test du Chi² avec la correction du second ordre de Rao &amp; Scott</td>
+</tr>
 </tfoot>
 </table>
-<div class="quarto-table-caption margin-caption">Table&nbsp;29.3:  Tests de comparaison avec prise en compte du plan d’échantillonnage </div></div>
+<div class="quarto-table-caption margin-caption">Table&nbsp;29.3: Tests de comparaison avec prise en compte du plan d’échantillonnage</div></div>
+
 </div>
 </div>
 </div>
@@ -2721,9 +2742,23 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     icon: icon
   };
   anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
   const clipboard = new window.ClipboardJS('.code-copy-button', {
-    target: function(trigger) {
-      return trigger.previousElementSibling;
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
     }
   });
   clipboard.on('success', function(e) {
@@ -2788,6 +2823,92 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       return note.innerHTML;
     });
   }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
   const findCites = (el) => {
     const parentEl = el.parentElement;
     if (parentEl) {
@@ -2847,7 +2968,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
   </li>  
 </ul>
 </div>   
-      <div class="nav-footer-center"><div class="cookie-consent-footer"><a href="#" id="open_preferences_center">Cookie Preferences</a></div></div>
+    <div class="nav-footer-center"><div class="cookie-consent-footer"><a href="#" id="open_preferences_center">Cookie Preferences</a></div></div>
     <div class="nav-footer-right">
       <ul class="footer-items list-unstyled">
 <li class="nav-item compact">
