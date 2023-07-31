@@ -348,15 +348,23 @@ mod1_sdif |>
   bold_labels()
 ```
 
-En premier lieu, on notera que l'intercept, comme avec les contrastes de type somme, correspond ici à la grande moyenne.[^contrastes-1]
-
-[^contrastes-1]: On peut remarquer que la même valeur était obtenue avec un contraste de type traitement où toutes les modalités étaient comparées à la modalité de référence I.
+En premier lieu, on notera que l'*intercept*, comme avec les contrastes de type somme, correspond ici à la grande moyenne.
 
 ```{r}
 mean(moy_groupe$moyenne_marker)
 ```
 
-Le coefficient `gradeII-I` correspond à la différence entre la moyenne du grade de niveau II et celle du niveau I.
+Cela est lié au fait que la somme des coefficients dans ce type de contrastes est égale à 0.
+
+```{r}
+MASS::contr.sdif(3)
+```
+
+De plus, la matrice de contrastes est calculée de telle manière que l'écart entre les deux premières modalités vaut 1 pour le premier terme, et l'écart entre la seconde et la troisième modalité vaut également 1 pour le deuxième terme.
+
+Ainsi, le terme `gradeII-I` correspond à la différence entre la moyenne du grade de niveau II et celle du niveau I[^contrastes-1].
+
+[^contrastes-1]: On peut remarquer que la même valeur était obtenue avec un contraste de type traitement où toutes les modalités étaient comparées à la modalité de référence I.
 
 ```{r}
 moy_groupe$moyenne_marker[2] - moy_groupe$moyenne_marker[1]
@@ -373,12 +381,14 @@ moy_groupe$moyenne_marker[3] - moy_groupe$moyenne_marker[2]
 La même approche peut être appliquée à une régression logistique.
 
 ```{r}
-library(MASS)
 mod2_sdif <- glm(
   sport ~ sexe + groupe_ages,
   family = binomial,
   data = hdv2003,
-  contrasts = list(sexe = contr.sdif, groupe_ages = contr.sdif)
+  contrasts = list(
+    sexe = MASS::contr.sdif,
+    groupe_ages = MASS::contr.sdif
+  )
 )
 mod2_sdif |>
   tbl_regression(
@@ -393,7 +403,7 @@ On pourra noter que les *odds ratios* "femme/homme" et "25-44/16-24" obtenus ici
 Les contrastes par différences successives font donc plutôt sens lorsque les modalités sont ordonnées (d'où l'intérêt de comparer avec la modalité précédente), ce qui n'est pas forcément le cas lorsque les modalités ne sont pas ordonnées.
 
 ::: callout-tip
-De manière générale, et quels que soient les contrastes utilisés pour le calcul du modèle, il est toujours possible de recalculer *a posteriori* les différences entre chaque combinaison de modalité deux à deux avec `emmeans::emmeans()`. Cela peut se faire encore plus facilement en passant l'argument `add_pairwise_contrasts = TRUE` à `tbl_regression()`.
+De manière générale, et quels que soient les contrastes utilisés pour le calcul du modèle, il est toujours possible de recalculer *a posteriori* les différences entre chaque combinaison de modalités deux à deux avec `emmeans::emmeans()`. Cela peut même se faire directement en passant l'argument `add_pairwise_contrasts = TRUE` à `tbl_regression()`.
 
 ```{r}
 mod2_trt |> 
