@@ -112,6 +112,36 @@ mod |>
   add_vif()
 ```
 
+Le package `{performance}` propose quant à lui une fonction `performance::check_collinearity()` pour le calcul des FIV et de leur intervalle de confiance.
+
+```{r}
+mod |> performance::check_collinearity()
+```
+
+Les variables avec un FIV entre 5 et 10 sont présentées comme ayant une corrélation moyenne et celles avec un FIV de 10 ou plus une corrélation forte. Prenons un autre exemple.
+
+```{r}
+mod2 <- lm(mpg ~ wt + am + gear + vs * cyl, data = mtcars)
+mc <- mod2 |> performance::check_collinearity()
+mc
+```
+
+Une représentation graphique des FIV peut être obtenue avec `plot()` appliquée au résultat de `performance::check_collinearity()`.
+
+```{r}
+#| label: fig-check_collinearity
+#| fig-cap: Représentation graphique des FIV d'un modèle
+plot(mc)
+```
+
+La fonction `performance::print_md()` peut être utilisée quant à elle pour une sortie des résultats dans un rapport markdown.
+
+```{r}
+#| label: tbl-check_collinearity
+#| tbl-cap: Table des FIV d'un modèle
+mc |> performance::print_md()
+```
+
 ## La multicolinéarité est-elle toujours un problème ?
 
 Là encore, il n'y a pas de consensus sur cette question. Certains analystes considèrent que tout modèle où certains prédicteurs seraient colinéaires n'est pas valable. Dans le billet [When Can You Safely Ignore Multicollinearity?](https://statisticalhorizons.com/multicollinearity/), Paul Allison évoque quant à lui des situations où la multicolinéarité peut être ignorée en toute sécurité. Le texte ci-dessous est une traduction de ce billet.
