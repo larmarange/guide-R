@@ -1,0 +1,445 @@
+# Modèles de comptage (Poisson & apparentés) {#sec-modeles-comptage}
+
+Une variable de type <q>comptage</q> correspond à un *outcome* (variable à expliquer) entier positif. Le plus souvent, il s'agit du nombre d'occurrences de l'évènement d'intérêt. Pour expliquer une variable de ce type, les modèles linéaires ou les régressions logistiques ne sont pas adaptées. On aura alors recours à des modèles ou régressions de **Poisson**, c'est-à-dire de manière plus spécifique à un modèle linéaire généralisé (GLM en anglais), avec une fonction de lien logarithmique et une distribution statistique de **Poisson**.
+
+Les modèles de **Poisson** font l'hypothèse que la variance est égale à la moyenne, ce qui ne s'observe pas toujours. Auquel cas on aura alors un problème de **surdispersion**. Dans ce cas-là, nous pourrons avoir recours à des modèles apparentés aux modèles de Poisson, à savoir les modèles **quasi-Poisson**, les modèles **binomiaux négatifs**.
+
+Les modèles de comptage peuvent aussi être utiliser pour un *outcome* binaire, en lieu et place d'une régression logistique, afin d'estimer des *prevalence ratio* plutôt que des *odds ratio*.
+
+Enfin, lorsqu'il y a un nombre important de 0 dans les données à expliquer, on peut avoir recours à des modèles *zero-inflated* ou des modèles *hurdle* qui, d'une certaine manière, combinent deux modèles en un (d'une part la probabilité de vivre l'évènement et d'autre part le nombre d'occurrences de l'évènement).
+
+## Modèle de Poisson
+
+Nous allons nous intéresser à un premier exemple démographique en nous intéressant à la descendance atteinte par des femmes à l'âge de 30 ans.
+
+### Préparation des données du premier exemple
+
+Pour cet exemple, nous allons considérer le jeu de données `fecondite` fourni par le package `{questionr}`. Ce jeu de données comprends trois tables de données (`menages`, `femmes` et `enfants`) simulant les résultats d'une enquête démographique et de santé (EDS). Chargeons les données et jetons y un œil avec `labelled::look_for()`.
+
+```{r}
+#| message: false
+library(tidyverse)
+library(labelled)
+data("fecondite", package = "questionr")
+```
+
+```{r}
+enfants |> look_for()
+```
+
+Comme nous pouvons le voir, les variables catégorielles sont codées sous la forme de vecteurs numériques labellisés (cf. @sec-etiquettes-valeurs), comme cela aurait été le cas si nous avions importé un fichier Stata ou SPSS avec `{haven}`. Première étape, nous allons convertir <q>à la volée</q> ces variables catégorielles en facteurs avec `labelled::unlabelled()`.
+
+```{r}
+femmes <- 
+  femmes |> 
+  unlabelled()
+enfants <- 
+  enfants |> 
+  unlabelled()
+```
+
+Pour notre analyse, nous allons devoir compter le nombre d'enfants que chaque femme a eu avant l'âge de 30 ans exacts. En premier lieu, nous devons calculer l'âge (cf. @sec-calcul-age) de la mère à la naissance dans le tableau `enfants`, à l'aide de la fonction `lubridate::time_length()`.
+
+```{r}
+enfants <-
+  enfants |>
+  left_join(
+    femmes |>
+      select(id_femme, date_naissance_mere = date_naissance),
+    by = "id_femme"
+  ) |>
+  mutate(
+    age_mere = time_length(
+      date_naissance_mere %--% date_naissance,
+      unit = "years"
+    )
+  )
+```
+
+Comptons maintenant, par femme, le nombre d'enfants nés avant l'âge de 30 ans et ajoutons cette valeur à la table `femmes`. N'oublions, après la fusion, de recoder les valeurs manquantes `NA` en 0 avec `tidyr::replace_na()`.
+
+```{r}
+femmes <-
+  femmes |> 
+  left_join(
+    enfants |> 
+      filter(age_mere < 30) |> 
+      group_by(id_femme) |> 
+      count(name = "enfants_avt_30"),
+    by = "id_femme"
+  ) |> 
+  tidyr::replace_na(list(enfants_avt_30 = 0L))
+```
+
+Il nous reste à calculer l'âge des femmes au moment de l'enquête. Nous allons en profiter pour recoder (cf. @sec-modifier-modalites) la variable éducation en regroupant les modalités <q>secondaire</q> et <q>supérieur</q>.
+
+```{r}
+femmes <-
+  femmes |> 
+  mutate(
+    age = time_length(
+      date_naissance %--% date_entretien,
+      unit = "years"
+    ),
+    educ2 = educ |> 
+      fct_recode(
+        "secondaire/supérieur" = "secondaire",
+        "secondaire/supérieur" = "supérieur"
+      )
+  )
+```
+
+Enfin, pour l'analyse, nous n'allons garder que les femmes âgées d'au moins 30 ans au moment de l'enquête. En effet, les femmes plus jeunes n'ayant pas encore atteint 30 ans, nous ne connaissons pas leur descendance atteinte à cet âge.
+
+```{r}
+femmes30p <- 
+  femmes |> 
+  filter(age >= 30)
+```
+
+### Calcul & Interprétation du modèle de Poisson
+
+Les modèles de Poisson font partie de la famille des modèles linéaires généralisés (*GLM* en anglais) et se calculent dont avec la fonction `stats::glm()` en précisant `family = poisson`.
+
+```{r}
+mod1_poisson <- glm(
+  enfants_avt_30 ~ educ2 + milieu + region,
+  family = poisson,
+  data = femmes30p
+)
+```
+
+L'ensemble des fonctions et méthodes applicables aux modèles GLM, que nous avons déjà abordé dans le chapitre sur la régression logistique (cf. @sec-regression-logistique-binaire), peuvent s'appliquer également aux modèles de Poisson. Nous pouvons par exemple réduire notre modèle par minimisation de l'AIC avec `stats::step()`.
+
+```{r}
+mod1_poisson <- step(mod1_poisson)
+```
+
+Par défaut, les modèles de Poisson utilisent une fonction de lien logarithmique (*log*). Dès lors, il est fréquent de ne pas présenter directement les coefficients du modèle, mais plutôt l'exponentielle de leurs valeurs qui peut s'interpréter comme des <q>risques relatifs</q> (*relative risks* ou RR*)*[^modeles-comptage-1]. L'exponentielle des coefficients peut aussi être appelée *incidence rate ratio* (IRR) car la régression de Poisson peut également être utilisée pour des modèles d'incidence, qui seront abordés dans le prochain chapitre (cf. @sec-modeles-incidence).
+
+[^modeles-comptage-1]: À ne pas confondre avec les *odds ratio* ou OR de la régression logistique.
+
+Pour un tableau mis en forme des coefficients, on aura tout simplement recours à `{gtsummary}` et sa fonction `gtsummary::tbl_regression()`.
+
+```{r}
+library(gtsummary)
+theme_gtsummary_language("fr", decimal.mark = ",", big.mark = " ")
+```
+
+```{r}
+#| label: tbl-regression-poisson
+#| tbl-cap: Tableau des coefficients du modèle de Poisson
+mod1_poisson |> 
+  tbl_regression(exponentiate = TRUE) |> 
+  bold_labels()
+```
+
+Pour une représentation graphique, on pourra avoir recours à `ggstats::ggcoef_model()` ou `ggstats::ggcoef_table()`.
+
+```{r}
+#| label: fig-ggcoef_table-regression-poisson
+#| tbl-cap: Forest plot des coefficients du modèle de Poisson
+library(ggstats)
+mod1_poisson |> 
+  ggcoef_table(exponentiate = TRUE)
+```
+
+Pour interpréter les coefficients, il faut se rappeler que ce qui est modéliser dans le modèle de Poisson est le nombre moyen d'événements. Le RR pour la modalité <q>secondaire/supérieur</q> est de 0,5 : cela signifie donc que, indépendamment des autres variables du modèle, la descendance atteinte à 30 ans moyenne des femmes de niveau secondaire ou supérieure est moitié moindre que cela des femmes sans niveau d'éducation (modalité de référence).
+
+Nous pouvons vérifier visuellement ce résultat en réalisant un graphique des prédictions marginales moyennes avec `broom.helpers::plot_marginal_predictions()` (cf. @sec-predictions-marginales).
+
+```{r}
+#| label: fig-predictions-marginales-regression-poisson
+#| tbl-cap: Prédictions marginales du modèle de Poisson
+broom.helpers::plot_marginal_predictions(mod1_poisson) |> 
+  patchwork::wrap_plots() &
+  ggplot2::scale_y_continuous(limits = c(0, .4))
+```
+
+### Évaluation de la surdispersion
+
+Comme tous les modèles GLM, le modèle de Poisson présuppose que les observations sont indépendantes les unes des autres[^modeles-comptage-2]. Surtout, la distribution de Poisson présuppose que la variance est égale à la moyenne. Or, il arrive fréquemment que la variance soit supérieure à la moyenne, auquel cas on parle alors de **surdispersion**. Si c'est le cas, le modèle de Poisson va sous-estimer la variance et produire des intervalles de confiance trop petit et des p-valeurs trop petites.
+
+[^modeles-comptage-2]: Si ce n'était pas le cas, par exemple s'il y a plusieurs observations pour un même individu, il faudrait adopter un autre type de modèle, par exemple un modèle mixte ou un modèle GEE, pour lesquels il est possible d'utiliser une distribution de Poisson.
+
+En premier lieu, nous pouvons vérifier si la distribution observée des données correspond peu ou prou à la distribution théorique de Poisson pour une moyenne correspondant à la moyenne observée. C'est justement ce que permet la petite fonction ci-dessous.
+
+```{r}
+poisson_observed_vs_theoretical <- function(model) {
+  if (!inherits(model, "glm") || model$family$family != "poisson")
+    stop("'model' should be a poisson glm.")
+  observed <- model$y
+  theoretical <- stats::rpois(length(observed), mean(observed))
+  df <- dplyr::tibble(
+    status = c(
+      rep.int("observed", length(observed)),
+      rep.int("theoretical", length(theoretical))
+    ),
+    values = c(observed, theoretical)
+  )
+  ggplot2::ggplot(df) +
+    ggplot2::aes(x = values, fill = status) +
+    ggplot2::geom_histogram(
+      alpha = .5,
+      binwidth = 1,
+      position = "identity"
+    ) +
+    ggplot2::theme_minimal()
+}
+```
+
+Appliquons cette fonction à notre modèle de Poisson.
+
+```{r}
+#| label: fig-observed-vs-theoritical-mod1
+#| fig-cap: Distribution observée vs distribution théorique de la descendance atteinte à 30 ans
+mod1_poisson |> 
+  poisson_observed_vs_theoretical()
+```
+
+Les deux distributions restent assez proches même si la distribution observée est légèrement décalée vers la droite.
+
+Le paramètre φ (phi) qui correspond au ratio entre la variance observée et la variance théorique peut être estimée, en pratique, selon certains auteurs, comme le ratio de la déviance résiduelle sur le nombre de degrés de libertés du modèle. Il s'obtient ainsi :
+
+```{r}
+mod1_poisson$deviance / mod1_poisson$df.residual
+```
+
+Si ce ratio s'écarte de 1, alors il y a un problème de surdispersion. Cependant, en pratique, il n'y a pas de seuil précis à partir duquel nous pourrions conclure qu'il faut rejeter le modèle.
+
+La package `{AER}` propose un test, `AER::dispersiontest()`, pour tester s'il y a un problème de surdispersion. Ce test ne peut s'appliquer qu'à un modèle de Poisson.
+
+```{r}
+mod1_poisson |> AER::dispersiontest()
+```
+
+Le package `{performance}` propose, quant à lui, un test plus générale de surdispersion via la fonction `performance::check_overdispersion()`.
+
+```{r}
+mod1_poisson |> 
+  performance::check_overdispersion()
+```
+
+Dans les deux cas, nous obtenons une p-valeur inférieure à 0,001, indiquant que le modèle de Poisson n'est peut-être pas approprié ici.
+
+## Modèle de quasi-Poisson
+
+Le modèle de **quasi-Poisson** est similaire au modèle de **Poisson** mais autorise plus de souplesse pour la modélisation de la variance qui est alors modélisée comme une relation linéaire de la moyenne. Il se calcule également avec `stats::glm()`, mais en indiquant `family = quasipoisson`. Comme avec le modèle de Poisson, la fonction de lien par défaut est la fonction logarithmique (*log*).
+
+```{r}
+mod1_quasi <- glm(
+  enfants_avt_30 ~ educ2 + milieu,
+  family = quasipoisson,
+  data = femmes30p
+)
+```
+
+::: callout-important
+L'AIC (*Akaike information criterion*) n'est pas défini pour ce type de modèle. Il n'est donc pas possible d'utiliser `stats::step()` avec un modèle de quasi-Poisson. Si l'on veut procéder à une sélection pas à pas descendante, on procédera donc en amont avec un modèle de Poisson classique.
+:::
+
+Regardons les résultats obtenus :
+
+```{r}
+#| label: tbl-regression-quasipoisson
+#| tbl-cap: Tableau des coefficients du modèle de quasi-Poisson
+mod1_quasi |> 
+  tbl_regression(exponentiate = TRUE) |> 
+  bold_labels()
+```
+
+Les coefficients sont identiques à ceux obtenus avec le modèle de Poisson (cf. @tbl-regression-poisson), mais les intervalles de confiance sont plus larges et les p-valeurs plus élevées, traduisant la prise en compte d'une variance plus importante. Cela se voit aisément si l'on compare les coefficients avec `ggstats::ggcoef_compare()`.
+
+```{r}
+#| label: fig-compare-poisson-quasi
+#| fig-cap: Comparaison des coefficients du modèle de Poisson et du modèle de quasi-Poisson
+list(Poisson = mod1_poisson, "quasi-Poisson" = mod1_quasi) |>
+  ggcoef_compare(exponentiate = TRUE)
+```
+
+Le passage à un modèle de quasi-Poisson aura-t-il été suffisant pour régler notre problème de surdispersion ? La fonction `performance::check_overdispersion()` peut être appliquée à un modèle de quasi-Poisson.
+
+```{r}
+mod1_quasi |> 
+  performance::check_overdispersion()
+```
+
+Il semble que nous ayons toujours une surdispersion, insuffisamment corrigée par le modèle de quasi-Poisson.
+
+## Modèle binomial négatif
+
+Le modèle binomial négatif (*negative binomial* en anglais) modélise la variance selon une spécification quadratique (i.e. selon le carré de la moyenne). Il est implémenté dans le package `{MASS}` via la fonction `MASS::glm.nb()`. Les autres paramètres sont identiques à ceux de `stats::glm()`.
+
+```{r}
+mod1_nb <- MASS::glm.nb(
+  enfants_avt_30 ~ educ2 + milieu + region,
+  data = femmes30p
+)
+```
+
+L'AIC étant défini pour pour ce type de modèle, nous pouvons procéder à une sélection pas à pas avec `stats::step()`.
+
+```{r}
+mod1_nb <- mod1_nb |> step()
+```
+
+La fonction de lien étant toujours logarithmique, nous pouvons donc afficher plutôt l'exponentielle des coefficients qui s'interprètent comme pour un modèle de Poisson.
+
+```{r}
+#| label: tbl-regression-nb
+#| tbl-cap: Tableau des coefficients du modèle binomial négatif
+mod1_nb |> 
+  tbl_regression(exponentiate = TRUE) |> 
+  bold_labels()
+```
+
+Cette fois-ci, les coefficients sont légèrement différents par rapport au modèle de Poisson, ce qui se voit aisément si l'on compare les trois modèles.
+
+```{r}
+#| label: fig-compare-poisson-quasi-nb
+#| fig-cap: Comparaison des coefficients du modèle de Poisson, du modèle de quasi-Poisson et du modèle binomial négatif
+list(
+  Poisson = mod1_poisson,
+  "quasi-Poisson" = mod1_quasi,
+  "Binomial négatif" = mod1_nb
+) |>
+  ggcoef_compare(exponentiate = TRUE)
+```
+
+Nous pouvons vérifier la surdispersion.
+
+```{r}
+mod1_nb |> 
+  performance::check_overdispersion()
+```
+
+Ouf ! Nous n'avons plus de problème de surdispersion.
+
+Pour celles et ceux intéressé·es, il est possible de comparer la performance des modèles avec la fonction `performance::compare_performance()`.
+
+```{r}
+performance::compare_performance(
+  mod1_poisson,
+  mod1_nb,
+  metrics = "common"
+)
+```
+
+## Modèles de comptage avec une variable binaire
+
+Pour l'analyse d'une variable binaire, les modèles de comptage représentent une alternative à la régression logistique binaire (cf. @sec-regression-logistique-binaire). L'intérêt est de pouvoir interpréter les coefficients comme des *prevalence ratio* plutôt que des *odds ratio*.
+
+Reprenons un exemple, que nous avons déjà utilisé à plusieurs reprises, concernant la probabilité de faire du sport, à partir de l'enquête *histoires de vie 2003*. Commençons par charger et recoder les données.
+
+```{r}
+data(hdv2003, package = "questionr")
+
+d <-
+  hdv2003 |> 
+  mutate(
+    groupe_ages = age |>
+      cut(
+        c(18, 25, 45, 65, 99),
+        right = FALSE,
+        include.lowest = TRUE,
+        labels = c("18-24 ans", "25-44 ans",
+                   "45-64 ans", "65 ans et plus")
+      )
+  ) |> 
+  set_variable_labels(
+    sport = "Pratique un sport ?",
+    sexe = "Sexe",
+    groupe_ages = "Groupe d'âges",
+    heures.tv = "Heures de télévision / jour"
+  )
+
+```
+
+Pour la variable *sexe*, nous allons définir la modalité <q>Femme</q> comme modalité de référence. Pour cela, nous allons utiliser un contraste personnalisé (cf. @sec-contrastes).
+
+```{r}
+levels(d$sexe)
+contrasts(d$sexe) <- contr.treatment(2, base = 2)
+```
+
+Calculons le modèle de régression logistique binaire classique.
+
+```{r}
+mod2_binomial <- glm(
+  sport ~ sexe + groupe_ages + heures.tv,
+  family = binomial,
+  data = d
+)
+```
+
+Nous allons maintenant calculer un modèle de Poisson. Nous devons déjà ré-exprimer notre variable à expliquer sous la forme d'une variable numérique égale à 0 si l'on ne pratique pas de sport et à 1 si l'on pratique un sport.
+
+```{r}
+levels(d$sport)
+d$sport2 <- as.integer(d$sport == "Oui")
+mod2_poisson <- glm(
+  sport2 ~ sexe + groupe_ages + heures.tv,
+  family = poisson,
+  data = d
+)
+```
+
+Vérifions si nous avons un problème de surdispersion.
+
+```{r}
+performance::check_overdispersion(mod2_poisson)
+```
+
+Regardons maintenant les résultats de nos deux modèles.
+
+```{r}
+#| label: fig-mod2-binomial
+#| fig-cap: Facteurs associés à la pratique d'un sport (régression logistique)
+mod2_binomial |> 
+  ggstats::ggcoef_table(exponentiate = TRUE)
+```
+
+```{r}
+#| label: fig-mod2-poisson
+#| fig-cap: Facteurs associés à la pratique d'un sport (régression de Poisson)
+mod2_poisson |> 
+  ggstats::ggcoef_table(exponentiate = TRUE)
+```
+
+Nous pouvons voir ici que les deux modèles fournissent des résultats assez proches. Par contre, les coefficients ne s'interprètent pas de la même manière. Dans le cadre de la régression logistique, il s'agit d'*odds ratios* (ou rapports des côtes) définis comme $OR_{A/B}=(\frac{p_A}{1-p_A})/(\frac{p_B}{1-p_B})$ où $p_A$ correspond à la probabilité de faire du sport pour la modalité $A$. Pour la régression de Poisson, il s'agit de *prevalence ratios* (rapports des prévalences) définis comme $PR_{A/B}=p_A/p_B$. Avec un rapport des prévalences de 1,3, nous pouvons donc dire que, selon le modèle, les hommes ont 30% de chance en plus de pratiquer un sport.
+
+Pour mieux comparer les deux modèles, nous pouvons présenter les résultats sous la forme de contrastes marginaux moyens (cf. @sec-contrastes-marginaux) qui, pour rappel, sont exprimés dans l'échelle de la variable d'intérêt, soit ici sous la forme d'une différence de probabilité.
+
+```{r}
+#| label: fig-mod2-comparaison-contrastes-marginaux
+#| fig-cap: Comparaison des contrastes marginaux des deux modèles
+list(
+  "régression logistique" = mod2_binomial,
+  "régression de Poisson" = mod2_poisson
+) |> 
+  ggcoef_compare(tidy_fun = broom.helpers::tidy_marginal_contrasts) +
+  scale_x_continuous(labels = scales::percent)
+```
+
+Les résultats sont ici très proches. Nous pouvons néanmoins constater que les intervalles de confiance pour la régression de Poisson sont un peu plus large. Nous pouvons comparer les deux modèles avec `performance::compare_performance()` pour constater que, dans notre exemple, la régression de Poisson est un peu moins bien ajustée aux données que la régression logistique binaire. Cependant, en pratique, cela n'est pas ici problématique : le choix entre les deux modèles peut donc se faire en fonction de la manière dont on souhaite présenter et narrer les résultats.
+
+```{r}
+#| message: false
+performance::compare_performance(
+  mod2_binomial,
+  mod2_poisson,
+  metrics = "common"
+)
+```
+
+## Modèles *zero-inflated & hurdle*
+
+## Données pondérées
+
+## Lectures complémentaires
+
+-   [*Tutoriel : GLM sur données de comptage (régression de Poisson) avec R*](https://delladata.fr/tutoriel-glm-sur-donnees-de-comptage-regression-de-poisson-avec-r/) par Claire Della Vedova
+
+-   [*Tutorial: Poisson Regression in R*](https://www.dataquest.io/blog/tutorial-poisson-regression-in-r/) (en anglais) par Hafsa Jabeen
+
+-   [*Quasi-Poisson vs. negative binomial regression: how should we model overdispersed count data?*](https://doi.org/10.1890/07-0043.1) par Jay M Ver Hoef et Peter L Boveng, *Ecology*. 2007 Nov; 88(11):2766-72. doi: [10.1890/07-0043.1](https://doi.org/10.1890/07-0043.1). PMID: [18051645](https://pubmed.ncbi.nlm.nih.gov/18051645/)
