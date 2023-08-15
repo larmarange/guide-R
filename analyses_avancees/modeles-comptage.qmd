@@ -162,14 +162,15 @@ Comme tous les modèles GLM, le modèle de Poisson présuppose que les observati
 
 [^modeles-comptage-2]: Si ce n'était pas le cas, par exemple s'il y a plusieurs observations pour un même individu, il faudrait adopter un autre type de modèle, par exemple un modèle mixte ou un modèle GEE, pour lesquels il est possible d'utiliser une distribution de Poisson.
 
-En premier lieu, nous pouvons vérifier si la distribution observée des données correspond peu ou prou à la distribution théorique de Poisson pour une moyenne correspondant à la moyenne observée. C'est justement ce que permet la petite fonction ci-dessous.
+En premier lieu, nous pouvons vérifier si la distribution observée des données correspond peu ou prou à la distribution théorique de Poisson pour une moyenne correspondant à la moyenne observée.
+
+La fonction ci-dessous permet justement de comparer la distribution observée avec la distribution théorique d'un modèle.
 
 ```{r}
-poisson_observed_vs_theoretical <- function(model) {
-  if (!inherits(model, "glm") || model$family$family != "poisson")
-    stop("'model' should be a poisson glm.")
-  observed <- model$y
-  theoretical <- stats::rpois(length(observed), mean(observed))
+observed_vs_theoretical <- function(model) {
+  observed <- model.response(model.frame(model))
+  theoretical <- simulate(model, nsim = 1)
+  theoretical <- theoretical[[1]]
   df <- dplyr::tibble(
     status = c(
       rep.int("observed", length(observed)),
@@ -177,27 +178,51 @@ poisson_observed_vs_theoretical <- function(model) {
     ),
     values = c(observed, theoretical)
   )
-  ggplot2::ggplot(df) +
+  if (is.numeric(observed) && any(observed != as.integer(observed))) {
+    ggplot2::ggplot(df) +
     ggplot2::aes(x = values, fill = status) +
-    ggplot2::geom_histogram(
+    ggplot2::geom_density(
       alpha = .5,
-      binwidth = 1,
       position = "identity"
     ) +
-    ggplot2::theme_minimal()
+    ggplot2::theme_minimal() +
+    ggplot2::labs(fill = NULL)
+  } else {
+    ggplot2::ggplot(df) +
+    ggplot2::aes(x = values, fill = status) +
+    ggplot2::geom_bar(
+      alpha = .5,
+      position = "identity"
+    ) +
+    ggplot2::theme_minimal() +
+    ggplot2::labs(fill = NULL)
+  }
 }
 ```
 
 Appliquons cette fonction à notre modèle de Poisson.
 
 ```{r}
-#| label: fig-observed-vs-theoritical-mod1
-#| fig-cap: Distribution observée vs distribution théorique de la descendance atteinte à 30 ans
+#| label: fig-observed-vs-theoritical-mod1-poisson
+#| fig-cap: Distribution observée vs distribution théorique de la descendance atteinte à 30 ans (modèle de Poisson)
 mod1_poisson |> 
-  poisson_observed_vs_theoretical()
+  observed_vs_theoretical()
 ```
 
 Les deux distributions restent assez proches même si la distribution observée est légèrement décalée vers la droite.
+
+::: callout-note
+La fonction `performance::check_predictions()` propose une visualisation un peu plus avancée.
+
+```{r}
+mod1_poisson |>
+  performance::check_predictions(type = "discrete_both")
+```
+
+Les points verts correspondent au nombre d'individus observés (sur l'axe vertical) pour chaque valeur de notre variable à expliquer (sur l'axe horizontal). La fonction simule ensuite une cinquantaine de jeu de données par réplication et affiche les prédictions du modèle pour ces jeux de données (points bleus avec effet de transparence), ainsi que les prédictions médianes (point bleu sans transparence) et l'intervalle des prédictions (barres verticales).
+
+Dans notre exemple, on voit notamment que le modèle a du mal à prédire correctement le nombre d'individus avec 0, 1 ou 2 enfants.
+:::
 
 Le paramètre φ (phi) qui correspond au ratio entre la variance observée et la variance théorique peut être estimée, en pratique, selon certains auteurs, comme le ratio de la déviance résiduelle sur le nombre de degrés de libertés du modèle. Il s'obtient ainsi :
 
@@ -306,6 +331,17 @@ list(
   ggcoef_compare(exponentiate = TRUE)
 ```
 
+Nous pouvons comparer la distribution observée et la distribution théorique et constater que les prédictions sont plus proches des données observées.
+
+```{r}
+#| label: fig-observed-vs-theoritical-mod1-nb
+#| fig-cap: Distribution observée vs distribution théorique de la descendance atteinte à 30 ans (modèle négatif binomial)
+mod1_nb |>
+  observed_vs_theoretical()
+mod1_nb |>
+  performance::check_predictions(type = "discrete_both")
+```
+
 Nous pouvons vérifier la surdispersion.
 
 ```{r}
@@ -323,6 +359,94 @@ performance::compare_performance(
   mod1_nb,
   metrics = "common"
 )
+```
+
+## Exemple avec une plus grande surdispersion
+
+Pour ce second exemple, nous allons considérer le jeu de données `MASS::quine` qui contient les données de 146 enfants scolarisés en Australie, notamment le nombre de jours d'absence à l'école au cours de l'année passée, le sexe l'enfant et leur vitesse d'apprentissage (dans la moyenne ou lentement).
+
+Préparons les données en francisant les facteurs et en ajoutant des étiquettes de variable.
+
+```{r}
+d <- MASS::quine |>
+  mutate(
+    jours = Days,
+    sexe = Sex |>
+      fct_recode(
+        "fille" = "F",
+        "garçon" = "M"
+      ),
+    apprentissage = Lrn |>
+      fct_recode(
+        "dans la moyenne" = "AL",
+        "lentement" = "SL"
+      )
+  ) |>
+  set_variable_labels(
+    jours = "Nombre de jours d'absence à l'école",
+    sexe = "Sexe de l'enfant",
+    apprentissage = "Vitesse d'apprentissage"
+  )
+```
+
+Calculons notre modèle de Poisson.
+
+```{r}
+mod2_poisson <- glm(
+  jours ~ sexe + apprentissage,
+  data = d,
+  family = poisson
+)
+```
+
+Comparons les données observées avec les données prédites.
+
+```{r}
+#| label: fig-observed-vs-theoritical-mod2-poisson
+#| fig-cap: Distribution observée vs distribution théorique du nombre de jours d'absence (modèle de Poisson)
+mod2_poisson |> 
+  observed_vs_theoretical()
+```
+
+Nous voyons très clairement un décalage des deux distributions. Notre modèle de Poisson n'arrive pas à capturer la variabilité des observations. Faisons le test de surdispersion pour vérifier.
+
+```{r}
+mod2_poisson |> 
+  performance::check_overdispersion()
+```
+
+Calculons un modèle binomial négatif et voyons si cela améliore la situation.
+
+```{r}
+mod2_nb <- MASS::glm.nb(
+  jours ~ sexe + apprentissage,
+  data = d
+)
+```
+
+```{r}
+#| label: fig-observed-vs-theoritical-mod2-nb
+#| fig-cap: Distribution observée vs distribution théorique du nombre de jours d'absence (modèle binomial négatif)
+mod2_nb |> 
+  observed_vs_theoretical()
+```
+
+Les deux distributions sont bien plus proches maintenant. Vérifions la surdispersion.
+
+```{r}
+mod2_nb |> 
+  performance::check_overdispersion()
+```
+
+Voilà !
+
+Pour finir, visualisons les coefficients du modèle.
+
+```{r}
+#| label: fig-ggcoef_table-mod2_nb
+#| tbl-cap: Facteurs associés à l'absentéisme scolaire (modèle négatif binomial)
+mod2_nb |> 
+  ggcoef_table(exponentiate = TRUE)
 ```
 
 ## Modèles de comptage avec une variable binaire
@@ -365,7 +489,7 @@ contrasts(d$sexe) <- contr.treatment(2, base = 2)
 Calculons le modèle de régression logistique binaire classique.
 
 ```{r}
-mod2_binomial <- glm(
+mod3_binomial <- glm(
   sport ~ sexe + groupe_ages + heures.tv,
   family = binomial,
   data = d
@@ -377,7 +501,7 @@ Nous allons maintenant calculer un modèle de Poisson. Nous devons déjà ré-ex
 ```{r}
 levels(d$sport)
 d$sport2 <- as.integer(d$sport == "Oui")
-mod2_poisson <- glm(
+mod3_poisson <- glm(
   sport2 ~ sexe + groupe_ages + heures.tv,
   family = poisson,
   data = d
@@ -387,22 +511,22 @@ mod2_poisson <- glm(
 Vérifions si nous avons un problème de surdispersion.
 
 ```{r}
-performance::check_overdispersion(mod2_poisson)
+performance::check_overdispersion(mod3_poisson)
 ```
 
 Regardons maintenant les résultats de nos deux modèles.
 
 ```{r}
-#| label: fig-mod2-binomial
+#| label: fig-mod3-binomial
 #| fig-cap: Facteurs associés à la pratique d'un sport (régression logistique)
-mod2_binomial |> 
+mod3_binomial |> 
   ggstats::ggcoef_table(exponentiate = TRUE)
 ```
 
 ```{r}
-#| label: fig-mod2-poisson
+#| label: fig-mod3-poisson
 #| fig-cap: Facteurs associés à la pratique d'un sport (régression de Poisson)
-mod2_poisson |> 
+mod3_poisson |> 
   ggstats::ggcoef_table(exponentiate = TRUE)
 ```
 
@@ -411,11 +535,11 @@ Nous pouvons voir ici que les deux modèles fournissent des résultats assez pro
 Pour mieux comparer les deux modèles, nous pouvons présenter les résultats sous la forme de contrastes marginaux moyens (cf. @sec-contrastes-marginaux) qui, pour rappel, sont exprimés dans l'échelle de la variable d'intérêt, soit ici sous la forme d'une différence de probabilité.
 
 ```{r}
-#| label: fig-mod2-comparaison-contrastes-marginaux
+#| label: fig-mod3-comparaison-contrastes-marginaux
 #| fig-cap: Comparaison des contrastes marginaux des deux modèles
 list(
-  "régression logistique" = mod2_binomial,
-  "régression de Poisson" = mod2_poisson
+  "régression logistique" = mod3_binomial,
+  "régression de Poisson" = mod3_poisson
 ) |> 
   ggcoef_compare(tidy_fun = broom.helpers::tidy_marginal_contrasts) +
   scale_x_continuous(labels = scales::percent)
@@ -426,8 +550,8 @@ Les résultats sont ici très proches. Nous pouvons néanmoins constater que les
 ```{r}
 #| message: false
 performance::compare_performance(
-  mod2_binomial,
-  mod2_poisson,
+  mod3_binomial,
+  mod3_poisson,
   metrics = "common"
 )
 ```
@@ -439,7 +563,7 @@ Il faut noter que ce type de modèles a parfois du mal à converger.
 
 ```{r}
 #| error: true
-mod2_log <- glm(
+mod3_log <- glm(
   sport ~ sexe + groupe_ages + heures.tv,
   family = binomial(link = "log"),
   data = d
@@ -449,10 +573,10 @@ mod2_log <- glm(
 C'est le cas ici ! Nous allons donc initier le modèle avec les coefficients du modèle de Poisson.
 
 ```{r}
-mod2_log <- glm(
+mod3_log <- glm(
   sport ~ sexe + groupe_ages + heures.tv,
   family = binomial(link = "log"),
-  start = mod2_poisson$coefficients,
+  start = mod3_poisson$coefficients,
   data = d
 )
 ```
@@ -460,7 +584,7 @@ mod2_log <- glm(
 Regardons les résultats.
 
 ```{r}
-mod2_log |>
+mod3_log |>
   ggstats::ggcoef_table(exponentiate = TRUE)
 ```
 
@@ -476,12 +600,12 @@ library(srvyr)
 library(survey)
 dp <- d |> 
   as_survey_design(weights = poids)
-mod3_poisson <- svyglm(
+mod4_poisson <- svyglm(
   sport2 ~ sexe + groupe_ages + heures.tv,
   family = poisson,
   design = dp
 )
-mod3_quasi <- svyglm(
+mod4_quasi <- svyglm(
   sport2 ~ sexe + groupe_ages + heures.tv,
   family = quasipoisson,
   design = dp
@@ -496,7 +620,7 @@ Concernant la régression binomiale négative, il n'y a pas d'implémentation fo
 
 ```{r}
 #| message: false
-mod3_nb <- sjstats::svyglm.nb(
+mod4_nb <- sjstats::svyglm.nb(
   sport2 ~ sexe + groupe_ages + heures.tv,
   design = dp
 )
@@ -512,7 +636,7 @@ Une alternative possible consiste à utiliser des poids de réplication selon un
 #| eval: false
 dp_rep <- dp |> 
   as_survey_rep(type = "bootstrap", replicates = 100)
-mod3_nb_alt <- svrepmisc::svynb(
+mod4_nb_alt <- svrepmisc::svynb(
   sport2 ~ sexe + groupe_ages + heures.tv,
   design = dp_rep
 )
