@@ -6,4 +6,5 @@ remotes::install_cran("purrr")
 
 renv::dependencies() |>
   purrr::pluck("Package") |>
+  unique() |> 
   remotes::install_cran()
