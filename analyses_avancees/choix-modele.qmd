@@ -9,7 +9,7 @@ La tableau synthétique ci-dessous permet d'identifier rapidement quelle fonctio
 
 ::: {.column-screen-inset-right style="text-size: .8em;"}
 +----------------------------------------------+------------------------------------+---------------------------------+-------------------------------------+-------------------------------------+-----------------------------------------------------------+-------------------------------------+
-| Variable à expliquer                         | Type de distribution               | Interprétation des coefficients | Modèle de base                      | Échantillonnage complexe            | Modèle mixte                                              | GEE\*                               |
+| Variable à expliquer                         | Type de distribution               | Interprétation des coefficients | Modèle de base                      | Échantillonnage complexe            | Modèle mixte                                              | GEE[^choix-modele-1]                |
 +:=============================================+:===================================+:================================+:====================================+:====================================+:==========================================================+:====================================+
 | **Continue**                                 | Linéaire                           | directe                         | `stats::lm()`                       |                                     | `lme4::lmer()`                                            |                                     |
 +----------------------------------------------+------------------------------------+---------------------------------+-------------------------------------+-------------------------------------+-----------------------------------------------------------+-------------------------------------+
@@ -68,7 +68,7 @@ La tableau synthétique ci-dessous permet d'identifier rapidement quelle fonctio
 |                                              |                                    |                                 | Alternative :\                      | Alternative :\                      |                                                           |                                     |
 |                                              |                                    |                                 | `MASS::polr()`                      | `survey::svyolr()`                  |                                                           |                                     |
 +----------------------------------------------+------------------------------------+---------------------------------+-------------------------------------+-------------------------------------+-----------------------------------------------------------+-------------------------------------+
-| **Catégorielle nominale\                     | Régression logistique multinomiale | OR\                             | `nnet::multinom()`                  | `svrepmisc::svymultinom()`          | Voir note \*\*                                            | `multgee::nomLORgee()`              |
+| **Catégorielle nominale\                     | Régression logistique multinomiale | OR\                             | `nnet::multinom()`                  | `svrepmisc::svymultinom()`          | Voir note [^choix-modele-2]                               | `multgee::nomLORgee()`              |
 | **(3 modalités ou plus)                      |                                    | (*odds ratio*)                  |                                     |                                     |                                                           |                                     |
 |                                              |                                    |                                 | Alternative :\                      | Alternative :\                      |                                                           |                                     |
 |                                              |                                    |                                 | `VGAM::vglm()`\                     | `svyVGAM::svy_vglm()`\              |                                                           |                                     |
@@ -83,11 +83,11 @@ La tableau synthétique ci-dessous permet d'identifier rapidement quelle fonctio
 |                                              | Modèle à temps discret binomial\   | HR\                             | `stats::glm()`\                     | `survey::svyglm()`\                 | `lme4::glmer()`\                                          | `geepack::geeglm()`\                |
 |                                              | (*cloglog*)                        | (*hazard ratio*)                | avec `family = binomial("cloglog")` | avec `family = binomial("cloglog")` | avec `family = binomial("cloglog")`                       | avec `family = binomial("cloglog")` |
 +----------------------------------------------+------------------------------------+---------------------------------+-------------------------------------+-------------------------------------+-----------------------------------------------------------+-------------------------------------+
-|                                              | *Accelerated failure time*\        | HR\                             | `survival::survreg()`               | `survey::svysurvreg()`              | `survival::survreg()` avec un terme `survival::frailty()` | `survival::survreg()`\              |
+|                                              | *Accelerated failure time*\        | HR\                             | `survival::survreg()`               | `survey::svysurvreg()`              | `survival::survreg()` avec un terme `survival::frailty()` | `survival::survreg()` \             |
 |                                              | (AFT)                              | (*hazard ratio*)                |                                     |                                     |                                                           | avec l'option `cluster`             |
 +----------------------------------------------+------------------------------------+---------------------------------+-------------------------------------+-------------------------------------+-----------------------------------------------------------+-------------------------------------+
 | **Comptage avec surreprésentation de zéros** | *Zero-inflated Poisson*            | OR & RR                         | `pscl::zeroinfl()`                  | `sjstats::svyglm.zip()`             | `GLMMadaptive::mixed_model()`\                            |                                     |
-|                                              |                                    |                                 |                                     |                                     | avec `family = zi.poisson()`\*\*\*                        |                                     |
+|                                              |                                    |                                 |                                     |                                     | avec `family = zi.poisson()`[^choix-modele-3]             |                                     |
 +----------------------------------------------+------------------------------------+---------------------------------+-------------------------------------+-------------------------------------+-----------------------------------------------------------+-------------------------------------+
 |                                              | *Hurdle Poisson model*             | OR & RR                         | `pscl::hurdle()`                    |                                     | `GLMMadaptive::mixed_model()`\                            |                                     |
 |                                              |                                    |                                 |                                     |                                     | avec `family = hurdle.poisson()`                          |                                     |
@@ -100,22 +100,18 @@ La tableau synthétique ci-dessous permet d'identifier rapidement quelle fonctio
 +----------------------------------------------+------------------------------------+---------------------------------+-------------------------------------+-------------------------------------+-----------------------------------------------------------+-------------------------------------+
 
 : {.stripped .sm .responsive .hover}
-
-\* Voir aussi `gee::gee()` comme alternative à `geepack::geeglm()`.
-
-\*\* **Modèles mixtes multinomiaux**
-
-Il n'y a pas de solution évidente.
-
-```         
-L'approche la plus simple consiste à réaliser plusieurs modèles logistiques binaires séparés à l'aide de `lme4::glmer()`. Si la variable à expliquer a trois niveaux A, B et C, on pourra réaliser un modèle binaire B vs A, et un modèle binaire C vs A. Cette approche est appelée <q>approximation de Begg et Gray</q>. On trouvera, en anglais, plus d'explications et des références bibliographiques sur [StackOverflow](https://stackoverflow.com/a/23795087/7943547).
-
-Une approche alternative, dans un contexte bayésien et non fréquentiste, est d'avoir recours à `brms::brm()` qui peut gérer ce type de modèles. Cette approche, avec des exemples de code, est mentionnée sur [StackOverflow](https://stackoverflow.com/a/37892379/7943547).
-
-Dans le cadre d'une approche fréquentiste, la fonction `mgcv::gam()` est mentionnée sur [StackExchange](https://stats.stackexchange.com/a/555654), de même que la fonction `mixcat::npmlt()` ([voir ce post](https://stats.stackexchange.com/a/493035)), sachant que le package `{mixcat}` est faiblement documenté et ne semble plus forcément maintenu.
-
-Enfin, il semble possible d'avoir recours à `MCMCglmm::MCMCglmm()`, selon cette réponse sur [StackOverflow](https://stackoverflow.com/a/22027859)et ce [billet de blog](https://hlplab.wordpress.com/2009/05/07/multinomial-random-effects-models-in-r/).
-```
-
-\*\*\* Cf. <https://drizopoulos.github.io/GLMMadaptive/articles/ZeroInflated_and_TwoPart_Models.html>
 :::
+
+[^choix-modele-1]: Voir aussi `gee::gee()` comme alternative à `geepack::geeglm()`.
+
+[^choix-modele-2]: Il n'y a pas de solution évidente.
+
+    L'approche la plus simple consiste à réaliser plusieurs modèles logistiques binaires séparés à l'aide de `lme4::glmer()`. Si la variable à expliquer a trois niveaux A, B et C, on pourra réaliser un modèle binaire B vs A, et un modèle binaire C vs A. Cette approche est appelée <q>approximation de Begg et Gray</q>. On trouvera, en anglais, plus d'explications et des références bibliographiques sur [StackOverflow](https://stackoverflow.com/a/23795087/7943547).
+
+    Une approche alternative, dans un contexte bayésien et non fréquentiste, est d'avoir recours à `brms::brm()` qui peut gérer ce type de modèles. Cette approche, avec des exemples de code, est mentionnée sur [StackOverflow](https://stackoverflow.com/a/37892379/7943547).
+
+    Dans le cadre d'une approche fréquentiste, la fonction `mgcv::gam()` est mentionnée sur [StackExchange](https://stats.stackexchange.com/a/555654), de même que la fonction `mixcat::npmlt()` ([voir ce post](https://stats.stackexchange.com/a/493035)), sachant que le package `{mixcat}` est faiblement documenté et ne semble plus forcément maintenu.
+
+    Enfin, il semble possible d'avoir recours à `MCMCglmm::MCMCglmm()`, selon cette réponse sur [StackOverflow](https://stackoverflow.com/a/22027859)et ce [billet de blog](https://hlplab.wordpress.com/2009/05/07/multinomial-random-effects-models-in-r/).
+
+[^choix-modele-3]: Cf. <https://drizopoulos.github.io/GLMMadaptive/articles/ZeroInflated_and_TwoPart_Models.html>
