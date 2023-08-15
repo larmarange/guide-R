@@ -432,6 +432,41 @@ performance::compare_performance(
 )
 ```
 
+::: callout-tip
+Lorsque l'on a une variable binaire à expliquer et que l'on souhaite calculer des risques relatifs (RR) ou *prevalence ratio* (PR), une alternative au modèle de Poisson est le modèle log-binomial. Il s'agit d'un modèle binomial avec une fonction de lien logarithme.
+
+Il faut noter que ce type de modèles a parfois du mal à converger.
+
+```{r}
+#| error: true
+mod2_log <- glm(
+  sport ~ sexe + groupe_ages + heures.tv,
+  family = binomial(link = "log"),
+  data = d
+)
+```
+
+C'est le cas ici ! Nous allons donc initier le modèle avec les coefficients du modèle de Poisson.
+
+```{r}
+mod2_log <- glm(
+  sport ~ sexe + groupe_ages + heures.tv,
+  family = binomial(link = "log"),
+  start = mod2_poisson$coefficients,
+  data = d
+)
+```
+
+Regardons les résultats.
+
+```{r}
+mod2_log |>
+  ggstats::ggcoef_table(exponentiate = TRUE)
+```
+
+Nous obtenons des résultats assez proches de ceux du modèle de Poisson. Notons cependant les différents avis affichés qui nous indiquent que le modèle a eu des difficultés à converger.
+:::
+
 ## Données pondérées et plan d'échantillonnage
 
 Lorsque l'on a des données pondérées avec prise en compte d'un plan d'échantillonnage (cf. @sec-plan-echantillonnage), on ne peut utiliser directement `stats::glm()` avec un objet `{survey}`. On aura alors recours à `survey::svyglm()` qui est très similaire.
