@@ -63,12 +63,22 @@ dp <- d |>
 
 La syntaxe de `survey::svyglm()` est similaire à celle de `glm()` sauf qu'elle a un argument `design` au lieu de `data`.
 
-La plupart du temps, les poids de pondération ne sont pas des nombres entiers, mais des nombres décimaux. Dès lors, on ne peut plus utiliser la famille de modèles binomiale (qui repose sur des nombres entiers de succès et d'échecs)[^regression-logistique-binaire-ponderee-1]. On aura plutôt recours à la famille quasi-binomiale, que l'on spécifie avec `family = quasibinomial` et qui constitue une extension de la famille binomiale pouvant gérer des poids non entiers.
+La plupart du temps, les poids de pondération ne sont pas des nombres entiers, mais des nombres décimaux. Or, la famille de modèles binomiaux repose sur des nombres entiers de succès et d'échecs. Avec une version récente[^regression-logistique-binaire-ponderee-1] de **R**, cela n'est pas problématique. Nous aurons simplement un avertissement.
 
-[^regression-logistique-binaire-ponderee-1]: Si l'on indique `family = binomial`, vous obtiendrez avec une version récente de **R** un message d'avertissement du type `Avis : nombre de succès non entier dans un glm binomial !`. Avec une version plus ancienne de **R**, vous devriez même avoir un message d'erreur.
+[^regression-logistique-binaire-ponderee-1]: Si vous utilisez une version ancienne de **R**, cela n'était tout simplement pas possible. Vous obteniez un message d'erreur et le modèle n'était pas calculé. Si c'est votre cas, optez pour un modèle quasi-binomial ou bien mettez à jour **R.**
 
 ```{r}
-mod <- svyglm(
+mod_binomial <- svyglm(
+  sport ~ sexe + groupe_ages + etudes + relig + heures.tv,
+  family = binomial,
+  design = dp
+)
+```
+
+Une alternative consiste à avoir recours à la famille quasi-binomiale, que l'on spécifie avec `family = quasibinomial` et qui constitue une extension de la famille binomiale pouvant gérer des poids non entiers. La distribution quasi-binomiale, bien que similaire à la distribution binomiale, possède un paramètre supplémentaire 𝜙 qui tente de décrire une variance supplémentaire dans les données qui ne peut être expliquée par une distribution binomiale seule (on parle alors de *surdispersion*). Les coefficients obtenus sont les mêmes, mais les intervalles de confiance peuvent être un peu plus large.
+
+```{r}
+mod_quasi <- svyglm(
   sport ~ sexe + groupe_ages + etudes + relig + heures.tv,
   family = quasibinomial,
   design = dp
@@ -82,13 +92,39 @@ Simple, non ?
 Comme précédemment, il est possible de procéder à une sélection de modèle pas à pas, par minimisation de l'AIC, avec `step()`.
 
 ```{r}
-mod2 <- step(mod)
+mod_quasi2 <- step(mod_quasi)
 ```
 
 ::: callout-warning
 ## Sélection pas à pas et valeurs manquantes
 
 Nous avons abordé dans le chapitre sur la régression logistique binaire la problématique des valeurs manquantes lors d'une sélection pas à pas descendante par minimisation de l'AIC (cf. encadré de la @sec-step ). La même approche peut être appliquée avec des données pondérées. Cependant, la fonction `step_with_na()` que nous avons présenté n'est pas compatible avec les modèles `survey::svyglm()` puisqu'ils prennent en entrée un argument `design` et non `data`.
+
+On pourra essayer la variante `step_with_na_survey()` ci-dessous qui nécessite qu'on lui passe également l'objet `{survey}` ayant servi au calcul du modèle.
+
+```{r}
+step_with_na_survey <- function(model, design, ...) {
+  # list of variables
+  variables <- broom.helpers::model_list_variables(
+    model,
+    only_variable = TRUE
+  )
+  # design with no na
+  design_no_na <- design |> 
+    srvyr::drop_na(dplyr::any_of(variables))
+  # refit the model without NAs
+  model_no_na <- update(model, data = design_no_na)  
+  # apply step()
+  model_simplified <- step(model_no_na, ...)
+  # recompute simplified model using full data
+  update(model, formula = terms(model_simplified))
+}
+```
+
+```{r}
+#| eval: false
+mod2_binomial <- step_with_na_survey(mod_binomial, dp)
+```
 :::
 
 ## Affichage des résultats
@@ -104,7 +140,7 @@ theme_gtsummary_language("fr", decimal.mark = ",", big.mark = " ")
 ```{r}
 #| label: tbl-regression-logistique-ponderee
 #| tbl-cap: Facteurs associés à la pratique d'un sport (régression logistique pondérée)
-mod2 |> 
+mod_quasi2 |> 
   tbl_regression(exponentiate = TRUE) |> 
   add_global_p(keep = TRUE) |> 
   add_vif() |> 
@@ -116,7 +152,7 @@ Pour un graphique des coefficients, nous pouvons utiliser `ggstats::ggcoef_model
 ```{r}
 #| label: fig-forest-plot-regression-logistique-ponderee
 #| fig-cap: Facteurs associés à la pratique d'un sport (régression logistique pondérée)
-mod2 |> 
+mod_quasi2 |> 
   ggstats::ggcoef_model(exponentiate = TRUE)
 ```
 
@@ -127,7 +163,7 @@ Pour visualiser les prédictions marginales moyennes du modèle (cf. @sec-predic
 ```{r}
 #| label: fig-predictions-marginales-moyennes-regression-ponderee
 #| fig-cap: Prédictions marginales moyennes du modèle pondéré
-mod2 |> 
+mod_quasi2 |> 
   broom.helpers::plot_marginal_predictions(type = "response") |> 
   patchwork::wrap_plots() &
   scale_y_continuous(
