@@ -432,9 +432,57 @@ performance::compare_performance(
 )
 ```
 
-## Modèles *zero-inflated & hurdle*
+## Données pondérées et plan d'échantillonnage
 
-## Données pondérées
+Lorsque l'on a des données pondérées avec prise en compte d'un plan d'échantillonnage (cf. @sec-plan-echantillonnage), on ne peut utiliser directement `stats::glm()` avec un objet `{survey}`. On aura alors recours à `survey::svyglm()` qui est très similaire.
+
+```{r}
+library(srvyr)
+library(survey)
+dp <- d |> 
+  as_survey_design(weights = poids)
+mod3_poisson <- svyglm(
+  sport2 ~ sexe + groupe_ages + heures.tv,
+  family = poisson,
+  design = dp
+)
+mod3_quasi <- svyglm(
+  sport2 ~ sexe + groupe_ages + heures.tv,
+  family = quasipoisson,
+  design = dp
+)
+```
+
+Il est tout à fait possible d'appliquer `stats::step()` à ces modèles[^modeles-comptage-3].
+
+[^modeles-comptage-3]: Y compris, dans le cas présent, au modèle de quasi-Poisson.
+
+Concernant la régression binomiale négative, il n'y a pas d'implémentation fournie directement par `{survey}`. Cependant, le package `{sjstats}` en propose une via la fonction `sjstats::svyglm.nb()`.
+
+```{r}
+#| message: false
+mod3_nb <- sjstats::svyglm.nb(
+  sport2 ~ sexe + groupe_ages + heures.tv,
+  design = dp
+)
+```
+
+::: callout-note
+Une alternative possible consiste à utiliser des poids de réplication selon une approche du type *bootsrap*. Il faudra déjà définir des poids de réplication avec `srvyr::as_survey_rep()` puis avoir recours à `survey::withReplicates()`. Pour faciliter cette deuxième étape, on pourra se faciliter la vie avec le package `{svrepmisc}` et sa fonction `svrepmisc::svynb()`. Ce package n'étant pas disponible sur CRAN, on devra l'installer avec la commande `remotes::install_github("carlganz/svrepmisc")`.
+
+**Attention :** le temps de calcul du modèle avec les poids de réplication est de plusieurs minutes.
+
+```{r}
+#| message: false
+#| eval: false
+dp_rep <- dp |> 
+  as_survey_rep(type = "bootstrap", replicates = 100)
+mod3_nb_alt <- svrepmisc::svynb(
+  sport2 ~ sexe + groupe_ages + heures.tv,
+  design = dp_rep
+)
+```
+:::
 
 ## Lectures complémentaires
 
