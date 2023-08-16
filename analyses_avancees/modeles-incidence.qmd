@@ -1,1 +1,192 @@
 # Modèles d'incidence / de taux {#sec-modeles-incidence}
+
+En épidémiologie, le taux d'incidence rapporte le nombre de nouveaux cas d'une pathologie observés pendant une période donnée à la population exposée pendant cette même période. En démographie, le terme de taux est utilisé pour désigner la fréquence relative d'un évènement au sein d'une population pendant une période de temps donnée (par exemple : taux de natalité).
+
+Si l'ensemble des individus sont observés / exposés pendant une seule unité de temps (par exemple une année), alors cela revient à rapporter le nombre moyen d'évènements à 1 : nous pouvons utiliser un modèle classique de de comptage (cf. @sec-modeles-comptage).
+
+Cependant, le plus souvent, la durée d'observation / d'exposition varie d'un individu à l'autre. Par exemple, si nous nous intéressons à un taux de divorce, les individus ne sont exposés au risque de divorcer qu'à partir du moment où ils sont mariés. De même, une fois divorcés ou veufs, ils ne sont plus exposés au risque de divorce (sauf s'ils se remarient ultérieurement). Pour chaque individu, il nous faut donc connaître le nombre d'évènements vécus ($n_{evts}$) et la durée d'exposition ($d_{exp}$). Ce que l'on cherche à modéliser est donc le ratio $n_{evts}/d_{exp}$.
+
+Une astuce consiste à modéliser ce taux à l'aide d'un modèle ayant une fonction de lien logarithmique (*log*) comme le modèle de Poisson ou le modèle binomial négatif. En effet, dans ce cas-là, on cherchera donc à modéliser notre variable sous la forme $log(n_{evts}/d_{exp}) = \beta_iX_i$ où $X_i$ représente les variables explicatives et $\beta_i$ les coefficients du modèle. Or, $log(n_{evts}/d_{exp}) = log(n_{evts}) - log(d_{exp})$. Nous pouvons donc réécrire l'équation du modèle sous la forme $log(n_{evts}) = \beta_iX_i + log(d_{exp})$. Nous retombons sur un modèle de comptage classique, à condition d'ajouter à chaque observation ce qu'on appelle un décalage (*offset* en anglais) de $log(d_{exp})$. Ce décalage correspond donc en quelque sorte à une variable ajoutée au modèle mais pour laquelle on ne calcule pas de coefficient.
+
+## Premier exemple (données individuelles, évènement unique)
+
+Prenons un premier exemple à partir du jeux de données `gtsummary::trial` qui contient des informations sur 200 patients atteints d'un cancer. Il contient entre autre les variables suivantes :
+
+-   *death* : variable binaire (0/1) indiquant si le patient est décédé
+
+-   *ttdeath* : le nombre de mois d'observation jusqu'au décès (si décès) ou jusqu'à la fin de l'étude (si survie)
+
+-   *stage* : un facteur indiquant le stade T de la tumeur (plus la valeur est élevée, plus la tumeur est grosse)
+
+-   *trt* : le traitement reçu par le patient (A ou B)
+
+-   *response* : une variable binaire (0/1) indiquant si le traitement a eu un effet sur la tumeur (diminution)
+
+Nous nous intéressons donc aux facteurs associés au taux de mortalité (*death/ttdeath*) : nous allons donc réaliser un modèle de Poisson sur la variable *death* en ajoutant un décalage (*offset*) correspondant à *log(ttdeath)*. Pour ajouter un décalage, nous avons deux syntaxes équivalentes : soit en ajoutant `offset(log(ttdeath))` directement à l'équation du modèle, soit en passant à `glm()` l'argument `offset = log(ttdeath)`.
+
+```{r}
+mod1_poisson <- glm(
+  death ~ stage + trt + response + offset(log(ttdeath)),
+  family = poisson,
+  data = gtsummary::trial
+)
+mod1_poisson_alt <- glm(
+  death ~ stage + trt + response,
+  offset = log(ttdeath),
+  family = poisson,
+  data = gtsummary::trial
+)
+```
+
+Les deux écritures sont totalement équivalentes.
+
+Vérifions la présence éventuelle de surdispersion.
+
+```{r}
+mod1_poisson |> 
+  performance::check_overdispersion()
+```
+
+Tout est bon. Regardons maintenant les coefficients du modèle.
+
+```{r}
+#| label: fig-ggcoef_table-mod1_poisson-incidence
+#| tbl-cap: Facteurs associés à la mortalité des patients atteints d'un cancer (modèle de Poisson)
+mod1_poisson |> 
+  ggstats::ggcoef_table(exponentiate = TRUE)
+```
+
+Nous avons affiché ici l'exponentielle des coefficients qui s'interprètent ici comme des IRR ou *incidence rate ratio* : le taux de décès est deux fois moindre pour les patients pour lesquels le traitement a eu un effet sur la tumeur (variable *Tumor response*). Sans surprise, le taux de décès est bien plus élevé selon la taille de la tumeur : 2,1 fois plus important pour ceux avec une tumeur au stade T4 par rapport à ceux ayant une tumeur au stade T1.
+
+## Deuxième exemple (données agrégées)
+
+Pour ce second exemple, nous allons considérer le jeu de données `MASS::Insurance` qui provient d'une compagnie d'assurance américaine et porte sur le troisième trimestre 1973. Il indique le nombre de demande d'indemnisations (*Claims*) parmi les assurés pour leur voiture (*Holders*) en fonction de leur groupe d'âges (*Age*) et de la taille de la cylindrée de la voiture (*Group*). Nous cherchons à identifier les facteurs associés au taux de réclamation. Préparons rapidement les données et définissons notre modèle.
+
+```{r}
+d <- MASS::Insurance
+d$Age <- factor(d$Age, ordered = FALSE)
+d$Group <- factor(d$Group, ordered = FALSE)
+mod2_poisson <- glm(
+  Claims ~ Age + Group + offset(log(Holders)),
+  family = poisson,
+  data = d
+)
+mod2_poisson |> 
+  performance::check_overdispersion()
+```
+
+Regardons les résultats.
+
+```{r}
+#| label: fig-ggcoef_table-mod2_poisson-incidence
+#| tbl-cap: Facteurs associés au taux de réclamation (modèle de Poisson)
+mod2_poisson |> 
+  ggstats::ggcoef_table(exponentiate = TRUE)
+```
+
+Le taux de réclamation diminue avec l'âge de l'assuré (il est 40% moindre pour les assurés de plus de 35 ans par rapport à ceux de moins de 25 ans) et augmente avec la cylindrée de la voiture (il est 80% plus élevé pour les véhicules avec une cylindrée de plus de 2 litres par rapport aux véhicules avec une cylindrée de moins d'1 litre).
+
+## Troisième exemple (données individuelles, évènement unique)
+
+Pour notre troisième exemple, nous allons reprendre les données de fécondité présentée au chapitre précédent (cf. @sec-modeles-comptage) et venant d'une enquête transversale rétrospective menée auprès de femmes âgées de 15 à 49 ans.
+
+Nous allons nous intéresser au taux de fécondité entre 15 et 24 ans révolus (soit entre 15 et 25 ans exacts) et intégrer à l'analyse les femmes de moins de 25 ans en tenant compte de leur durée d'exposition (différence entre l'âge à l'enquête et 15 ans). Nous allons donc calculer la durée d'exposition comme `exposition = if_else(age <= 25, age - 15, 10)` puisque, pour les femmes de plus de 25 ans à l'enquête, la durée d'exposition entre 15 et 25 ans exacts est de 10 ans.
+
+```{r}
+#| message: false
+library(tidyverse)
+library(labelled)
+data("fecondite", package = "questionr")
+femmes <-
+  femmes |> 
+  unlabelled() |> 
+  mutate(
+    age = time_length(
+      date_naissance %--% date_entretien,
+      unit = "years"
+    ),
+    exposition = if_else(age <= 25, age - 15, 10),
+    educ2 = educ |> 
+      fct_recode(
+        "secondaire/supérieur" = "secondaire",
+        "secondaire/supérieur" = "supérieur"
+      )
+  ) |> 
+  # exclure celles qui viennent juste d'avoir 15 ans
+  filter(exposition > 0)
+```
+
+Comptons maintenant le nombre de naissances entre 15 et 25 ans exacts.
+
+```{r}
+enfants <-
+  enfants |> 
+  unlabelled() |> 
+  left_join(
+    femmes |>
+      select(id_femme, date_naissance_mere = date_naissance),
+    by = "id_femme"
+  ) |>
+  mutate(
+    age_mere = time_length(
+      date_naissance_mere %--% date_naissance,
+      unit = "years"
+    )
+  )
+femmes <-
+  femmes |> 
+  left_join(
+    enfants |> 
+      filter(age_mere >= 15 & age_mere < 25) |> 
+      group_by(id_femme) |> 
+      count(name = "enfants_15_24"),
+    by = "id_femme"
+  ) |> 
+  tidyr::replace_na(list(enfants_15_24 = 0L))
+```
+
+Calculons maintenant notre modèle.
+
+```{r}
+mod3_poisson <- glm(
+  enfants_15_24 ~ educ2 + milieu + offset(log(exposition)),
+  family = poisson,
+  data = femmes
+)
+```
+
+Vérifions la surdispersion.
+
+```{r}
+mod3_poisson |>
+  performance::check_overdispersion()
+```
+
+Le test indique de la surdispersion. Optons donc pour un modèle négatif binomial.
+
+```{r}
+mod3_nb <- MASS::glm.nb(
+  enfants_15_24 ~ educ2 + milieu + offset(log(exposition)),
+  data = femmes
+)
+mod3_nb |>
+  performance::check_overdispersion()
+```
+
+Nous pouvons maintenant regarder les résultats.
+
+```{r}
+#| label: fig-ggcoef_table-mod3_nb-incidence
+#| tbl-cap: Facteurs associés au taux de fécondité entre 15 et 25 ans (modèle négatif binomial)
+mod3_nb |> 
+  ggstats::ggcoef_table(exponentiate = TRUE)
+```
+
+## Lectures complémentaires
+
+-   [*Tutoriel : GLM sur données de comptage (régression de Poisson) avec R*](https://delladata.fr/tutoriel-glm-sur-donnees-de-comptage-regression-de-poisson-avec-r/) par Claire Della Vedova
+
+```{=html}
+<!-- -->
+```
+-   [*Zoom sur la Regression de Poisson et l'Incidence Risque Ratio (IRR) : exemple du vaccin anti-SarsCov2 d'Oxford*](https://epirheum.com/zoom-sur-la-regression-de-poisson-et-lincidence-risque-ratio-irr-exemple-du-vaccin-anti-sarscov2-doxford/) par Ihsane Hmamouchi
