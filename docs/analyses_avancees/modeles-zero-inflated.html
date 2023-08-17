@@ -1,0 +1,1682 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="fr" xml:lang="fr"><head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.433">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<title>guide-R - 37&nbsp; Modèles de comptage zero-inflated et hurdle</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../analyses_avancees/choix-modele.html" rel="next">
+<link href="../analyses_avancees/modeles-incidence.html" rel="prev">
+<link href="../ressources/favicon.png" rel="icon" type="image/png">
+<script src="../site_libs/cookie-consent/cookie-consent.js"></script>
+<link href="../site_libs/cookie-consent/cookie-consent.css" rel="stylesheet">
+<script src="../site_libs/quarto-html/quarto.js"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script src="../site_libs/quarto-contrib/glightbox/glightbox.min.js"></script>
+<link href="../site_libs/quarto-contrib/glightbox/glightbox.min.css" rel="stylesheet">
+<link href="../site_libs/quarto-contrib/glightbox/lightbox.css" rel="stylesheet"><script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "Pas de résultats",
+    "search-matching-documents-text": "documents trouvés",
+    "search-copy-link-title": "Copier le lien vers la recherche",
+    "search-hide-matches-text": "Cacher les correspondances additionnelles",
+    "search-more-match-text": "correspondance de plus dans ce document",
+    "search-more-matches-text": "correspondances de plus dans ce document",
+    "search-clear-button-title": "Effacer",
+    "search-detached-cancel-button-title": "Annuler",
+    "search-submit-button-title": "Envoyer",
+    "search-label": "Recherche"
+  }
+}</script><script async="" src="https://www.googletagmanager.com/gtag/js?id=G-8BT7D9P85Y"></script><script type="text/plain" cookie-consent="tracking">
+
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-8BT7D9P85Y', { 'anonymize_ip': true});
+</script><script type="text/javascript" charset="UTF-8">
+document.addEventListener('DOMContentLoaded', function () {
+cookieconsent.run({
+  "notice_banner_type":"simple",
+  "consent_type":"implied",
+  "palette":"light",
+  "language":"en",
+  "page_load_consent_levels":["strictly-necessary","functionality","tracking","targeting"],
+  "notice_banner_reject_button_hide":false,
+  "preferences_center_close_button_hide":false,
+  "website_name":""
+  });
+});
+</script><style>html{ scroll-behavior: smooth; }</style>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body class="nav-sidebar floating slimcontent">
+
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top"><nav class="quarto-secondary-nav"><div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Basculer la barre latérale" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../analyses_avancees/modeles-comptage.html"><strong>Analyses avancées</strong></a></li><li class="breadcrumb-item"><a href="../analyses_avancees/modeles-zero-inflated.html"><span class="chapter-number">37</span>&nbsp; <span class="chapter-title">Modèles de comptage *zero-inflated* et *hurdle*</span></a></li></ol></nav>
+      <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Basculer la barre latérale" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+      </a>
+      <button type="button" class="btn quarto-search-button" aria-label="" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav></header><!-- content --><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal sidebar-navigation floating overflow-auto"><div class="pt-lg-2 mt-2 text-left sidebar-header sidebar-header-stacked">
+      <a href="../index.html" class="sidebar-logo-link">
+      <img src="../ressources/typewriter.png" alt="" class="sidebar-logo py-0 d-lg-inline d-none"></a>
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../">guide-R</a> 
+        <div class="sidebar-tools-main tools-wide">
+    <a href="https://github.com/larmarange/guide-R/" rel="" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
+    <a href="../guide-R.pdf" rel="" title="Download PDF" class="quarto-navigation-tool px-1" aria-label="Download PDF"><i class="bi bi-file-pdf"></i></a>
+    <div class="dropdown">
+      <a href="" title="Share" id="quarto-navigation-tool-dropdown-0" class="quarto-navigation-tool dropdown-toggle px-1" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Share"><i class="bi bi-share"></i></a>
+      <ul class="dropdown-menu" aria-labelledby="quarto-navigation-tool-dropdown-0">
+<li>
+            <a class="dropdown-item sidebar-tools-main-item" href="https://twitter.com/intent/tweet?url=%7Curl%7C">
+              <i class="bi bi-bi-twitter pe-1"></i>
+            Twitter
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item sidebar-tools-main-item" href="https://www.facebook.com/sharer/sharer.php?u=%7Curl%7C">
+              <i class="bi bi-bi-facebook pe-1"></i>
+            Facebook
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item sidebar-tools-main-item" href="https://www.linkedin.com/sharing/share-offsite/?url=%7Curl%7C">
+              <i class="bi bi-bi-linkedin pe-1"></i>
+            LinkedIn
+            </a>
+          </li>
+      </ul>
+</div>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Recherche"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+<li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Préface</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true">
+ <span class="menu-text"><strong>Bases du langage</strong></span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true" aria-label="Basculer la section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">
+<li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../bases/packages.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Packages</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../bases/vecteurs.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Vecteurs</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../bases/listes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Listes</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../bases/tableaux_donnees.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Tableaux de données</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../bases/tibbles.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Tibbles</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../bases/attributs.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Attributs</span></span></a>
+  </div>
+</li>
+      </ul>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="true">
+ <span class="menu-text"><strong>Manipulation de données</strong></span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="true" aria-label="Basculer la section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">
+<li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../manipulation/pipe.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Le pipe</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../manipulation/dplyr.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title"><code>dplyr</code></span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../manipulation/facteurs.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Facteurs et <code>forcats</code></span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../manipulation/combiner-variables.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Combiner plusieurs variables</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../manipulation/etiquettes-variables.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Étiquettes de variables</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../manipulation/etiquettes-valeurs.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Étiquettes de valeurs</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../manipulation/valeurs-manquantes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Valeurs manquantes</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../manipulation/import-export.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Import &amp; Export de données</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../manipulation/formater-nombre.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Mettre en forme des nombres</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../manipulation/couleurs.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Couleurs &amp; Palettes</span></span></a>
+  </div>
+</li>
+      </ul>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" aria-expanded="true">
+ <span class="menu-text"><strong>Analyses</strong></span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" aria-expanded="true" aria-label="Basculer la section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">
+<li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses/ggplot2.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Graphiques avec <code>ggplot2</code></span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses/statistique-univariee.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Statistique univariée &amp; Intervalles de confiance</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses/statistique-bivariee.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Statistique bivariée &amp; Tests de comparaison</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses/likert.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Échelles de Likert</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses/regression-lineaire.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Régression linéaire</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses/regression-logistique-binaire.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Régression logistique binaire</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses/estimations-marginales.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">23</span>&nbsp; <span class="chapter-title">Prédictions marginales, contrastes marginaux &amp; effets marginaux</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses/contrastes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">24</span>&nbsp; <span class="chapter-title">Contrastes (variables catégorielles)</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses/interactions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">25</span>&nbsp; <span class="chapter-title">Interactions</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses/multicolinearite.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">26</span>&nbsp; <span class="chapter-title">Multicolinéarité</span></span></a>
+  </div>
+</li>
+      </ul>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" aria-expanded="true">
+ <span class="menu-text"><strong>Données pondérées avec <code>survey</code></strong></span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" aria-expanded="true" aria-label="Basculer la section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">
+<li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../donnees_ponderees/plan-echantillonnage.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">27</span>&nbsp; <span class="chapter-title">Définir un plan d’échantillonnage</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../donnees_ponderees/manipulation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">28</span>&nbsp; <span class="chapter-title">Manipulation de données pondérées</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../donnees_ponderees/analyses-bivariees.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">29</span>&nbsp; <span class="chapter-title">Analyses uni- et bivariées pondérées</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../donnees_ponderees/graphiques-ponderes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">30</span>&nbsp; <span class="chapter-title">Graphiques pondérés</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../donnees_ponderees/regression-logistique-binaire-ponderee.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">31</span>&nbsp; <span class="chapter-title">Régression logistique binaire pondérée</span></span></a>
+  </div>
+</li>
+      </ul>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" aria-expanded="true">
+ <span class="menu-text"><strong>Manipulation avancée</strong></span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" aria-expanded="true" aria-label="Basculer la section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">
+<li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../manipulation_avancee/fusion_tables.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">32</span>&nbsp; <span class="chapter-title">Fusion de tables</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../manipulation_avancee/dates.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">33</span>&nbsp; <span class="chapter-title">Dates avec <code>lubridate</code></span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../manipulation_avancee/tidyr.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">34</span>&nbsp; <span class="chapter-title">Réorganisation avec <code>tidyr</code></span></span></a>
+  </div>
+</li>
+      </ul>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" aria-expanded="true">
+ <span class="menu-text"><strong>Analyses avancées</strong></span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" aria-expanded="true" aria-label="Basculer la section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 show">
+<li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses_avancees/modeles-comptage.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">35</span>&nbsp; <span class="chapter-title">Modèles de comptage (Poisson &amp; apparentés)</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses_avancees/modeles-incidence.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">36</span>&nbsp; <span class="chapter-title">Modèles d’incidence / de taux</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses_avancees/modeles-zero-inflated.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">37</span>&nbsp; <span class="chapter-title">Modèles de comptage <em>zero-inflated</em> et <em>hurdle</em></span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses_avancees/choix-modele.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">38</span>&nbsp; <span class="chapter-title">Quel modèle choisir&nbsp;?</span></span></a>
+  </div>
+</li>
+      </ul>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" aria-expanded="true">
+ <span class="menu-text"><strong>Pour aller plus loin</strong></span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" aria-expanded="true" aria-label="Basculer la section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth1 show">
+<li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../extra/ressources-documentaires.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">39</span>&nbsp; <span class="chapter-title">Ressources documentaires</span></span></a>
+  </div>
+</li>
+      </ul>
+</li>
+    </ul>
+</div>
+</nav><div id="quarto-sidebar-glass" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active"><h2 id="toc-title">Table des matières</h2>
+   
+  <ul>
+<li><a href="#donn%C3%A9es-dillustration" id="toc-données-dillustration" class="nav-link active" data-scroll-target="#donn%C3%A9es-dillustration"><span class="header-section-number">37.1</span> Données d’illustration</a></li>
+  <li><a href="#mod%C3%A8les-de-comptage-classique" id="toc-modèles-de-comptage-classique" class="nav-link" data-scroll-target="#mod%C3%A8les-de-comptage-classique"><span class="header-section-number">37.2</span> Modèles de comptage classique</a></li>
+  <li><a href="#mod%C3%A8les-zero-inflated" id="toc-modèles-zero-inflated" class="nav-link" data-scroll-target="#mod%C3%A8les-zero-inflated"><span class="header-section-number">37.3</span> Modèles <em>zero-inflated</em></a></li>
+  <li><a href="#mod%C3%A8les-hurdle" id="toc-modèles-hurdle" class="nav-link" data-scroll-target="#mod%C3%A8les-hurdle"><span class="header-section-number">37.4</span> Modèles <em>hurdle</em></a></li>
+  <li><a href="#mod%C3%A8les-de-taux-zero-inflated-ou-hurdle" id="toc-modèles-de-taux-zero-inflated-ou-hurdle" class="nav-link" data-scroll-target="#mod%C3%A8les-de-taux-zero-inflated-ou-hurdle"><span class="header-section-number">37.5</span> Modèles de taux <em>zero-inflated</em> ou <em>hurdle</em></a></li>
+  <li><a href="#lectures-compl%C3%A9mentaires" id="toc-lectures-complémentaires" class="nav-link" data-scroll-target="#lectures-compl%C3%A9mentaires"><span class="header-section-number">37.6</span> Lectures complémentaires</a></li>
+  </ul><div class="toc-actions"><div><i class="bi bi-github"></i></div><div class="action-links"><p><a href="https://github.com/larmarange/guide-R/blob/main/analyses_avancees/modeles-zero-inflated.qmd" class="toc-action">Voir la source</a></p><p><a href="https://github.com/larmarange/guide-R/issues/new" class="toc-action">Faire part d'un problème</a></p></div></div></nav>
+    </div>
+<!-- main -->
+<main class="content page-columns page-full" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block default"><div class="quarto-title">
+<h1 class="title"><span id="sec-modeles-zero-inflated" class="quarto-section-identifier"><span class="chapter-number">37</span>&nbsp; <span class="chapter-title">Modèles de comptage <em>zero-inflated</em> et <em>hurdle</em></span></span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+</header><p>Dans certaines situations, les modèles de comptage (cf. <a href="modeles-comptage.html"><span>Chapitre&nbsp;35</span></a>) ont des difficultés à estimer correctement le nombre d’individus n’ayant pas vécu l’évènement (i.e.&nbsp;le nombre de 0).</p>
+<section id="données-dillustration" class="level2 page-columns page-full" data-number="37.1"><h2 data-number="37.1" class="anchored" data-anchor-id="données-dillustration">
+<span class="header-section-number">37.1</span> Données d’illustration</h2>
+<p>Dans ce chapitre, nous allons utiliser un jeu de données issu d’un article de Partha Deb and Pravin K. Trivedi <span class="citation" data-cites="deb1997">(<a href="#ref-deb1997" role="doc-biblioref">Deb et Trivedi 1997</a>)</span>. Ce jeu de données est disponible dans le package <code>{MixAll}</code> sous le nom de <code>DebTrivedi</code>. Il porte sur 4406 individus âgés de 66 ans ou plus et couvert par le programme américain <em>Medicare</em>.</p>
+<div class="no-row-height column-margin column-container"><div id="ref-deb1997" class="csl-entry" role="listitem">
+Deb, Partha, et Pravin K. Trivedi. 1997. <span>«&nbsp;Demand for Medical Care by the Elderly: A Finite Mixture Approach&nbsp;»</span>. <em>Journal of Applied Econometrics</em> 12 (3): 313‑36. <a href="https://doi.org/10.1002/(SICI)1099-1255(199705)12:3<313::AID-JAE440>3.0.CO;2-G">https://doi.org/10.1002/(SICI)1099-1255(199705)12:3&lt;313::AID-JAE440&gt;3.0.CO;2-G</a>.
+</div></div><p>L’analyse va porter sur la demande de soins, mesurée ici à travers le nombre de visites médicales (<em>ofp</em>). Pour les variables explicatives, nous allons considérer le genre du patient (<em>gender</em>), le fait de disposer d’une assurance privée (<em>privins</em>), la santé perçue (<em>health</em>) et le nombre de conditions chroniques de l’assuré.</p>
+<p>Chargeons et préparons rapidement les données. Nous allons recoder les variables catégorielles en français (<a href="../manipulation/facteurs.html#sec-modifier-modalites"><span>Section&nbsp;9.3</span></a>) et ajouter des étiquettes de variables (cf. <a href="../manipulation/etiquettes-variables.html"><span>Chapitre&nbsp;11</span></a>).</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="fu">library</span>(labelled)</span>
+<span id="cb1-2"><a href="#cb1-2"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-3"><a href="#cb1-3"></a><span class="fu">data</span>(<span class="st">"DebTrivedi"</span>, <span class="at">package =</span> <span class="st">"MixAll"</span>)</span>
+<span id="cb1-4"><a href="#cb1-4"></a>d <span class="ot">&lt;-</span> DebTrivedi <span class="sc">|&gt;</span></span>
+<span id="cb1-5"><a href="#cb1-5"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb1-6"><a href="#cb1-6"></a>    <span class="at">gender =</span> gender <span class="sc">|&gt;</span> </span>
+<span id="cb1-7"><a href="#cb1-7"></a>      <span class="fu">fct_recode</span>(<span class="st">"femme"</span> <span class="ot">=</span> <span class="st">"female"</span>, <span class="st">"homme"</span> <span class="ot">=</span> <span class="st">"male"</span>),</span>
+<span id="cb1-8"><a href="#cb1-8"></a>    <span class="at">privins =</span> privins <span class="sc">|&gt;</span></span>
+<span id="cb1-9"><a href="#cb1-9"></a>      <span class="fu">fct_recode</span>(<span class="st">"non"</span> <span class="ot">=</span> <span class="st">"no"</span>, <span class="st">"oui"</span> <span class="ot">=</span> <span class="st">"yes"</span>),</span>
+<span id="cb1-10"><a href="#cb1-10"></a>    <span class="at">health =</span> health <span class="sc">|&gt;</span> </span>
+<span id="cb1-11"><a href="#cb1-11"></a>      <span class="fu">fct_recode</span>(</span>
+<span id="cb1-12"><a href="#cb1-12"></a>        <span class="st">"pauvre"</span> <span class="ot">=</span> <span class="st">"poor"</span>,</span>
+<span id="cb1-13"><a href="#cb1-13"></a>        <span class="st">"moyenne"</span> <span class="ot">=</span> <span class="st">"average"</span>,</span>
+<span id="cb1-14"><a href="#cb1-14"></a>        <span class="st">"excellente"</span> <span class="ot">=</span> <span class="st">"excellent"</span></span>
+<span id="cb1-15"><a href="#cb1-15"></a>      )</span>
+<span id="cb1-16"><a href="#cb1-16"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb1-17"><a href="#cb1-17"></a>  <span class="fu">set_variable_labels</span>(</span>
+<span id="cb1-18"><a href="#cb1-18"></a>    <span class="at">ofp =</span> <span class="st">"Nombre de visites médicales"</span>,</span>
+<span id="cb1-19"><a href="#cb1-19"></a>    <span class="at">gender =</span> <span class="st">"Genre de l'assuré"</span>,</span>
+<span id="cb1-20"><a href="#cb1-20"></a>    <span class="at">privins =</span> <span class="st">"Dispose d'une assurance privée ?"</span>,</span>
+<span id="cb1-21"><a href="#cb1-21"></a>    <span class="at">health =</span> <span class="st">"Santé perçue"</span>,</span>
+<span id="cb1-22"><a href="#cb1-22"></a>    <span class="at">numchron =</span> <span class="st">"Nombre de conditions chroniques"</span></span>
+<span id="cb1-23"><a href="#cb1-23"></a>  )</span>
+<span id="cb1-24"><a href="#cb1-24"></a><span class="fu">contrasts</span>(d<span class="sc">$</span>health) <span class="ot">&lt;-</span> <span class="fu">contr.treatment</span>(<span class="dv">3</span>, <span class="at">base =</span> <span class="dv">2</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section><section id="modèles-de-comptage-classique" class="level2 page-columns page-full" data-number="37.2"><h2 data-number="37.2" class="anchored" data-anchor-id="modèles-de-comptage-classique">
+<span class="header-section-number">37.2</span> Modèles de comptage classique</h2>
+<p>Commençons tout d’abord par une approche classique (<a href="modeles-comptage.html"><span>Chapitre&nbsp;35</span></a>)&nbsp;: calculons un modèle de Poisson et vérifions la surdispersion.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a>mod_poisson <span class="ot">&lt;-</span> <span class="fu">glm</span>(</span>
+<span id="cb2-2"><a href="#cb2-2"></a>  ofp <span class="sc">~</span> gender <span class="sc">+</span> privins <span class="sc">+</span> health <span class="sc">+</span> numchron,</span>
+<span id="cb2-3"><a href="#cb2-3"></a>  <span class="at">family =</span> poisson,</span>
+<span id="cb2-4"><a href="#cb2-4"></a>  <span class="at">data =</span> d</span>
+<span id="cb2-5"><a href="#cb2-5"></a>)</span>
+<span id="cb2-6"><a href="#cb2-6"></a>mod_poisson <span class="sc">|&gt;</span></span>
+<span id="cb2-7"><a href="#cb2-7"></a>  performance<span class="sc">::</span><span class="fu">check_overdispersion</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># Overdispersion test
+
+       dispersion ratio =     7.103
+  Pearson's Chi-Squared = 31254.867
+                p-value =   &lt; 0.001</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Overdispersion detected.</code></pre>
+</div>
+</div>
+<p>Une surdispersion étant détectée, basculons sur un modèle négatif binomial.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a>mod_nb <span class="ot">&lt;-</span> MASS<span class="sc">::</span><span class="fu">glm.nb</span>(</span>
+<span id="cb5-2"><a href="#cb5-2"></a>  ofp <span class="sc">~</span> gender <span class="sc">+</span> privins <span class="sc">+</span> health <span class="sc">+</span> numchron,</span>
+<span id="cb5-3"><a href="#cb5-3"></a>  <span class="at">data =</span> d</span>
+<span id="cb5-4"><a href="#cb5-4"></a>)</span>
+<span id="cb5-5"><a href="#cb5-5"></a>mod_nb <span class="sc">|&gt;</span></span>
+<span id="cb5-6"><a href="#cb5-6"></a>  performance<span class="sc">::</span><span class="fu">check_overdispersion</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># Overdispersion test
+
+       dispersion ratio =    1.261
+  Pearson's Chi-Squared = 5549.838
+                p-value =  &lt; 0.001</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Overdispersion detected.</code></pre>
+</div>
+</div>
+<div class="page-columns page-full"><p>Le modèle négatif binomial ne règle pas notre problème de surdispersion. Comparons les valeurs observées avec les valeurs théoriques avec <code><a href="https://easystats.github.io/performance/reference/check_predictions.html">performance::check_predictions()</a></code><a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>. Pour faciliter la lecture du graphique, nous allons <q>zoomer</q> sur les 20 premières valeurs.</p><div class="no-row-height column-margin column-container"><li id="fn1"><p><sup>1</sup>&nbsp;Nous aurions aussi pu utiliser la fonction <code>observed_vs_theoretical()</code> présentée dans le chapitre sur les modèles de comptage (cf.&nbsp;@#sec-evaluation-surdispersion).</p></li></div></div>
+<div class="cell page-columns page-full">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a>mod_nb <span class="sc">|&gt;</span> </span>
+<span id="cb8-2"><a href="#cb8-2"></a>  performance<span class="sc">::</span><span class="fu">check_predictions</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb8-3"><a href="#cb8-3"></a>  <span class="fu">plot</span>() <span class="sc">+</span></span>
+<span id="cb8-4"><a href="#cb8-4"></a>  <span class="fu">xlim</span>(<span class="dv">0</span>, <span class="dv">20</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display page-columns page-full">
+<div id="fig-check_predictions-mod_nb-DebTrivedi" class="quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="figure page-columns page-full"><p><a href="modeles-zero-inflated_files/figure-html/fig-check_predictions-mod_nb-DebTrivedi-1.png" class="lightbox" title="Comparaison des valeurs observées et des valeurs théoriques" data-gallery="quarto-lightbox-gallery-1"><img src="modeles-zero-inflated_files/figure-html/fig-check_predictions-mod_nb-DebTrivedi-1.png" class="img-fluid figure-img" width="672"></a></p>
+<figcaption class="figure-caption margin-caption">Figure&nbsp;37.1: Comparaison des valeurs observées et des valeurs théoriques</figcaption></figure>
+</div>
+</div>
+</div>
+<p>Comme nous pouvons le voir sur ce graphique, le nombre de 0 prédit par le modèle est inférieur à celui observé. Cela signifie que les 0 sont sur-représentés dans nos données par rapport à une distribution négative binomiale. Ces 0 ont tendance à <q>tirer</q> la moyenne vers le bas. Dès lors, le nombre de 1 et de 2 prédits par le modèle sont quant à eux sur-représentés par rapport aux données observées. On dit alors qu’il y a une <q>inflation de zéros</q> dans les données (<em>zero-inflated</em> en anglais).</p>
+</section><section id="modèles-zero-inflated" class="level2 page-columns page-full" data-number="37.3"><h2 data-number="37.3" class="anchored" data-anchor-id="modèles-zero-inflated">
+<span class="header-section-number">37.3</span> Modèles <em>zero-inflated</em>
+</h2>
+<p>Les modèles <em>zero-inflated</em> ont justement été prévus pour ce cas de figure. Un modèle de Poisson <em>zero-inflated</em> combine deux modèles&nbsp;: un modèle logistique binaire et un modèle de Poisson. Dans un premier temps, on applique le modèle logistique binaire. Si la valeur obtenue est 0, le résultat final est 0. Si la valeur obtenue est 1, alors on applique le modèle de Poisson.</p>
+<p>Les modèles de Poisson <em>zero-inflated</em> sont notamment implémentés dans le package <a href="http://github.com/atahk/pscl">pscl</a> via la fonction <code><a href="https://rdrr.io/pkg/pscl/man/zeroinfl.html">pscl::zeroinfl()</a></code>.</p>
+<p>Calculons un premier modèle de Poisson <em>zero-inflated</em>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a>mod_zip <span class="ot">&lt;-</span> pscl<span class="sc">::</span><span class="fu">zeroinfl</span>(</span>
+<span id="cb9-2"><a href="#cb9-2"></a>  ofp <span class="sc">~</span> gender <span class="sc">+</span> privins <span class="sc">+</span> health <span class="sc">+</span> numchron,</span>
+<span id="cb9-3"><a href="#cb9-3"></a>  <span class="at">data =</span> d</span>
+<span id="cb9-4"><a href="#cb9-4"></a>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Regardons les coefficients du modèle (en forçant l’affichage des <em>intercepts</em>). Comme il s’agit d’un modèle à plusieurs composantes, nous aurons recours à <code><a href="https://larmarange.github.io/ggstats/reference/ggcoef_model.html">ggstats::ggcoef_multicomponents()</a></code>.</p>
+<div class="cell page-columns page-full">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a>mod_zip <span class="sc">|&gt;</span> </span>
+<span id="cb10-2"><a href="#cb10-2"></a>  ggstats<span class="sc">::</span><span class="fu">ggcoef_multicomponents</span>(</span>
+<span id="cb10-3"><a href="#cb10-3"></a>    <span class="at">type =</span> <span class="st">"table"</span>,</span>
+<span id="cb10-4"><a href="#cb10-4"></a>    <span class="at">exponentiate =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb10-5"><a href="#cb10-5"></a>    <span class="at">intercept =</span> <span class="cn">TRUE</span></span>
+<span id="cb10-6"><a href="#cb10-6"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>ℹ &lt;zeroinfl&gt; model detected.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>✔ `tidy_zeroinfl()` used instead.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>ℹ Add `tidy_fun = broom.helpers::tidy_zeroinfl` to quiet these messages.</code></pre>
+</div>
+<div class="cell-output-display page-columns page-full">
+<div id="fig-ggcoef_table-mod_zip" class="quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="figure page-columns page-full"><p><a href="modeles-zero-inflated_files/figure-html/fig-ggcoef_table-mod_zip-1.png" class="lightbox" title="Coefficients du modèle de Poisson zero-inflated" data-gallery="quarto-lightbox-gallery-2"><img src="modeles-zero-inflated_files/figure-html/fig-ggcoef_table-mod_zip-1.png" class="img-fluid figure-img" width="768"></a></p>
+<figcaption class="figure-caption margin-caption">Figure&nbsp;37.2: Coefficients du modèle de Poisson <em>zero-inflated</em></figcaption></figure>
+</div>
+</div>
+</div>
+<p>Nous obtenons deux séries de coefficients&nbsp;: une série <em>conditional</em> correspondant au modèle de Poisson et une série <em>zero_inflated</em> correspondant au modèle logistique binaire. Nous avons représenter les exponentiels des coefficients, qui s’interprètent donc comme des <em>risk ratio</em> pour le modèle de Poisson et des <em>odds ratio</em> pour le modèle logistique.</p>
+<p>Les variables ayant un effet significatif ne sont pas les mêmes pour les deux composantes du modèle. Il est d’ailleurs possible d’utiliser des variables différentes pour chaque composante, en écrivant d’abord l’équation du modèle de Poisson, puis celle du modèle logistique et en les séparant avec le symbole <code>|</code>. D’ailleurs, la syntaxe <code>ofp ~ gender + privins + health + numchron</code> est équivalente à <code>ofp ~ gender + privins + health + numchron | gender + privins + health + numchron</code>. Dans la littérature, on trouve fréquemment des modèles de Poisson <em>zero-inflated</em> simplifiés où seul un <em>intercept</em> est utilisé pour la composante logistique binaire.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a>mod_zip_simple <span class="ot">&lt;-</span> pscl<span class="sc">::</span><span class="fu">zeroinfl</span>(</span>
+<span id="cb14-2"><a href="#cb14-2"></a>  ofp <span class="sc">~</span> gender <span class="sc">+</span> privins <span class="sc">+</span> health <span class="sc">+</span> numchron <span class="sc">|</span> <span class="dv">1</span>,</span>
+<span id="cb14-3"><a href="#cb14-3"></a>  <span class="at">data =</span> d</span>
+<span id="cb14-4"><a href="#cb14-4"></a>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell page-columns page-full">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1"></a>mod_zip_simple <span class="sc">|&gt;</span> </span>
+<span id="cb15-2"><a href="#cb15-2"></a>  ggstats<span class="sc">::</span><span class="fu">ggcoef_multicomponents</span>(</span>
+<span id="cb15-3"><a href="#cb15-3"></a>    <span class="at">type =</span> <span class="st">"table"</span>,</span>
+<span id="cb15-4"><a href="#cb15-4"></a>    <span class="at">tidy_fun =</span> broom.helpers<span class="sc">::</span>tidy_zeroinfl,</span>
+<span id="cb15-5"><a href="#cb15-5"></a>    <span class="at">exponentiate =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb15-6"><a href="#cb15-6"></a>    <span class="at">intercept =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb15-7"><a href="#cb15-7"></a>    <span class="at">component_label =</span> <span class="fu">c</span>(</span>
+<span id="cb15-8"><a href="#cb15-8"></a>      <span class="at">conditional =</span> <span class="st">"Modèle de Poisson"</span>,</span>
+<span id="cb15-9"><a href="#cb15-9"></a>      <span class="at">zero_inflated =</span> <span class="st">"Modèle logistique binaire"</span></span>
+<span id="cb15-10"><a href="#cb15-10"></a>    )</span>
+<span id="cb15-11"><a href="#cb15-11"></a>  ) <span class="sc">+</span></span>
+<span id="cb15-12"><a href="#cb15-12"></a>  patchwork<span class="sc">::</span><span class="fu">plot_layout</span>(<span class="at">heights =</span> <span class="fu">c</span>(<span class="dv">6</span>, <span class="dv">1</span>))</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display page-columns page-full">
+<div id="fig-ggcoef_table-mod_zip_simple" class="quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="figure page-columns page-full"><p><a href="modeles-zero-inflated_files/figure-html/fig-ggcoef_table-mod_zip_simple-1.png" class="lightbox" title="Coefficients du modèle de Poisson zero-inflated simple" data-gallery="quarto-lightbox-gallery-3"><img src="modeles-zero-inflated_files/figure-html/fig-ggcoef_table-mod_zip_simple-1.png" class="img-fluid figure-img" width="768"></a></p>
+<figcaption class="figure-caption margin-caption">Figure&nbsp;37.3: Coefficients du modèle de Poisson <em>zero-inflated</em> simple</figcaption></figure>
+</div>
+</div>
+</div>
+<p>Pour ce jeu de données, cela ne modifie que peu les coefficients de la composante modèle de comptage.</p>
+<p>De même, il est possible de préférer un modèle négatif binomial plutôt que Poisson pour la composante modèle de comptage. Il suffit d’ajouter l’argument <code>dist = "negbin"</code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1"></a>mod_zinb <span class="ot">&lt;-</span> pscl<span class="sc">::</span><span class="fu">zeroinfl</span>(</span>
+<span id="cb16-2"><a href="#cb16-2"></a>  ofp <span class="sc">~</span> gender <span class="sc">+</span> privins <span class="sc">+</span> health <span class="sc">+</span> numchron,</span>
+<span id="cb16-3"><a href="#cb16-3"></a>  <span class="at">dist =</span> <span class="st">"negbin"</span>,</span>
+<span id="cb16-4"><a href="#cb16-4"></a>  <span class="at">data =</span> d</span>
+<span id="cb16-5"><a href="#cb16-5"></a>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Nous pouvons aisément comparer l’AIC de ces différents modèles.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1"></a>performance<span class="sc">::</span><span class="fu">compare_performance</span>(</span>
+<span id="cb17-2"><a href="#cb17-2"></a>  mod_poisson,</span>
+<span id="cb17-3"><a href="#cb17-3"></a>  mod_zip_simple,</span>
+<span id="cb17-4"><a href="#cb17-4"></a>  mod_zip,</span>
+<span id="cb17-5"><a href="#cb17-5"></a>  mod_nb,</span>
+<span id="cb17-6"><a href="#cb17-6"></a>  mod_zinb,</span>
+<span id="cb17-7"><a href="#cb17-7"></a>  <span class="at">metrics =</span> <span class="st">"AIC"</span></span>
+<span id="cb17-8"><a href="#cb17-8"></a>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># Comparison of Model Performance Indices
+
+Name           |    Model |   AIC (weights)
+-------------------------------------------
+mod_poisson    |      glm | 36792.1 (&lt;.001)
+mod_zip_simple | zeroinfl | 33308.5 (&lt;.001)
+mod_zip        | zeroinfl | 33014.2 (&lt;.001)
+mod_nb         |   negbin | 24505.7 (&lt;.001)
+mod_zinb       | zeroinfl | 24380.9 (&gt;.999)</code></pre>
+</div>
+</div>
+<p>Comparons les coefficients de la composante <q>comptage</q> du modèle négatif binomial <em>zero-inflated</em> avec ceux du modèle négatif binomial classique.</p>
+<div class="cell page-columns page-full">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1"></a><span class="fu">library</span>(gtsummary)</span>
+<span id="cb19-2"><a href="#cb19-2"></a>tbl_nb <span class="ot">&lt;-</span> mod_nb <span class="sc">|&gt;</span> </span>
+<span id="cb19-3"><a href="#cb19-3"></a>  <span class="fu">tbl_regression</span>(<span class="at">exponentiate =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb19-4"><a href="#cb19-4"></a>tbl_zinb <span class="ot">&lt;-</span> mod_zinb <span class="sc">|&gt;</span> </span>
+<span id="cb19-5"><a href="#cb19-5"></a>  <span class="fu">tbl_regression</span>(</span>
+<span id="cb19-6"><a href="#cb19-6"></a>    <span class="at">tidy_fun =</span> broom.helpers<span class="sc">::</span>tidy_zeroinfl,</span>
+<span id="cb19-7"><a href="#cb19-7"></a>    <span class="at">component =</span> <span class="st">"conditional"</span>,</span>
+<span id="cb19-8"><a href="#cb19-8"></a>    <span class="at">exponentiate =</span> <span class="cn">TRUE</span></span>
+<span id="cb19-9"><a href="#cb19-9"></a>  )</span>
+<span id="cb19-10"><a href="#cb19-10"></a><span class="fu">list</span>(tbl_nb, tbl_zinb) <span class="sc">|&gt;</span> </span>
+<span id="cb19-11"><a href="#cb19-11"></a>  <span class="fu">tbl_merge</span>(<span class="fu">c</span>(<span class="st">"**NB**"</span>, <span class="st">"**ZI-NB**"</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb19-12"><a href="#cb19-12"></a>  <span class="fu">bold_labels</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display page-columns page-full">
+<div id="tbl-comparaison-nb-zinb" class="anchored page-columns page-full">
+
+<div id="bqsgthnuqc" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;" class="page-columns page-full">
+<style>#bqsgthnuqc table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#bqsgthnuqc thead, #bqsgthnuqc tbody, #bqsgthnuqc tfoot, #bqsgthnuqc tr, #bqsgthnuqc td, #bqsgthnuqc th {
+  border-style: none;
+}
+
+#bqsgthnuqc p {
+  margin: 0;
+  padding: 0;
+}
+
+#bqsgthnuqc .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#bqsgthnuqc .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#bqsgthnuqc .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#bqsgthnuqc .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#bqsgthnuqc .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#bqsgthnuqc .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#bqsgthnuqc .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#bqsgthnuqc .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#bqsgthnuqc .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#bqsgthnuqc .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#bqsgthnuqc .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#bqsgthnuqc .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#bqsgthnuqc .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#bqsgthnuqc .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#bqsgthnuqc .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#bqsgthnuqc .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#bqsgthnuqc .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#bqsgthnuqc .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#bqsgthnuqc .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#bqsgthnuqc .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#bqsgthnuqc .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#bqsgthnuqc .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#bqsgthnuqc .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#bqsgthnuqc .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#bqsgthnuqc .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#bqsgthnuqc .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#bqsgthnuqc .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#bqsgthnuqc .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#bqsgthnuqc .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#bqsgthnuqc .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#bqsgthnuqc .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#bqsgthnuqc .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#bqsgthnuqc .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#bqsgthnuqc .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#bqsgthnuqc .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#bqsgthnuqc .gt_left {
+  text-align: left;
+}
+
+#bqsgthnuqc .gt_center {
+  text-align: center;
+}
+
+#bqsgthnuqc .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#bqsgthnuqc .gt_font_normal {
+  font-weight: normal;
+}
+
+#bqsgthnuqc .gt_font_bold {
+  font-weight: bold;
+}
+
+#bqsgthnuqc .gt_font_italic {
+  font-style: italic;
+}
+
+#bqsgthnuqc .gt_super {
+  font-size: 65%;
+}
+
+#bqsgthnuqc .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#bqsgthnuqc .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#bqsgthnuqc .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#bqsgthnuqc .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#bqsgthnuqc .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#bqsgthnuqc .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#bqsgthnuqc .gt_indent_5 {
+  text-indent: 25px;
+}
+</style>
+<table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+
+  <thead>
+<tr class="gt_col_headings gt_spanner_row">
+<th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="2" colspan="1" scope="col" id="<strong>Characteristic</strong>"><strong>Characteristic</strong></th>
+      <th class="gt_center gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="3" scope="colgroup" id="<strong>NB</strong>">
+        <span class="gt_column_spanner"><strong>NB</strong></span>
+      </th>
+      <th class="gt_center gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="3" scope="colgroup" id="<strong>ZI-NB</strong>">
+        <span class="gt_column_spanner"><strong>ZI-NB</strong></span>
+      </th>
+    </tr>
+<tr class="gt_col_headings">
+<th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="<strong>IRR</strong><span class=&quot;gt_footnote_marks&quot; style=&quot;white-space:nowrap;font-style:italic;font-weight:normal;&quot;><sup>1</sup></span>">
+<strong>IRR</strong><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;"><sup>1</sup></span>
+</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="<strong>95% CI</strong><span class=&quot;gt_footnote_marks&quot; style=&quot;white-space:nowrap;font-style:italic;font-weight:normal;&quot;><sup>1</sup></span>">
+<strong>95% CI</strong><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;"><sup>1</sup></span>
+</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="<strong>p-value</strong>"><strong>p-value</strong></th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="<strong>exp(Beta)</strong>"><strong>exp(Beta)</strong></th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="<strong>95% CI</strong><span class=&quot;gt_footnote_marks&quot; style=&quot;white-space:nowrap;font-style:italic;font-weight:normal;&quot;><sup>1</sup></span>">
+<strong>95% CI</strong><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;"><sup>1</sup></span>
+</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="<strong>p-value</strong>"><strong>p-value</strong></th>
+    </tr>
+</thead>
+<tbody class="gt_table_body">
+<tr>
+<td headers="label" class="gt_row gt_left" style="font-weight: bold;">Genre de l'assuré</td>
+<td headers="estimate_1" class="gt_row gt_center"></td>
+<td headers="ci_1" class="gt_row gt_center"></td>
+<td headers="p.value_1" class="gt_row gt_center"></td>
+<td headers="estimate_2" class="gt_row gt_center"></td>
+<td headers="ci_2" class="gt_row gt_center"></td>
+<td headers="p.value_2" class="gt_row gt_center"></td>
+</tr>
+<tr>
+<td headers="label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;femme</td>
+<td headers="estimate_1" class="gt_row gt_center">—</td>
+<td headers="ci_1" class="gt_row gt_center">—</td>
+<td headers="p.value_1" class="gt_row gt_center"></td>
+<td headers="estimate_2" class="gt_row gt_center">—</td>
+<td headers="ci_2" class="gt_row gt_center">—</td>
+<td headers="p.value_2" class="gt_row gt_center"></td>
+</tr>
+<tr>
+<td headers="label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;homme</td>
+<td headers="estimate_1" class="gt_row gt_center">0.90</td>
+<td headers="ci_1" class="gt_row gt_center">0.84, 0.95</td>
+<td headers="p.value_1" class="gt_row gt_center">&lt;0.001</td>
+<td headers="estimate_2" class="gt_row gt_center">0.93</td>
+<td headers="ci_2" class="gt_row gt_center">0.88, 0.99</td>
+<td headers="p.value_2" class="gt_row gt_center">0.031</td>
+</tr>
+<tr>
+<td headers="label" class="gt_row gt_left" style="font-weight: bold;">Dispose d'une assurance privée ?</td>
+<td headers="estimate_1" class="gt_row gt_center"></td>
+<td headers="ci_1" class="gt_row gt_center"></td>
+<td headers="p.value_1" class="gt_row gt_center"></td>
+<td headers="estimate_2" class="gt_row gt_center"></td>
+<td headers="ci_2" class="gt_row gt_center"></td>
+<td headers="p.value_2" class="gt_row gt_center"></td>
+</tr>
+<tr>
+<td headers="label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;non</td>
+<td headers="estimate_1" class="gt_row gt_center">—</td>
+<td headers="ci_1" class="gt_row gt_center">—</td>
+<td headers="p.value_1" class="gt_row gt_center"></td>
+<td headers="estimate_2" class="gt_row gt_center">—</td>
+<td headers="ci_2" class="gt_row gt_center">—</td>
+<td headers="p.value_2" class="gt_row gt_center"></td>
+</tr>
+<tr>
+<td headers="label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;oui</td>
+<td headers="estimate_1" class="gt_row gt_center">1.39</td>
+<td headers="ci_1" class="gt_row gt_center">1.29, 1.50</td>
+<td headers="p.value_1" class="gt_row gt_center">&lt;0.001</td>
+<td headers="estimate_2" class="gt_row gt_center">1.23</td>
+<td headers="ci_2" class="gt_row gt_center">1.14, 1.33</td>
+<td headers="p.value_2" class="gt_row gt_center">&lt;0.001</td>
+</tr>
+<tr>
+<td headers="label" class="gt_row gt_left" style="font-weight: bold;">Santé perçue</td>
+<td headers="estimate_1" class="gt_row gt_center"></td>
+<td headers="ci_1" class="gt_row gt_center"></td>
+<td headers="p.value_1" class="gt_row gt_center"></td>
+<td headers="estimate_2" class="gt_row gt_center"></td>
+<td headers="ci_2" class="gt_row gt_center"></td>
+<td headers="p.value_2" class="gt_row gt_center"></td>
+</tr>
+<tr>
+<td headers="label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;pauvre</td>
+<td headers="estimate_1" class="gt_row gt_center">1.39</td>
+<td headers="ci_1" class="gt_row gt_center">1.27, 1.53</td>
+<td headers="p.value_1" class="gt_row gt_center">&lt;0.001</td>
+<td headers="estimate_2" class="gt_row gt_center">1.38</td>
+<td headers="ci_2" class="gt_row gt_center">1.26, 1.51</td>
+<td headers="p.value_2" class="gt_row gt_center">&lt;0.001</td>
+</tr>
+<tr>
+<td headers="label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;moyenne</td>
+<td headers="estimate_1" class="gt_row gt_center">—</td>
+<td headers="ci_1" class="gt_row gt_center">—</td>
+<td headers="p.value_1" class="gt_row gt_center"></td>
+<td headers="estimate_2" class="gt_row gt_center">—</td>
+<td headers="ci_2" class="gt_row gt_center">—</td>
+<td headers="p.value_2" class="gt_row gt_center"></td>
+</tr>
+<tr>
+<td headers="label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;excellente</td>
+<td headers="estimate_1" class="gt_row gt_center">0.71</td>
+<td headers="ci_1" class="gt_row gt_center">0.63, 0.80</td>
+<td headers="p.value_1" class="gt_row gt_center">&lt;0.001</td>
+<td headers="estimate_2" class="gt_row gt_center">0.71</td>
+<td headers="ci_2" class="gt_row gt_center">0.63, 0.81</td>
+<td headers="p.value_2" class="gt_row gt_center">&lt;0.001</td>
+</tr>
+<tr>
+<td headers="label" class="gt_row gt_left" style="font-weight: bold;">Nombre de conditions chroniques</td>
+<td headers="estimate_1" class="gt_row gt_center">1.21</td>
+<td headers="ci_1" class="gt_row gt_center">1.19, 1.25</td>
+<td headers="p.value_1" class="gt_row gt_center">&lt;0.001</td>
+<td headers="estimate_2" class="gt_row gt_center">1.16</td>
+<td headers="ci_2" class="gt_row gt_center">1.13, 1.19</td>
+<td headers="p.value_2" class="gt_row gt_center">&lt;0.001</td>
+</tr>
+</tbody>
+<tfoot class="gt_footnotes"><tr>
+<td class="gt_footnote" colspan="7">
+<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;"><sup>1</sup></span> IRR = Incidence Rate Ratio, CI = Confidence Interval</td>
+    </tr></tfoot>
+</table>
+<div class="quarto-table-caption margin-caption">Table&nbsp;37.1:  <p>Coefficients du modèle négatif binomial et de la composante comptage
+du modèle négatif binomial zero-inflated</p> </div></div>
+</div>
+</div>
+</div>
+<p>Comme nous pouvons le voir, les résultats sont relativement proches.</p>
+<p>Si l’interprétation du modèle de comptage, celle du modèle logistique binaire est parfois un peu plus complexe. En effet, il y a deux sources de 0 dans le modèle <em>zero-inflated</em>&nbsp;: si certains sont générés par la composante logistique binaire (dont c’est justement le rôle), le modèle de comptage génère lui aussi des 0. Dès lors, le modèle logistique binaire ne suffit pas à lui seul à identifier les facteurs associés de vivre au moins une fois l’évènement.</p>
+<p>Si l’objectif de l’analyse est avant d’identifier les facteurs associés avec le nombre moyen d’évènement, on pourra éventuellement se contenter d’un modèle <em>zero-inflated</em> simple, c’est-à-dire avec seulement un <em>intercept</em> pour la composante <em>zero-inflated</em> afin de corriger la sur-représentation des zéros dans nos données.</p>
+<p>Alternativement, on pourra se tourner vers un modèle avec <q>saut</q> qui distingue les valeurs nulles des valeurs positives&nbsp;: les modèles <em>hurdle</em> en anglais.</p>
+</section><section id="modèles-hurdle" class="level2 page-columns page-full" data-number="37.4"><h2 data-number="37.4" class="anchored" data-anchor-id="modèles-hurdle">
+<span class="header-section-number">37.4</span> Modèles <em>hurdle</em>
+</h2>
+<p>Les modèles <em>hurdle</em> se distinguent des modèles <em>zero-infated</em> dans le sens où l’on combine un modèle logistique binomial pour déterminer si les individus ont vécu au moins une fois l’évènement et un modèle de comptage <q>tronqué</q> (qui n’accepte que des valeurs strictement positives) qui détermine le nombre d’évènements vécus uniquement pour ceux l’ayant vécu au moins une fois.</p>
+<p>Les modèles <em>zero-inflated</em> et <em>hurdle</em> diffèrent par leur conceptualisation des zéros et l’interprétation des paramètres du modèle <span class="citation" data-cites="feng2021">(<a href="#ref-feng2021" role="doc-biblioref">C. X. Feng 2021</a>)</span>.</p>
+<div class="no-row-height column-margin column-container"><div id="ref-feng2021" class="csl-entry" role="listitem">
+Feng, Cindy Xin. 2021. <span>«&nbsp;A comparison of zero-inflated and hurdle models for modeling zero-inflated count data&nbsp;»</span>. <em>Journal of Statistical Distributions and Applications</em> 8 (1): 8. <a href="https://doi.org/10.1186/s40488-021-00121-4">https://doi.org/10.1186/s40488-021-00121-4</a>.
+</div></div><p>Un modèle <em>zero-inflated</em> suppose que les comptes nuls résultent d’un mélange de deux distributions, l’une où les sujets produisent toujours des comptes nuls, souvent appelés “zéros structurels” ou “zéros excessifs”. Les sujets qui sont exposés au résultat mais qui n’ont pas ou n’ont pas rapporté l’expérience du résultat au cours de la période d’étude sont appelés “zéros d’échantillonnage”. La différenciation des zéros en deux groupes se justifie par le fait que les zéros excessifs sont souvent dus à l’existence d’une sous-population de sujets qui ne sont pas exposés à certains résultats au cours de la période d’étude. Par exemple, lors de la modélisation du nombre de comportements à haut risque, certains participants peuvent obtenir un score de zéro parce qu’ils ne sont pas exposés à un tel comportement à risque pour la santé&nbsp;; il s’agit des zéros structurels puisqu’ils ne peuvent pas présenter de tels comportements à haut risque. D’autres participants à risque peuvent obtenir un score de zéro parce qu’ils n’ont pas manifesté de tels comportements à risque au cours de la période étudiée. La probabilité d’appartenir à l’une ou l’autre population est estimée à l’aide d’une composante de probabilité à inflation nulle, tandis que les effectifs de la seconde population du groupe d’utilisateurs sont modélisés par une distribution de comptage ordinaire, telle qu’une distribution de Poisson ou binomiale négative.</p>
+<p>En revanche, un modèle <em>hurdle</em> suppose que toutes les données nulles proviennent d’une source “structurelle”, une partie du modèle étant un modèle binaire pour modéliser si la variable de réponse est nulle ou positive, et une autre partie utilisant un modèle tronqué, pour les données positives. Par exemple, dans les études sur l’utilisation des soins de santé, la partie zéro implique la décision de rechercher des soins, et la composante positive détermine la fréquence de l’utilisation au sein du groupe de l’utilisateur.</p>
+<p>Une autre différence importante entre les modèles <em>hurdle</em> et <em>zero-inflated</em> est leur capacité à gérer la déflation zéro (moins de zéros que prévu par le processus de génération des données). Les modèles <em>zero-inflated</em> ne sont pas en mesure de gérer la déflation zéro, quel que soit le niveau d’un facteur, et donneront des estimations de paramètres de l’ordre de l’infini pour la composante logistique, alors que les modèles <em>hurdle</em> peuvent gérer la déflation zéro <span class="citation" data-cites="min2005">(<a href="#ref-min2005" role="doc-biblioref">Min et Agresti 2005</a>)</span>.</p>
+<div class="no-row-height column-margin column-container"><div id="ref-min2005" class="csl-entry" role="listitem">
+Min, Yongyi, et Alan Agresti. 2005. <span>«&nbsp;Random Effect Models for Repeated Measures of Zero-Inflated Count Data&nbsp;»</span>. <em>Statistical Modelling</em> 5 (1): 1‑19. <a href="https://doi.org/10.1191/1471082X05st084oa">https://doi.org/10.1191/1471082X05st084oa</a>.
+</div></div><p>Les modèles <em>hurdle</em> peuvent être calculés avec la fonction <code><a href="https://rdrr.io/pkg/pscl/man/hurdle.html">pscl::hurdle()</a></code> dont la syntaxe est similaire à <code><a href="https://rdrr.io/pkg/pscl/man/zeroinfl.html">pscl::zeroinfl()</a></code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1"></a>mod_hurdle_poisson <span class="ot">&lt;-</span> pscl<span class="sc">::</span><span class="fu">hurdle</span>(</span>
+<span id="cb20-2"><a href="#cb20-2"></a>  ofp <span class="sc">~</span> gender <span class="sc">+</span> privins <span class="sc">+</span> health <span class="sc">+</span> numchron,</span>
+<span id="cb20-3"><a href="#cb20-3"></a>  <span class="at">data =</span> d</span>
+<span id="cb20-4"><a href="#cb20-4"></a>)</span>
+<span id="cb20-5"><a href="#cb20-5"></a>mod_hurdle_nb <span class="ot">&lt;-</span> pscl<span class="sc">::</span><span class="fu">hurdle</span>(</span>
+<span id="cb20-6"><a href="#cb20-6"></a>  ofp <span class="sc">~</span> gender <span class="sc">+</span> privins <span class="sc">+</span> health <span class="sc">+</span> numchron,</span>
+<span id="cb20-7"><a href="#cb20-7"></a>  <span class="at">dist =</span> <span class="st">"negbin"</span>,</span>
+<span id="cb20-8"><a href="#cb20-8"></a>  <span class="at">data =</span> d</span>
+<span id="cb20-9"><a href="#cb20-9"></a>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Regardons les coefficients obtenus.</p>
+<div class="cell page-columns page-full">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1"></a>mod_hurdle_nb <span class="sc">|&gt;</span> </span>
+<span id="cb21-2"><a href="#cb21-2"></a>  ggstats<span class="sc">::</span><span class="fu">ggcoef_multicomponents</span>(</span>
+<span id="cb21-3"><a href="#cb21-3"></a>    <span class="at">type =</span> <span class="st">"table"</span>,</span>
+<span id="cb21-4"><a href="#cb21-4"></a>    <span class="at">tidy_fun =</span> broom.helpers<span class="sc">::</span>tidy_zeroinfl,</span>
+<span id="cb21-5"><a href="#cb21-5"></a>    <span class="at">exponentiate =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb21-6"><a href="#cb21-6"></a>    <span class="at">component_label =</span> <span class="fu">c</span>(</span>
+<span id="cb21-7"><a href="#cb21-7"></a>      <span class="at">conditional =</span> <span class="st">"Facteurs associés au nombre d'évènements"</span>,</span>
+<span id="cb21-8"><a href="#cb21-8"></a>      <span class="at">zero_inflated =</span> <span class="st">"Facteurs associés au fait d'avoir vécu l'évènement"</span></span>
+<span id="cb21-9"><a href="#cb21-9"></a>    )</span>
+<span id="cb21-10"><a href="#cb21-10"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display page-columns page-full">
+<div id="fig-ggcoef_table-mod_hurdle_nb" class="quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="figure page-columns page-full"><p><a href="modeles-zero-inflated_files/figure-html/fig-ggcoef_table-mod_hurdle_nb-1.png" class="lightbox" title="Coefficients du modèle négatif binomial hurdle" data-gallery="quarto-lightbox-gallery-4"><img src="modeles-zero-inflated_files/figure-html/fig-ggcoef_table-mod_hurdle_nb-1.png" class="img-fluid figure-img" width="768"></a></p>
+<figcaption class="figure-caption margin-caption">Figure&nbsp;37.4: Coefficients du modèle négatif binomial <em>hurdle</em></figcaption></figure>
+</div>
+</div>
+</div>
+<p>Avec un tel modèle, on cherche à répondre à deux questions&nbsp;:</p>
+<ul>
+<li><p>Quels sont les facteurs associés au fait d’avoir vécu l’évènement au moins une fois&nbsp;?</p></li>
+<li><p>Si l’on a vécu l’évènement au moins une fois, quels sont les facteurs associés à la fréquence de l’évènement&nbsp;?</p></li>
+</ul>
+<p>Dans notre exemple, le fait d’avoir une assurance privée joue à la fois sur le fait d’aller consulter un médecin et sur le nombre de consultations&nbsp;? Par contre, la santé perçue n’a pas d’effet sur le fait d’aller consulter mais, si l’on va consulter, cela va influer fortement sur le nombre de consultations. À l’inverse, le sexe de l’assuré a un effet sur le fait d’aller consulter (les hommes consultent moins que les femmes) mais, si l’on consulte, ne joue pas sur le nombre de consultations.</p>
+</section><section id="modèles-de-taux-zero-inflated-ou-hurdle" class="level2 page-columns page-full" data-number="37.5"><h2 data-number="37.5" class="anchored" data-anchor-id="modèles-de-taux-zero-inflated-ou-hurdle">
+<span class="header-section-number">37.5</span> Modèles de taux <em>zero-inflated</em> ou <em>hurdle</em>
+</h2>
+<p>Il est tout à fait possible de réaliser un modèle de taux ou d’incidence (cf. <a href="modeles-incidence.html"><span>Chapitre&nbsp;36</span></a>) <em>zero-inflated</em> ou <em>hurdle</em>. Pour cela, on rajoutera comme avec un modèle classique un décalage (<em>offset</em>) correspondant au logarithme de la durée d’exposition.</p>
+<p>Ce décalage s’ajoute <em>a minima</em> à la composante <q>comptage</q> du modèle <em>zero-inflated</em> ou du modèle <em>hurdle</em>. Toutefois, la probabilité de ne pas vivre l’évènement (donc de zéro) peut elle-même être influencée par la durée d’exposition, auquel cas il pourrait être pertinent d’ajouter également l’<em>offset</em> à la composante <q>inflation des zéros</q> du modèle. Certains auteurs suggèrent même d’inclure le logarithme de la durée d’exposition non pas sous forme d’un <em>offset</em> mais directement comme une variable explicative du modèle <span class="citation" data-cites="feng2022">(<a href="#ref-feng2022" role="doc-biblioref">C. Feng 2022</a>)</span>.</p>
+<div class="no-row-height column-margin column-container"><div id="ref-feng2022" class="csl-entry" role="listitem">
+Feng, Cindy. 2022. <span>«&nbsp;Zero-inflated models for adjusting varying exposures: a cautionary note on the pitfalls of using offset&nbsp;»</span>. <em>Journal of Applied Statistics</em> 49 (1): 1‑23. <a href="https://doi.org/10.1080/02664763.2020.1796943">https://doi.org/10.1080/02664763.2020.1796943</a>.
+</div></div></section><section id="lectures-complémentaires" class="level2" data-number="37.6"><h2 data-number="37.6" class="anchored" data-anchor-id="lectures-complémentaires">
+<span class="header-section-number">37.6</span> Lectures complémentaires</h2>
+<ul>
+<li><p><a href="https://cran.r-project.org/web/packages/pscl/vignettes/countreg.pdf"><em>Regression Models for Count Data in R</em></a> par Achim Zeileis, Christian Kleiber et Simon Jackman</p></li>
+<li><p><a href="https://doi.org/10.1080/21642850.2021.1920416"><em>Too many zeros and/or highly skewed? A tutorial on modelling health behaviour as count data with Poisson and negative binomial regression</em></a> par James A. Green. DOI&nbsp;: <a href="https://doi.org/10.1080/21642850.2021.1920416">10.1080/21642850.2021.1920416</a></p></li>
+<li><p><a href="https://jsdajournal.springeropen.com/articles/10.1186/s40488-021-00121-4"><em>A comparison of zero-inflated and hurdle models for modeling zero-inflated count data</em></a> par Cindy Xin Feng. DOI&nbsp;: <a href="https://doi.org/10.1186/s40488-021-00121-4">10.1186/s40488-021-00121-4</a></p></li>
+<li><p><a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9042155/"><em>Zero-inflated models for adjusting varying exposures: a cautionary note on the pitfalls of using offset</em></a> by Cindy Xin Feng. DOI&nbsp;: <a href="https://doi.org/10.1080%2F02664763.2020.1796943">10.1080/02664763.2020.1796943</a></p></li>
+</ul>
+
+
+
+</section></main><!-- /main --><script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copié");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copié");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script><script src="https://giscus.app/client.js" data-repo="larmarange/guide-R" data-repo-id="R_kgDOH6-xnw" data-category="Forum" data-category-id="DIC_kwDOH6-xn84CRLQy" data-mapping="pathname" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="top" data-theme="light" data-lang="fr" crossorigin="anonymous" data-loading="lazy" async="">
+</script><nav class="page-navigation"><div class="nav-page nav-page-previous">
+      <a href="../analyses_avancees/modeles-incidence.html" class="pagination-link">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">36</span>&nbsp; <span class="chapter-title">Modèles d’incidence / de taux</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../analyses_avancees/choix-modele.html" class="pagination-link">
+        <span class="nav-page-text"><span class="chapter-number">38</span>&nbsp; <span class="chapter-title">Quel modèle choisir&nbsp;?</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+<footer class="footer"><div class="nav-footer">
+    <div class="nav-footer-left">
+      <ul class="footer-items list-unstyled">
+<li class="nav-item">
+ guide-R : Guide pour l'analyse de données d'enquêtes avec R
+  </li>  
+</ul>
+</div>   
+    <div class="nav-footer-center"><div class="cookie-consent-footer"><a href="#" id="open_preferences_center">Cookie Preferences</a></div></div>
+    <div class="nav-footer-right">
+      <ul class="footer-items list-unstyled">
+<li class="nav-item compact">
+    <a class="nav-link" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">
+      <i class="bi bi-badge-cc-fill" role="img">
+</i> 
+    </a>
+  </li>  
+    <li class="nav-item compact">
+    <a class="nav-link active" href="https://github.com/larmarange/guide-R/" aria-current="page">
+      <i class="bi bi-github" role="img">
+</i> 
+    </a>
+  </li>  
+    <li class="nav-item compact">
+    <a class="nav-link" href="https://www.youtube.com/c/webinR">
+      <i class="bi bi-youtube" role="img">
+</i> 
+    </a>
+  </li>  
+    <li class="nav-item">
+    <a class="nav-link" href="https://larmarange.github.io/analyse-R/">analyse-R</a>
+  </li>  
+    <li class="nav-item">
+    <a class="nav-link" href="https://larmarange.github.io/webin-R/">webin-R</a>
+  </li>  
+</ul>
+</div>
+  </div>
+</footer><script>var lightboxQuarto = GLightbox({"selector":".lightbox","closeEffect":"zoom","loop":true,"openEffect":"zoom","descPosition":"bottom"});</script>
+
+
+<script src="../site_libs/quarto-html/zenscroll-min.js"></script>
+</body></html>
