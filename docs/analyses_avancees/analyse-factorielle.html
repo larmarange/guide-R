@@ -1,0 +1,1399 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="fr" xml:lang="fr"><head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.433">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<title>guide-R - 36&nbsp; Analyse factorielle</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../analyses_avancees/modeles-comptage.html" rel="next">
+<link href="../manipulation_avancee/transformations-multiples.html" rel="prev">
+<link href="../ressources/favicon.png" rel="icon" type="image/png">
+<script src="../site_libs/cookie-consent/cookie-consent.js"></script>
+<link href="../site_libs/cookie-consent/cookie-consent.css" rel="stylesheet">
+<script src="../site_libs/quarto-html/quarto.js"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script src="../site_libs/quarto-contrib/glightbox/glightbox.min.js"></script>
+<link href="../site_libs/quarto-contrib/glightbox/glightbox.min.css" rel="stylesheet">
+<link href="../site_libs/quarto-contrib/glightbox/lightbox.css" rel="stylesheet"><script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "Pas de résultats",
+    "search-matching-documents-text": "documents trouvés",
+    "search-copy-link-title": "Copier le lien vers la recherche",
+    "search-hide-matches-text": "Cacher les correspondances additionnelles",
+    "search-more-match-text": "correspondance de plus dans ce document",
+    "search-more-matches-text": "correspondances de plus dans ce document",
+    "search-clear-button-title": "Effacer",
+    "search-detached-cancel-button-title": "Annuler",
+    "search-submit-button-title": "Envoyer",
+    "search-label": "Recherche"
+  }
+}</script><script async="" src="https://www.googletagmanager.com/gtag/js?id=G-8BT7D9P85Y"></script><script type="text/plain" cookie-consent="tracking">
+
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-8BT7D9P85Y', { 'anonymize_ip': true});
+</script><script type="text/javascript" charset="UTF-8">
+document.addEventListener('DOMContentLoaded', function () {
+cookieconsent.run({
+  "notice_banner_type":"simple",
+  "consent_type":"implied",
+  "palette":"light",
+  "language":"en",
+  "page_load_consent_levels":["strictly-necessary","functionality","tracking","targeting"],
+  "notice_banner_reject_button_hide":false,
+  "preferences_center_close_button_hide":false,
+  "website_name":""
+  });
+});
+</script><style>html{ scroll-behavior: smooth; }</style>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body class="nav-sidebar floating slimcontent">
+
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top"><nav class="quarto-secondary-nav"><div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Basculer la barre latérale" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../analyses_avancees/analyse-factorielle.html"><strong>Analyses avancées</strong></a></li><li class="breadcrumb-item"><a href="../analyses_avancees/analyse-factorielle.html"><span class="chapter-number">36</span>&nbsp; <span class="chapter-title">Analyse factorielle</span></a></li></ol></nav>
+      <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Basculer la barre latérale" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+      </a>
+      <button type="button" class="btn quarto-search-button" aria-label="" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav></header><!-- content --><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal sidebar-navigation floating overflow-auto"><div class="pt-lg-2 mt-2 text-left sidebar-header sidebar-header-stacked">
+      <a href="../index.html" class="sidebar-logo-link">
+      <img src="../ressources/typewriter.png" alt="" class="sidebar-logo py-0 d-lg-inline d-none"></a>
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../">guide-R</a> 
+        <div class="sidebar-tools-main tools-wide">
+    <a href="https://github.com/larmarange/guide-R/" rel="" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
+    <a href="../guide-R.pdf" rel="" title="Download PDF" class="quarto-navigation-tool px-1" aria-label="Download PDF"><i class="bi bi-file-pdf"></i></a>
+    <div class="dropdown">
+      <a href="" title="Share" id="quarto-navigation-tool-dropdown-0" class="quarto-navigation-tool dropdown-toggle px-1" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Share"><i class="bi bi-share"></i></a>
+      <ul class="dropdown-menu" aria-labelledby="quarto-navigation-tool-dropdown-0">
+<li>
+            <a class="dropdown-item sidebar-tools-main-item" href="https://twitter.com/intent/tweet?url=%7Curl%7C">
+              <i class="bi bi-bi-twitter pe-1"></i>
+            Twitter
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item sidebar-tools-main-item" href="https://www.facebook.com/sharer/sharer.php?u=%7Curl%7C">
+              <i class="bi bi-bi-facebook pe-1"></i>
+            Facebook
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item sidebar-tools-main-item" href="https://www.linkedin.com/sharing/share-offsite/?url=%7Curl%7C">
+              <i class="bi bi-bi-linkedin pe-1"></i>
+            LinkedIn
+            </a>
+          </li>
+      </ul>
+</div>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Recherche"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+<li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Préface</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true">
+ <span class="menu-text"><strong>Bases du langage</strong></span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true" aria-label="Basculer la section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">
+<li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../bases/packages.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Packages</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../bases/vecteurs.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Vecteurs</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../bases/listes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Listes</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../bases/tableaux_donnees.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Tableaux de données</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../bases/tibbles.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Tibbles</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../bases/attributs.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Attributs</span></span></a>
+  </div>
+</li>
+      </ul>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="true">
+ <span class="menu-text"><strong>Manipulation de données</strong></span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="true" aria-label="Basculer la section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">
+<li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../manipulation/pipe.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Le pipe</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../manipulation/dplyr.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title"><code>dplyr</code></span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../manipulation/facteurs.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Facteurs et <code>forcats</code></span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../manipulation/combiner-variables.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Combiner plusieurs variables</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../manipulation/etiquettes-variables.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Étiquettes de variables</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../manipulation/etiquettes-valeurs.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Étiquettes de valeurs</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../manipulation/valeurs-manquantes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Valeurs manquantes</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../manipulation/import-export.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Import &amp; Export de données</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../manipulation/formater-nombre.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Mettre en forme des nombres</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../manipulation/couleurs.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Couleurs &amp; Palettes</span></span></a>
+  </div>
+</li>
+      </ul>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" aria-expanded="true">
+ <span class="menu-text"><strong>Analyses</strong></span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" aria-expanded="true" aria-label="Basculer la section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">
+<li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses/ggplot2.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Graphiques avec <code>ggplot2</code></span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses/statistique-univariee.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Statistique univariée &amp; Intervalles de confiance</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses/statistique-bivariee.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Statistique bivariée &amp; Tests de comparaison</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses/likert.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Échelles de Likert</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses/regression-lineaire.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Régression linéaire</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses/regression-logistique-binaire.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Régression logistique binaire</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses/estimations-marginales.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">23</span>&nbsp; <span class="chapter-title">Prédictions marginales, contrastes marginaux &amp; effets marginaux</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses/contrastes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">24</span>&nbsp; <span class="chapter-title">Contrastes (variables catégorielles)</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses/interactions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">25</span>&nbsp; <span class="chapter-title">Interactions</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses/multicolinearite.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">26</span>&nbsp; <span class="chapter-title">Multicolinéarité</span></span></a>
+  </div>
+</li>
+      </ul>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" aria-expanded="true">
+ <span class="menu-text"><strong>Données pondérées avec <code>survey</code></strong></span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" aria-expanded="true" aria-label="Basculer la section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">
+<li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../donnees_ponderees/plan-echantillonnage.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">27</span>&nbsp; <span class="chapter-title">Définir un plan d’échantillonnage</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../donnees_ponderees/manipulation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">28</span>&nbsp; <span class="chapter-title">Manipulation de données pondérées</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../donnees_ponderees/analyses-bivariees.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">29</span>&nbsp; <span class="chapter-title">Analyses uni- et bivariées pondérées</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../donnees_ponderees/graphiques-ponderes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">30</span>&nbsp; <span class="chapter-title">Graphiques pondérés</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../donnees_ponderees/regression-logistique-binaire-ponderee.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">31</span>&nbsp; <span class="chapter-title">Régression logistique binaire pondérée</span></span></a>
+  </div>
+</li>
+      </ul>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" aria-expanded="true">
+ <span class="menu-text"><strong>Manipulation avancée</strong></span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" aria-expanded="true" aria-label="Basculer la section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">
+<li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../manipulation_avancee/fusion_tables.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">32</span>&nbsp; <span class="chapter-title">Fusion de tables</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../manipulation_avancee/dates.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">33</span>&nbsp; <span class="chapter-title">Dates avec <code>lubridate</code></span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../manipulation_avancee/tidyr.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">34</span>&nbsp; <span class="chapter-title">Réorganisation avec <code>tidyr</code></span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../manipulation_avancee/transformations-multiples.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">35</span>&nbsp; <span class="chapter-title">Transformations multiples</span></span></a>
+  </div>
+</li>
+      </ul>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" aria-expanded="true">
+ <span class="menu-text"><strong>Analyses avancées</strong></span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" aria-expanded="true" aria-label="Basculer la section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 show">
+<li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses_avancees/analyse-factorielle.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">36</span>&nbsp; <span class="chapter-title">Analyse factorielle</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses_avancees/modeles-comptage.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">37</span>&nbsp; <span class="chapter-title">Modèles de comptage (Poisson &amp; apparentés)</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses_avancees/modeles-incidence.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">38</span>&nbsp; <span class="chapter-title">Modèles d’incidence / de taux</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses_avancees/modeles-zero-inflated.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">39</span>&nbsp; <span class="chapter-title">Modèles de comptage <em>zero-inflated</em> et <em>hurdle</em></span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses_avancees/choix-modele.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">40</span>&nbsp; <span class="chapter-title">Quel modèle choisir&nbsp;?</span></span></a>
+  </div>
+</li>
+      </ul>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" aria-expanded="true">
+ <span class="menu-text"><strong>Pour aller plus loin</strong></span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" aria-expanded="true" aria-label="Basculer la section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth1 show">
+<li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../extra/ressources-documentaires.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">41</span>&nbsp; <span class="chapter-title">Ressources documentaires</span></span></a>
+  </div>
+</li>
+      </ul>
+</li>
+    </ul>
+</div>
+</nav><div id="quarto-sidebar-glass" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active"><h2 id="toc-title">Table des matières</h2>
+   
+  <ul>
+<li><a href="#principe-g%C3%A9n%C3%A9ral" id="toc-principe-général" class="nav-link active" data-scroll-target="#principe-g%C3%A9n%C3%A9ral"><span class="header-section-number">36.1</span> Principe général</a></li>
+  <li>
+<a href="#premi%C3%A8re-illustration-acm-sur-les-loisirs" id="toc-première-illustration-acm-sur-les-loisirs" class="nav-link" data-scroll-target="#premi%C3%A8re-illustration-acm-sur-les-loisirs"><span class="header-section-number">36.2</span> Première illustration&nbsp;: ACM sur les loisirs</a>
+  <ul class="collapse">
+<li><a href="#calcul-de-lacm" id="toc-calcul-de-lacm" class="nav-link" data-scroll-target="#calcul-de-lacm"><span class="header-section-number">36.2.1</span> Calcul de l’ACM</a></li>
+  <li><a href="#exploration-graphique-interactive" id="toc-exploration-graphique-interactive" class="nav-link" data-scroll-target="#exploration-graphique-interactive"><span class="header-section-number">36.2.2</span> Exploration graphique interactive</a></li>
+  <li><a href="#repr%C3%A9sentations-graphiques" id="toc-représentations-graphiques" class="nav-link" data-scroll-target="#repr%C3%A9sentations-graphiques"><span class="header-section-number">36.2.3</span> Représentations graphiques</a></li>
+  <li><a href="#variance-expliqu%C3%A9e-et-valeurs-propres" id="toc-variance-expliquée-et-valeurs-propres" class="nav-link" data-scroll-target="#variance-expliqu%C3%A9e-et-valeurs-propres"><span class="header-section-number">36.2.4</span> Variance expliquée et valeurs propres</a></li>
+  <li><a href="#contribution-aux-axes" id="toc-contribution-aux-axes" class="nav-link" data-scroll-target="#contribution-aux-axes"><span class="header-section-number">36.2.5</span> Contribution aux axes</a></li>
+  <li><a href="#repr%C3%A9sentation-des-modalit%C3%A9s-dans-le-plan-factoriel" id="toc-représentation-des-modalités-dans-le-plan-factoriel" class="nav-link" data-scroll-target="#repr%C3%A9sentation-des-modalit%C3%A9s-dans-le-plan-factoriel"><span class="header-section-number">36.2.6</span> Représentation des modalités dans le plan factoriel</a></li>
+  <li><a href="#repr%C3%A9sentation-des-individus-dans-le-plan-factoriel" id="toc-représentation-des-individus-dans-le-plan-factoriel" class="nav-link" data-scroll-target="#repr%C3%A9sentation-des-individus-dans-le-plan-factoriel"><span class="header-section-number">36.2.7</span> Représentation des individus dans le plan factoriel</a></li>
+  <li><a href="#r%C3%A9cup%C3%A9rer-les-coordonn%C3%A9es-des-individus-des-variables" id="toc-récupérer-les-coordonnées-des-individus-des-variables" class="nav-link" data-scroll-target="#r%C3%A9cup%C3%A9rer-les-coordonn%C3%A9es-des-individus-des-variables"><span class="header-section-number">36.2.8</span> Récupérer les coordonnées des individus / des variables</a></li>
+  </ul>
+</li>
+  <li><a href="#ajout-de-variables-dobservations-additionnelles" id="toc-ajout-de-variables-dobservations-additionnelles" class="nav-link" data-scroll-target="#ajout-de-variables-dobservations-additionnelles"><span class="header-section-number">36.3</span> Ajout de variables / d’observations additionnelles</a></li>
+  <li><a href="#gestion-des-valeurs-manquantes" id="toc-gestion-des-valeurs-manquantes" class="nav-link" data-scroll-target="#gestion-des-valeurs-manquantes"><span class="header-section-number">36.4</span> Gestion des valeurs manquantes</a></li>
+  <li><a href="#webin-r" id="toc-webin-r" class="nav-link" data-scroll-target="#webin-r"><span class="header-section-number">36.5</span> webin-R</a></li>
+  <li><a href="#lectures-additionnelles" id="toc-lectures-additionnelles" class="nav-link" data-scroll-target="#lectures-additionnelles"><span class="header-section-number">36.6</span> Lectures additionnelles</a></li>
+  </ul><div class="toc-actions"><div><i class="bi bi-github"></i></div><div class="action-links"><p><a href="https://github.com/larmarange/guide-R/blob/main/analyses_avancees/analyse-factorielle.qmd" class="toc-action">Voir la source</a></p><p><a href="https://github.com/larmarange/guide-R/issues/new" class="toc-action">Faire part d'un problème</a></p></div></div></nav>
+    </div>
+<!-- main -->
+<main class="content page-columns page-full" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block default"><div class="quarto-title">
+<h1 class="title"><span id="sec-analyse-factorielle" class="quarto-section-identifier"><span class="chapter-number">36</span>&nbsp; <span class="chapter-title">Analyse factorielle</span></span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+</header><p>Il existe plusieurs techniques d’analyse factorielle dont les plus courantes sont l’<em>analyse en composante principale</em> (ACP) portant sur des variables quantitatives, l’<em>analyse factorielle des correspondances</em> (AFC) portant sur deux variables qualitatives et l’<em>analyse des correspondances multiples</em> (ACM) portant sur plusieurs variables qualitatives (il s’agit d’une extension de l’AFC). Pour combiner des variables à la fois quantitatives et qualitatives, on pourra avoir recours à l’<em>analyse factorielle avec données mixtes</em>.</p>
+<div class="page-columns page-full"><p>Bien que ces techniques soient disponibles dans les extensions standards de <strong>R</strong>, il est souvent préférable d’avoir recours à deux autres packages plus complets, <a href="http://pbil.univ-lyon1.fr/ADE-4/">ade4</a> et <a href="http://factominer.free.fr">FactoMineR</a>, chacun ayant ses avantages et des possibilités différentes<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>. Voici les fonctions à retenir&nbsp;:</p><div class="no-row-height column-margin column-container"><li id="fn1"><p><sup>1</sup>&nbsp;Ces deux packages sont très complets et il est difficile de privilégier l’un par rapport à l’autre. Tous deux sont activement maintenus et bénéficient d’une documentation complète. À titre personnel, j’aurai peut être une petite préférence pour <a href="http://pbil.univ-lyon1.fr/ADE-4/">ade4</a>. En effet, <a href="http://factominer.free.fr">FactoMineR</a> a une tendance à réaliser toutes les étapes de l’analyse en un seul appel de fonction, là où <a href="http://pbil.univ-lyon1.fr/ADE-4/">ade4</a> nécessitera quelques étapes supplémentaires. Or, ce qui pourrait être vu comme un inconvénient permet à l’inverse d’avoir une meilleure <q>conscience</q> de ce que l’on fait. À l’inverse, les options graphiques offertes par <a href="http://www.sthda.com/english/rpkgs/factoextra">factoextra</a> sont plus nombreuses quand l’analyse factorielle a été réalisée avec <a href="http://factominer.free.fr">FactoMineR</a>. Enfin, nous le verrons plus loin, la gestion de variables additionnelles est bien plus facile avec <a href="http://factominer.free.fr">FactoMineR</a>.</p></li></div></div>
+<table class="table">
+<colgroup>
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+</colgroup>
+<thead><tr class="header">
+<th style="text-align: left;">Analyse</th>
+<th style="text-align: left;">Variables</th>
+<th style="text-align: center;">Fonction standard</th>
+<th style="text-align: center;">Fonction <a href="http://pbil.univ-lyon1.fr/ADE-4/">ade4</a>
+</th>
+<th style="text-align: center;">Fonctions <a href="http://factominer.free.fr">FactoMineR</a>
+</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">ACP</td>
+<td style="text-align: left;">plusieurs variables quantitatives</td>
+<td style="text-align: center;"><code><a href="https://rdrr.io/r/stats/princomp.html">stats::princomp()</a></code></td>
+<td style="text-align: center;"><code><a href="https://rdrr.io/pkg/ade4/man/dudi.pca.html">ade4::dudi.pca()</a></code></td>
+<td style="text-align: center;"><code><a href="https://rdrr.io/pkg/FactoMineR/man/PCA.html">FactoMineR::PCA()</a></code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">AFC</td>
+<td style="text-align: left;">deux variables qualitatives</td>
+<td style="text-align: center;"><code><a href="https://rdrr.io/pkg/MASS/man/corresp.html">MASS::corresp()</a></code></td>
+<td style="text-align: center;"><code><a href="https://rdrr.io/pkg/ade4/man/dudi.coa.html">ade4::dudi.coa()</a></code></td>
+<td style="text-align: center;"><code><a href="https://rdrr.io/pkg/FactoMineR/man/CA.html">FactoMineR::CA()</a></code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">ACM</td>
+<td style="text-align: left;">plusieurs variables qualitatives</td>
+<td style="text-align: center;"><code><a href="https://rdrr.io/pkg/MASS/man/mca.html">MASS::mca()</a></code></td>
+<td style="text-align: center;"><code><a href="https://rdrr.io/pkg/ade4/man/dudi.acm.html">ade4::dudi.acm()</a></code></td>
+<td style="text-align: center;"><code><a href="https://rdrr.io/pkg/FactoMineR/man/MCA.html">FactoMineR::MCA()</a></code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Analyse mixte</td>
+<td style="text-align: left;">plusieurs variables quantitatives et/ou qualitatives</td>
+<td style="text-align: center;">—</td>
+<td style="text-align: center;"><code><a href="https://rdrr.io/pkg/ade4/man/dudi.mix.html">ade4::dudi.mix()</a></code></td>
+<td style="text-align: center;"><code><a href="https://rdrr.io/pkg/FactoMineR/man/FAMD.html">FactoMineR::FAMD()</a></code></td>
+</tr>
+</tbody>
+</table>
+<p>Notons que l’extension <code>{GDATools}</code> propose une variation de l’ACM permettant de <q>neutraliser</q> tout en conservant les valeurs manquantes&nbsp;: on parle alors d’<em>Analyse des correspondances multiples spécifique</em> qui se calcule avec la fonction <code><a href="https://nicolas-robette.github.io/GDAtools/reference/speMCA.html">GDAtools::speMCA()</a></code>.</p>
+<p>Le package <a href="http://factominer.free.fr">FactoMineR</a> propose également deux variantes avancées&nbsp;: l’<em>analyse factorielle multiple</em> permettant d’organiser les variables en groupes (fonction <code><a href="https://rdrr.io/pkg/FactoMineR/man/MFA.html">FactoMineR::MFA()</a></code>) et l’<em>analyse factorielle multiple hiérarchique</em> (fonction <code><a href="https://rdrr.io/pkg/FactoMineR/man/MFA.html">FactoMineR::MFA()</a></code>).</p>
+<p>Deux autres packages nous seront particulièrement utiles dans ce chapitre&nbsp;: <a href="https://juba.github.io/explor/">explor</a> pour une exploration visuelle interactive des résultats et <a href="http://www.sthda.com/english/rpkgs/factoextra">factoextra</a> pour diverses représentations graphiques.</p>
+<section id="principe-général" class="level2" data-number="36.1"><h2 data-number="36.1" class="anchored" data-anchor-id="principe-général">
+<span class="header-section-number">36.1</span> Principe général</h2>
+<p>L’analyse des correspondances multiples est une technique descriptive visant à résumer l’information contenu dans un grand nombre de variables afin de faciliter l’interprétation des corrélations existantes entre ces différentes variables. On cherche à savoir quelles sont les modalités corrélées entre elles.</p>
+<p>L’idée générale est la suivante. L’ensemble des individus peut être représenté dans un espace à plusieurs dimensions où chaque axe représente les différentes variables utilisées pour décrire chaque individu. Plus précisément, pour chaque variable qualitative, il y a autant d’axes que de modalités moins un. Ainsi il faut trois axes pour décrire une variable à quatre modalités. Un tel nuage de points est aussi difficile à interpréter que de lire directement le fichier de données. On ne voit pas les corrélations qu’il peut y avoir entre modalités, par exemple qu’aller au cinéma est plus fréquent chez les personnes habitant en milieu urbain. Afin de mieux représenter ce nuage de points, on va procéder à un changement de systèmes de coordonnées. Les individus seront dès lors projetés et représentés sur un nouveau système d’axe. Ce nouveau système d’axes est choisis de telle manière que la majorité des variations soit concentrées sur les premiers axes. Les deux-trois premiers axes permettront d’expliquer la majorité des différences observées dans l’échantillon, les autres axes n’apportant qu’une faible part additionnelle d’information. Dès lors, l’analyse pourra se concentrer sur ses premiers axes qui constitueront un bon résumé des variations observables dans l’échantillon.</p>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Important
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Avant toute analyse factorielle, il est indispensable de réaliser une analyse préliminaire de chaque variable, afin de voir si toutes les classes sont aussi bien représentées ou s’il existe un déséquilibre. L’analyse factorielle est sensible aux petits effectifs. Aussi il peut être préférable de regrouper les classes peu représentées le cas échéant.</p>
+<p>De même, il peut être tentant de mettre toutes les variables disponibles dans son jeu de données directement dans une analyse factorielle pour <q>voir ce que ça donne</q>. Il est préférable de réfléchir en amont aux questions que l’on veut poser et de choisir ensuite un jeu de variables en fonction.</p>
+</div>
+</div>
+</section><section id="première-illustration-acm-sur-les-loisirs" class="level2 page-columns page-full" data-number="36.2"><h2 data-number="36.2" class="anchored" data-anchor-id="première-illustration-acm-sur-les-loisirs">
+<span class="header-section-number">36.2</span> Première illustration&nbsp;: ACM sur les loisirs</h2>
+<p>Pour ce premier exemple, nous allons considérer le jeu de données <code>hdv2003</code> fourni dans le package <a href="https://juba.github.io/questionr/">questionr</a> et correspondant à un extrait de l’enquête <em>Histoire de Vie</em> réalisée par l’Insee en 2003.</p>
+<p>Nous allons considérer 7 variables binaires (oui/non) portant sur la pratique de différents loisirs (écouter du hard rock, lire des bandes dessinées, pratiquer la pêche ou la chasse, cuisiner, bricoler ou pratiquer un sport). Pour le moment, nous n’allons pas intégrer à l’analyse de variable socio-démographique, car nous souhaitons explorer comment ces activités se corrèlent entre elles, indépendamment de toute autre considération.</p>
+<p>Notons, avec <code><a href="https://juba.github.io/questionr/reference/freq.na.html">questionr::freq.na()</a></code> ou avec <code><a href="https://larmarange.github.io/labelled/reference/look_for.html">labelled::look_for()</a></code>, qu’il n’y a pas de valeurs manquantes dans nos données.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-2"><a href="#cb1-2"></a><span class="fu">data</span>(<span class="st">"hdv2003"</span>, <span class="at">package =</span> <span class="st">"questionr"</span>)</span>
+<span id="cb1-3"><a href="#cb1-3"></a>d <span class="ot">&lt;-</span> hdv2003 <span class="sc">|&gt;</span> </span>
+<span id="cb1-4"><a href="#cb1-4"></a>  <span class="fu">select</span>(hard.rock<span class="sc">:</span>sport)</span>
+<span id="cb1-5"><a href="#cb1-5"></a>d <span class="sc">|&gt;</span> questionr<span class="sc">::</span><span class="fu">freq.na</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>             missing %
+hard.rock          0 0
+lecture.bd         0 0
+peche.chasse       0 0
+cuisine            0 0
+bricol             0 0
+cinema             0 0
+sport              0 0</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a>d <span class="sc">|&gt;</span> labelled<span class="sc">::</span><span class="fu">look_for</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> pos variable     label col_type missing values
+ 1   hard.rock    —     fct      0       Non   
+                                         Oui   
+ 2   lecture.bd   —     fct      0       Non   
+                                         Oui   
+ 3   peche.chasse —     fct      0       Non   
+                                         Oui   
+ 4   cuisine      —     fct      0       Non   
+                                         Oui   
+ 5   bricol       —     fct      0       Non   
+                                         Oui   
+ 6   cinema       —     fct      0       Non   
+                                         Oui   
+ 7   sport        —     fct      0       Non   
+                                         Oui   </code></pre>
+</div>
+</div>
+<p>Comme l’ensemble de nos variables sont catégorielles nous allons réaliser une analyse des correspondances multiples (ACM).</p>
+<section id="calcul-de-lacm" class="level3" data-number="36.2.1"><h3 data-number="36.2.1" class="anchored" data-anchor-id="calcul-de-lacm">
+<span class="header-section-number">36.2.1</span> Calcul de l’ACM</h3>
+<p>Avec <a href="http://pbil.univ-lyon1.fr/ADE-4/">ade4</a>, l’ACM s’obtient à l’aide la fonction <code><a href="https://rdrr.io/pkg/ade4/man/dudi.acm.html">ade4::dudi.acm()</a></code>. Par défaut, si l’on exécute seulement <code>ade4::dudi.acm(d)</code>, la fonction va afficher un graphique indiquant la variance expliquée par chaque axe et une invite dans la console va demander le nombre d’axes à conserver pour l’analyse. Une invite de commande n’est pas vraiment adaptée dans le cadre d’un script que l’on souhaite pouvoir exécuter car cela implique une intervention manuelle. On pourra désactiver cette invitation avec <code>scannf = FALSE</code> et indiquer le nombre d’axes à conserver avec l’argument <code>nf</code> (<code>nf = Inf</code> permet de conserver l’ensemble des axes).</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a>acm1_ad <span class="ot">&lt;-</span> d <span class="sc">|&gt;</span></span>
+<span id="cb5-2"><a href="#cb5-2"></a>  ade4<span class="sc">::</span><span class="fu">dudi.acm</span>(<span class="at">scannf =</span> <span class="cn">FALSE</span>, <span class="at">nf =</span> <span class="cn">Inf</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Avec <a href="http://factominer.free.fr">FactoMineR</a>, l’ACM s’obtient avec <code><a href="https://rdrr.io/pkg/FactoMineR/man/MCA.html">FactoMineR::MCA()</a></code>. Par défaut, seuls les 5 premiers axes sont conservés, ce qui est modifiable avec l’argument <code>ncp</code>. De plus, la fonction affiche par défaut un graphique des résultats avant de renvoyer les résultats de l’ACM. Ce graphique peut être désactivé avec <code>graph = FALSE</code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a>acm1_fm <span class="ot">&lt;-</span> d <span class="sc">|&gt;</span> </span>
+<span id="cb6-2"><a href="#cb6-2"></a>  FactoMineR<span class="sc">::</span><span class="fu">MCA</span>(<span class="at">ncp =</span> <span class="cn">Inf</span>, <span class="at">graph =</span> <span class="cn">FALSE</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Les deux ACM sont ici identiques. Par contre, les deux objets renvoyés ne sont pas structurés de la même manière.</p>
+</section><section id="exploration-graphique-interactive" class="level3 page-columns page-full" data-number="36.2.2"><h3 data-number="36.2.2" class="anchored" data-anchor-id="exploration-graphique-interactive">
+<span class="header-section-number">36.2.2</span> Exploration graphique interactive</h3>
+<p>Le package <a href="https://juba.github.io/explor/">explor</a> permets d’explorer les résultats de manière interactive. Il fonctionne à la fois avec les analyses factorielles produites avec <a href="http://factominer.free.fr">FactoMineR</a> et celles réalisées avec <a href="http://pbil.univ-lyon1.fr/ADE-4/">ade4</a>.</p>
+<p>Pour lancer l’exploration interactive, il suffit de passer les résultats de l’ACM à la fonction <code><a href="https://juba.github.io/explor/reference/explor.html">explor::explor()</a></code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a>acm1_ad <span class="sc">|&gt;</span> explor<span class="sc">::</span><span class="fu">explor</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="fig-explor-screencast" class="quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="figure page-columns page-full"><p><a href="../analyses_avancees/ressources/explor_screencast.gif" class="lightbox" title="Capture d’écran de l’interface d’explor" data-gallery="quarto-lightbox-gallery-11"><img src="..\analyses_avancees/ressources/explor_screencast.gif" class="img-fluid figure-img"></a></p>
+<figcaption class="figure-caption margin-caption">Figure&nbsp;36.1: Capture d’écran de l’interface d’<code>explor</code></figcaption></figure>
+</div>
+<p>Les graphiques réalisés avec <code><a href="https://juba.github.io/explor/reference/explor.html">explor::explor()</a></code> peuvent être exportés en fichier image SVG (via le bouton dédié en bas à gauche dans l’interface). De même, il est possible d’obtenir un code <strong>R</strong> que l’on pourra copier dans un script pour reproduire le graphique (<strong>ATTENTION :</strong> le graphique produit est interactif et donc utilisable uniquement dans document web).</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a>res <span class="ot">&lt;-</span> explor<span class="sc">::</span><span class="fu">prepare_results</span>(acm1_ad)</span>
+<span id="cb8-2"><a href="#cb8-2"></a>p <span class="ot">&lt;-</span> explor<span class="sc">::</span><span class="fu">MCA_var_plot</span>(</span>
+<span id="cb8-3"><a href="#cb8-3"></a>  res,</span>
+<span id="cb8-4"><a href="#cb8-4"></a>  <span class="at">xax =</span> <span class="dv">1</span>,</span>
+<span id="cb8-5"><a href="#cb8-5"></a>  <span class="at">yax =</span> <span class="dv">2</span>,</span>
+<span id="cb8-6"><a href="#cb8-6"></a>  <span class="at">var_sup =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb8-7"><a href="#cb8-7"></a>  <span class="at">var_sup_choice =</span> ,</span>
+<span id="cb8-8"><a href="#cb8-8"></a>  <span class="at">var_lab_min_contrib =</span> <span class="dv">0</span>,</span>
+<span id="cb8-9"><a href="#cb8-9"></a>  <span class="at">col_var =</span> <span class="st">"Variable"</span>,</span>
+<span id="cb8-10"><a href="#cb8-10"></a>  <span class="at">symbol_var =</span> <span class="st">"Variable"</span>,</span>
+<span id="cb8-11"><a href="#cb8-11"></a>  <span class="at">size_var =</span> <span class="st">"Contrib"</span>,</span>
+<span id="cb8-12"><a href="#cb8-12"></a>  <span class="at">size_range =</span> <span class="fu">c</span>(<span class="fl">52.5</span>, <span class="dv">700</span>),</span>
+<span id="cb8-13"><a href="#cb8-13"></a>  <span class="at">labels_size =</span> <span class="dv">12</span>,</span>
+<span id="cb8-14"><a href="#cb8-14"></a>  <span class="at">point_size =</span> <span class="dv">56</span>,</span>
+<span id="cb8-15"><a href="#cb8-15"></a>  <span class="at">transitions =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb8-16"><a href="#cb8-16"></a>  <span class="at">labels_positions =</span> <span class="st">"auto"</span>,</span>
+<span id="cb8-17"><a href="#cb8-17"></a>  <span class="at">labels_prepend_var =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb8-18"><a href="#cb8-18"></a>  <span class="at">xlim =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="fl">2.58</span>, <span class="fl">1.69</span>),</span>
+<span id="cb8-19"><a href="#cb8-19"></a>  <span class="at">ylim =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="fl">1.33</span>, <span class="fl">2.94</span>)</span>
+<span id="cb8-20"><a href="#cb8-20"></a>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="quarto-figure quarto-figure-center page-columns page-full">
+<figure class="figure page-columns page-full"><p><a href="ressources/export_graph_explor.png" class="lightbox" title="Exemple de figure exportée à partir de explor" data-gallery="quarto-lightbox-gallery-1"><img src="ressources/export_graph_explor.png" class="img-fluid figure-img"></a></p>
+<figcaption class="figure-caption margin-caption">Exemple de figure exportée à partir de explor</figcaption></figure>
+</div>
+</section><section id="représentations-graphiques" class="level3" data-number="36.2.3"><h3 data-number="36.2.3" class="anchored" data-anchor-id="représentations-graphiques">
+<span class="header-section-number">36.2.3</span> Représentations graphiques</h3>
+<p>À la fois <a href="http://pbil.univ-lyon1.fr/ADE-4/">ade4</a> et <a href="http://factominer.free.fr">FactoMineR</a> disposent de leurs propres fonctions graphiques dédiées. Elles sont cependant spécifiques à chaque package. Les fonctions graphiques de <a href="http://pbil.univ-lyon1.fr/ADE-4/">ade4</a> ne peuvent pas être utilisées avec un objet <a href="http://factominer.free.fr">FactoMineR</a> et inversement.</p>
+<p>Le package <a href="http://www.sthda.com/english/rpkgs/factoextra">factoextra</a> permet de palier à ce problème. Ces fonctions graphiques sont en effet compatibles avec les deux packages et reposent sur <a href="https://ggplot2.tidyverse.org">ggplot2</a>, ce qui permet facilement de personnaliser les graphiques obtenus.</p>
+</section><section id="variance-expliquée-et-valeurs-propres" class="level3 page-columns page-full" data-number="36.2.4"><h3 data-number="36.2.4" class="anchored" data-anchor-id="variance-expliquée-et-valeurs-propres">
+<span class="header-section-number">36.2.4</span> Variance expliquée et valeurs propres</h3>
+<p>Les <q>valeurs propres</q> (<em>eigen values</em> en anglais) correspondent à la quantité de variance capturée par chaque axe (on parle également d’inertie). On peut les obtenir aisément avec la fonction <code><a href="https://rdrr.io/pkg/factoextra/man/eigenvalue.html">factoextra::get_eigenvalue()</a></code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a>acm1_ad <span class="sc">|&gt;</span></span>
+<span id="cb9-2"><a href="#cb9-2"></a>  factoextra<span class="sc">::</span><span class="fu">get_eigenvalue</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>      eigenvalue variance.percent cumulative.variance.percent
+Dim.1  0.2121854         21.21854                    21.21854
+Dim.2  0.1542803         15.42803                    36.64657
+Dim.3  0.1468192         14.68192                    51.32849
+Dim.4  0.1387719         13.87719                    65.20568
+Dim.5  0.1349671         13.49671                    78.70239
+Dim.6  0.1192865         11.92865                    90.63104
+Dim.7  0.0936896          9.36896                   100.00000</code></pre>
+</div>
+</div>
+<p>On notera que les axes sont ordonnées en fonction de la quantité de variation qu’ils capturent. Le premier axe est toujours celui qui capture le plus de variance, suivi du deuxième, etc.</p>
+<p>La somme totale des valeurs propres indique la variation totale des données. Souvent, les valeurs propres sont exprimées en pourcentage du total. Dans notre exemple, l’axe 1 capture 21,2&nbsp;% de la variance et l’axe 2 en capture 15,4&nbsp;%. Ainsi, le plan factoriel composé des deux premiers axes permet de capturer à lui seul plus du tiers (36,6&nbsp;%) de la variance totale.</p>
+<p>Une représentation graphique des valeurs propres s’obtient avec <code><a href="https://rdrr.io/pkg/factoextra/man/eigenvalue.html">factoextra::fviz_screeplot()</a></code>.</p>
+<div class="cell page-columns page-full">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a>acm1_ad <span class="sc">|&gt;</span></span>
+<span id="cb11-2"><a href="#cb11-2"></a>  factoextra<span class="sc">::</span><span class="fu">fviz_screeplot</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display page-columns page-full">
+<div id="fig-fviz_screeplot" class="quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="figure page-columns page-full"><p><a href="analyse-factorielle_files/figure-html/fig-fviz_screeplot-1.png" class="lightbox" title="Représentation graphique de la variance expliquée par les différents axes de l’ACM" data-gallery="quarto-lightbox-gallery-2"><img src="analyse-factorielle_files/figure-html/fig-fviz_screeplot-1.png" class="img-fluid figure-img" width="672"></a></p>
+<figcaption class="figure-caption margin-caption">Figure&nbsp;36.2: Représentation graphique de la variance expliquée par les différents axes de l’ACM</figcaption></figure>
+</div>
+</div>
+</div>
+<p>Il n’y a pas de règle absolue concernant le nombre d’axes à explorer pour l’analyse et l’interprétation des résultats. L’objectif d’une analyse factorielle étant justement de réduire le nombre de dimension considérée pour ce concentrer sur les principales associations entre modalités, il est fréquent de se limiter aux deux premiers ou aux trois premiers axes.</p>
+<p>Une approche fréquente consiste à regarder s’il y a un <q>coude</q>, un saut plus marqué qu’un autre dans le graphique des valeurs propres. Dans notre exemple, qui ne comporte qu’un petit nombre de variable, on voit un saut marqué entre le premier axe et les autres, suggérant de se focaliser en particulier sur ce premier axe.</p>
+</section><section id="contribution-aux-axes" class="level3 page-columns page-full" data-number="36.2.5"><h3 data-number="36.2.5" class="anchored" data-anchor-id="contribution-aux-axes">
+<span class="header-section-number">36.2.5</span> Contribution aux axes</h3>
+<p>La fonction <code><a href="https://rdrr.io/pkg/factoextra/man/fviz_contrib.html">factoextra::fviz_contrib()</a></code> permet de visualiser la contribution des différentes modalités à un axe donnée. Regardons le premier axe.</p>
+<div class="cell page-columns page-full">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a>acm1_ad <span class="sc">|&gt;</span></span>
+<span id="cb12-2"><a href="#cb12-2"></a>  factoextra<span class="sc">::</span><span class="fu">fviz_contrib</span>(<span class="at">choice =</span> <span class="st">"var"</span>, <span class="at">axes =</span> <span class="dv">1</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display page-columns page-full">
+<div id="fig-fviz_contrib-axe1" class="quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="figure page-columns page-full"><p><a href="analyse-factorielle_files/figure-html/fig-fviz_contrib-axe1-1.png" class="lightbox" title="Contribution des modalités au premier axe" data-gallery="quarto-lightbox-gallery-3"><img src="analyse-factorielle_files/figure-html/fig-fviz_contrib-axe1-1.png" class="img-fluid figure-img" width="672"></a></p>
+<figcaption class="figure-caption margin-caption">Figure&nbsp;36.3: Contribution des modalités au premier axe</figcaption></figure>
+</div>
+</div>
+</div>
+<p>La ligne en pointillés rouges indique la contribution attendue de chaque modalité si la répartition était uniforme. Nous constatons ici que le premier axe est surtout déterminé par la pratique d’une activité sportive et le fait d’aller au cinéma.</p>
+<div class="cell page-columns page-full">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a>acm1_ad <span class="sc">|&gt;</span></span>
+<span id="cb13-2"><a href="#cb13-2"></a>  factoextra<span class="sc">::</span><span class="fu">fviz_contrib</span>(<span class="at">choice =</span> <span class="st">"var"</span>, <span class="at">axes =</span> <span class="dv">2</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display page-columns page-full">
+<div id="fig-fviz_contrib-axe2" class="quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="figure page-columns page-full"><p><a href="analyse-factorielle_files/figure-html/fig-fviz_contrib-axe2-1.png" class="lightbox" title="Contribution des modalités au deuxième axe" data-gallery="quarto-lightbox-gallery-4"><img src="analyse-factorielle_files/figure-html/fig-fviz_contrib-axe2-1.png" class="img-fluid figure-img" width="672"></a></p>
+<figcaption class="figure-caption margin-caption">Figure&nbsp;36.4: Contribution des modalités au deuxième axe</figcaption></figure>
+</div>
+</div>
+</div>
+<p>Le deuxième axe, quant à lui, est surtout marqué par la pratique de la pêche ou de la chasse et, dans une moindre mesure, par le fait de bricoler.</p>
+</section><section id="représentation-des-modalités-dans-le-plan-factoriel" class="level3 page-columns page-full" data-number="36.2.6"><h3 data-number="36.2.6" class="anchored" data-anchor-id="représentation-des-modalités-dans-le-plan-factoriel">
+<span class="header-section-number">36.2.6</span> Représentation des modalités dans le plan factoriel</h3>
+<div class="page-columns page-full"><p>Pour représenter les modalités dans le plan factoriel, on aura recours à <code><a href="https://rdrr.io/pkg/factoextra/man/fviz_mca.html">factoextra::fviz_mca_var()</a></code><a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a>.</p><div class="no-row-height column-margin column-container"><li id="fn2"><p><sup>2</sup>&nbsp;En termes de visualisation, c’est moins ergonomique que ce que propose <a href="https://juba.github.io/explor/">explor</a>. On aura donc tout intérêt à profiter de ce dernier. Si l’on a réalisé un autre type d’analyse factorielle, il faudra choisir la fonction correspondante, par exemple <code><a href="https://rdrr.io/pkg/factoextra/man/fviz_famd.html">factoextra::fviz_famd_var()</a></code> pour une analyse sur données mixtes. La liste complète est visible sur le <a href="https://rpkgs.datanovia.com/factoextra/reference/index.html">site de documentation du package</a>.</p></li></div></div>
+<div class="cell page-columns page-full">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a>acm1_ad <span class="sc">|&gt;</span></span>
+<span id="cb14-2"><a href="#cb14-2"></a>  factoextra<span class="sc">::</span><span class="fu">fviz_mca_var</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display page-columns page-full">
+<div id="fig-fviz_mca_var" class="quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="figure page-columns page-full"><p><a href="analyse-factorielle_files/figure-html/fig-fviz_mca_var-1.png" class="lightbox" title="Projection des modalités dans le plan factoriel" data-gallery="quarto-lightbox-gallery-5"><img src="analyse-factorielle_files/figure-html/fig-fviz_mca_var-1.png" class="img-fluid figure-img" width="672"></a></p>
+<figcaption class="figure-caption margin-caption">Figure&nbsp;36.5: Projection des modalités dans le plan factoriel</figcaption></figure>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Si l’on réalise le même graphique à partir de l’ACM réalisée avec <a href="http://factominer.free.fr">FactoMineR</a>, nous aurons à première vue un résultat différent.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1"></a>acm1_fm <span class="sc">|&gt;</span></span>
+<span id="cb15-2"><a href="#cb15-2"></a>  factoextra<span class="sc">::</span><span class="fu">fviz_mca_var</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure"><p><a href="analyse-factorielle_files/figure-html/unnamed-chunk-11-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-12"><img src="analyse-factorielle_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid figure-img" width="672"></a></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Si l’on regarde plus attentivement, les valeurs sont inversées sur l’axe 1&nbsp;: les valeurs positives sont devenues négatives et inversement. Ceci est du à de légères différences dans les algorithmes de calcul des deux packages. Pour autant, les résultats sont bien strictement équivalents, le sens des axes n’ayant pas de signification en soi.</p>
+</div>
+</div>
+</section><section id="représentation-des-individus-dans-le-plan-factoriel" class="level3 page-columns page-full" data-number="36.2.7"><h3 data-number="36.2.7" class="anchored" data-anchor-id="représentation-des-individus-dans-le-plan-factoriel">
+<span class="header-section-number">36.2.7</span> Représentation des individus dans le plan factoriel</h3>
+<p>Pour projeter les individus (i.e.&nbsp;les observations) dans le plan factoriel, nous aurons recours à <code><a href="https://rdrr.io/pkg/factoextra/man/fviz_mca.html">factoextra::fviz_mca_ind()</a></code>.</p>
+<div class="cell page-columns page-full">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1"></a>acm1_ad <span class="sc">|&gt;</span></span>
+<span id="cb16-2"><a href="#cb16-2"></a>  factoextra<span class="sc">::</span><span class="fu">fviz_mca_ind</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display page-columns page-full">
+<div id="fig-fviz_mca_ind" class="quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="figure page-columns page-full"><p><a href="analyse-factorielle_files/figure-html/fig-fviz_mca_ind-1.png" class="lightbox" title="Projection des individus dans le plan factoriel" data-gallery="quarto-lightbox-gallery-6"><img src="analyse-factorielle_files/figure-html/fig-fviz_mca_ind-1.png" class="img-fluid figure-img" width="672"></a></p>
+<figcaption class="figure-caption margin-caption">Figure&nbsp;36.6: Projection des individus dans le plan factoriel</figcaption></figure>
+</div>
+</div>
+</div>
+<p>Le graphique sera un peu plus lisible en n’affichant que les points avec un effet de transparence (pour les points superposés).</p>
+<div class="cell page-columns page-full">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1"></a>acm1_ad <span class="sc">|&gt;</span></span>
+<span id="cb17-2"><a href="#cb17-2"></a>  factoextra<span class="sc">::</span><span class="fu">fviz_mca_ind</span>(</span>
+<span id="cb17-3"><a href="#cb17-3"></a>    <span class="at">geom.ind =</span> <span class="st">"point"</span>,</span>
+<span id="cb17-4"><a href="#cb17-4"></a>    <span class="at">alpha.ind =</span> <span class="fl">0.1</span></span>
+<span id="cb17-5"><a href="#cb17-5"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display page-columns page-full">
+<div id="fig-fviz_mca_ind2" class="quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="figure page-columns page-full"><p><a href="analyse-factorielle_files/figure-html/fig-fviz_mca_ind2-1.png" class="lightbox" title="Projection des individus dans le plan factoriel" data-gallery="quarto-lightbox-gallery-7"><img src="analyse-factorielle_files/figure-html/fig-fviz_mca_ind2-1.png" class="img-fluid figure-img" width="672"></a></p>
+<figcaption class="figure-caption margin-caption">Figure&nbsp;36.7: Projection des individus dans le plan factoriel</figcaption></figure>
+</div>
+</div>
+</div>
+<p>Il est souvent intéressant de colorier les individus selon une variable catégorielle tierce, que ce soit une des variables ayant contribué ou non à l’ACM. Par exemple, nous allons regarder la répartition des individus dans le plan factoriel selon leur pratique d’un sport, puisque cette variable contribuait fortement au premier axe.</p>
+<p>Nous indiquerons la variable considérée à <code>factoextra::fviz_mca_in()</code> via l’argument <code>habillage</code>. L’option <code>addEllipses = TRUE</code> permet de dessiner des ellipses autour des observations.</p>
+<div class="cell page-columns page-full">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1"></a>acm1_ad <span class="sc">|&gt;</span></span>
+<span id="cb18-2"><a href="#cb18-2"></a>  factoextra<span class="sc">::</span><span class="fu">fviz_mca_ind</span>(</span>
+<span id="cb18-3"><a href="#cb18-3"></a>    <span class="at">habillage =</span> d<span class="sc">$</span>sport,</span>
+<span id="cb18-4"><a href="#cb18-4"></a>    <span class="at">addEllipses =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb18-5"><a href="#cb18-5"></a>    <span class="at">geom.ind =</span> <span class="st">"point"</span>,</span>
+<span id="cb18-6"><a href="#cb18-6"></a>    <span class="at">alpha.ind =</span> <span class="fl">0.1</span></span>
+<span id="cb18-7"><a href="#cb18-7"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display page-columns page-full">
+<div id="fig-fviz_mca_ind-habillage-sport" class="quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="figure page-columns page-full"><p><a href="analyse-factorielle_files/figure-html/fig-fviz_mca_ind-habillage-sport-1.png" class="lightbox" title="Projection des individus dans le plan factoriel selon la pratique d’un sport" data-gallery="quarto-lightbox-gallery-8"><img src="analyse-factorielle_files/figure-html/fig-fviz_mca_ind-habillage-sport-1.png" class="img-fluid figure-img" width="672"></a></p>
+<figcaption class="figure-caption margin-caption">Figure&nbsp;36.8: Projection des individus dans le plan factoriel selon la pratique d’un sport</figcaption></figure>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Astuce
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Si l’on a réalisé l’ACM avec <a href="http://pbil.univ-lyon1.fr/ADE-4/">ade4</a>, nous pouvons utiliser la fonction <code><a href="https://rdrr.io/pkg/ade4/man/scatter.html">ade4::scatter()</a></code> pour réaliser ce même type de graphique avec l’ensemble des variables inclues dans l’ACM. Afin de rendre le graphique plus lisible, nous passons à la fonction une palette de couleur obtenue avec <code><a href="https://packages.tesselle.org/khroma/reference/colour.html">khroma::colour()</a></code> (cf. <a href="../manipulation/couleurs.html#sec-palettes-paul-tol"><span>Section&nbsp;16.3.2</span></a>).</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1"></a>acm1_ad <span class="sc">|&gt;</span></span>
+<span id="cb19-2"><a href="#cb19-2"></a>  ade4<span class="sc">::</span><span class="fu">scatter</span>(<span class="at">col =</span> khroma<span class="sc">::</span><span class="fu">colour</span>(<span class="st">"bright"</span>)(<span class="dv">2</span>))</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure"><p><a href="analyse-factorielle_files/figure-html/unnamed-chunk-15-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-13"><img src="analyse-factorielle_files/figure-html/unnamed-chunk-15-1.png" class="img-fluid figure-img" width="672"></a></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section><section id="récupérer-les-coordonnées-des-individus-des-variables" class="level3" data-number="36.2.8"><h3 data-number="36.2.8" class="anchored" data-anchor-id="récupérer-les-coordonnées-des-individus-des-variables">
+<span class="header-section-number">36.2.8</span> Récupérer les coordonnées des individus / des variables</h3>
+<p>Dans certaines situations (par exemple pour créer un score à partir de la position sur le premier axe), on peut avoir besoin de récupérer les données brutes de l’analyse factorielle.</p>
+<p>On pourra utiliser les fonctions <code>get_*()</code> de <a href="http://www.sthda.com/english/rpkgs/factoextra">factoextra</a>. Par exemple, pour les individus dans le cadre d’une ACM, on utilisera <code><a href="https://rdrr.io/pkg/factoextra/man/get_mca.html">factoextra::get_mca_ind()</a></code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1"></a>res <span class="ot">&lt;-</span> acm1_ad <span class="sc">|&gt;</span></span>
+<span id="cb20-2"><a href="#cb20-2"></a>  factoextra<span class="sc">::</span><span class="fu">get_mca_ind</span>()</span>
+<span id="cb20-3"><a href="#cb20-3"></a><span class="fu">print</span>(res)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Multiple Correspondence Analysis Results for individuals
+ ===================================================
+  Name       Description                       
+1 "$coord"   "Coordinates for the individuals" 
+2 "$cos2"    "Cos2 for the individuals"        
+3 "$contrib" "contributions of the individuals"</code></pre>
+</div>
+</div>
+<p>Le résultat obtenu est une liste avec trois tableaux de données. Pour accéder aux coordonnées des individus, il suffit donc d’exécuter la commande ci-dessous.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1"></a><span class="fu">as_tibble</span>(res<span class="sc">$</span>coord)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 2,000 × 7
+     Dim.1   Dim.2    Dim.3   Dim.4  Dim.5   Dim.6   Dim.7
+     &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;  &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;
+ 1  0.380  -0.0481 -0.130   -0.0757 -0.554 -0.118  -0.0382
+ 2 -0.301  -0.512   0.0125   0.221   0.421 -0.340  -0.0402
+ 3  0.146  -0.261   0.0784   0.152   0.279 -0.252  -0.578 
+ 4 -0.842  -0.0612  0.00886  0.247  -0.232  0.149  -0.0297
+ 5  0.614  -0.149   0.0190  -0.0259  0.139 -0.0253 -0.0474
+ 6 -0.301  -0.512   0.0125   0.221   0.421 -0.340  -0.0402
+ 7  0.270   0.905  -0.214   -0.198  -0.267 -0.732   0.144 
+ 8 -0.0369  1.26   -0.0688  -0.122  -0.227 -0.150   0.146 
+ 9  0.167  -0.400  -0.0469   0.0425  0.282 -0.114   0.490 
+10 -0.301  -0.512   0.0125   0.221   0.421 -0.340  -0.0402
+# ℹ 1,990 more rows</code></pre>
+</div>
+</div>
+</section></section><section id="ajout-de-variables-dobservations-additionnelles" class="level2 page-columns page-full" data-number="36.3"><h2 data-number="36.3" class="anchored" data-anchor-id="ajout-de-variables-dobservations-additionnelles">
+<span class="header-section-number">36.3</span> Ajout de variables / d’observations additionnelles</h2>
+<p>Dans le cadre d’une analyse factorielle, on peut souhaiter ajouter des variables ou des observations additionnelles, qui ne participeront donc pas au calcul de l’analyse factorielle (et seront donc sans effet sur les axes de l’analyse). Ces variables / observations additionnelles seront simplement projetées dans le nouvel espace factoriel.</p>
+<p>Reprenons notre exemple et calculons des groupes d’âges.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1"></a>hdv2003 <span class="ot">&lt;-</span> hdv2003 <span class="sc">|&gt;</span> </span>
+<span id="cb24-2"><a href="#cb24-2"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb24-3"><a href="#cb24-3"></a>    <span class="at">groupe_ages =</span> age <span class="sc">|&gt;</span></span>
+<span id="cb24-4"><a href="#cb24-4"></a>      <span class="fu">cut</span>(</span>
+<span id="cb24-5"><a href="#cb24-5"></a>        <span class="fu">c</span>(<span class="dv">18</span>, <span class="dv">25</span>, <span class="dv">45</span>, <span class="dv">65</span>, <span class="dv">99</span>),</span>
+<span id="cb24-6"><a href="#cb24-6"></a>        <span class="at">right =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb24-7"><a href="#cb24-7"></a>        <span class="at">include.lowest =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb24-8"><a href="#cb24-8"></a>        <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"18-24 ans"</span>, <span class="st">"25-44 ans"</span>,</span>
+<span id="cb24-9"><a href="#cb24-9"></a>                   <span class="st">"45-64 ans"</span>, <span class="st">"65 ans et plus"</span>)</span>
+<span id="cb24-10"><a href="#cb24-10"></a>      )</span>
+<span id="cb24-11"><a href="#cb24-11"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Ajoutons maintenant le sexe, le groupe d’âges et le niveau d’étude comme variables additionnelles.</p>
+<p>Avec <a href="http://factominer.free.fr">FactoMineR</a>, cela se fait directement au moment du calcul de l’ACM, en indiquant l’index (ordre de la colonne dans le tableau) des variables supplémentaires à <code>quali.sup</code> pour les variables catégorielles et à <code>quanti.sup</code> pour les variables continues. De même, <code>ind.sup</code> peut-être utilisé pour indiquer les observations additionnelles.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1"></a>d2 <span class="ot">&lt;-</span> hdv2003 <span class="sc">|&gt;</span> </span>
+<span id="cb25-2"><a href="#cb25-2"></a>  <span class="fu">select</span>(sexe, groupe_ages, nivetud, hard.rock<span class="sc">:</span>sport)</span>
+<span id="cb25-3"><a href="#cb25-3"></a>acm2_fm <span class="ot">&lt;-</span> d2 <span class="sc">|&gt;</span> </span>
+<span id="cb25-4"><a href="#cb25-4"></a>  FactoMineR<span class="sc">::</span><span class="fu">MCA</span>(</span>
+<span id="cb25-5"><a href="#cb25-5"></a>    <span class="at">ncp =</span> <span class="cn">Inf</span>,</span>
+<span id="cb25-6"><a href="#cb25-6"></a>    <span class="at">graph =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb25-7"><a href="#cb25-7"></a>    <span class="at">quali.sup =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">3</span></span>
+<span id="cb25-8"><a href="#cb25-8"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Avec <a href="http://pbil.univ-lyon1.fr/ADE-4/">ade4</a>, la manipulation est légèrement différente. Le calcul de l’ACM se fait comme précédemment, uniquement avec les variables et les observations inclues dans l’analyse, puis on pourra projeter dans l’espace factoriel les variables / observations additionnelles à l’aide de <code><a href="https://rdrr.io/pkg/ade4/man/supcol.html">ade4::supcol()</a></code> et <code><a href="https://rdrr.io/pkg/ade4/man/suprow.html">ade4::suprow()</a></code>. Si pour ajouter des observations additionnelles il suffit de passer l’ACM de base et un tableau de données des observations additionnelles à <code><a href="https://rdrr.io/pkg/ade4/man/suprow.html">ade4::suprow()</a></code>, c’est un peu plus compliqué pour des variables additionnelles. Il faut déjà réaliser une ACM sur ces variables additionnelles, en extraire le sous objet <code>$tab</code> et passer ce dernier à <code><a href="https://rdrr.io/pkg/ade4/man/supcol.html">ade4::supcol()</a></code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1"></a>acm_add <span class="ot">&lt;-</span> hdv2003 <span class="sc">|&gt;</span></span>
+<span id="cb26-2"><a href="#cb26-2"></a>  <span class="fu">select</span>(sexe, groupe_ages, nivetud) <span class="sc">|&gt;</span> </span>
+<span id="cb26-3"><a href="#cb26-3"></a>  ade4<span class="sc">::</span><span class="fu">dudi.acm</span>(<span class="at">scannf =</span> <span class="cn">FALSE</span>, <span class="at">nf =</span> <span class="cn">Inf</span>)</span>
+<span id="cb26-4"><a href="#cb26-4"></a></span>
+<span id="cb26-5"><a href="#cb26-5"></a>acm_supp <span class="ot">&lt;-</span> ade4<span class="sc">::</span><span class="fu">supcol</span>(</span>
+<span id="cb26-6"><a href="#cb26-6"></a>  acm1_ad,</span>
+<span id="cb26-7"><a href="#cb26-7"></a>  acm_add<span class="sc">$</span>tab</span>
+<span id="cb26-8"><a href="#cb26-8"></a>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Si l’on veut pouvoir utiliser <code><a href="https://juba.github.io/explor/reference/explor.html">explor::explor()</a></code> avec ces variables additionnelles, il faudra enregistrer le résultat de <code><a href="https://rdrr.io/pkg/ade4/man/supcol.html">ade4::supcol()</a></code> dans un sous-objet <code>$supv</code> de l’ACM principale.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1"></a>acm2_ad <span class="ot">&lt;-</span> acm1_ad</span>
+<span id="cb27-2"><a href="#cb27-2"></a>acm2_ad<span class="sc">$</span>supv <span class="ot">&lt;-</span> acm_supp</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Pour des représentations graphiques avec <a href="http://www.sthda.com/english/rpkgs/factoextra">factoextra</a>, on privilégiera ici le calcul avec <a href="http://factominer.free.fr">FactoMineR</a> (les variables additionnelles calculées avec <a href="http://pbil.univ-lyon1.fr/ADE-4/">ade4</a> n’étant pas gérées par <a href="http://www.sthda.com/english/rpkgs/factoextra">factoextra</a>). En effet, si l’ACM a été calculée avec {FactoMineR}, factoextra::fviz_mca_var() affiche par défaut les variables ad</p>
+<div class="cell page-columns page-full">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1"></a>acm2_fm <span class="sc">|&gt;</span></span>
+<span id="cb28-2"><a href="#cb28-2"></a>  factoextra<span class="sc">::</span><span class="fu">fviz_mca_var</span>(<span class="at">repel =</span> <span class="cn">TRUE</span>, <span class="at">labelsize =</span> <span class="dv">2</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display page-columns page-full">
+<div id="fig-fviz_mca_var-acm2_fd" class="quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="figure page-columns page-full"><p><a href="analyse-factorielle_files/figure-html/fig-fviz_mca_var-acm2_fd-1.png" class="lightbox" title="Projection des modalités dans le plan factoriel (incluant les variables additionnelles)" data-gallery="quarto-lightbox-gallery-9"><img src="analyse-factorielle_files/figure-html/fig-fviz_mca_var-acm2_fd-1.png" class="img-fluid figure-img" width="672"></a></p>
+<figcaption class="figure-caption margin-caption">Figure&nbsp;36.9: Projection des modalités dans le plan factoriel (incluant les variables additionnelles)</figcaption></figure>
+</div>
+</div>
+</div>
+</section><section id="gestion-des-valeurs-manquantes" class="level2 page-columns page-full" data-number="36.4"><h2 data-number="36.4" class="anchored" data-anchor-id="gestion-des-valeurs-manquantes">
+<span class="header-section-number">36.4</span> Gestion des valeurs manquantes</h2>
+<p>Pour ce troisième exemple, nous allons maintenant inclure les variables sexe, groupe d’âges et niveau d’étude dans l’ACM, non pas comme variables additionnelles mais comme variables de l’ACM (qui vont donc contribuer au calcul des axes).</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1"></a>d3 <span class="ot">&lt;-</span> hdv2003 <span class="sc">|&gt;</span> </span>
+<span id="cb29-2"><a href="#cb29-2"></a>  <span class="fu">select</span>(sexe, groupe_ages, nivetud, hard.rock<span class="sc">:</span>sport)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Calculons maintenant l’ACM avec <a href="http://pbil.univ-lyon1.fr/ADE-4/">ade4</a> et <a href="http://factominer.free.fr">FactoMineR</a>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1"></a>acm3_ad <span class="ot">&lt;-</span> d3 <span class="sc">|&gt;</span></span>
+<span id="cb30-2"><a href="#cb30-2"></a>  ade4<span class="sc">::</span><span class="fu">dudi.acm</span>(<span class="at">scannf =</span> <span class="cn">FALSE</span>, <span class="at">nf =</span> <span class="cn">Inf</span>)</span>
+<span id="cb30-3"><a href="#cb30-3"></a>acm3_fm <span class="ot">&lt;-</span> d3 <span class="sc">|&gt;</span> </span>
+<span id="cb30-4"><a href="#cb30-4"></a>  FactoMineR<span class="sc">::</span><span class="fu">MCA</span>(<span class="at">ncp =</span> <span class="cn">Inf</span>, <span class="at">graph =</span> <span class="cn">FALSE</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Regardons les valeurs propres et l’inertie expliquée et positionnons les deux graphiques côte à côte (cf. <a href="../analyses/ggplot2.html#sec-combiner-graphiques"><span>Section&nbsp;17.6</span></a> sur la combinaison de graphiques).</p>
+<div class="cell page-columns page-full">
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1"></a>p_ad <span class="ot">&lt;-</span> acm3_ad <span class="sc">|&gt;</span> </span>
+<span id="cb31-2"><a href="#cb31-2"></a>  factoextra<span class="sc">::</span><span class="fu">fviz_screeplot</span>(<span class="at">choice =</span> <span class="st">"eigenvalue"</span>) <span class="sc">+</span></span>
+<span id="cb31-3"><a href="#cb31-3"></a>  ggplot2<span class="sc">::</span><span class="fu">ggtitle</span>(<span class="st">"ACM3 avec ade4"</span>)</span>
+<span id="cb31-4"><a href="#cb31-4"></a>p_fm<span class="ot">&lt;-</span> acm3_fm <span class="sc">|&gt;</span> </span>
+<span id="cb31-5"><a href="#cb31-5"></a>  factoextra<span class="sc">::</span><span class="fu">fviz_screeplot</span>(<span class="at">choice =</span> <span class="st">"eigenvalue"</span>) <span class="sc">+</span></span>
+<span id="cb31-6"><a href="#cb31-6"></a>  ggplot2<span class="sc">::</span><span class="fu">ggtitle</span>(<span class="st">"ACM3 avec FactoMineR"</span>)</span>
+<span id="cb31-7"><a href="#cb31-7"></a>patchwork<span class="sc">::</span><span class="fu">wrap_plots</span>(p_ad, p_fm) <span class="sc">&amp;</span></span>
+<span id="cb31-8"><a href="#cb31-8"></a>  ggplot2<span class="sc">::</span><span class="fu">ylim</span>(<span class="dv">0</span>, .<span class="dv">3</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display page-columns page-full">
+<div id="fig-comparaison-acm3" class="quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="figure page-columns page-full"><p><a href="analyse-factorielle_files/figure-html/fig-comparaison-acm3-1.png" class="lightbox" title="Inertie expliquée par axe (comparaison des ACM réalisées avec ade4 et FactoMineR)" data-gallery="quarto-lightbox-gallery-10"><img src="analyse-factorielle_files/figure-html/fig-comparaison-acm3-1.png" class="img-fluid figure-img" width="672"></a></p>
+<figcaption class="figure-caption margin-caption">Figure&nbsp;36.10: Inertie expliquée par axe (comparaison des ACM réalisées avec ade4 et FactoMineR)</figcaption></figure>
+</div>
+</div>
+</div>
+<p>Comme nous pouvons le voir, cette fois-ci, l’inertie expliquée par axe diffère entre les deux ACM. Cela est du à la présence de valeurs manquantes pour la variable <em>nivetud</em>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1"></a>d3 <span class="sc">|&gt;</span> questionr<span class="sc">::</span><span class="fu">freq.na</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>             missing %
+nivetud          112 6
+sexe               0 0
+groupe_ages        0 0
+hard.rock          0 0
+lecture.bd         0 0
+peche.chasse       0 0
+cuisine            0 0
+bricol             0 0
+cinema             0 0
+sport              0 0</code></pre>
+</div>
+</div>
+<p>Or, les deux packages ne traitent pas les valeurs manquantes de la même manière&nbsp;: <a href="http://pbil.univ-lyon1.fr/ADE-4/">ade4</a> exclue les valeurs manquantes tandis que <a href="http://factominer.free.fr">FactoMineR</a> les considère comme une modalité additionnelle.</p>
+<p>Pour éviter toute ambiguïté, il est préférable de traiter soi-même les valeurs manquantes (<code>NA</code>) en amont des deux fonctions.</p>
+<p>Pour convertir les valeurs manquantes d’un facteur en une modalité en soi, on utilisera <code><a href="https://forcats.tidyverse.org/reference/fct_na_value_to_level.html">forcats::fct_na_value_to_level()</a></code>. Il est possible d’appliquer cette fonction à tous les facteurs d’un tableau de données avec <code><a href="https://dplyr.tidyverse.org/reference/across.html">dplyr::across()</a></code> (cf. <a href="../manipulation_avancee/transformations-multiples.html"><span>Chapitre&nbsp;35</span></a>).</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1"></a>d3_modalite_manquant <span class="ot">&lt;-</span> d3 <span class="sc">|&gt;</span> </span>
+<span id="cb34-2"><a href="#cb34-2"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb34-3"><a href="#cb34-3"></a>    <span class="fu">across</span>(</span>
+<span id="cb34-4"><a href="#cb34-4"></a>      <span class="fu">where</span>(is.factor),</span>
+<span id="cb34-5"><a href="#cb34-5"></a>      fct_na_value_to_level,</span>
+<span id="cb34-6"><a href="#cb34-6"></a>      <span class="at">level =</span> <span class="st">"(manquant)"</span></span>
+<span id="cb34-7"><a href="#cb34-7"></a>    )</span>
+<span id="cb34-8"><a href="#cb34-8"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: There was 1 warning in `mutate()`.
+ℹ In argument: `across(where(is.factor), fct_na_value_to_level, level =
+  "(manquant)")`.
+Caused by warning:
+! The `...` argument of `across()` is deprecated as of dplyr 1.1.0.
+Supply arguments directly to `.fns` through an anonymous function instead.
+
+  # Previously
+  across(a:b, mean, na.rm = TRUE)
+
+  # Now
+  across(a:b, \(x) mean(x, na.rm = TRUE))</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1"></a>d3_modalite_manquant <span class="sc">|&gt;</span> <span class="fu">nrow</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 2000</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1"></a>d3_modalite_manquant <span class="sc">|&gt;</span> questionr<span class="sc">::</span><span class="fu">freq.na</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>             missing %
+sexe               0 0
+groupe_ages        0 0
+nivetud            0 0
+hard.rock          0 0
+lecture.bd         0 0
+peche.chasse       0 0
+cuisine            0 0
+bricol             0 0
+cinema             0 0
+sport              0 0</code></pre>
+</div>
+</div>
+<p>Pour ne conserver que l’ensemble des observations complètes (i.e.&nbsp;sans valeur manquante), on pourra avoir recours <code><a href="https://tidyr.tidyverse.org/reference/drop_na.html">tidyr::drop_na()</a></code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1"></a>d3_obs_completes <span class="ot">&lt;-</span> d3 <span class="sc">|&gt;</span> </span>
+<span id="cb40-2"><a href="#cb40-2"></a>  tidyr<span class="sc">::</span><span class="fu">drop_na</span>()</span>
+<span id="cb40-3"><a href="#cb40-3"></a>d3_obs_completes <span class="sc">|&gt;</span> <span class="fu">nrow</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 1888</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1"></a>d3_obs_completes <span class="sc">|&gt;</span> questionr<span class="sc">::</span><span class="fu">freq.na</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>             missing %
+sexe               0 0
+groupe_ages        0 0
+nivetud            0 0
+hard.rock          0 0
+lecture.bd         0 0
+peche.chasse       0 0
+cuisine            0 0
+bricol             0 0
+cinema             0 0
+sport              0 0</code></pre>
+</div>
+</div>
+<p>Une alternative est offerte par le package <a href="https://github.com/nicolas-robette/GDAtools">GDAtools</a> qui implémente une <em>ACM spécifique</em> permettant de neutraliser certaines modalités dans la construction de l’espace factoriel, tout en conservant l’ensemble des individus. Les valeurs manquantes sont automatiquement considérées comme des modalités à ne pas tenir compte. Mais il est également possible d’indiquer d’autres modalités à ignorer (voir le <a href="https://nicolas-robette.github.io/GDAtools/articles/Tutoriel_AGD.html">tutoriel du package</a>).</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1"></a>acm3_spe <span class="ot">&lt;-</span> GDAtools<span class="sc">::</span><span class="fu">speMCA</span>(d3)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Si les fonctions de <code>{factorextra}</code> ne sont pas compatibles avec <a href="https://github.com/nicolas-robette/GDAtools">GDAtools</a>, on peut tout à fait utiliser <a href="https://juba.github.io/explor/">explor</a>. De plus, <a href="https://github.com/nicolas-robette/GDAtools">GDAtools</a> fournit directement plusieurs outils de visualisation avancée et d’aide à l’interprétation des résultats.</p>
+</section><section id="webin-r" class="level2" data-number="36.5"><h2 data-number="36.5" class="anchored" data-anchor-id="webin-r">
+<span class="header-section-number">36.5</span> webin-R</h2>
+<p>L’analyse factorielle est présentée sur YouTube dans le <a href="https://youtu.be/-bdMv2aAqUY">webin-R #11</a> (<em>Analyse des Correspondances Multiples (ACM)</em>).</p>
+<div class="quarto-video ratio ratio-16x9"><iframe data-external="1" src="https://www.youtube.com/embed/fIZblrfenz0" title="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe></div>
+</section><section id="lectures-additionnelles" class="level2" data-number="36.6"><h2 data-number="36.6" class="anchored" data-anchor-id="lectures-additionnelles">
+<span class="header-section-number">36.6</span> Lectures additionnelles</h2>
+<ul>
+<li>
+<a href="https://quanti.hypotheses.org/1871"><em>Visualiser une analyse géométrique des données avec ggplot2 (R/RStudio)</em></a> par Anton Perdoncin</li>
+<li>
+<a href="https://juba.github.io/explor/articles/introduction_fr.html"><em>Exploration interactive de résultats d’ACP/ACM avec <code>explor</code></em></a> par Julien Barnier</li>
+<li>
+<a href="https://youtu.be/u17atQJDkeM"><em>Analyse des correspondances multiples (ACM ou AFCM) avec FactoMineR</em></a> (Vidéo YouTube) par François Husson (l’un des auteurs de <code>FactoMineR</code>)</li>
+<li>
+<a href="https://nicolas-robette.github.io/GDAtools/articles/Tutoriel_AGD.html"><em>L’analyse géométrique des données avec <code>GDAtools</code></em></a> par Nicolas Robette</li>
+<li>
+<a href="https://mate-shs.cnrs.fr/actions/tutomate/tuto32-les-analyses-factorielles-multiples-afm-amand/"><em>Tuto@Mate #32&nbsp;: Les Analyses Factorielles Multiples (AFM)</em></a> par Maelle Amand</li>
+</ul>
+
+
+</section></main><!-- /main --><script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copié");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copié");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script><script src="https://giscus.app/client.js" data-repo="larmarange/guide-R" data-repo-id="R_kgDOH6-xnw" data-category="Forum" data-category-id="DIC_kwDOH6-xn84CRLQy" data-mapping="pathname" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="top" data-theme="light" data-lang="fr" crossorigin="anonymous" data-loading="lazy" async="">
+</script><nav class="page-navigation"><div class="nav-page nav-page-previous">
+      <a href="../manipulation_avancee/transformations-multiples.html" class="pagination-link">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">35</span>&nbsp; <span class="chapter-title">Transformations multiples</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../analyses_avancees/modeles-comptage.html" class="pagination-link">
+        <span class="nav-page-text"><span class="chapter-number">37</span>&nbsp; <span class="chapter-title">Modèles de comptage (Poisson &amp; apparentés)</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+<footer class="footer"><div class="nav-footer">
+    <div class="nav-footer-left">
+      <ul class="footer-items list-unstyled">
+<li class="nav-item">
+ guide-R : Guide pour l'analyse de données d'enquêtes avec R
+  </li>  
+</ul>
+</div>   
+    <div class="nav-footer-center"><div class="cookie-consent-footer"><a href="#" id="open_preferences_center">Cookie Preferences</a></div></div>
+    <div class="nav-footer-right">
+      <ul class="footer-items list-unstyled">
+<li class="nav-item compact">
+    <a class="nav-link" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">
+      <i class="bi bi-badge-cc-fill" role="img">
+</i> 
+    </a>
+  </li>  
+    <li class="nav-item compact">
+    <a class="nav-link active" href="https://github.com/larmarange/guide-R/" aria-current="page">
+      <i class="bi bi-github" role="img">
+</i> 
+    </a>
+  </li>  
+    <li class="nav-item compact">
+    <a class="nav-link" href="https://www.youtube.com/c/webinR">
+      <i class="bi bi-youtube" role="img">
+</i> 
+    </a>
+  </li>  
+    <li class="nav-item">
+    <a class="nav-link" href="https://larmarange.github.io/analyse-R/">analyse-R</a>
+  </li>  
+    <li class="nav-item">
+    <a class="nav-link" href="https://larmarange.github.io/webin-R/">webin-R</a>
+  </li>  
+</ul>
+</div>
+  </div>
+</footer><script>var lightboxQuarto = GLightbox({"selector":".lightbox","closeEffect":"zoom","openEffect":"zoom","loop":true,"descPosition":"bottom"});</script>
+
+
+<script src="../site_libs/quarto-html/zenscroll-min.js"></script>
+</body></html>
