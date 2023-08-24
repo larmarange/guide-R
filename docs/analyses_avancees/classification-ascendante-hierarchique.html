@@ -667,7 +667,7 @@ Astuce
 <div class="page-columns page-full"><p>Il faut ensuite choisir une méthode d’agrégation pour construire le dendrogramme. De nombreuses solutions existent (saut minimum, distance maximum, moyenne, méthode de Ward…). Chacune d’elle produira un dendrogramme différent. Nous ne détaillerons pas ici ces différentes techniques<a href="#fn5" class="footnote-ref" id="fnref5" role="doc-noteref"><sup>5</sup></a>.</p><div class="no-row-height column-margin column-container"><li id="fn5"><p><sup>5</sup>&nbsp;Les méthodes <em>single</em>, <em>complete</em>, <em>centroid</em>, <em>average</em> et <em>Ward</em> sont présentées succinctement dans le document <a href="https://www.learndatasci.com/glossary/hierarchical-clustering/"><em>Hierarchical Clustering</em></a> par Fatih Karabiber.</p></li></div></div>
 <div class="page-columns page-full"><p>Cependant, à l’usage, on privilégiera le plus souvent la méthode de Ward<a href="#fn6" class="footnote-ref" id="fnref6" role="doc-noteref"><sup>6</sup></a>. De manière simplifiée, cette méthode cherche à minimiser l’inertie intra-classe et à maximiser l’inertie inter-classe afin d’obtenir des classes les plus homogènes possibles. Cette méthode est souvent incorrectement présentée comme une <q>méthode de minimisation de la variance</q> alors qu’au sens strict Ward vise <q>l’augmentation mininum de la somme des carrés</q> (“minimum increase of sum-of-squares (of errors)”)<a href="#fn7" class="footnote-ref" id="fnref7" role="doc-noteref"><sup>7</sup></a>.</p><div class="no-row-height column-margin column-container"><li id="fn6"><p><sup>6</sup>&nbsp;Ward, J. (1963). Hierarchical Grouping to Optimize an Objective Function. <em>Journal of the American Statistical Association</em>, 58(301), 236-244. doi:10.2307/2282967. (<a href="http://www.jstor.org/stable/2282967" class="uri">http://www.jstor.org/stable/2282967</a>)</p></li><li id="fn7"><p><sup>7</sup>&nbsp;Voir par exemple la discussion, en anglais, sur Wikipedia concernant la page présentant la méthode Ward&nbsp;: <a href="https://en.wikipedia.org/wiki/Talk:Ward%27s_method" class="uri">https://en.wikipedia.org/wiki/Talk:Ward%27s_method</a></p></li></div></div>
 <p>En raison de la variété des distances possibles et de la variété des techniques d’agrégation, on pourra être amené à réaliser plusieurs dendrogrammes différents sur un même jeu de données jusqu’à obtenir une classification qui fait «&nbsp;sens&nbsp;».</p>
-<div class="page-columns page-full"><p>La fonction de base pour le calcul d’un dendrogramme est <code><a href="https://rdrr.io/r/stats/hclust.html">stats::hclust()</a></code> en précisant le critère d’agrégation avec <code>method</code>. Dans notre cas, nous allons opter pour la méthode de Ward appliquée au carré des distances (ce qu’on indique avec <code>method = "ward.D2"</code><a href="#fn8" class="footnote-ref" id="fnref8" role="doc-noteref"><sup>8</sup></a>)&nbsp;:</p><div class="no-row-height column-margin column-container"><li id="fn8"><p><sup>8</sup>&nbsp;L’option <code>method = "ward.D"</code> correspondant à la méthode de Ward sur la matrice des distances simples (i.e.&nbsp;sans la passer <q>au carré</q>). Mais il est à noter que la méthode décrite par Ward dans son article de 1963 correspond à <code>method = "ward.D2</code>.</p></li></div></div>
+<div class="page-columns page-full"><p>La fonction de base pour le calcul d’un dendrogramme est <code><a href="https://rdrr.io/r/stats/hclust.html">stats::hclust()</a></code> en précisant le critère d’agrégation avec <code>method</code>. Dans notre cas, nous allons opter pour la méthode de Ward appliquée au carré des distances (ce qu’on indique avec <code>method = "ward.D2"</code><a href="#fn8" class="footnote-ref" id="fnref8" role="doc-noteref"><sup>8</sup></a>)&nbsp;:</p><div class="no-row-height column-margin column-container"><li id="fn8"><p><sup>8</sup>&nbsp;L’option <code>method = "ward.D"</code> correspondant à la méthode de Ward sur la matrice des distances simples (i.e.&nbsp;sans la passer <q>au carré</q>). Mais il est à noter que la méthode décrite par Ward dans son article de 1963 correspond bien à <code>method = "ward.D2"</code>.</p></li></div></div>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a>arbre_phi2 <span class="ot">&lt;-</span> md_phi2 <span class="sc">|&gt;</span> </span>
 <span id="cb4-2"><a href="#cb4-2"></a>  <span class="fu">hclust</span>(<span class="at">method =</span> <span class="st">"ward.D2"</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -778,18 +778,18 @@ Note
 <span id="cb9-20"><a href="#cb9-20"></a>  p_inertia <span class="ot">&lt;-</span> </span>
 <span id="cb9-21"><a href="#cb9-21"></a>    ggplot2<span class="sc">::</span><span class="fu">ggplot</span>(d) <span class="sc">+</span></span>
 <span id="cb9-22"><a href="#cb9-22"></a>    ggplot2<span class="sc">::</span><span class="fu">aes</span>(<span class="at">x =</span> k, <span class="at">y =</span> inertia) <span class="sc">+</span></span>
-<span id="cb9-23"><a href="#cb9-23"></a>    ggplot2<span class="sc">::</span><span class="fu">geom_step</span>(<span class="at">na.rm =</span> <span class="cn">TRUE</span>) <span class="sc">+</span></span>
+<span id="cb9-23"><a href="#cb9-23"></a>    ggplot2<span class="sc">::</span><span class="fu">geom_step</span>() <span class="sc">+</span></span>
 <span id="cb9-24"><a href="#cb9-24"></a>    ggplot2<span class="sc">::</span><span class="fu">ylab</span>(<span class="st">"Inertia"</span>)</span>
 <span id="cb9-25"><a href="#cb9-25"></a>  p_absolute <span class="ot">&lt;-</span></span>
 <span id="cb9-26"><a href="#cb9-26"></a>    ggplot2<span class="sc">::</span><span class="fu">ggplot</span>(d) <span class="sc">+</span></span>
 <span id="cb9-27"><a href="#cb9-27"></a>    ggplot2<span class="sc">::</span><span class="fu">aes</span>(<span class="at">x =</span> k, <span class="at">y =</span> absolute_loss) <span class="sc">+</span></span>
-<span id="cb9-28"><a href="#cb9-28"></a>    ggplot2<span class="sc">::</span><span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">"identity"</span>, <span class="at">fill =</span> <span class="st">"#4477AA"</span>, <span class="at">na.rm =</span> <span class="cn">TRUE</span>) <span class="sc">+</span></span>
+<span id="cb9-28"><a href="#cb9-28"></a>    ggplot2<span class="sc">::</span><span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">"identity"</span>, <span class="at">fill =</span> <span class="st">"#4477AA"</span>) <span class="sc">+</span></span>
 <span id="cb9-29"><a href="#cb9-29"></a>    ggplot2<span class="sc">::</span><span class="fu">ylab</span>(<span class="st">"Absolute loss"</span>)</span>
 <span id="cb9-30"><a href="#cb9-30"></a>  p_relative <span class="ot">&lt;-</span></span>
 <span id="cb9-31"><a href="#cb9-31"></a>    ggplot2<span class="sc">::</span><span class="fu">ggplot</span>(d) <span class="sc">+</span></span>
 <span id="cb9-32"><a href="#cb9-32"></a>    ggplot2<span class="sc">::</span><span class="fu">aes</span>(<span class="at">x =</span> k, <span class="at">y =</span> relative_loss) <span class="sc">+</span></span>
-<span id="cb9-33"><a href="#cb9-33"></a>    ggplot2<span class="sc">::</span><span class="fu">geom_line</span>(<span class="at">color =</span> <span class="st">"#AA3377"</span>, <span class="at">na.rm =</span> <span class="cn">TRUE</span>) <span class="sc">+</span></span>
-<span id="cb9-34"><a href="#cb9-34"></a>    ggplot2<span class="sc">::</span><span class="fu">geom_point</span>(<span class="at">size =</span> <span class="dv">3</span>, <span class="at">color =</span> <span class="st">"#AA3377"</span>, <span class="at">na.rm =</span> <span class="cn">TRUE</span>) <span class="sc">+</span></span>
+<span id="cb9-33"><a href="#cb9-33"></a>    ggplot2<span class="sc">::</span><span class="fu">geom_line</span>(<span class="at">color =</span> <span class="st">"#AA3377"</span>) <span class="sc">+</span></span>
+<span id="cb9-34"><a href="#cb9-34"></a>    ggplot2<span class="sc">::</span><span class="fu">geom_point</span>(<span class="at">size =</span> <span class="dv">3</span>, <span class="at">color =</span> <span class="st">"#AA3377"</span>) <span class="sc">+</span></span>
 <span id="cb9-35"><a href="#cb9-35"></a>    ggplot2<span class="sc">::</span><span class="fu">scale_y_continuous</span>(<span class="at">label =</span> scales<span class="sc">::</span>percent) <span class="sc">+</span></span>
 <span id="cb9-36"><a href="#cb9-36"></a>    ggplot2<span class="sc">::</span><span class="fu">ylab</span>(<span class="st">"Relative loss"</span>)</span>
 <span id="cb9-37"><a href="#cb9-37"></a>  patchwork<span class="sc">::</span><span class="fu">wrap_plots</span>(</span>
@@ -818,7 +818,7 @@ Note
 </div>
 </div>
 </div>
-<p>Dans cet exemple, nous pouvons voir qu’un découpage en deux classes maximise la perte absolue et la perte relative d’inertie. Mais, pour les besoins de l’analyse, nous pouvons souhaiter un nombre de classe un peu plus élevé (plus de classes permet une analyse plus fine, trop de classes rend l’interprétation des résultats compliqués). Un découpage en 4 classes apparaît sur ce graphique comme une bonne alternative, voir un découpage en 6 classes.</p>
+<p>Dans cet exemple, nous pouvons voir qu’un découpage en deux classes maximise la perte absolue et la perte relative d’inertie. Mais, pour les besoins de l’analyse, nous pouvons souhaiter un nombre de classe un peu plus élevé (plus de classes permet une analyse plus fine, trop de classes rend l’interprétation des résultats compliqués). Un découpage en 4 classes apparaît sur ce graphique comme une bonne alternative, voir un découpage en 6 classes (une lecture du dendrogramme nous permet de voir que, dans cet exemple, un découpage en 6 classes reviendrait à couper en deux les 2 classes les plus larges du découpage en 4 classes).</p>
 <div class="page-columns page-full"><p>Pour découper notre dendrogramme et récupérer la classification, nous appliquerons la fonction <code><a href="https://rdrr.io/r/stats/cutree.html">cutree()</a></code> au dendrogramme, en indiquant le nombre de classes souhaitées<a href="#fn9" class="footnote-ref" id="fnref9" role="doc-noteref"><sup>9</sup></a>.</p><div class="no-row-height column-margin column-container"><li id="fn9"><p><sup>9</sup>&nbsp;Ici, nous pouvons ajouter le résultat obtenu directement à notre tableau de données <code>hdv2003</code> dans la mesure où, depuis le début de l’analyse, l’ordre des lignes n’a jamais changé à aucune étape de l’analyse.</p></li></div></div>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a>hdv2003<span class="sc">$</span>typo_gower_4classes <span class="ot">&lt;-</span> arbre_gower <span class="sc">|&gt;</span> </span>
@@ -835,23 +835,23 @@ Note
 <div id="fig-tbl_summary-typo_gower_4classes" class="quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="figure page-columns page-full"><div id="fig-tbl_summary-typo_gower_4classes-1" class="" data-ref-parent="fig-tbl_summary-typo_gower_4classes">
 
-<div id="xofuvmwcjb" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#xofuvmwcjb table {
+<div id="uqgovicjss" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#uqgovicjss table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#xofuvmwcjb thead, #xofuvmwcjb tbody, #xofuvmwcjb tfoot, #xofuvmwcjb tr, #xofuvmwcjb td, #xofuvmwcjb th {
+#uqgovicjss thead, #uqgovicjss tbody, #uqgovicjss tfoot, #uqgovicjss tr, #uqgovicjss td, #uqgovicjss th {
   border-style: none;
 }
 
-#xofuvmwcjb p {
+#uqgovicjss p {
   margin: 0;
   padding: 0;
 }
 
-#xofuvmwcjb .gt_table {
+#uqgovicjss .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -877,12 +877,12 @@ Note
   border-left-color: #D3D3D3;
 }
 
-#xofuvmwcjb .gt_caption {
+#uqgovicjss .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#xofuvmwcjb .gt_title {
+#uqgovicjss .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -894,7 +894,7 @@ Note
   border-bottom-width: 0;
 }
 
-#xofuvmwcjb .gt_subtitle {
+#uqgovicjss .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -906,7 +906,7 @@ Note
   border-top-width: 0;
 }
 
-#xofuvmwcjb .gt_heading {
+#uqgovicjss .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -918,13 +918,13 @@ Note
   border-right-color: #D3D3D3;
 }
 
-#xofuvmwcjb .gt_bottom_border {
+#uqgovicjss .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#xofuvmwcjb .gt_col_headings {
+#uqgovicjss .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -939,7 +939,7 @@ Note
   border-right-color: #D3D3D3;
 }
 
-#xofuvmwcjb .gt_col_heading {
+#uqgovicjss .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -959,7 +959,7 @@ Note
   overflow-x: hidden;
 }
 
-#xofuvmwcjb .gt_column_spanner_outer {
+#uqgovicjss .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -971,15 +971,15 @@ Note
   padding-right: 4px;
 }
 
-#xofuvmwcjb .gt_column_spanner_outer:first-child {
+#uqgovicjss .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#xofuvmwcjb .gt_column_spanner_outer:last-child {
+#uqgovicjss .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#xofuvmwcjb .gt_column_spanner {
+#uqgovicjss .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -991,11 +991,11 @@ Note
   width: 100%;
 }
 
-#xofuvmwcjb .gt_spanner_row {
+#uqgovicjss .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#xofuvmwcjb .gt_group_heading {
+#uqgovicjss .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1021,7 +1021,7 @@ Note
   text-align: left;
 }
 
-#xofuvmwcjb .gt_empty_group_heading {
+#uqgovicjss .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -1036,15 +1036,15 @@ Note
   vertical-align: middle;
 }
 
-#xofuvmwcjb .gt_from_md > :first-child {
+#uqgovicjss .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#xofuvmwcjb .gt_from_md > :last-child {
+#uqgovicjss .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#xofuvmwcjb .gt_row {
+#uqgovicjss .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1063,7 +1063,7 @@ Note
   overflow-x: hidden;
 }
 
-#xofuvmwcjb .gt_stub {
+#uqgovicjss .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1076,7 +1076,7 @@ Note
   padding-right: 5px;
 }
 
-#xofuvmwcjb .gt_stub_row_group {
+#uqgovicjss .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1090,15 +1090,15 @@ Note
   vertical-align: top;
 }
 
-#xofuvmwcjb .gt_row_group_first td {
+#uqgovicjss .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#xofuvmwcjb .gt_row_group_first th {
+#uqgovicjss .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#xofuvmwcjb .gt_summary_row {
+#uqgovicjss .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1108,16 +1108,16 @@ Note
   padding-right: 5px;
 }
 
-#xofuvmwcjb .gt_first_summary_row {
+#uqgovicjss .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#xofuvmwcjb .gt_first_summary_row.thick {
+#uqgovicjss .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#xofuvmwcjb .gt_last_summary_row {
+#uqgovicjss .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1127,7 +1127,7 @@ Note
   border-bottom-color: #D3D3D3;
 }
 
-#xofuvmwcjb .gt_grand_summary_row {
+#uqgovicjss .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1137,7 +1137,7 @@ Note
   padding-right: 5px;
 }
 
-#xofuvmwcjb .gt_first_grand_summary_row {
+#uqgovicjss .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1147,7 +1147,7 @@ Note
   border-top-color: #D3D3D3;
 }
 
-#xofuvmwcjb .gt_last_grand_summary_row_top {
+#uqgovicjss .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1157,11 +1157,11 @@ Note
   border-bottom-color: #D3D3D3;
 }
 
-#xofuvmwcjb .gt_striped {
+#uqgovicjss .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#xofuvmwcjb .gt_table_body {
+#uqgovicjss .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1170,7 +1170,7 @@ Note
   border-bottom-color: #D3D3D3;
 }
 
-#xofuvmwcjb .gt_footnotes {
+#uqgovicjss .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1184,7 +1184,7 @@ Note
   border-right-color: #D3D3D3;
 }
 
-#xofuvmwcjb .gt_footnote {
+#uqgovicjss .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -1193,7 +1193,7 @@ Note
   padding-right: 5px;
 }
 
-#xofuvmwcjb .gt_sourcenotes {
+#uqgovicjss .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1207,7 +1207,7 @@ Note
   border-right-color: #D3D3D3;
 }
 
-#xofuvmwcjb .gt_sourcenote {
+#uqgovicjss .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -1215,63 +1215,63 @@ Note
   padding-right: 5px;
 }
 
-#xofuvmwcjb .gt_left {
+#uqgovicjss .gt_left {
   text-align: left;
 }
 
-#xofuvmwcjb .gt_center {
+#uqgovicjss .gt_center {
   text-align: center;
 }
 
-#xofuvmwcjb .gt_right {
+#uqgovicjss .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#xofuvmwcjb .gt_font_normal {
+#uqgovicjss .gt_font_normal {
   font-weight: normal;
 }
 
-#xofuvmwcjb .gt_font_bold {
+#uqgovicjss .gt_font_bold {
   font-weight: bold;
 }
 
-#xofuvmwcjb .gt_font_italic {
+#uqgovicjss .gt_font_italic {
   font-style: italic;
 }
 
-#xofuvmwcjb .gt_super {
+#uqgovicjss .gt_super {
   font-size: 65%;
 }
 
-#xofuvmwcjb .gt_footnote_marks {
+#uqgovicjss .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#xofuvmwcjb .gt_asterisk {
+#uqgovicjss .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#xofuvmwcjb .gt_indent_1 {
+#uqgovicjss .gt_indent_1 {
   text-indent: 5px;
 }
 
-#xofuvmwcjb .gt_indent_2 {
+#uqgovicjss .gt_indent_2 {
   text-indent: 10px;
 }
 
-#xofuvmwcjb .gt_indent_3 {
+#uqgovicjss .gt_indent_3 {
   text-indent: 15px;
 }
 
-#xofuvmwcjb .gt_indent_4 {
+#uqgovicjss .gt_indent_4 {
   text-indent: 20px;
 }
 
-#xofuvmwcjb .gt_indent_5 {
+#uqgovicjss .gt_indent_5 {
   text-indent: 25px;
 }
 </style>
@@ -1367,23 +1367,23 @@ Note
 <div id="fig-tbl_summary-typo_phi2_5classes" class="quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="figure page-columns page-full"><div id="fig-tbl_summary-typo_phi2_5classes-1" class="" data-ref-parent="fig-tbl_summary-typo_phi2_5classes">
 
-<div id="ixwgwwfvjy" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#ixwgwwfvjy table {
+<div id="fdvgehcuys" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#fdvgehcuys table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#ixwgwwfvjy thead, #ixwgwwfvjy tbody, #ixwgwwfvjy tfoot, #ixwgwwfvjy tr, #ixwgwwfvjy td, #ixwgwwfvjy th {
+#fdvgehcuys thead, #fdvgehcuys tbody, #fdvgehcuys tfoot, #fdvgehcuys tr, #fdvgehcuys td, #fdvgehcuys th {
   border-style: none;
 }
 
-#ixwgwwfvjy p {
+#fdvgehcuys p {
   margin: 0;
   padding: 0;
 }
 
-#ixwgwwfvjy .gt_table {
+#fdvgehcuys .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -1409,12 +1409,12 @@ Note
   border-left-color: #D3D3D3;
 }
 
-#ixwgwwfvjy .gt_caption {
+#fdvgehcuys .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#ixwgwwfvjy .gt_title {
+#fdvgehcuys .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -1426,7 +1426,7 @@ Note
   border-bottom-width: 0;
 }
 
-#ixwgwwfvjy .gt_subtitle {
+#fdvgehcuys .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -1438,7 +1438,7 @@ Note
   border-top-width: 0;
 }
 
-#ixwgwwfvjy .gt_heading {
+#fdvgehcuys .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -1450,13 +1450,13 @@ Note
   border-right-color: #D3D3D3;
 }
 
-#ixwgwwfvjy .gt_bottom_border {
+#fdvgehcuys .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#ixwgwwfvjy .gt_col_headings {
+#fdvgehcuys .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1471,7 +1471,7 @@ Note
   border-right-color: #D3D3D3;
 }
 
-#ixwgwwfvjy .gt_col_heading {
+#fdvgehcuys .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1491,7 +1491,7 @@ Note
   overflow-x: hidden;
 }
 
-#ixwgwwfvjy .gt_column_spanner_outer {
+#fdvgehcuys .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1503,15 +1503,15 @@ Note
   padding-right: 4px;
 }
 
-#ixwgwwfvjy .gt_column_spanner_outer:first-child {
+#fdvgehcuys .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#ixwgwwfvjy .gt_column_spanner_outer:last-child {
+#fdvgehcuys .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#ixwgwwfvjy .gt_column_spanner {
+#fdvgehcuys .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -1523,11 +1523,11 @@ Note
   width: 100%;
 }
 
-#ixwgwwfvjy .gt_spanner_row {
+#fdvgehcuys .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#ixwgwwfvjy .gt_group_heading {
+#fdvgehcuys .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1553,7 +1553,7 @@ Note
   text-align: left;
 }
 
-#ixwgwwfvjy .gt_empty_group_heading {
+#fdvgehcuys .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -1568,15 +1568,15 @@ Note
   vertical-align: middle;
 }
 
-#ixwgwwfvjy .gt_from_md > :first-child {
+#fdvgehcuys .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#ixwgwwfvjy .gt_from_md > :last-child {
+#fdvgehcuys .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#ixwgwwfvjy .gt_row {
+#fdvgehcuys .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1595,7 +1595,7 @@ Note
   overflow-x: hidden;
 }
 
-#ixwgwwfvjy .gt_stub {
+#fdvgehcuys .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1608,7 +1608,7 @@ Note
   padding-right: 5px;
 }
 
-#ixwgwwfvjy .gt_stub_row_group {
+#fdvgehcuys .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1622,15 +1622,15 @@ Note
   vertical-align: top;
 }
 
-#ixwgwwfvjy .gt_row_group_first td {
+#fdvgehcuys .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#ixwgwwfvjy .gt_row_group_first th {
+#fdvgehcuys .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#ixwgwwfvjy .gt_summary_row {
+#fdvgehcuys .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1640,16 +1640,16 @@ Note
   padding-right: 5px;
 }
 
-#ixwgwwfvjy .gt_first_summary_row {
+#fdvgehcuys .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#ixwgwwfvjy .gt_first_summary_row.thick {
+#fdvgehcuys .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#ixwgwwfvjy .gt_last_summary_row {
+#fdvgehcuys .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1659,7 +1659,7 @@ Note
   border-bottom-color: #D3D3D3;
 }
 
-#ixwgwwfvjy .gt_grand_summary_row {
+#fdvgehcuys .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1669,7 +1669,7 @@ Note
   padding-right: 5px;
 }
 
-#ixwgwwfvjy .gt_first_grand_summary_row {
+#fdvgehcuys .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1679,7 +1679,7 @@ Note
   border-top-color: #D3D3D3;
 }
 
-#ixwgwwfvjy .gt_last_grand_summary_row_top {
+#fdvgehcuys .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1689,11 +1689,11 @@ Note
   border-bottom-color: #D3D3D3;
 }
 
-#ixwgwwfvjy .gt_striped {
+#fdvgehcuys .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#ixwgwwfvjy .gt_table_body {
+#fdvgehcuys .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1702,7 +1702,7 @@ Note
   border-bottom-color: #D3D3D3;
 }
 
-#ixwgwwfvjy .gt_footnotes {
+#fdvgehcuys .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1716,7 +1716,7 @@ Note
   border-right-color: #D3D3D3;
 }
 
-#ixwgwwfvjy .gt_footnote {
+#fdvgehcuys .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -1725,7 +1725,7 @@ Note
   padding-right: 5px;
 }
 
-#ixwgwwfvjy .gt_sourcenotes {
+#fdvgehcuys .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1739,7 +1739,7 @@ Note
   border-right-color: #D3D3D3;
 }
 
-#ixwgwwfvjy .gt_sourcenote {
+#fdvgehcuys .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -1747,63 +1747,63 @@ Note
   padding-right: 5px;
 }
 
-#ixwgwwfvjy .gt_left {
+#fdvgehcuys .gt_left {
   text-align: left;
 }
 
-#ixwgwwfvjy .gt_center {
+#fdvgehcuys .gt_center {
   text-align: center;
 }
 
-#ixwgwwfvjy .gt_right {
+#fdvgehcuys .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#ixwgwwfvjy .gt_font_normal {
+#fdvgehcuys .gt_font_normal {
   font-weight: normal;
 }
 
-#ixwgwwfvjy .gt_font_bold {
+#fdvgehcuys .gt_font_bold {
   font-weight: bold;
 }
 
-#ixwgwwfvjy .gt_font_italic {
+#fdvgehcuys .gt_font_italic {
   font-style: italic;
 }
 
-#ixwgwwfvjy .gt_super {
+#fdvgehcuys .gt_super {
   font-size: 65%;
 }
 
-#ixwgwwfvjy .gt_footnote_marks {
+#fdvgehcuys .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#ixwgwwfvjy .gt_asterisk {
+#fdvgehcuys .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#ixwgwwfvjy .gt_indent_1 {
+#fdvgehcuys .gt_indent_1 {
   text-indent: 5px;
 }
 
-#ixwgwwfvjy .gt_indent_2 {
+#fdvgehcuys .gt_indent_2 {
   text-indent: 10px;
 }
 
-#ixwgwwfvjy .gt_indent_3 {
+#fdvgehcuys .gt_indent_3 {
   text-indent: 15px;
 }
 
-#ixwgwwfvjy .gt_indent_4 {
+#fdvgehcuys .gt_indent_4 {
   text-indent: 20px;
 }
 
-#ixwgwwfvjy .gt_indent_5 {
+#fdvgehcuys .gt_indent_5 {
   text-indent: 25px;
 }
 </style>
@@ -1970,36 +1970,46 @@ Note
 </div>
 </div>
 </div>
+<p>Pour récupérer la classification, on pourra récupérer la colonne <code>$clust</code> du sous-objet <code>$data.clust</code> du résultat renvoyé par <code><a href="https://rdrr.io/pkg/FactoMineR/man/HCPC.html">FactoMineR::HCPC()</a></code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1"></a>hdv2003<span class="sc">$</span>typo_cah_fm2 <span class="ot">&lt;-</span> cah_fm2<span class="sc">$</span>data.clust<span class="sc">$</span>clust</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Si l’on a besoin de découper le dendrogramme à un autre endroit, nous pouvons récupérer le dendrogramme via le sous-objet <code>$call$t$tree</code> puis lui appliquer <code><a href="https://rdrr.io/r/stats/cutree.html">cutree()</a></code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1"></a>hdv2003<span class="sc">$</span>typo_alternative <span class="ot">&lt;-</span></span>
+<span id="cb29-2"><a href="#cb29-2"></a>  cah_fm2<span class="sc">$</span>call<span class="sc">$</span>t<span class="sc">$</span>tree <span class="sc">|&gt;</span></span>
+<span id="cb29-3"><a href="#cb29-3"></a>  <span class="fu">cutree</span>(<span class="dv">3</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
 </section><section id="caractériser-la-typologie" class="level2 page-columns page-full" data-number="37.5"><h2 data-number="37.5" class="anchored" data-anchor-id="caractériser-la-typologie">
 <span class="header-section-number">37.5</span> Caractériser la typologie</h2>
 <p>Reste le travail le plus important (et parfois le plus difficile) qui consiste à catégoriser la typologie obtenue et le cas échéant à nommer les classes.</p>
 <p>En premier lieu, on peut croiser la typologie obtenue avec les différentes variables inclues dans l’ACM. Le plus simple est d’avoir recours à <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/tbl_summary.html">gtsummary::tbl_summary()</a></code>. Par exemple, pour la typologie obtenue avec la distance de Gower.</p>
 <div class="cell page-columns page-full">
-<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1"></a>hdv2003 <span class="sc">|&gt;</span></span>
-<span id="cb28-2"><a href="#cb28-2"></a>  <span class="fu">tbl_summary</span>(</span>
-<span id="cb28-3"><a href="#cb28-3"></a>    <span class="at">include =</span> hard.rock<span class="sc">:</span>sport,</span>
-<span id="cb28-4"><a href="#cb28-4"></a>    <span class="at">by =</span> typo_gower_4classes</span>
-<span id="cb28-5"><a href="#cb28-5"></a>  ) <span class="sc">|&gt;</span> </span>
-<span id="cb28-6"><a href="#cb28-6"></a>  <span class="fu">bold_labels</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1"></a>hdv2003 <span class="sc">|&gt;</span></span>
+<span id="cb30-2"><a href="#cb30-2"></a>  <span class="fu">tbl_summary</span>(</span>
+<span id="cb30-3"><a href="#cb30-3"></a>    <span class="at">include =</span> hard.rock<span class="sc">:</span>sport,</span>
+<span id="cb30-4"><a href="#cb30-4"></a>    <span class="at">by =</span> typo_gower_4classes</span>
+<span id="cb30-5"><a href="#cb30-5"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb30-6"><a href="#cb30-6"></a>  <span class="fu">bold_labels</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display page-columns page-full">
 
-<div id="vqswzhspkw" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;" class="page-columns page-full">
-<style>#vqswzhspkw table {
+<div id="bdglglgutj" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;" class="page-columns page-full">
+<style>#bdglglgutj table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#vqswzhspkw thead, #vqswzhspkw tbody, #vqswzhspkw tfoot, #vqswzhspkw tr, #vqswzhspkw td, #vqswzhspkw th {
+#bdglglgutj thead, #bdglglgutj tbody, #bdglglgutj tfoot, #bdglglgutj tr, #bdglglgutj td, #bdglglgutj th {
   border-style: none;
 }
 
-#vqswzhspkw p {
+#bdglglgutj p {
   margin: 0;
   padding: 0;
 }
 
-#vqswzhspkw .gt_table {
+#bdglglgutj .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -2025,12 +2035,12 @@ Note
   border-left-color: #D3D3D3;
 }
 
-#vqswzhspkw .gt_caption {
+#bdglglgutj .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#vqswzhspkw .gt_title {
+#bdglglgutj .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -2042,7 +2052,7 @@ Note
   border-bottom-width: 0;
 }
 
-#vqswzhspkw .gt_subtitle {
+#bdglglgutj .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -2054,7 +2064,7 @@ Note
   border-top-width: 0;
 }
 
-#vqswzhspkw .gt_heading {
+#bdglglgutj .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -2066,13 +2076,13 @@ Note
   border-right-color: #D3D3D3;
 }
 
-#vqswzhspkw .gt_bottom_border {
+#bdglglgutj .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#vqswzhspkw .gt_col_headings {
+#bdglglgutj .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -2087,7 +2097,7 @@ Note
   border-right-color: #D3D3D3;
 }
 
-#vqswzhspkw .gt_col_heading {
+#bdglglgutj .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2107,7 +2117,7 @@ Note
   overflow-x: hidden;
 }
 
-#vqswzhspkw .gt_column_spanner_outer {
+#bdglglgutj .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2119,15 +2129,15 @@ Note
   padding-right: 4px;
 }
 
-#vqswzhspkw .gt_column_spanner_outer:first-child {
+#bdglglgutj .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#vqswzhspkw .gt_column_spanner_outer:last-child {
+#bdglglgutj .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#vqswzhspkw .gt_column_spanner {
+#bdglglgutj .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -2139,11 +2149,11 @@ Note
   width: 100%;
 }
 
-#vqswzhspkw .gt_spanner_row {
+#bdglglgutj .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#vqswzhspkw .gt_group_heading {
+#bdglglgutj .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2169,7 +2179,7 @@ Note
   text-align: left;
 }
 
-#vqswzhspkw .gt_empty_group_heading {
+#bdglglgutj .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -2184,15 +2194,15 @@ Note
   vertical-align: middle;
 }
 
-#vqswzhspkw .gt_from_md > :first-child {
+#bdglglgutj .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#vqswzhspkw .gt_from_md > :last-child {
+#bdglglgutj .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#vqswzhspkw .gt_row {
+#bdglglgutj .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2211,7 +2221,7 @@ Note
   overflow-x: hidden;
 }
 
-#vqswzhspkw .gt_stub {
+#bdglglgutj .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2224,7 +2234,7 @@ Note
   padding-right: 5px;
 }
 
-#vqswzhspkw .gt_stub_row_group {
+#bdglglgutj .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2238,15 +2248,15 @@ Note
   vertical-align: top;
 }
 
-#vqswzhspkw .gt_row_group_first td {
+#bdglglgutj .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#vqswzhspkw .gt_row_group_first th {
+#bdglglgutj .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#vqswzhspkw .gt_summary_row {
+#bdglglgutj .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -2256,16 +2266,16 @@ Note
   padding-right: 5px;
 }
 
-#vqswzhspkw .gt_first_summary_row {
+#bdglglgutj .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#vqswzhspkw .gt_first_summary_row.thick {
+#bdglglgutj .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#vqswzhspkw .gt_last_summary_row {
+#bdglglgutj .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2275,7 +2285,7 @@ Note
   border-bottom-color: #D3D3D3;
 }
 
-#vqswzhspkw .gt_grand_summary_row {
+#bdglglgutj .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -2285,7 +2295,7 @@ Note
   padding-right: 5px;
 }
 
-#vqswzhspkw .gt_first_grand_summary_row {
+#bdglglgutj .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2295,7 +2305,7 @@ Note
   border-top-color: #D3D3D3;
 }
 
-#vqswzhspkw .gt_last_grand_summary_row_top {
+#bdglglgutj .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2305,11 +2315,11 @@ Note
   border-bottom-color: #D3D3D3;
 }
 
-#vqswzhspkw .gt_striped {
+#bdglglgutj .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#vqswzhspkw .gt_table_body {
+#bdglglgutj .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -2318,7 +2328,7 @@ Note
   border-bottom-color: #D3D3D3;
 }
 
-#vqswzhspkw .gt_footnotes {
+#bdglglgutj .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -2332,7 +2342,7 @@ Note
   border-right-color: #D3D3D3;
 }
 
-#vqswzhspkw .gt_footnote {
+#bdglglgutj .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -2341,7 +2351,7 @@ Note
   padding-right: 5px;
 }
 
-#vqswzhspkw .gt_sourcenotes {
+#bdglglgutj .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -2355,7 +2365,7 @@ Note
   border-right-color: #D3D3D3;
 }
 
-#vqswzhspkw .gt_sourcenote {
+#bdglglgutj .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -2363,63 +2373,63 @@ Note
   padding-right: 5px;
 }
 
-#vqswzhspkw .gt_left {
+#bdglglgutj .gt_left {
   text-align: left;
 }
 
-#vqswzhspkw .gt_center {
+#bdglglgutj .gt_center {
   text-align: center;
 }
 
-#vqswzhspkw .gt_right {
+#bdglglgutj .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#vqswzhspkw .gt_font_normal {
+#bdglglgutj .gt_font_normal {
   font-weight: normal;
 }
 
-#vqswzhspkw .gt_font_bold {
+#bdglglgutj .gt_font_bold {
   font-weight: bold;
 }
 
-#vqswzhspkw .gt_font_italic {
+#bdglglgutj .gt_font_italic {
   font-style: italic;
 }
 
-#vqswzhspkw .gt_super {
+#bdglglgutj .gt_super {
   font-size: 65%;
 }
 
-#vqswzhspkw .gt_footnote_marks {
+#bdglglgutj .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#vqswzhspkw .gt_asterisk {
+#bdglglgutj .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#vqswzhspkw .gt_indent_1 {
+#bdglglgutj .gt_indent_1 {
   text-indent: 5px;
 }
 
-#vqswzhspkw .gt_indent_2 {
+#bdglglgutj .gt_indent_2 {
   text-indent: 10px;
 }
 
-#vqswzhspkw .gt_indent_3 {
+#bdglglgutj .gt_indent_3 {
   text-indent: 15px;
 }
 
-#vqswzhspkw .gt_indent_4 {
+#bdglglgutj .gt_indent_4 {
   text-indent: 20px;
 }
 
-#vqswzhspkw .gt_indent_5 {
+#bdglglgutj .gt_indent_5 {
   text-indent: 25px;
 }
 </style>
@@ -2600,17 +2610,17 @@ Gower</p></div></div>
 </div>
 <p>Pour une représentation plus visuelle, on peut également avoir recours à <code><a href="https://ggobi.github.io/ggally/reference/ggtable.html">GGally::ggtable()</a></code> de <a href="https://ggobi.github.io/ggally/">GGally</a> pour représenter les résidus du Chi² et mieux repérer les différences. La couleur bleue indique que la modalité est sur-représentée et la couleur rouge qu’elle est sous-représentée.</p>
 <div class="cell page-columns page-full">
-<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1"></a><span class="fu">library</span>(GGally)</span>
-<span id="cb29-2"><a href="#cb29-2"></a>hdv2003<span class="sc">$</span>typo_gower_4classes <span class="ot">&lt;-</span> <span class="fu">factor</span>(hdv2003<span class="sc">$</span>typo_gower_4classes)</span>
-<span id="cb29-3"><a href="#cb29-3"></a><span class="fu">ggtable</span>(</span>
-<span id="cb29-4"><a href="#cb29-4"></a>  hdv2003, </span>
-<span id="cb29-5"><a href="#cb29-5"></a>  <span class="at">columnsX =</span> <span class="st">"typo_gower_4classes"</span>, </span>
-<span id="cb29-6"><a href="#cb29-6"></a>  <span class="at">columnsY =</span> <span class="fu">names</span>(d),</span>
-<span id="cb29-7"><a href="#cb29-7"></a>  <span class="at">cells =</span> <span class="st">"col.prop"</span>,</span>
-<span id="cb29-8"><a href="#cb29-8"></a>  <span class="at">fill =</span> <span class="st">"std.resid"</span></span>
-<span id="cb29-9"><a href="#cb29-9"></a>) <span class="sc">+</span> </span>
-<span id="cb29-10"><a href="#cb29-10"></a>  <span class="fu">labs</span>(<span class="at">fill =</span> <span class="st">"Résidus standardizés du Chi²"</span>) <span class="sc">+</span></span>
-<span id="cb29-11"><a href="#cb29-11"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"bottom"</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1"></a><span class="fu">library</span>(GGally)</span>
+<span id="cb31-2"><a href="#cb31-2"></a>hdv2003<span class="sc">$</span>typo_gower_4classes <span class="ot">&lt;-</span> <span class="fu">factor</span>(hdv2003<span class="sc">$</span>typo_gower_4classes)</span>
+<span id="cb31-3"><a href="#cb31-3"></a><span class="fu">ggtable</span>(</span>
+<span id="cb31-4"><a href="#cb31-4"></a>  hdv2003, </span>
+<span id="cb31-5"><a href="#cb31-5"></a>  <span class="at">columnsX =</span> <span class="st">"typo_gower_4classes"</span>, </span>
+<span id="cb31-6"><a href="#cb31-6"></a>  <span class="at">columnsY =</span> <span class="fu">names</span>(d),</span>
+<span id="cb31-7"><a href="#cb31-7"></a>  <span class="at">cells =</span> <span class="st">"col.prop"</span>,</span>
+<span id="cb31-8"><a href="#cb31-8"></a>  <span class="at">fill =</span> <span class="st">"std.resid"</span></span>
+<span id="cb31-9"><a href="#cb31-9"></a>) <span class="sc">+</span> </span>
+<span id="cb31-10"><a href="#cb31-10"></a>  <span class="fu">labs</span>(<span class="at">fill =</span> <span class="st">"Résidus standardizés du Chi²"</span>) <span class="sc">+</span></span>
+<span id="cb31-11"><a href="#cb31-11"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"bottom"</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display page-columns page-full">
 <div id="fig-ggtable-typo_gower_4classes" class="quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="figure page-columns page-full"><p><a href="classification-ascendante-hierarchique_files/figure-html/fig-ggtable-typo_gower_4classes-1.png" class="lightbox" title="Distribution de la typologie en 4 classes et résidus du Chi²" data-gallery="quarto-lightbox-gallery-13"><img src="classification-ascendante-hierarchique_files/figure-html/fig-ggtable-typo_gower_4classes-1.png" class="img-fluid figure-img" width="768"></a></p>
@@ -2628,7 +2638,7 @@ Gower</p></div></div>
 <p>Bien sûr, l’interprétation fine des catégories nécessite un peu plus d’analyse, de croiser avec la littérature et les hypothèses des questions de recherche posées, et de croiser la typologie avec d’autres variables de l’enquête.</p>
 <p>Pour la typologie réalisée à partir d’une ACM, nous pourrons procéder de la même manière. Cependant, si la CAH a été réalisée avec <code><a href="https://rdrr.io/pkg/FactoMineR/man/HCPC.html">FactoMineR::HCPC()</a></code>, l’objet retourné contient directement un sous-objet <code>$desc.var</code> donnant une description de la typologie obtenue.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1"></a>cah_fm2<span class="sc">$</span>desc.var</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1"></a>cah_fm2<span class="sc">$</span>desc.var</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 Link between the cluster variable and the categorical variables (chi-square test)
@@ -2717,7 +2727,7 @@ hard.rock=hard.rock_Non   0.0000000   0.00000   99.3 5.569208e-36 -12.523271</co
 </div>
 <div class="page-columns page-full"><p>Une représentation graphique indiquant les modalités contribuant le plus à chaque axe est même directement disponible. La couleur bleue indique que la modalité est sous-représentée dans la classe et la couleur rouge qu’elle est sur-représentée<a href="#fn11" class="footnote-ref" id="fnref11" role="doc-noteref"><sup>11</sup></a>.</p><div class="no-row-height column-margin column-container"><li id="fn11"><p><sup>11</sup>&nbsp;<strong>Attention à l’interprétation&nbsp;:</strong> ce code couleur est l’inverse de celui utilisé par <code><a href="https://ggobi.github.io/ggally/reference/ggtable.html">GGally::ggtable()</a></code>.</p></li></div></div>
 <div class="cell page-columns page-full">
-<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1"></a>cah_fm2<span class="sc">$</span>desc.var <span class="sc">|&gt;</span> <span class="fu">plot</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1"></a>cah_fm2<span class="sc">$</span>desc.var <span class="sc">|&gt;</span> <span class="fu">plot</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display page-columns page-full">
 <div id="fig-cah_fm2-desc.var-plot" class="quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="figure page-columns page-full"><p><a href="classification-ascendante-hierarchique_files/figure-html/fig-cah_fm2-desc.var-plot-1.png" class="lightbox" title="Représentation graphique des modalités contribuant le pl" data-gallery="quarto-lightbox-gallery-14"><img src="classification-ascendante-hierarchique_files/figure-html/fig-cah_fm2-desc.var-plot-1.png" class="img-fluid figure-img" width="960"></a></p>
@@ -2727,7 +2737,7 @@ hard.rock=hard.rock_Non   0.0000000   0.00000   99.3 5.569208e-36 -12.523271</co
 </div>
 </section><section id="webin-r" class="level2" data-number="37.6"><h2 data-number="37.6" class="anchored" data-anchor-id="webin-r">
 <span class="header-section-number">37.6</span> webin-R</h2>
-<p>La CAH est présentée sur YouTube dans le <a href="https://youtu.be/Q8adb64NzUI">webin-R #12</a> (<em>Classification Ascendante Hiérarchique (CAH)</em>).</p>
+<p>La CAH est présentée sur YouTube dans le <a href="https://youtu.be/Q8adb64NzUI">webin-R #12</a> (<em>Classification Ascendante Hiérarchique</em>).</p>
 <div class="quarto-video ratio ratio-16x9"><iframe data-external="1" src="https://www.youtube.com/embed/Q8adb64NzUI" title="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe></div>
 
 
@@ -3014,7 +3024,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </ul>
 </div>
   </div>
-</footer><script>var lightboxQuarto = GLightbox({"openEffect":"zoom","selector":".lightbox","descPosition":"bottom","loop":true,"closeEffect":"zoom"});</script>
+</footer><script>var lightboxQuarto = GLightbox({"loop":true,"descPosition":"bottom","closeEffect":"zoom","selector":".lightbox","openEffect":"zoom"});</script>
 
 
 <script src="../site_libs/quarto-html/zenscroll-min.js"></script>
