@@ -1,1 +1,513 @@
 # Réorganisation avec `tidyr` {#sec-tidyr}
+
+## Tidy data
+
+Comme indiqué dans le chapitre sur les tibbles (cf. @sec-tibbles), les extensions du **tidyverse** comme `{dplyr}` ou `{ggplot2}` partent du principe que les données sont "bien rangées" sous forme de *tidy data*.
+
+Prenons un exemple avec les données suivantes, qui indique la population de trois pays pour quatre années différentes :
+
+```{r}
+#| message: false
+#| warning: false
+#| include: false
+library(knitr, quietly = TRUE)
+library(tidyverse, quietly = TRUE)
+library(gapminder, quietly = TRUE)
+```
+
+```{r}
+#| echo: false
+data(gapminder)
+d <- gapminder
+dm <- d |> 
+  filter(
+    country %in% c("France", "Germany", "Belgium"),
+    year >= 1992
+  ) |>
+  dplyr::select(country, year, pop) |> 
+  spread(year, pop)
+kable(dm)
+```
+
+Imaginons qu'on souhaite représenter avec `{ggplot2}` l'évolution de la population pour chaque pays sous forme de lignes : c'est impossible avec les données sous ce format. On a besoin d'arranger le tableau de la manière suivante :
+
+```{r}
+#| echo: false
+d <- dm |> 
+  pivot_longer(-country, names_to = "year", values_to = "population") |> 
+  mutate(year = as.numeric(year))
+kable(d)
+```
+
+C'est seulement avec les données dans ce format qu'on peut réaliser le graphique :
+
+```{r}
+library(tidyverse)
+ggplot(d) + 
+  aes(x = year, y = population, color = country) +
+  geom_line() +
+  scale_x_continuous(breaks = unique(d$year)) +
+  scale_y_continuous(
+    labels = scales::label_number(
+      scale = 10^-6,
+      suffix = " millions"
+    )
+  )
+```
+
+C'est la même chose pour `{dplyr}`, par exemple si on voulait calculer la population minimale pour chaque pays avec `dplyr::summarise()` :
+
+```{r}
+d |> 
+  group_by(country) |>  
+  summarise(pop_min = min(population))
+```
+
+## Trois règles pour des données bien rangées
+
+Le concept de *tidy data* repose sur trois règles interdépendantes. Des données sont considérées comme *tidy* si :
+
+1.  chaque ligne correspond à une observation
+2.  chaque colonne correspond à une variable
+3.  chaque valeur est présente dans une unique case de la table ou, de manière équivalente, si des unités d'observations différentes sont présentes dans des tables différentes
+
+Ces règles ne sont pas forcément très intuitives. De plus, il y a une infinité de manières pour un tableau de données de ne pas être *tidy*.
+
+Prenons par exemple les règles 1 et 2 et le tableau de notre premier exemple :
+
+```{r}
+#| warning: false
+#| paged.print: false
+#| echo: false
+kable(dm)
+```
+
+Pourquoi ce tableau n'est pas *tidy* ? Parce que si l'on essaie d'identifier les variables mesurées dans le tableau, il y en a trois : le pays, l'année et la population. Or elles ne correspondent pas aux colonnes de la table. C'est le cas par contre pour la table transformée :
+
+```{r}
+#| echo: false
+#| warning: false
+kable(dm |> 
+  gather(annee, population, -country))
+```
+
+On peut remarquer qu'en modifiant notre table pour satisfaire à la deuxième règle, on a aussi réglé la première : chaque ligne correspond désormais à une observation, en l'occurrence l'observation de trois pays à plusieurs moments dans le temps. Dans notre table d'origine, chaque ligne comportait en réalité quatre observations différentes.
+
+Ce point permet d'illustrer le fait que les règles sont interdépendantes.
+
+Autre exemple, généré depuis le jeu de données `{nycflights13}`, permettant cette fois d'illustrer la troisième règle :
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+#| paged.print: false
+library(nycflights13)
+library(tidyverse)
+data(flights)
+data(airlines)
+
+airlines <- airlines |>
+  left_join(
+    flights |> 
+      dplyr::group_by(carrier) |> 
+      dplyr::summarise(flights_per_year = n())
+  )
+
+
+df <- flights |> 
+  filter(carrier %in% c("AA", "UA")) |> 
+  dplyr::slice(1:8) |> 
+  dplyr::select(year, month, day, dep_time, carrier) |> 
+  left_join(airlines)
+knitr::kable(df)
+```
+
+Dans ce tableau on a bien une observation par ligne (un vol), et une variable par colonne. Mais on a une "infraction" à la troisième règle, qui est que chaque valeur doit être présente dans une unique case : si on regarde la colonne `name`, on a en effet une duplication de l'information concernant le nom des compagnies aériennes. Notre tableau mêle en fait deux types d'observations différents : des observations sur les vols, et des observations sur les compagnies aériennes.
+
+Pour "arranger" ce tableau, il faut séparer les deux types d'observations en deux tables différentes :
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+#| paged.print: false
+knitr::kable(df |> dplyr::select(-name, -flights_per_year))
+```
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+#| paged.print: false
+knitr::kable(df |> dplyr::select(carrier, name, flights_per_year) |>  distinct())
+```
+
+On a désormais deux tables distinctes, l'information n'est pas dupliquée, et on peut facilement faire une jointure si on a besoin de récupérer l'information d'une table dans une autre.
+
+L'objectif de `{tidyr}` est de fournir des fonctions pour arranger ses données et les convertir dans un format *tidy*. Ces fonctions prennent la forme de verbes qui viennent compléter ceux de `{dplyr}` et s'intègrent parfaitement dans les séries de *pipes* (`|>`, cf. @sec-pipe), les *pipelines*, permettant d'enchaîner les opérations.
+
+## `pivot_longer()` : rassembler des colonnes
+
+Prenons le tableau `d` suivant, qui liste la population de 4 pays en 2002 et 2007 :
+
+```{r}
+#| echo: false
+library(gapminder)
+data(gapminder)
+d <- gapminder
+d <- d |> 
+  filter(
+    country %in% c("France", "Germany", "Belgium", "Spain"),
+    year >= 2002
+  ) |>
+  dplyr::select(country, year, pop) |> 
+  spread(year, pop)
+kable(d)
+```
+
+Dans ce tableau, une même variable (la population) est répartie sur plusieurs colonnes, chacune représentant une observation à un moment différent. On souhaite que la variable ne représente plus qu'une seule colonne, et que les observations soient réparties sur plusieurs lignes.
+
+Pour cela on va utiliser la fonction `tidyr::pivot_longer()` :
+
+```{r}
+d |>
+  pivot_longer(
+    cols = c(`2002`,`2007`),
+    names_to = "annee",
+    values_to = "population"
+  )
+```
+
+La fonction `tidyr::pivot_longer()` prend comme arguments la liste des colonnes à rassembler (on peut également y utiliser les différentes fonctions de sélection de variables utilisables avec `dplyr::select()`), ainsi que deux arguments `names_to` et `values_to` :
+
+-   `names_to` est le nom de la colonne qui va contenir les "noms" des colonnes originelles, c'est-à-dire les identifiants des différentes observations
+-   `values_to` est le nom de la colonne qui va contenir la valeur des observations
+
+Parfois il est plus rapide d'indiquer à `tidyr::pivot_longer()` les colonnes qu'on ne souhaite pas rassembler. On peut le faire avec la syntaxe suivante :
+
+```{r}
+d |>
+  pivot_longer(
+    -country,
+    names_to = "annee",
+    values_to = "population"
+  )
+```
+
+## `pivot_wider()` : disperser des lignes
+
+La fonction `tidyr::pivot_wider()` est l'inverse de `tidyr::pivot_longer()`.
+
+Soit le tableau `d` suivant :
+
+```{r}
+#| echo: false
+library(gapminder)
+data(gapminder)
+dm <- gapminder
+d <- dm |> 
+  filter(country %in% c("France", "Germany", "Belgium"),
+         year >= 2002) |> 
+  dplyr::select(-gdpPercap) |> 
+  gather(lifeExp, pop, key = variable, value = value)
+kable(d)
+```
+
+Ce tableau a le problème inverse du précédent : on a deux variables, `lifeExp` et `pop` qui, plutôt que d'être réparties en deux colonnes, sont réparties entre plusieurs lignes.
+
+On va donc utiliser `tidyr::pivot_wider()` pour <q>disperser</q> ces lignes dans deux colonnes différentes :
+
+```{r}
+d |>
+  pivot_wider(
+    names_from = variable,
+    values_from = value
+  )
+```
+
+`tidyr::pivot_wider()` prend deux arguments principaux :
+
+-   `names_from` indique la colonne contenant les noms des nouvelles variables à créer
+-   `values_from` indique la colonne contenant les valeurs de ces variables
+
+Il peut arriver que certaines variables soient absentes pour certaines observations. Dans ce cas l'argument `values_fill` permet de spécifier la valeur à utiliser pour ces données manquantes (par défaut, les valeurs manquantes sont indiquées avec `NA`).
+
+Exemple avec le tableau `d` suivant :
+
+```{r}
+#| echo: false
+d <- d |>
+  bind_rows(
+    list(
+      country = "France",
+      continent = "Europe",
+      year = 2002,
+      variable = "density",
+      value = 94
+    )
+  )
+kable(d)
+```
+
+```{r}
+d |> 
+  pivot_wider(
+    names_from =  variable,
+    values_from = value
+  )
+```
+
+```{r}
+d |> 
+  pivot_wider(
+    names_from =  variable,
+    values_from = value,
+    values_fill = list(value = 0)
+  )
+```
+
+## `separate()` : séparer une colonne en plusieurs colonnes
+
+Parfois on a plusieurs informations réunies en une seule colonne et on souhaite les séparer. Soit le tableau d'exemple caricatural suivant, nommé `df` :
+
+```{r}
+df <- tibble(
+  eleve = c("Alex Petit", "Bertrand Dupont", "Corinne Durand"),
+  note = c("5/20", "6/10", "87/100")
+)
+df
+```
+
+`tidyr::separate()` permet de séparer la colonne `note` en deux nouvelles colonnes `note` et `note_sur` :
+
+```{r}
+df |>
+  separate(note, c("note", "note_sur"))
+```
+
+`tidyr::separate()` prend deux arguments principaux, le nom de la colonne à séparer et un vecteur indiquant les noms des nouvelles variables à créer. Par défaut `tidyr::separate()` <q>sépare</q> au niveau des caractères non-alphanumérique (espace, symbole, etc.). On peut lui indiquer explicitement le caractère sur lequel séparer avec l'argument `sep` :
+
+```{r}
+df |>
+  tidyr::separate(
+    eleve,
+    c("prenom", "nom"),
+    sep = " "
+  )
+```
+
+## separate_rows() : séparer une colonne en plusieurs lignes
+
+La fonction `tidyr::separate_rows()` est utile lorsque plusieurs valeurs sont contenues dans la même variable. Mais, alors que `tidyr::separate()` permet de répartir ces différentes valeurs dans plusieurs colonnes, `tidyr::separate_rows()` va créé une ligne pour chaque valeur. Prenons cet exemple trivial où les différentes notes de chaque élène sont contenues dans la colonne `notes`.
+
+```{r}
+df <- tibble(
+  eleve = c("Alex Petit", "Bertrand Dupont", "Corinne Durand"),
+  notes = c("10,15,16", "18,12,14", "16,17")
+)
+df
+```
+
+Appliquons `tidyr::separate_rows()`.
+
+```{r}
+df |> 
+  separate_rows(notes) |> 
+  rename(note = notes)
+```
+
+Par défaut `tidyr::separate_rows()` sépare les valeurs dès qu'elle trouve un caractère qui ne soit ni un chiffre ni une lettre, mais on peut spécifier le séparateur à l'aide de l'argument `sep` (qui accepte une chaîne de caractère ou même une expression régulière) :
+
+```{r}
+df |> 
+  separate_rows(notes, sep = ",") |> 
+  rename(note = notes)
+```
+
+## `unite()` : regrouper plusieurs colonnes en une seule
+
+`tidyr::unite()` est l'opération inverse de `tidyr::separate()`. Elle permet de regrouper plusieurs colonnes en une seule. Imaginons qu'on obtient le tableau `d` suivant :
+
+```{r}
+#| echo: false
+library(questionr)
+data(rp2012)
+d <- rp2012 |> 
+  dplyr::slice(1:6) |> 
+  dplyr::select(code_insee, commune, pop_tot) |> 
+  tidyr::extract(
+    code_insee,
+    c("code_departement", "code_commune"),
+    regex = "(..)(...)"
+  )
+knitr::kable(d)
+```
+
+On souhaite reconstruire une colonne `code_insee` qui indique le code INSEE de la commune, et qui s'obtient en concaténant le code du département et celui de la commune. On peut utiliser `tidyr::unite()` pour cela on indique d'abord le nom de la nouvelle variable puis la liste des variables à concaténer :
+
+```{r}
+d |>
+  unite(code_insee, code_departement, code_commune)
+```
+
+Le résultat n'est pas idéal : par défaut `tidyr::unite()` ajoute un caractère `_` entre les deux valeurs concaténées, alors qu'on ne veut aucun séparateur. De plus, on souhaite conserver nos deux colonnes d'origine, qui peuvent nous être utiles. On peut résoudre ces deux problèmes à l'aide des arguments `sep` et `remove` :
+
+```{r}
+d |> 
+  unite(
+    code_insee,
+    code_departement,
+    code_commune, 
+    sep = "",
+    remove = FALSE
+  )
+```
+
+## `extract()` : créer de nouvelles colonnes à partir d'une colonne de texte
+
+`tidyr::extract()` permet de créer de nouvelles colonnes à partir de sous-chaînes d'une colonne de texte existante, identifiées par des groupes dans une expression régulière.
+
+Par exemple, à partir du tableau suivant :
+
+```{r}
+#| echo: false
+df <- tibble(
+  eleve = c("Alex Petit", "Bertrand Dupont", "Corinne Durand"),
+  note = c("5/20", "6/10", "87/100")
+)
+kable(df)
+```
+
+On peut extraire les noms et prénoms dans deux nouvelles colonnes avec :
+
+```{r}
+df |>
+  extract(
+    eleve,
+    c("prenom", "nom"),
+    "^(.*) (.*)$"
+  )
+```
+
+On passe donc à `tidyr::extract()` trois arguments :
+
+-   la colonne d'où on doit extraire les valeurs,
+-   un vecteur avec les noms des nouvelles colonnes à créer,
+-   et une expression régulière comportant autant de groupes (identifiés par des parenthèses) que de nouvelles colonnes.
+
+Par défaut la colonne d'origine n'est pas conservée dans la table résultat. On peut modifier ce comportement avec l'argument `remove = FALSE`. Ainsi, le code suivant extrait les initiales du prénom et du nom mais conserve la colonne d'origine :
+
+```{r}
+df |>
+  tidyr::extract(
+    eleve, 
+    c("initiale_prenom", "initiale_nom"), 
+    "^(.).* (.).*$", 
+    remove = FALSE
+  )
+```
+
+## `complete()` : compléter des combinaisons de variables manquantes
+
+Imaginons qu'on ait le tableau de résultats suivants :
+
+```{r}
+#| echo: false
+df <- tibble(
+  eleve = c("Alain", "Alain", "Barnabé", "Chantal"),
+  matiere = c("Maths", "Français", "Maths", "Français"),
+  note = c(16, 9, 17, 11)
+)
+kable(df)
+```
+
+Les élèves Barnabé et Chantal n'ont pas de notes dans toutes les matières. Supposons que c'est parce qu'ils étaient absents et que leur note est en fait un 0. Si on veut calculer les moyennes des élèves, on doit compléter ces notes manquantes.
+
+La fonction `tidyr::complete()` est prévue pour ce cas de figure : elle permet de compléter des combinaisons manquantes de valeurs de plusieurs colonnes.
+
+On peut l'utiliser de cette manière :
+
+```{r}
+df |>
+  complete(eleve, matiere)
+```
+
+On voit que les combinaisons manquante "Barnabé - Français" et "Chantal - Maths" ont bien été ajoutées par `tidyr::complete()`.
+
+Par défaut les lignes insérées récupèrent des valeurs manquantes `NA` pour les colonnes restantes. On peut néanmoins choisir une autre valeur avec l'argument `fill`, qui prend la forme d'une liste nommée :
+
+```{r}
+df |>
+  complete(
+    eleve,
+    matiere,
+    fill = list(note = 0)
+  )
+```
+
+Parfois on ne souhaite pas inclure toutes les colonnes dans le calcul des combinaisons de valeurs. Par exemple, supposons qu'on rajoute dans notre tableau une colonne avec les identifiants de chaque élève :
+
+```{r}
+#| echo: false
+df <- tibble(
+  id = c(1001001, 1001001, 1001002, 1001003),
+  eleve = c("Alain", "Alain", "Barnabé", "Chantal"),
+  matiere = c("Maths", "Français", "Maths", "Français"),
+  note = c(16, 9, 17, 11))
+kable(df)
+```
+
+Si on applique `tidyr::complete()` comme précédemment, le résultat n'est pas bon car il génère des valeurs manquantes pour `id.`
+
+```{r}
+df |>
+  complete(eleve, matiere)
+```
+
+Et si nous ajoutons `id` dans l'appel de la fonction, nous obtenons toutes les combinaisons de `id`, `eleve` et `matiere`.
+
+```{r}
+df |>
+  complete(id, eleve, matiere)
+```
+
+Dans ce cas, pour signifier à `tidyr::complete()` que `id` et `eleve` sont deux attributs d'un même individu et ne doivent pas être combinés entre eux, on doit les placer dans une fonction `tidyr::nesting()` :
+
+```{r}
+df |>
+  complete(
+    nesting(id, eleve),
+    matiere
+  )
+```
+
+## Ressources
+
+Chaque jeu de données est différent, et le travail de remise en forme est souvent long et plus ou moins compliqué. On n'a donné ici que les exemples les plus simples, et c'est souvent en combinant différentes opérations qu'on finit par obtenir le résultat souhaité.
+
+Le livre *R for data science*, librement accessible en ligne, contient [un chapitre complet](https://r4ds.hadley.nz/data-tidy.html) sur la remise en forme des données.
+
+L'article [Tidy data](https://www.jstatsoft.org/article/view/v059i10), publié en 2014 dans le *Journal of Statistical Software* (doi: [10.18637/jss.v059.i10](https://doi.org/10.18637/jss.v059.i10)), présente de manière détaillée le concept éponyme (mais il utilise des extensions désormais obsolètes qui ont depuis été remplacées par `{dplyr}` et`{tidyr}`).
+
+Le site de l'extension est accessible à l'adresse : <http://tidyr.tidyverse.org/> et contient une liste des fonctions et les pages d'aide associées.
+
+En particulier, on pourra se référer à la [vignette dédiée](https://tidyr.tidyverse.org/articles/pivot.html) à `tidyr::pivot_wider()` et `tidyr::pivot_longer()` pour des exemples avancés de réorganisation des données.
+
+Pour des usages avancés, il est possible avec `{tidyr}` de gérer des données nichées (*nested data*), c'est-à-dire des tableaux de données dans des tableaux de données. Ces fonctionnalités, réservées aux utilisateurs avancés, sont décrites dans une [vignette spécifique](https://tidyr.tidyverse.org/articles/nest.html).
+
+## Fichiers volumineux
+
+Si l'on a des tableaux de données particulièrement volumineux (plusieurs Go), les fonctions de `{tidyr}` ne sont pas les plus performantes.
+
+On aura alors intérêt à regarder du côté des fonctions `data.table::melt()` et `data.table::dcast()` de l'extension `{data.table}` développées pour optimiser la performance sur les grands tableaux de données.
+
+Pour plus de détails, voir la vignette dédiée : <https://rdatatable.gitlab.io/data.table/articles/datatable-reshape.html>
+
+## webin-R
+
+Le package `{tidyr}` est évoqué sur YouTube dans le [webin-R #13](https://youtu.be/5sD4Z8bTlMM) (*exemples de graphiques avancés*) et le le [webin-R #17](https://youtu.be/JV1Srrg09oI) (*trajectoires de soins : un exemple de données longitudinales*).
+
+{{< video https://youtu.be/5sD4Z8bTlMM >}}
+
+{{< video https://youtu.be/JV1Srrg09oI >}}
