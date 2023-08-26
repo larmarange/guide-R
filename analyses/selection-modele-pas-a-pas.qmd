@@ -1,0 +1,344 @@
+# Sélection pas à pas d'un modèle {#sec-selection-modele-pas-a-pas}
+
+Il est toujours tentant lorsque l'on recherche les facteurs associés à un phénomène d'inclure un nombre important de variables explicatives potentielles dans son modèle de régression. Cependant, un tel modèle n'est pas forcément le plus efficace et certaines variables n'auront probablement pas d'effet significatif sur la variable d'intérêt.
+
+Un autre problème potentiel est celui dur [sur-ajustement ou surappentissage](https://fr.wikipedia.org/wiki/Surapprentissage). Un modèle surajusté est un modèle statistique qui contient plus de paramètres que ne peuvent le justifier les données. Dès lors, il va être trop ajusté aux données observées mais perdre en capacité de généralisation.
+
+Pour une présentation didactique du cadre théorique de la sélection de modèle, vous pouvez consulter en ligne le [cours de L. Rouvière sur la sélection/validation de modèles](https://perso.univ-rennes2.fr/system/files/users/rouviere_l/chapitre3_glm.pdf).
+
+Les techniques de sélection pas à pas sont des approches visant à <q>améliorer</q>un modèle explicatif. On part d'un modèle initial puis on regarde s'il est possible d'améliorer le modèle en ajoutant ou en supprimant une des variables du modèle pour obtenir un nouveau modèle. Le processus est répété jusqu'à obtenir un modèle final que l'on ne peut plus améliorer.
+
+## Données d'illustration
+
+Pour illustrer ce chapitre, nous allons prendre un modèle logistique inspiré de celui utilisé dans le chapitre sur la régression logistique binaire (cf. @sec-regression-logistique-binaire).
+
+```{r}
+#| message: false
+library(tidyverse)
+library(labelled)
+library(gtsummary)
+theme_gtsummary_language(
+  "fr",
+  decimal.mark = ",",
+  big.mark = " "
+)
+
+data(hdv2003, package = "questionr")
+
+d <-
+  hdv2003 |> 
+  mutate(
+    sexe = sexe |> fct_relevel("Femme"),
+    groupe_ages = age |>
+      cut(
+        c(18, 25, 45, 65, 99),
+        right = FALSE,
+        include.lowest = TRUE,
+        labels = c("18-24 ans", "25-44 ans",
+                   "45-64 ans", "65 ans et plus")
+      ),
+    etudes = nivetud |> 
+      fct_recode(
+        "Primaire" = "N'a jamais fait d'etudes",
+        "Primaire" = "A arrete ses etudes, avant la derniere annee d'etudes primaires",
+        "Primaire" = "Derniere annee d'etudes primaires",
+        "Secondaire" = "1er cycle",
+        "Secondaire" = "2eme cycle",
+        "Technique / Professionnel" = "Enseignement technique ou professionnel court",
+        "Technique / Professionnel" = "Enseignement technique ou professionnel long",
+        "Supérieur" = "Enseignement superieur y compris technique superieur"
+    ) |> 
+    fct_na_value_to_level("Non documenté")  
+  ) |> 
+  set_variable_labels(
+    sport = "Pratique un sport ?",
+    sexe = "Sexe",
+    groupe_ages = "Groupe d'âges",
+    etudes = "Niveau d'études",
+    relig = "Rapport à la religion",
+    lecture.bd = "Lit des bandes dessinées ?"
+  )
+
+mod <- glm(
+  sport ~ sexe + groupe_ages + etudes + relig + lecture.bd,
+  family = binomial,
+  data = d
+)
+```
+
+## Présentation de l'AIC
+
+Il faut définir un critère pour déterminer la qualité d'un modèle. L'un des plus utilisés est le *Akaike Information Criterion* ou AIC. Il s'agit d'un compromis entre le nombre de degrés de liberté (e.g. le nombre de coefficients dans le modèle) que l'on cherche à minimiser et la variance expliquée que l'on cherche à maximiser (la vraisemblance).
+
+Plus précisément $AIC=2k-2ln(L)$ où $L$ est le maximum de la fonction de vraisemblance du modèle et $k$ le nombre de paramètres (i.e. de coefficients) du modèle. Plus l'AIC sera faible, meilleur sera le modèle.
+
+L'AIC d'un modèle s'obtient aisément avec `AIC()`.
+
+```{r}
+AIC(mod)
+```
+
+## Sélection pas à pas descendante
+
+La fonction `step()` permet de sélectionner le meilleur modèle par une procédure pas à pas descendante basée sur la minimisation de l'AIC. La fonction affiche à l'écran les différentes étapes de la sélection et renvoie le modèle final.
+
+```{r}
+mod2 <- step(mod)
+```
+
+Le modèle initial a un AIC de 2257,1.
+
+À la première étape, il apparaît que la suppression de la variable *relig* permettrait diminuer l'AIC à 2251,9 et la suppression de la variable *lecture.bd* de le diminuer à 2255,9. Le gain maximal est obtenu en supprimant *relig* et donc cette variable est supprimée à ce stade. On peut noter que la suppression de la variable entraîne *de facto* une augmentation des résidus (colonne *Deviance*) et donc une baisse de la vraisemblance du modèle, mais cela est compensé par la réduction du nombre de degrés de liberté.
+
+Le processus est maintenant répété. À la seconde étape, supprimer *lecture.bd* permettrait de diminuer encore l'AIC à 2250,6 et cette variable est supprimée.
+
+À la troisième étape, tout retrait d'une variable additionnelle reviendrait à augmenter l'AIC.
+
+Lors de la seconde étape, toute suppression d'une autre variable ferait augmenter l'AIC. La procédure s'arrête donc.
+
+L'objet `mod2` renvoyé par `step()` est le modèle final.
+
+```{r}
+mod2
+```
+
+On peut effectuer une analyse de variance ou ANOVA pour comparer les deux modèles avec la fonction `anova()`.
+
+```{r}
+anova(mod, mod2, test = "Chisq")
+```
+
+Il n'y a pas de différences significatives entre nos deux modèles (p=0,55). Autrement dit, notre second modèle explique tout autant de variance que notre premier modèle, tout en étant plus parcimonieux.
+
+::: callout-tip
+Une alternative à la fonction `step()` est la fonction `MASS::stepAIC()` du package `{MASS}` qui fonctionne de la même manière. Si cela ne change rien aux régressions logistiques classiques, il arrive que pour certains types de modèle la méthode `step()` ne soit pas disponible, mais que `MASS::stepAIC()` puisse être utilisée à la place.
+
+```{r}
+library(MASS)
+mod2bis <- stepAIC(mod)
+```
+:::
+
+On peut facilement comparer visuellement deux modèles avec `ggstats::ggcoef_compare()` de `{ggstats}`.
+
+```{r}
+#| label: fig-comparaison-modeles-dodge
+#| fig-cap: Comparaison visuelle des deux modèles (*dodge*)
+library(ggstats)
+ggcoef_compare(
+  list("modèle complet" = mod, "modèle réduit" = mod2), 
+  exponentiate = TRUE
+)
+```
+
+```{r}
+#| label: fig-comparaison-modeles-faceted
+#| fig-cap: Comparaison visuelle des deux modèles (*faceted*)
+ggcoef_compare(
+  list("modèle complet" = mod, "modèle réduit" = mod2), 
+  type = "faceted",
+  exponentiate = TRUE
+)
+```
+
+## Sélection pas à pas ascendante
+
+Pour une approche ascendante, nous allons partir d'un modèle vide, c'est-à-dire d'un modèle sans variable explicative avec simplement un intercept.
+
+```{r}
+mod_vide <- glm(
+  sport ~ 1,
+  family = binomial,
+  data = d
+)
+```
+
+Nous allons ensuite passer ce modèle vide à `step()` et préciser, via un élément nommé *upper* dans une liste passée à l'argument `scope`, la formule du modèle maximum à considérer. Nous précisons `direction = "forward"` pour indiquer que nous souhaitons une procédure ascendante.
+
+```{r}
+mod3 <- step(
+  mod_vide,
+  direction = "forward",
+  scope = list(
+    upper = ~ sexe + groupe_ages + etudes + relig + lecture.bd
+  )
+)
+```
+
+Cette fois-ci, à chaque étape, la fonction `step()` évalue le gain à ajouter chaque variable dans le modèle, ajoute la variable la plus pertinente, pour recommence le processus jusqu'à ce qu'il n'y ait plus de gain à ajouter une variable au modèle. Notons que nous aboutissons ici au même résultat.
+
+::: callout-tip
+Nous aurions pu nous passer de préciser `direction = "forward"`. Dans cette situation, `step()` regarde simultanément les gains à ajouter une variable additionnelle au modèle et à supprimer une variable déjà inclue pour . Lorsque l'on part d'un modèle vide, cela ne change rien au résultat.
+
+```{r}
+mod3 <- step(
+  mod_vide,
+  scope = list(
+    upper = ~ sexe + groupe_ages + etudes + relig + lecture.bd
+  )
+)
+```
+:::
+
+## Forcer certaines variables dans le modèle réduit
+
+Même si l'on a recourt à step(), on peut vouloir forcer la présence de certaines variables dans le modèle, même si leur suppression minimiserait l'AIC. Par exemple, si l'on a des hypothèses spécifiques pour ces variables et que l'on a intérêt à montrer qu'elles n'ont pas d'effet dans le modèle multivarié.
+
+Supposons que nous avons une hypothèse sur le lien entre la pratique d'un sport et la lecture de bandes dessinées. Nous souhaitons donc forcer la présence de la variable *lecture.bd* dans le modèle final. Cette fois-ci, nous allons indiquer, via la liste passée à `scope`, un élément *lower* indiquant le modèle minimum souhaité. Toutes les variables de ce modèle minimum seront donc conserver dans le modèle final.
+
+```{r}
+mod4 <- step(
+  mod,
+  scope = list(
+    lower = ~ lecture.bd
+  )
+)
+```
+
+Cette fois-ci, nous constatons que la fonction `step()` n'a pas considéré la suppression éventuelle de la variable *lecture.bd* qui est donc conservée.
+
+```{r}
+mod4$formula
+```
+
+## Minimisation du BIC
+
+Un critère similaire à l'AIC est le critère BIC (*Bayesian Information Criterion*) appelé aussi SBC (*Schwarz information criterion*).
+
+Sa formule est proche de celle de l'AIC : $BIC=ln(n)k-2ln(L)$ où $n$ correspond au nombre d'observations dans l'échantillon. Par rapport à l'AIC, il pénalise donc plus le nombre de degrés de liberté du modèle.
+
+Pour réaliser une sélection pas à pas par optimisation du BIC, on appellera `step()` en ajoutant l'argument `k = log(n)` où `n` est le nombre d'observations inclues dans le modèle. Par défaut, un modèle est calculé en retirant les observations pour lesquelles des données sont manquantes. Dès lors, pour obtenir le nombre exact d'observations incluses dans le modèle, on peut utiliser la syntaxe `mod |> model.matrix() |> nrow()`, `model.matrix()` renvoyant la matrice de données ayant servi au calcul du modèle et `nrow()` le nombre de lignes.
+
+```{r}
+mod5 <- mod |>
+  step(
+    k = mod |> model.matrix() |> nrow() |> log()
+  )
+```
+
+## Afficher les indicateurs de performance
+
+Il existe plusieurs indicateurs de <q>performance</q> ou <q>qualité</q> d'un modèle. Pour les calculer/afficher (dont l'AIC et le BIC), on pourra avoir recours à `broom::glance()` ou encore à `performance::model_performance()`.
+
+```{r}
+mod |> broom::glance()
+mod |> performance::model_performance()
+```
+
+Le fonction `performance::compare_performance()` permet de comparer rapidement plusieurs modèles.
+
+```{r}
+performance::compare_performance(mod, mod2, mod4)
+```
+
+Si l'on souhaite afficher l'AIC (ainsi que d'autres statistiques globales du modèle) en note du tableau des coefficients, on pourra utiliser `gtsummary::add_glance_source_note()`.
+
+```{r}
+#| label: tbl-regression-logistique-glance_source_note
+#| tbl-cap: Modèle obtenu après réduction du nombre de variables
+mod2 |> 
+  tbl_regression(exponentiate = TRUE) |> 
+  bold_labels() |> 
+  add_glance_source_note()
+```
+
+## Sélection pas à pas et valeurs manquantes {#sec-step-avec-na}
+
+Si certaines de nos variables explications contiennent des valeurs manquantes (`NA`), cela peut entraîner des erreurs au moment d'avoir recours à `step()`, car le nombre d'observations dans le modèle va changer si on retire du modèle une variable explicative avec des valeurs manquantes.
+
+Prenons un exemple, en ajoutant des valeurs manquantes à la variable *relig* (pour cela nous allons recoder les refus et les ne sait pas en `NA`).
+
+```{r}
+d$relig_na <- 
+  d$relig |> 
+  fct_recode(
+    NULL = "Rejet",
+    NULL = "NSP ou NVPR"
+  )
+
+mod_na <- glm(
+  sport ~ sexe + groupe_ages + etudes + relig_na + lecture.bd,
+  family = binomial,
+  data = d
+)
+```
+
+Au moment d'exécuter `step()` nous obtenons l'erreur mentionnée précédemment.
+
+```{r}
+#| error: true
+step(mod_na)
+```
+
+Pas d'inquiétude ! Il y a moyen de s'en sortir en adoptant la stratégie suivante :
+
+1.  créer une copie du jeu de données avec uniquement des observations sans valeur manquante pour nos variables explicatives ;
+2.  calculer notre modèle complet à partir de ce jeu de données ;
+3.  appliquer `step()` ;
+4.  recalculer le modèle réduit en repartant du jeu de données complet.
+
+Première étape, ne garder que les observations complètes à l'aide de `tidyr::drop_na()`, en lui indiquant la liste des variables dans lesquelles vérifier la présence ou non de `NA`.
+
+```{r}
+d_complet <- d |> 
+  drop_na(sexe, groupe_ages, etudes, relig_na, lecture.bd)
+```
+
+Deuxième étape, calculons le modèle complet avec ce jeu données.
+
+```{r}
+mod_na_alt <- glm(
+  sport ~ sexe + groupe_ages + etudes + relig_na +lecture.bd,
+  family = binomial,
+  data = d_complet
+)
+```
+
+Le modèle `mod_na_alt` est tout à fait identique au modèle `mod_na`, car `glm()` supprime de lui-même les valeurs manquantes quand elles existent. Nous pouvons maintenant utiliser `step().`
+
+```{r}
+mod_na_reduit <- step(mod_na_alt)
+```
+
+Cela s'exécute sans problème car tous les sous-modèles sont calculés à partir de `d_complet` et donc ont bien le même nombre d'observations. Cependant, dans notre modèle réduit, on a retiré 137 observations en raison d'une valeur manquante sur la variable *relig_na*, variable qui n'est plus présente dans notre modèle réduit. Il serait donc pertinent de réintégrer ces observations.
+
+Nous allons donc recalculer le modèle réduit mais à partir de `d`. Inutile de recopier à la main la formule du modèle réduit, car nous pouvons l'obtenir directement avec `mod_na_reduit$formula`.
+
+```{r}
+mod_na_reduit2 <- glm(
+  mod_na_reduit$formula,
+  family = binomial,
+  data = d
+)
+```
+
+**Attention :** `mod_na_reduit` et `mod_na_reduit2` ne sont pas identiques puisque le second a été calculé sur un plus grand nombre d'observations, ce qui change très légèrement les valeurs des coefficients.
+
+::: callout-tip
+Pour automatiser l'ensemble de ce processus, on peut copier/coller le code de la fonction générique suivante :
+
+```{r}
+step_with_na <- function(model, ...) {
+  # refit the model without NAs
+  model_no_na <- update(model, data = model.frame(model))  
+  # apply step()
+  model_simplified <- step(model_no_na, ...)
+  # recompute simplified model using full data
+  update(model, formula = terms(model_simplified))
+}
+```
+
+Elle réalise l'ensemble des opérations décrites plus haut en profitant de la flexibilité offerte par la fonction `update()`. La fonction `model.frame()` permet de récupérer le jeu de données utilisé par un modèle (et dans lequel les lignes incomplètes ont été supprimées). La fonction `terms()` permet de récupérer l'équation du modèle.
+
+**Attention :** il s'agit d'une fonction expérimentale et elle n'est peut-être pas compatible avec tous les types de modèles. Elle a été testée avec les modèles `lm()`, `glm()` et `nnet::multinom()`.
+
+```{r}
+mod_na_reduit_direct <- step_with_na(mod_na, trace = 0)
+```
+
+Le résultat obtenu est strictement identique.
+
+```{r}
+anova(mod_na_reduit2, mod_na_reduit_direct)
+```
+:::

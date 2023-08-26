@@ -308,9 +308,23 @@ Cette fois-ci, le coefficient d'interaction fournit indique l'effet combiné du 
 
 **Que l'on définisse une interaction simple (`sexe:groupe_ages`) ou complète (`sexe*groupe_ages`), les deux modèles calculés sont donc identiques en termes prédictifs et explicatifs, mais l'interprétation de leurs coefficients diffèrent.**
 
-::: callout-tip
-Il peut y avoir de multiples interactions dans un modèle, d'ordre 2 (entre deux variables) ou plus (entre trois variables ou plus). Il est dès lors tentant de tester les multiples interactions possibles de manière itératives afin d'identifier celles à retenir. C'est justement le but de la fonction `ggmulti::glmulti()` `glmulti::glmulti()` permets de tester toutes les combinaisons d'interactions d'ordre 2 dans un modèle, en retenant le meilleur modèle à partir d'un critère spécifié (par défaut l'<df>AIC). ATTENTION : le temps de calcul de `glmulti::glmulti()` peut-être long.
-:::
+## Identifier les interactions pertinentes
+
+Il peut y avoir de multiples interactions dans un modèle, d'ordre 2 (entre deux variables) ou plus (entre trois variables ou plus). Il est toujours bon, selon notre connaissance du sujet et de la littérature, d'explorer manuellement les interactions attendues / prévisibles.
+
+Mais, il est tentant de vouloir tester les multiples interactions possibles de manière itératives afin d'identifier celles à retenir.
+
+Une possibilité[^interactions-2] est d'avoir recours à une sélection de modèle pas à pas ascendante (voir @sec-selection-modele-pas-a-pas). Nous allons partir de notre modèle sans interaction, indiquer à `step()` l'ensemble des interactions possibles et voir si nous pouvons minimiser l'AIC.
+
+[^interactions-2]: On pourra également regarder du côté de `glmulti::glmulti()` pour des approches alternatives.
+
+```{r}
+mod4 <- mod |> 
+  step(scope = list(upper = ~ sexe * groupe_ages * etudes * heures.tv))
+mod4$formula
+```
+
+Le modèle final suggéré comprends une interaction entre le sexe et le groupe d'âges et une interaction entre le sexe et le nombre quotidien d'heures de télévision.
 
 ## Pour aller plus loin
 
