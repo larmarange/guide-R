@@ -1,0 +1,1891 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="fr" xml:lang="fr"><head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.433">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<title>guide-R - 39&nbsp; Régression logistique multinomiale</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../analyses_avancees/modeles-comptage.html" rel="next">
+<link href="../analyses_avancees/classification-ascendante-hierarchique.html" rel="prev">
+<link href="../ressources/favicon.png" rel="icon" type="image/png">
+<script src="../site_libs/cookie-consent/cookie-consent.js"></script>
+<link href="../site_libs/cookie-consent/cookie-consent.css" rel="stylesheet">
+<script src="../site_libs/quarto-html/quarto.js"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script src="../site_libs/quarto-contrib/glightbox/glightbox.min.js"></script>
+<link href="../site_libs/quarto-contrib/glightbox/glightbox.min.css" rel="stylesheet">
+<link href="../site_libs/quarto-contrib/glightbox/lightbox.css" rel="stylesheet"><script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "Pas de résultats",
+    "search-matching-documents-text": "documents trouvés",
+    "search-copy-link-title": "Copier le lien vers la recherche",
+    "search-hide-matches-text": "Cacher les correspondances additionnelles",
+    "search-more-match-text": "correspondance de plus dans ce document",
+    "search-more-matches-text": "correspondances de plus dans ce document",
+    "search-clear-button-title": "Effacer",
+    "search-detached-cancel-button-title": "Annuler",
+    "search-submit-button-title": "Envoyer",
+    "search-label": "Recherche"
+  }
+}</script><script async="" src="https://www.googletagmanager.com/gtag/js?id=G-8BT7D9P85Y"></script><script type="text/plain" cookie-consent="tracking">
+
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-8BT7D9P85Y', { 'anonymize_ip': true});
+</script><script type="text/javascript" charset="UTF-8">
+document.addEventListener('DOMContentLoaded', function () {
+cookieconsent.run({
+  "notice_banner_type":"simple",
+  "consent_type":"implied",
+  "palette":"light",
+  "language":"en",
+  "page_load_consent_levels":["strictly-necessary","functionality","tracking","targeting"],
+  "notice_banner_reject_button_hide":false,
+  "preferences_center_close_button_hide":false,
+  "website_name":""
+  });
+});
+</script><style>html{ scroll-behavior: smooth; }</style>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body class="nav-sidebar floating slimcontent">
+
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top"><nav class="quarto-secondary-nav"><div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Basculer la barre latérale" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../analyses_avancees/analyse-factorielle.html"><strong>Analyses avancées</strong></a></li><li class="breadcrumb-item"><a href="../analyses_avancees/regression-logistique-multinomiale.html"><span class="chapter-number">39</span>&nbsp; <span class="chapter-title">Régression logistique multinomiale</span></a></li></ol></nav>
+      <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Basculer la barre latérale" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+      </a>
+      <button type="button" class="btn quarto-search-button" aria-label="" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav></header><!-- content --><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal sidebar-navigation floating overflow-auto"><div class="pt-lg-2 mt-2 text-left sidebar-header sidebar-header-stacked">
+      <a href="../index.html" class="sidebar-logo-link">
+      <img src="../ressources/typewriter.png" alt="" class="sidebar-logo py-0 d-lg-inline d-none"></a>
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../">guide-R</a> 
+        <div class="sidebar-tools-main tools-wide">
+    <a href="https://github.com/larmarange/guide-R/" rel="" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
+    <a href="../guide-R.pdf" rel="" title="Download PDF" class="quarto-navigation-tool px-1" aria-label="Download PDF"><i class="bi bi-file-pdf"></i></a>
+    <div class="dropdown">
+      <a href="" title="Share" id="quarto-navigation-tool-dropdown-0" class="quarto-navigation-tool dropdown-toggle px-1" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Share"><i class="bi bi-share"></i></a>
+      <ul class="dropdown-menu" aria-labelledby="quarto-navigation-tool-dropdown-0">
+<li>
+            <a class="dropdown-item sidebar-tools-main-item" href="https://twitter.com/intent/tweet?url=%7Curl%7C">
+              <i class="bi bi-bi-twitter pe-1"></i>
+            Twitter
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item sidebar-tools-main-item" href="https://www.facebook.com/sharer/sharer.php?u=%7Curl%7C">
+              <i class="bi bi-bi-facebook pe-1"></i>
+            Facebook
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item sidebar-tools-main-item" href="https://www.linkedin.com/sharing/share-offsite/?url=%7Curl%7C">
+              <i class="bi bi-bi-linkedin pe-1"></i>
+            LinkedIn
+            </a>
+          </li>
+      </ul>
+</div>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Recherche"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+<li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Préface</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true">
+ <span class="menu-text"><strong>Bases du langage</strong></span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true" aria-label="Basculer la section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">
+<li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../bases/packages.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Packages</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../bases/vecteurs.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Vecteurs</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../bases/listes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Listes</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../bases/tableaux_donnees.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Tableaux de données</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../bases/tibbles.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Tibbles</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../bases/attributs.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Attributs</span></span></a>
+  </div>
+</li>
+      </ul>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="true">
+ <span class="menu-text"><strong>Manipulation de données</strong></span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="true" aria-label="Basculer la section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">
+<li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../manipulation/pipe.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Le pipe</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../manipulation/dplyr.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title"><code>dplyr</code></span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../manipulation/facteurs.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Facteurs et <code>forcats</code></span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../manipulation/combiner-variables.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Combiner plusieurs variables</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../manipulation/etiquettes-variables.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Étiquettes de variables</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../manipulation/etiquettes-valeurs.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Étiquettes de valeurs</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../manipulation/valeurs-manquantes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Valeurs manquantes</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../manipulation/import-export.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Import &amp; Export de données</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../manipulation/formater-nombre.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Mettre en forme des nombres</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../manipulation/couleurs.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Couleurs &amp; Palettes</span></span></a>
+  </div>
+</li>
+      </ul>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" aria-expanded="true">
+ <span class="menu-text"><strong>Analyses</strong></span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" aria-expanded="true" aria-label="Basculer la section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">
+<li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses/ggplot2.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Graphiques avec <code>ggplot2</code></span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses/statistique-univariee.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Statistique univariée &amp; Intervalles de confiance</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses/statistique-bivariee.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Statistique bivariée &amp; Tests de comparaison</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses/likert.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Échelles de Likert</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses/regression-lineaire.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Régression linéaire</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses/regression-logistique-binaire.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Régression logistique binaire</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses/selection-modele-pas-a-pas.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">23</span>&nbsp; <span class="chapter-title">Sélection pas à pas d’un modèle</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses/estimations-marginales.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">24</span>&nbsp; <span class="chapter-title">Prédictions marginales, contrastes marginaux &amp; effets marginaux</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses/contrastes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">25</span>&nbsp; <span class="chapter-title">Contrastes (variables catégorielles)</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses/interactions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">26</span>&nbsp; <span class="chapter-title">Interactions</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses/multicolinearite.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">27</span>&nbsp; <span class="chapter-title">Multicolinéarité</span></span></a>
+  </div>
+</li>
+      </ul>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" aria-expanded="true">
+ <span class="menu-text"><strong>Données pondérées avec <code>survey</code></strong></span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" aria-expanded="true" aria-label="Basculer la section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">
+<li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../donnees_ponderees/plan-echantillonnage.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">28</span>&nbsp; <span class="chapter-title">Définir un plan d’échantillonnage</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../donnees_ponderees/manipulation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">29</span>&nbsp; <span class="chapter-title">Manipulation de données pondérées</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../donnees_ponderees/analyses-bivariees.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">30</span>&nbsp; <span class="chapter-title">Analyses uni- et bivariées pondérées</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../donnees_ponderees/graphiques-ponderes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">31</span>&nbsp; <span class="chapter-title">Graphiques pondérés</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../donnees_ponderees/regression-logistique-binaire-ponderee.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">32</span>&nbsp; <span class="chapter-title">Régression logistique binaire pondérée</span></span></a>
+  </div>
+</li>
+      </ul>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" aria-expanded="true">
+ <span class="menu-text"><strong>Manipulation avancée</strong></span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" aria-expanded="true" aria-label="Basculer la section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">
+<li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../manipulation_avancee/fusion_tables.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">33</span>&nbsp; <span class="chapter-title">Fusion de tables</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../manipulation_avancee/dates.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">34</span>&nbsp; <span class="chapter-title">Dates avec <code>lubridate</code></span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../manipulation_avancee/tidyr.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">35</span>&nbsp; <span class="chapter-title">Réorganisation avec <code>tidyr</code></span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../manipulation_avancee/transformations-multiples.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">36</span>&nbsp; <span class="chapter-title">Transformations multiples</span></span></a>
+  </div>
+</li>
+      </ul>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" aria-expanded="true">
+ <span class="menu-text"><strong>Analyses avancées</strong></span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" aria-expanded="true" aria-label="Basculer la section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 show">
+<li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses_avancees/analyse-factorielle.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">37</span>&nbsp; <span class="chapter-title">Analyse factorielle</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses_avancees/classification-ascendante-hierarchique.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">38</span>&nbsp; <span class="chapter-title">Classification ascendante hiérarchique</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses_avancees/regression-logistique-multinomiale.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">39</span>&nbsp; <span class="chapter-title">Régression logistique multinomiale</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses_avancees/modeles-comptage.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">40</span>&nbsp; <span class="chapter-title">Modèles de comptage (Poisson &amp; apparentés)</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses_avancees/modeles-incidence.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">41</span>&nbsp; <span class="chapter-title">Modèles d’incidence / de taux</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses_avancees/modeles-zero-inflated.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">42</span>&nbsp; <span class="chapter-title">Modèles de comptage <em>zero-inflated</em> et <em>hurdle</em></span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses_avancees/choix-modele.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">43</span>&nbsp; <span class="chapter-title">Quel modèle choisir&nbsp;?</span></span></a>
+  </div>
+</li>
+      </ul>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" aria-expanded="true">
+ <span class="menu-text"><strong>Pour aller plus loin</strong></span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" aria-expanded="true" aria-label="Basculer la section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth1 show">
+<li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../extra/ressources-documentaires.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">44</span>&nbsp; <span class="chapter-title">Ressources documentaires</span></span></a>
+  </div>
+</li>
+      </ul>
+</li>
+    </ul>
+</div>
+</nav><div id="quarto-sidebar-glass" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active"><h2 id="toc-title">Table des matières</h2>
+   
+  <ul>
+<li><a href="#donn%C3%A9es-dillustration" id="toc-données-dillustration" class="nav-link active" data-scroll-target="#donn%C3%A9es-dillustration"><span class="header-section-number">39.1</span> Données d’illustration</a></li>
+  <li><a href="#calcul-du-mod%C3%A8le-multinomial" id="toc-calcul-du-modèle-multinomial" class="nav-link" data-scroll-target="#calcul-du-mod%C3%A8le-multinomial"><span class="header-section-number">39.2</span> Calcul du modèle multinomial</a></li>
+  <li><a href="#affichage-des-r%C3%A9sultats-du-mod%C3%A8le" id="toc-affichage-des-résultats-du-modèle" class="nav-link" data-scroll-target="#affichage-des-r%C3%A9sultats-du-mod%C3%A8le"><span class="header-section-number">39.3</span> Affichage des résultats du modèle</a></li>
+  <li>
+<a href="#donn%C3%A9es-pond%C3%A9r%C3%A9es" id="toc-données-pondérées" class="nav-link" data-scroll-target="#donn%C3%A9es-pond%C3%A9r%C3%A9es"><span class="header-section-number">39.4</span> Données pondérées</a>
+  <ul class="collapse">
+<li><a href="#avec-svrepmiscsvymultinom" id="toc-avec-svrepmiscsvymultinom" class="nav-link" data-scroll-target="#avec-svrepmiscsvymultinom"><span class="header-section-number">39.4.1</span> avec <code>svrepmisc::svymultinom()</code></a></li>
+  <li><a href="#avec-svyvgamsvy_glm" id="toc-avec-svyvgamsvy_glm" class="nav-link" data-scroll-target="#avec-svyvgamsvy_glm"><span class="header-section-number">39.4.2</span> avec <code>svyVGAM::svy_glm()</code></a></li>
+  </ul>
+</li>
+  <li><a href="#webin-r" id="toc-webin-r" class="nav-link" data-scroll-target="#webin-r"><span class="header-section-number">39.5</span> webin-R</a></li>
+  </ul><div class="toc-actions"><div><i class="bi bi-github"></i></div><div class="action-links"><p><a href="https://github.com/larmarange/guide-R/blob/main/analyses_avancees/regression-logistique-multinomiale.qmd" class="toc-action">Voir la source</a></p><p><a href="https://github.com/larmarange/guide-R/issues/new" class="toc-action">Faire part d'un problème</a></p></div></div></nav>
+    </div>
+<!-- main -->
+<main class="content page-columns page-full" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block default"><div class="quarto-title">
+<h1 class="title"><span id="sec-regression-logistique-multinomiale" class="quarto-section-identifier"><span class="chapter-number">39</span>&nbsp; <span class="chapter-title">Régression logistique multinomiale</span></span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+</header><p>La régression logistique multinomiale est une extension de la régression logistique binaire (cf. <a href="../analyses/regression-logistique-binaire.html"><span>Chapitre&nbsp;22</span></a>) aux variables qualitatives à trois modalités ou plus. Dans ce cas de figure, chaque modalité de la variable d’intérêt sera comparée à une modalité de référence. Les <em>odds ratio</em> seront donc exprimés par rapport à cette dernière.</p>
+<section id="données-dillustration" class="level2" data-number="39.1"><h2 data-number="39.1" class="anchored" data-anchor-id="données-dillustration">
+<span class="header-section-number">39.1</span> Données d’illustration</h2>
+<p>Pour illustrer la régression logistique multinomiale, nous allons reprendre le jeu de données <code>hdv2003</code> du package <a href="https://juba.github.io/questionr/">questionr</a> et portant sur l’enquête <em>histoires de vie 2003</em> de l’Insee.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-2"><a href="#cb1-2"></a><span class="fu">library</span>(labelled)</span>
+<span id="cb1-3"><a href="#cb1-3"></a><span class="fu">data</span>(<span class="st">"hdv2003"</span>, <span class="at">package =</span> <span class="st">"questionr"</span>)</span>
+<span id="cb1-4"><a href="#cb1-4"></a>d <span class="ot">&lt;-</span> hdv2003</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Nous allons considérer comme variable d’intérêt la variable <em>trav.satisf</em>, à savoir la satisfaction ou l’insatisfaction au travail.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a>questionr<span class="sc">::</span><span class="fu">freq</span>(d<span class="sc">$</span>trav.satisf)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                 n    % val%
+Satisfaction   480 24.0 45.8
+Insatisfaction 117  5.9 11.2
+Equilibre      451 22.6 43.0
+NA             952 47.6   NA</code></pre>
+</div>
+</div>
+<p>Nous allons choisir comme modalité de référence la position intermédiaire, à savoir l’«&nbsp;équilibre&nbsp;», que nous allons donc définir comme la première modalité du facteur.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a>d<span class="sc">$</span>trav.satisf <span class="ot">&lt;-</span> d<span class="sc">$</span>trav.satisf <span class="sc">|&gt;</span> <span class="fu">fct_relevel</span>(<span class="st">"Equilibre"</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Nous allons aussi en profiter pour raccourcir les étiquettes de la variable <em>trav.imp</em>&nbsp;:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a><span class="fu">levels</span>(d<span class="sc">$</span>trav.imp) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"Le plus"</span>, <span class="st">"Aussi"</span>, <span class="st">"Moins"</span>, <span class="st">"Peu"</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Enfin, procédons à quelques recodages additionnels&nbsp;:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a>d <span class="ot">&lt;-</span> d <span class="sc">|&gt;</span> </span>
+<span id="cb6-2"><a href="#cb6-2"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb6-3"><a href="#cb6-3"></a>    <span class="at">sexe =</span> sexe <span class="sc">|&gt;</span> <span class="fu">fct_relevel</span>(<span class="st">"Femme"</span>),</span>
+<span id="cb6-4"><a href="#cb6-4"></a>    <span class="at">groupe_ages =</span> age <span class="sc">|&gt;</span></span>
+<span id="cb6-5"><a href="#cb6-5"></a>      <span class="fu">cut</span>(</span>
+<span id="cb6-6"><a href="#cb6-6"></a>        <span class="fu">c</span>(<span class="dv">18</span>, <span class="dv">25</span>, <span class="dv">45</span>, <span class="dv">65</span>, <span class="dv">99</span>),</span>
+<span id="cb6-7"><a href="#cb6-7"></a>        <span class="at">right =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb6-8"><a href="#cb6-8"></a>        <span class="at">include.lowest =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb6-9"><a href="#cb6-9"></a>        <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"18-24 ans"</span>, <span class="st">"25-44 ans"</span>,</span>
+<span id="cb6-10"><a href="#cb6-10"></a>                   <span class="st">"45-64 ans"</span>, <span class="st">"65 ans et plus"</span>)</span>
+<span id="cb6-11"><a href="#cb6-11"></a>      ),</span>
+<span id="cb6-12"><a href="#cb6-12"></a>    <span class="at">etudes =</span> nivetud <span class="sc">|&gt;</span> </span>
+<span id="cb6-13"><a href="#cb6-13"></a>      <span class="fu">fct_recode</span>(</span>
+<span id="cb6-14"><a href="#cb6-14"></a>        <span class="st">"Primaire"</span> <span class="ot">=</span> <span class="st">"N'a jamais fait d'etudes"</span>,</span>
+<span id="cb6-15"><a href="#cb6-15"></a>        <span class="st">"Primaire"</span> <span class="ot">=</span> <span class="st">"A arrete ses etudes, avant la derniere annee d'etudes primaires"</span>,</span>
+<span id="cb6-16"><a href="#cb6-16"></a>        <span class="st">"Primaire"</span> <span class="ot">=</span> <span class="st">"Derniere annee d'etudes primaires"</span>,</span>
+<span id="cb6-17"><a href="#cb6-17"></a>        <span class="st">"Secondaire"</span> <span class="ot">=</span> <span class="st">"1er cycle"</span>,</span>
+<span id="cb6-18"><a href="#cb6-18"></a>        <span class="st">"Secondaire"</span> <span class="ot">=</span> <span class="st">"2eme cycle"</span>,</span>
+<span id="cb6-19"><a href="#cb6-19"></a>        <span class="st">"Technique / Professionnel"</span> <span class="ot">=</span> <span class="st">"Enseignement technique ou professionnel court"</span>,</span>
+<span id="cb6-20"><a href="#cb6-20"></a>        <span class="st">"Technique / Professionnel"</span> <span class="ot">=</span> <span class="st">"Enseignement technique ou professionnel long"</span>,</span>
+<span id="cb6-21"><a href="#cb6-21"></a>        <span class="st">"Supérieur"</span> <span class="ot">=</span> <span class="st">"Enseignement superieur y compris technique superieur"</span></span>
+<span id="cb6-22"><a href="#cb6-22"></a>    ) <span class="sc">|&gt;</span> </span>
+<span id="cb6-23"><a href="#cb6-23"></a>    <span class="fu">fct_na_value_to_level</span>(<span class="st">"Non documenté"</span>)  </span>
+<span id="cb6-24"><a href="#cb6-24"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb6-25"><a href="#cb6-25"></a>  <span class="fu">set_variable_labels</span>(</span>
+<span id="cb6-26"><a href="#cb6-26"></a>    <span class="at">trav.satisf =</span> <span class="st">"Satisfaction dans le travail"</span>,</span>
+<span id="cb6-27"><a href="#cb6-27"></a>    <span class="at">sexe =</span> <span class="st">"Sexe"</span>,</span>
+<span id="cb6-28"><a href="#cb6-28"></a>    <span class="at">groupe_ages =</span> <span class="st">"Groupe d'âges"</span>,</span>
+<span id="cb6-29"><a href="#cb6-29"></a>    <span class="at">etudes =</span> <span class="st">"Niveau d'études"</span>,</span>
+<span id="cb6-30"><a href="#cb6-30"></a>    <span class="at">trav.imp =</span> <span class="st">"Importance accordée au travail"</span></span>
+<span id="cb6-31"><a href="#cb6-31"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section><section id="calcul-du-modèle-multinomial" class="level2 page-columns page-full" data-number="39.2"><h2 data-number="39.2" class="anchored" data-anchor-id="calcul-du-modèle-multinomial">
+<span class="header-section-number">39.2</span> Calcul du modèle multinomial</h2>
+<div class="page-columns page-full"><p>Pour calculer un modèle logistique multinomial, nous allons utiliser la fonction <code><a href="https://rdrr.io/pkg/nnet/man/multinom.html">nnet::multinom()</a></code> de l’extension <a href="http://www.stats.ox.ac.uk/pub/MASS4/">nnet</a><a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>. La syntaxe de <code><a href="https://rdrr.io/pkg/nnet/man/multinom.html">nnet::multinom()</a></code> est similaire à celle de <code><a href="https://rdrr.io/r/stats/glm.html">glm()</a></code>, le paramètre <code>family</code> en moins.</p><div class="no-row-height column-margin column-container"><li id="fn1"><p><sup>1</sup>&nbsp;Il existe plusieurs alternatives possibles&nbsp;: la fonction <code><a href="https://rdrr.io/pkg/VGAM/man/vglm.html">VGAM::vglm()</a></code> avec <code>family = VGAM::multinomial</code> ou encore <code><a href="https://rdrr.io/pkg/mlogit/man/mlogit.html">mlogit::mlogit()</a></code>. Ces deux fonctions sont un peu plus complexes à mettre en œuvre. On se référera à la documentation de chaque package. Le support des modèles <code>mlogit()</code> et <code>vglm()</code> est aussi plus limité dans d’autres packages tels que <a href="https://larmarange.github.io/broom.helpers/">broom.helpers</a>, <a href="https://github.com/ddsjoberg/gtsummary">gtsummary</a>, <a href="https://larmarange.github.io/ggstats/">ggstats</a> ou encore <a href="https://vincentarelbundock.github.io/marginaleffects/">marginaleffects</a>.</p></li></div></div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a>reg <span class="ot">&lt;-</span> nnet<span class="sc">::</span><span class="fu">multinom</span>(</span>
+<span id="cb7-2"><a href="#cb7-2"></a>  trav.satisf <span class="sc">~</span> sexe <span class="sc">+</span> etudes <span class="sc">+</span> groupe_ages <span class="sc">+</span> trav.imp,</span>
+<span id="cb7-3"><a href="#cb7-3"></a>  <span class="at">data =</span> d</span>
+<span id="cb7-4"><a href="#cb7-4"></a>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># weights:  39 (24 variable)
+initial  value 1151.345679 
+iter  10 value 977.348901
+iter  20 value 969.849189
+iter  30 value 969.522965
+final  value 969.521855 
+converged</code></pre>
+</div>
+</div>
+<div class="cell">
+
+</div>
+<p>Comme pour la régression logistique binaire, il est possible de réaliser une sélection pas à pas descendante (cf. <a href="../analyses/selection-modele-pas-a-pas.html"><span>Chapitre&nbsp;23</span></a>)&nbsp;:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a>reg2 <span class="ot">&lt;-</span> reg <span class="sc">|&gt;</span> <span class="fu">step</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>trying - sexe 
+trying - etudes 
+trying - groupe_ages 
+trying - trav.imp 
+trying - sexe 
+trying - etudes 
+trying - trav.imp 
+trying - etudes 
+trying - trav.imp </code></pre>
+</div>
+</div>
+</section><section id="affichage-des-résultats-du-modèle" class="level2 page-columns page-full" data-number="39.3"><h2 data-number="39.3" class="anchored" data-anchor-id="affichage-des-résultats-du-modèle">
+<span class="header-section-number">39.3</span> Affichage des résultats du modèle</h2>
+<p>Une des particularités de la régression logistique multinomiale est qu’elle produit une série de coefficients pour chaque modalité de la variable d’intérêt (sauf la modalité de référence). Ici, nous aurons donc une série de coefficients pour celles et ceux qui sont satisfaits au travail (comparés à la modalité <q>Équilibre</q>) et une série de coefficients pour celles et ceux qui sont insatisfaits (comparés aux aussi à la modalité <q>Équilibre</q>).</p>
+<p>La fonction <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/tbl_regression.html">gtsummary::tbl_regression()</a></code> peut gérer ce type de modèles, et va afficher les deux séries de coefficients l’une au-dessus de l’autre. Nous allons indiquer <code>exponentiate = TRUE</code> car, comme pour la régression logistique binaire, l’exponentielle des coefficients peut s’interpréter comme des <em>odds ratios</em>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a><span class="fu">library</span>(gtsummary)</span>
+<span id="cb11-2"><a href="#cb11-2"></a><span class="fu">theme_gtsummary_language</span>(<span class="st">"fr"</span>, <span class="at">decimal.mark =</span> <span class="st">","</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell page-columns page-full">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a>reg2 <span class="sc">|&gt;</span> </span>
+<span id="cb12-2"><a href="#cb12-2"></a>  <span class="fu">tbl_regression</span>(<span class="at">exponentiate =</span> <span class="cn">TRUE</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>ℹ Multinomial models have a different underlying structure than the models
+gtsummary was designed for. Other gtsummary functions designed to work with
+tbl_regression objects may yield unexpected results.</code></pre>
+</div>
+<div class="cell-output-display page-columns page-full">
+<div id="tbl-tbl_regression-multinom" class="anchored page-columns page-full">
+
+<div id="ehngmuxmuy" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;" class="page-columns page-full">
+<style>#ehngmuxmuy table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#ehngmuxmuy thead, #ehngmuxmuy tbody, #ehngmuxmuy tfoot, #ehngmuxmuy tr, #ehngmuxmuy td, #ehngmuxmuy th {
+  border-style: none;
+}
+
+#ehngmuxmuy p {
+  margin: 0;
+  padding: 0;
+}
+
+#ehngmuxmuy .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#ehngmuxmuy .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#ehngmuxmuy .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#ehngmuxmuy .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#ehngmuxmuy .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#ehngmuxmuy .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#ehngmuxmuy .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#ehngmuxmuy .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#ehngmuxmuy .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#ehngmuxmuy .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#ehngmuxmuy .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#ehngmuxmuy .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#ehngmuxmuy .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#ehngmuxmuy .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#ehngmuxmuy .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#ehngmuxmuy .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#ehngmuxmuy .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#ehngmuxmuy .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#ehngmuxmuy .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#ehngmuxmuy .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#ehngmuxmuy .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#ehngmuxmuy .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#ehngmuxmuy .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#ehngmuxmuy .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#ehngmuxmuy .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#ehngmuxmuy .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#ehngmuxmuy .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#ehngmuxmuy .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#ehngmuxmuy .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#ehngmuxmuy .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#ehngmuxmuy .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#ehngmuxmuy .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#ehngmuxmuy .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#ehngmuxmuy .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#ehngmuxmuy .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#ehngmuxmuy .gt_left {
+  text-align: left;
+}
+
+#ehngmuxmuy .gt_center {
+  text-align: center;
+}
+
+#ehngmuxmuy .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#ehngmuxmuy .gt_font_normal {
+  font-weight: normal;
+}
+
+#ehngmuxmuy .gt_font_bold {
+  font-weight: bold;
+}
+
+#ehngmuxmuy .gt_font_italic {
+  font-style: italic;
+}
+
+#ehngmuxmuy .gt_super {
+  font-size: 65%;
+}
+
+#ehngmuxmuy .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#ehngmuxmuy .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#ehngmuxmuy .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#ehngmuxmuy .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#ehngmuxmuy .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#ehngmuxmuy .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#ehngmuxmuy .gt_indent_5 {
+  text-indent: 25px;
+}
+</style>
+<table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+
+  <thead><tr class="gt_col_headings">
+<th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="<strong>Caractéristique</strong>"><strong>Caractéristique</strong></th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="<strong>OR</strong><span class=&quot;gt_footnote_marks&quot; style=&quot;white-space:nowrap;font-style:italic;font-weight:normal;&quot;><sup>1</sup></span>">
+<strong>OR</strong><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;"><sup>1</sup></span>
+</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="<strong>95% IC</strong><span class=&quot;gt_footnote_marks&quot; style=&quot;white-space:nowrap;font-style:italic;font-weight:normal;&quot;><sup>1</sup></span>">
+<strong>95% IC</strong><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;"><sup>1</sup></span>
+</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="<strong>p-valeur</strong>"><strong>p-valeur</strong></th>
+    </tr></thead>
+<tbody class="gt_table_body">
+<tr class="gt_group_heading_row">
+<th colspan="4" class="gt_group_heading" scope="colgroup" id="Satisfaction">Satisfaction</th>
+    </tr>
+<tr class="gt_row_group_first">
+<td headers="Satisfaction  label" class="gt_row gt_left">Niveau d'études</td>
+<td headers="Satisfaction  estimate" class="gt_row gt_center"></td>
+<td headers="Satisfaction  ci" class="gt_row gt_center"></td>
+<td headers="Satisfaction  p.value" class="gt_row gt_center"></td>
+</tr>
+<tr>
+<td headers="Satisfaction  label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;Primaire</td>
+<td headers="Satisfaction  estimate" class="gt_row gt_center">—</td>
+<td headers="Satisfaction  ci" class="gt_row gt_center">—</td>
+<td headers="Satisfaction  p.value" class="gt_row gt_center"></td>
+</tr>
+<tr>
+<td headers="Satisfaction  label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;Secondaire</td>
+<td headers="Satisfaction  estimate" class="gt_row gt_center">1,05</td>
+<td headers="Satisfaction  ci" class="gt_row gt_center">0,63 – 1,76</td>
+<td headers="Satisfaction  p.value" class="gt_row gt_center">0,9</td>
+</tr>
+<tr>
+<td headers="Satisfaction  label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;Technique / Professionnel</td>
+<td headers="Satisfaction  estimate" class="gt_row gt_center">1,08</td>
+<td headers="Satisfaction  ci" class="gt_row gt_center">0,67 – 1,73</td>
+<td headers="Satisfaction  p.value" class="gt_row gt_center">0,7</td>
+</tr>
+<tr>
+<td headers="Satisfaction  label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;Supérieur</td>
+<td headers="Satisfaction  estimate" class="gt_row gt_center">2,01</td>
+<td headers="Satisfaction  ci" class="gt_row gt_center">1,24 – 3,27</td>
+<td headers="Satisfaction  p.value" class="gt_row gt_center">0,005</td>
+</tr>
+<tr>
+<td headers="Satisfaction  label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;Non documenté</td>
+<td headers="Satisfaction  estimate" class="gt_row gt_center">0,58</td>
+<td headers="Satisfaction  ci" class="gt_row gt_center">0,18 – 1,86</td>
+<td headers="Satisfaction  p.value" class="gt_row gt_center">0,4</td>
+</tr>
+<tr>
+<td headers="Satisfaction  label" class="gt_row gt_left">Importance accordée au travail</td>
+<td headers="Satisfaction  estimate" class="gt_row gt_center"></td>
+<td headers="Satisfaction  ci" class="gt_row gt_center"></td>
+<td headers="Satisfaction  p.value" class="gt_row gt_center"></td>
+</tr>
+<tr>
+<td headers="Satisfaction  label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;Le plus</td>
+<td headers="Satisfaction  estimate" class="gt_row gt_center">—</td>
+<td headers="Satisfaction  ci" class="gt_row gt_center">—</td>
+<td headers="Satisfaction  p.value" class="gt_row gt_center"></td>
+</tr>
+<tr>
+<td headers="Satisfaction  label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;Aussi</td>
+<td headers="Satisfaction  estimate" class="gt_row gt_center">1,29</td>
+<td headers="Satisfaction  ci" class="gt_row gt_center">0,56 – 2,98</td>
+<td headers="Satisfaction  p.value" class="gt_row gt_center">0,5</td>
+</tr>
+<tr>
+<td headers="Satisfaction  label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;Moins</td>
+<td headers="Satisfaction  estimate" class="gt_row gt_center">0,84</td>
+<td headers="Satisfaction  ci" class="gt_row gt_center">0,37 – 1,88</td>
+<td headers="Satisfaction  p.value" class="gt_row gt_center">0,7</td>
+</tr>
+<tr>
+<td headers="Satisfaction  label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;Peu</td>
+<td headers="Satisfaction  estimate" class="gt_row gt_center">0,55</td>
+<td headers="Satisfaction  ci" class="gt_row gt_center">0,18 – 1,64</td>
+<td headers="Satisfaction  p.value" class="gt_row gt_center">0,3</td>
+</tr>
+<tr class="gt_group_heading_row">
+<th colspan="4" class="gt_group_heading" scope="colgroup" id="Insatisfaction">Insatisfaction</th>
+    </tr>
+<tr class="gt_row_group_first">
+<td headers="Insatisfaction  label" class="gt_row gt_left">Niveau d'études</td>
+<td headers="Insatisfaction  estimate" class="gt_row gt_center"></td>
+<td headers="Insatisfaction  ci" class="gt_row gt_center"></td>
+<td headers="Insatisfaction  p.value" class="gt_row gt_center"></td>
+</tr>
+<tr>
+<td headers="Insatisfaction  label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;Primaire</td>
+<td headers="Insatisfaction  estimate" class="gt_row gt_center">—</td>
+<td headers="Insatisfaction  ci" class="gt_row gt_center">—</td>
+<td headers="Insatisfaction  p.value" class="gt_row gt_center"></td>
+</tr>
+<tr>
+<td headers="Insatisfaction  label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;Secondaire</td>
+<td headers="Insatisfaction  estimate" class="gt_row gt_center">0,91</td>
+<td headers="Insatisfaction  ci" class="gt_row gt_center">0,41 – 1,99</td>
+<td headers="Insatisfaction  p.value" class="gt_row gt_center">0,8</td>
+</tr>
+<tr>
+<td headers="Insatisfaction  label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;Technique / Professionnel</td>
+<td headers="Insatisfaction  estimate" class="gt_row gt_center">1,09</td>
+<td headers="Insatisfaction  ci" class="gt_row gt_center">0,54 – 2,19</td>
+<td headers="Insatisfaction  p.value" class="gt_row gt_center">0,8</td>
+</tr>
+<tr>
+<td headers="Insatisfaction  label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;Supérieur</td>
+<td headers="Insatisfaction  estimate" class="gt_row gt_center">1,08</td>
+<td headers="Insatisfaction  ci" class="gt_row gt_center">0,51 – 2,29</td>
+<td headers="Insatisfaction  p.value" class="gt_row gt_center">0,8</td>
+</tr>
+<tr>
+<td headers="Insatisfaction  label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;Non documenté</td>
+<td headers="Insatisfaction  estimate" class="gt_row gt_center">0,96</td>
+<td headers="Insatisfaction  ci" class="gt_row gt_center">0,18 – 4,97</td>
+<td headers="Insatisfaction  p.value" class="gt_row gt_center">&gt;0,9</td>
+</tr>
+<tr>
+<td headers="Insatisfaction  label" class="gt_row gt_left">Importance accordée au travail</td>
+<td headers="Insatisfaction  estimate" class="gt_row gt_center"></td>
+<td headers="Insatisfaction  ci" class="gt_row gt_center"></td>
+<td headers="Insatisfaction  p.value" class="gt_row gt_center"></td>
+</tr>
+<tr>
+<td headers="Insatisfaction  label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;Le plus</td>
+<td headers="Insatisfaction  estimate" class="gt_row gt_center">—</td>
+<td headers="Insatisfaction  ci" class="gt_row gt_center">—</td>
+<td headers="Insatisfaction  p.value" class="gt_row gt_center"></td>
+</tr>
+<tr>
+<td headers="Insatisfaction  label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;Aussi</td>
+<td headers="Insatisfaction  estimate" class="gt_row gt_center">0,80</td>
+<td headers="Insatisfaction  ci" class="gt_row gt_center">0,24 – 2,69</td>
+<td headers="Insatisfaction  p.value" class="gt_row gt_center">0,7</td>
+</tr>
+<tr>
+<td headers="Insatisfaction  label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;Moins</td>
+<td headers="Insatisfaction  estimate" class="gt_row gt_center">0,59</td>
+<td headers="Insatisfaction  ci" class="gt_row gt_center">0,18 – 1,88</td>
+<td headers="Insatisfaction  p.value" class="gt_row gt_center">0,4</td>
+</tr>
+<tr>
+<td headers="Insatisfaction  label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;Peu</td>
+<td headers="Insatisfaction  estimate" class="gt_row gt_center">3,82</td>
+<td headers="Insatisfaction  ci" class="gt_row gt_center">1,05 – 13,9</td>
+<td headers="Insatisfaction  p.value" class="gt_row gt_center">0,042</td>
+</tr>
+</tbody>
+<tfoot class="gt_footnotes"><tr>
+<td class="gt_footnote" colspan="4">
+<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;"><sup>1</sup></span> OR = rapport de cotes, IC = intervalle de confiance</td>
+    </tr></tfoot>
+</table>
+<div class="quarto-table-caption margin-caption">Table&nbsp;39.1:  <p>Tableau des odds ratio de la régression logistique multinomiale</p> </div></div>
+</div>
+</div>
+</div>
+<p>L’<em>odds ratio</em> du niveau d’étude supérieur pour la modalité <em>satisfaction</em> est de 2,01, indiquant que les personnes ayant un niveau d’étude supérieur ont plus de chances d’être satisfait au travail que d’être à l’équilibre que les personnes de niveau primaire. Par contre, l’OR est de seulement 1,08 (et non significatif) pour la modalité <em>Insatisfait</em> indiquant que ces personnes n’ont ni plus ni moins de chance d’être insatisfaite que d’être à l’équilibre.</p>
+<p>On notera au passage un message d’avertissement de <a href="https://github.com/ddsjoberg/gtsummary">gtsummary</a> sur le fait que les modèles multinomiaux n’ont pas la même structure que d’autres modèles et donc que certaines fonctionnalités ne sont pas disponibles. C’est le cas par exemple de <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/add_global_p.html">gtsummary::add_global_p()</a></code> pour le calcul des p-valeurs globales des variables. Pour tester l’effet globale d’une variable dans le modèle, on aura directement recours à <code><a href="https://rdrr.io/pkg/car/man/Anova.html">car::Anova()</a></code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a>reg2 <span class="sc">|&gt;</span> car<span class="sc">::</span><span class="fu">Anova</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Analysis of Deviance Table (Type II tests)
+
+Response: trav.satisf
+         LR Chisq Df Pr(&gt;Chisq)    
+etudes     24.211  8   0.002112 ** 
+trav.imp   48.934  6  7.687e-09 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+</div>
+</div>
+<p>Pour un graphique des coefficients, on ne peut appeler directement <code>ggstats::gcoef_model()</code> en raison de la structure différente du modèle. Heureusement, <a href="https://larmarange.github.io/ggstats/">ggstats</a> propose une fonction spécifique <code><a href="https://larmarange.github.io/ggstats/reference/ggcoef_model.html">ggstats::ggcoef_multinom()</a></code> avec trois types de visualisation.</p>
+<div class="cell page-columns page-full">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1"></a>reg2 <span class="sc">|&gt;</span> </span>
+<span id="cb16-2"><a href="#cb16-2"></a>  ggstats<span class="sc">::</span><span class="fu">ggcoef_multinom</span>(</span>
+<span id="cb16-3"><a href="#cb16-3"></a>    <span class="at">exponentiate =</span> <span class="cn">TRUE</span></span>
+<span id="cb16-4"><a href="#cb16-4"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display page-columns page-full">
+<div id="fig-ggcoef_multinom-dodged" class="quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="figure page-columns page-full"><p><a href="regression-logistique-multinomiale_files/figure-html/fig-ggcoef_multinom-dodged-1.png" class="lightbox" title="Graphique des coefficients du modèle multinomial (type “dodged”)" data-gallery="quarto-lightbox-gallery-1"><img src="regression-logistique-multinomiale_files/figure-html/fig-ggcoef_multinom-dodged-1.png" class="img-fluid figure-img" width="672"></a></p>
+<figcaption class="figure-caption margin-caption">Figure&nbsp;39.1: Graphique des coefficients du modèle multinomial (type “dodged”)</figcaption></figure>
+</div>
+</div>
+</div>
+<div class="cell page-columns page-full">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1"></a>reg2 <span class="sc">|&gt;</span> </span>
+<span id="cb17-2"><a href="#cb17-2"></a>  ggstats<span class="sc">::</span><span class="fu">ggcoef_multinom</span>(</span>
+<span id="cb17-3"><a href="#cb17-3"></a>    <span class="at">type =</span> <span class="st">"faceted"</span>,</span>
+<span id="cb17-4"><a href="#cb17-4"></a>    <span class="at">exponentiate =</span> <span class="cn">TRUE</span></span>
+<span id="cb17-5"><a href="#cb17-5"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display page-columns page-full">
+<div id="fig-ggcoef_multinom-faceted" class="quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="figure page-columns page-full"><p><a href="regression-logistique-multinomiale_files/figure-html/fig-ggcoef_multinom-faceted-1.png" class="lightbox" title="Graphique des coefficients du modèle multinomial (type “faceted”)" data-gallery="quarto-lightbox-gallery-2"><img src="regression-logistique-multinomiale_files/figure-html/fig-ggcoef_multinom-faceted-1.png" class="img-fluid figure-img" width="672"></a></p>
+<figcaption class="figure-caption margin-caption">Figure&nbsp;39.2: Graphique des coefficients du modèle multinomial (type “faceted”)</figcaption></figure>
+</div>
+</div>
+</div>
+<div class="cell page-columns page-full">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1"></a>reg2 <span class="sc">|&gt;</span> </span>
+<span id="cb18-2"><a href="#cb18-2"></a>  ggstats<span class="sc">::</span><span class="fu">ggcoef_multinom</span>(</span>
+<span id="cb18-3"><a href="#cb18-3"></a>    <span class="at">type =</span> <span class="st">"table"</span>,</span>
+<span id="cb18-4"><a href="#cb18-4"></a>    <span class="at">exponentiate =</span> <span class="cn">TRUE</span></span>
+<span id="cb18-5"><a href="#cb18-5"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display page-columns page-full">
+<div id="fig-ggcoef_multinom-table" class="quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="figure page-columns page-full"><p><a href="regression-logistique-multinomiale_files/figure-html/fig-ggcoef_multinom-table-1.png" class="lightbox" title="Graphique des coefficients du modèle multinomial (type “table”)" data-gallery="quarto-lightbox-gallery-3"><img src="regression-logistique-multinomiale_files/figure-html/fig-ggcoef_multinom-table-1.png" class="img-fluid figure-img" width="672"></a></p>
+<figcaption class="figure-caption margin-caption">Figure&nbsp;39.3: Graphique des coefficients du modèle multinomial (type “table”)</figcaption></figure>
+</div>
+</div>
+</div>
+<p>Pour faciliter l’interprétation, on pourra représenter les prédictions marginales du modèle (cf. <a href="../analyses/estimations-marginales.html"><span>Chapitre&nbsp;24</span></a>) avec <code><a href="https://larmarange.github.io/broom.helpers/reference/tidy_marginal_predictions.html">broom.helpers::plot_marginal_predictions()</a></code>.</p>
+<div class="cell page-columns page-full">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1"></a>reg2 <span class="sc">|&gt;</span> </span>
+<span id="cb19-2"><a href="#cb19-2"></a>  broom.helpers<span class="sc">::</span><span class="fu">plot_marginal_predictions</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb19-3"><a href="#cb19-3"></a>  patchwork<span class="sc">::</span><span class="fu">wrap_plots</span>(<span class="at">ncol =</span> <span class="dv">1</span>) <span class="sc">&amp;</span></span>
+<span id="cb19-4"><a href="#cb19-4"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">labels =</span> scales<span class="sc">::</span>percent, <span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>, .<span class="dv">8</span>)) <span class="sc">&amp;</span></span>
+<span id="cb19-5"><a href="#cb19-5"></a>  <span class="fu">coord_flip</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display page-columns page-full">
+<div id="fig-plot_marginal_predictions-multinom" class="quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="figure page-columns page-full"><p><a href="regression-logistique-multinomiale_files/figure-html/fig-plot_marginal_predictions-multinom-1.png" class="lightbox" title="Prédictions marginales du modèle multinomial" data-gallery="quarto-lightbox-gallery-4"><img src="regression-logistique-multinomiale_files/figure-html/fig-plot_marginal_predictions-multinom-1.png" class="img-fluid figure-img" width="672"></a></p>
+<figcaption class="figure-caption margin-caption">Figure&nbsp;39.4: Prédictions marginales du modèle multinomial</figcaption></figure>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Astuce
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Dans certaines situations, il peut être plus simple de réaliser plusieurs modèles logistiques binaires séparés plutôt qu’une régression multinomiale. Si la variable à expliquer a trois niveaux (A, B et C), on pourra réaliser un modèle binaire B vs A, et un modèle binaire C vs A. Cette approche est appelée <q>approximation de Begg et Gray</q>. On trouvera, en anglais, plus d’explications et des références bibliographiques sur <a href="https://stackoverflow.com/a/23795087/7943547">StackOverflow</a>.</p>
+</div>
+</div>
+</section><section id="données-pondérées" class="level2" data-number="39.4"><h2 data-number="39.4" class="anchored" data-anchor-id="données-pondérées">
+<span class="header-section-number">39.4</span> Données pondérées</h2>
+<p>L’extension <a href="http://r-survey.r-forge.r-project.org/survey/">survey</a> (cf. <a href="../donnees_ponderees/plan-echantillonnage.html"><span>Chapitre&nbsp;28</span></a>) ne fournit pas de fonction adaptée aux régressions multinomiales. Cependant, il est possible d’en réaliser une en ayant recours à des poids de réplication, comme suggéré par Thomas Lumley dans son ouvrage <em>Complex Surveys: A Guide to Analysis Using R</em>. Thomas Lumley est par ailleurs l’auteur de l’extension <a href="http://r-survey.r-forge.r-project.org/survey/">survey</a>.</p>
+<section id="avec-svrepmiscsvymultinom" class="level3" data-number="39.4.1"><h3 data-number="39.4.1" class="anchored" data-anchor-id="avec-svrepmiscsvymultinom">
+<span class="header-section-number">39.4.1</span> avec <code>svrepmisc::svymultinom()</code>
+</h3>
+<p>L’extension <a href="https://github.com/carlganz/svrepmisc">svrepmisc</a> disponible sur <a href="https://github.com/carlganz/svrepmisc">GitHub</a> fournit quelques fonctions facilitant l’utilisation des poids de réplication avec <a href="http://r-survey.r-forge.r-project.org/survey/">survey</a>. Pour l’installer, on utilisera le code ci-dessous&nbsp;:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1"></a>remotes<span class="sc">::</span><span class="fu">install_github</span>(<span class="st">"carlganz/svrepmisc"</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>En premier lieu, il faut définir le design de notre tableau de données puis calculer des poids de réplication.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1"></a><span class="fu">library</span>(survey)</span>
+<span id="cb21-2"><a href="#cb21-2"></a><span class="fu">library</span>(srvyr)</span>
+<span id="cb21-3"><a href="#cb21-3"></a>dw_rep <span class="ot">&lt;-</span> d <span class="sc">|&gt;</span></span>
+<span id="cb21-4"><a href="#cb21-4"></a>  <span class="fu">as_survey</span>(<span class="at">weights =</span> poids) <span class="sc">|&gt;</span> </span>
+<span id="cb21-5"><a href="#cb21-5"></a>  <span class="fu">as_survey_rep</span>(<span class="at">type =</span> <span class="st">"bootstrap"</span>, <span class="at">replicates =</span> <span class="dv">25</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Il faut prévoir un nombre de <code>replicates</code> suffisant pour calculer ultérieurement les intervalles de confiance des coefficients. Plus ce nombre est élevé, plus précise sera l’estimation de la variance et donc des valeurs p et des intervalles de confiance. Cependant, plus ce nombre est élevé, plus le temps de calcul sera important. Pour gagner en temps de calcul, nous avons ici pris une valeur de 25, mais l’usage est de considérer au moins 1000 réplications.</p>
+<p><a href="https://github.com/carlganz/svrepmisc">svrepmisc</a> fournit une fonction <code><a href="https://rdrr.io/pkg/svrepmisc/man/svymultinom.html">svrepmisc::svymultinom()</a></code> pour le calcul d’une régression multinomiale avec des poids de réplication.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1"></a><span class="fu">library</span>(svrepmisc)</span>
+<span id="cb22-2"><a href="#cb22-2"></a>regm <span class="ot">&lt;-</span> <span class="fu">svymultinom</span>(</span>
+<span id="cb22-3"><a href="#cb22-3"></a>  trav.satisf <span class="sc">~</span> sexe <span class="sc">+</span> etudes <span class="sc">+</span> trav.imp,</span>
+<span id="cb22-4"><a href="#cb22-4"></a>  <span class="at">design =</span> dw_rep</span>
+<span id="cb22-5"><a href="#cb22-5"></a>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><a href="https://github.com/carlganz/svrepmisc">svrepmisc</a> fournit également des méthodes <code>svrepmisc::confint()</code> et <code>svrepmisc::tidy()</code>. Nous pouvons donc calculer et afficher les odds ratio et leur intervalle de confiance.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1"></a>regm</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                                               Coefficient        SE t value
+Satisfaction.(Intercept)                         -0.116149  0.595305 -0.1951
+Insatisfaction.(Intercept)                       -1.547056  2.493513 -0.6204
+Satisfaction.sexeHomme                           -0.041405  0.196502 -0.2107
+Insatisfaction.sexeHomme                          0.221849  0.219339  1.0114
+Satisfaction.etudesSecondaire                     0.115722  0.362133  0.3196
+Insatisfaction.etudesSecondaire                   0.418476  0.463563  0.9027
+Satisfaction.etudesTechnique / Professionnel      0.220702  0.313375  0.7043
+Insatisfaction.etudesTechnique / Professionnel    0.529317  0.344521  1.5364
+Satisfaction.etudesSupérieur                      0.905852  0.340245  2.6624
+Insatisfaction.etudesSupérieur                    0.584499  0.463725  1.2604
+Satisfaction.etudesNon documenté                 -0.323293  0.772587 -0.4185
+Insatisfaction.etudesNon documenté                0.646168  4.840872  0.1335
+Satisfaction.trav.impAussi                       -0.027506  0.549475 -0.0501
+Insatisfaction.trav.impAussi                     -0.375642  2.466652 -0.1523
+Satisfaction.trav.impMoins                       -0.220703  0.501020 -0.4405
+Insatisfaction.trav.impMoins                     -0.694337  2.539267 -0.2734
+Satisfaction.trav.impPeu                         -0.069034  1.000428 -0.0690
+Insatisfaction.trav.impPeu                        1.584747  2.516525  0.6297
+                                               Pr(&gt;|t|)  
+Satisfaction.(Intercept)                        0.85085  
+Insatisfaction.(Intercept)                      0.55463  
+Satisfaction.sexeHomme                          0.83911  
+Insatisfaction.sexeHomme                        0.34548  
+Satisfaction.etudesSecondaire                   0.75863  
+Insatisfaction.etudesSecondaire                 0.39666  
+Satisfaction.etudesTechnique / Professionnel    0.50401  
+Insatisfaction.etudesTechnique / Professionnel  0.16832  
+Satisfaction.etudesSupérieur                    0.03236 *
+Insatisfaction.etudesSupérieur                  0.24790  
+Satisfaction.etudesNon documenté                0.68815  
+Insatisfaction.etudesNon documenté              0.89757  
+Satisfaction.trav.impAussi                      0.96147  
+Insatisfaction.trav.impAussi                    0.88326  
+Satisfaction.trav.impMoins                      0.67285  
+Insatisfaction.trav.impMoins                    0.79241  
+Satisfaction.trav.impPeu                        0.94692  
+Insatisfaction.trav.impPeu                      0.54886  
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1"></a>regm <span class="sc">|&gt;</span> <span class="fu">confint</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                                                     2.5 %     97.5 %
+Satisfaction.(Intercept)                        -1.5238213  1.2915228
+Insatisfaction.(Intercept)                      -7.4432783  4.3491655
+Satisfaction.sexeHomme                          -0.5060589  0.4232480
+Insatisfaction.sexeHomme                        -0.2968062  0.7405040
+Satisfaction.etudesSecondaire                   -0.7405870  0.9720318
+Insatisfaction.etudesSecondaire                 -0.6776750  1.5146277
+Satisfaction.etudesTechnique / Professionnel    -0.5203113  0.9617162
+Insatisfaction.etudesTechnique / Professionnel  -0.2853460  1.3439809
+Satisfaction.etudesSupérieur                     0.1013004  1.7104037
+Insatisfaction.etudesSupérieur                  -0.5120350  1.6810338
+Satisfaction.etudesNon documenté                -2.1501717  1.5035849
+Insatisfaction.etudesNon documenté             -10.8006767 12.0930122
+Satisfaction.trav.impAussi                      -1.3268090  1.2717968
+Insatisfaction.trav.impAussi                    -6.2083479  5.4570642
+Satisfaction.trav.impMoins                      -1.4054274  0.9640205
+Insatisfaction.trav.impMoins                    -6.6987486  5.3100747
+Satisfaction.trav.impPeu                        -2.4346710  2.2966023
+Insatisfaction.trav.impPeu                      -4.3658895  7.5353839</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1"></a>regm <span class="sc">|&gt;</span></span>
+<span id="cb27-2"><a href="#cb27-2"></a>  broom<span class="sc">::</span><span class="fu">tidy</span>(<span class="at">exponentiate =</span> <span class="cn">TRUE</span>, <span class="at">conf.int =</span> <span class="cn">TRUE</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                                             term  estimate std.error
+1                      Insatisfaction.(Intercept) 0.2128737 2.4935132
+2              Insatisfaction.etudesNon documenté 1.9082140 4.8408725
+3                 Insatisfaction.etudesSecondaire 1.5196444 0.4635626
+4                  Insatisfaction.etudesSupérieur 1.7940926 0.4637246
+5  Insatisfaction.etudesTechnique / Professionnel 1.6977731 0.3445213
+6                        Insatisfaction.sexeHomme 1.2483828 0.2193393
+7                    Insatisfaction.trav.impAussi 0.6868483 2.4666524
+8                    Insatisfaction.trav.impMoins 0.4994055 2.5392667
+9                      Insatisfaction.trav.impPeu 4.8780580 2.5165253
+10                       Satisfaction.(Intercept) 0.8903423 0.5953048
+11               Satisfaction.etudesNon documenté 0.7237615 0.7725871
+12                  Satisfaction.etudesSecondaire 1.1226842 0.3621334
+13                   Satisfaction.etudesSupérieur 2.4740390 0.3402450
+14   Satisfaction.etudesTechnique / Professionnel 1.2469523 0.3133748
+15                         Satisfaction.sexeHomme 0.9594401 0.1965020
+16                     Satisfaction.trav.impAussi 0.9728687 0.5494754
+17                     Satisfaction.trav.impMoins 0.8019545 0.5010200
+18                       Satisfaction.trav.impPeu 0.9332946 1.0004281
+     statistic    p.value     conf.low    conf.high
+1  -0.62043240 0.55462671 0.0005853631 7.741383e+01
+2   0.13348167 0.89756888 0.0000203857 1.786193e+05
+3   0.90273969 0.39666388 0.5077962405 4.547728e+00
+4   1.26044507 0.24789738 0.5992747913 5.371106e+00
+5   1.53638514 0.16832463 0.7517540776 3.834277e+00
+6   1.01144155 0.34548204 0.7431880281 2.096992e+00
+7  -0.15228811 0.88325619 0.0020125598 2.344082e+02
+8  -0.27343994 0.79240712 0.0012324532 2.023654e+02
+9   0.62973625 0.54886189 0.0127033504 1.873163e+03
+10 -0.19510888 0.85085000 0.2178777152 3.638323e+00
+11 -0.41845558 0.68815363 0.1164641599 4.497784e+00
+12  0.31955741 0.75862962 0.4768339351 2.643310e+00
+13  2.66235201 0.03235655 1.1066090092 5.531194e+00
+14  0.70427616 0.50400968 0.5943354911 2.616182e+00
+15 -0.21071243 0.83911421 0.6028668702 1.526913e+00
+16 -0.05005888 0.96147390 0.2653225438 3.567256e+00
+17 -0.44050827 0.67285148 0.2452622086 2.622218e+00
+18 -0.06900481 0.94691561 0.0876265697 9.940351e+00</code></pre>
+</div>
+</div>
+<p>Par contre, le support de <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/tbl_regression.html">gtsummary::tbl_regression()</a></code> et <code><a href="https://larmarange.github.io/ggstats/reference/ggcoef_model.html">ggstats::ggcoef_model()</a></code> est plus limité. Vous pourrez afficher un tableau basique des résultats et un graphiques des coefficients, mais sans les enrichissements usuels (identification des variables, étiquettes propres, identification des niveaux, etc.).</p>
+</section><section id="avec-svyvgamsvy_glm" class="level3" data-number="39.4.2"><h3 data-number="39.4.2" class="anchored" data-anchor-id="avec-svyvgamsvy_glm">
+<span class="header-section-number">39.4.2</span> avec <code>svyVGAM::svy_glm()</code>
+</h3>
+<p>Une alternative possible pour le calcul de la régression logistique multinomiale avec des données pondérées est <code><a href="https://rdrr.io/pkg/svyVGAM/man/svy_vglm.html">svyVGAM::svy_vglm()</a></code> avec <code>family = VGAM::multinomial</code>.</p>
+<p>Nous allons commencer par définir le plan d’échantillonnage.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1"></a><span class="fu">library</span>(survey)</span>
+<span id="cb29-2"><a href="#cb29-2"></a><span class="fu">library</span>(srvyr)</span>
+<span id="cb29-3"><a href="#cb29-3"></a>dw <span class="ot">&lt;-</span> d <span class="sc">|&gt;</span></span>
+<span id="cb29-4"><a href="#cb29-4"></a>  <span class="fu">as_survey</span>(<span class="at">weights =</span> poids)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Puis,</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1"></a>regm2 <span class="ot">&lt;-</span> svyVGAM<span class="sc">::</span><span class="fu">svy_vglm</span>(</span>
+<span id="cb30-2"><a href="#cb30-2"></a>  trav.satisf <span class="sc">~</span> sexe <span class="sc">+</span> etudes <span class="sc">+</span> trav.imp,</span>
+<span id="cb30-3"><a href="#cb30-3"></a>  <span class="at">family =</span> VGAM<span class="sc">::</span>multinomial,</span>
+<span id="cb30-4"><a href="#cb30-4"></a>  <span class="at">design =</span> dw</span>
+<span id="cb30-5"><a href="#cb30-5"></a>)</span>
+<span id="cb30-6"><a href="#cb30-6"></a>regm2 <span class="sc">|&gt;</span> <span class="fu">summary</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>svy_vglm.survey.design(trav.satisf ~ sexe + etudes + trav.imp, 
+    family = VGAM::multinomial, design = dw)
+Independent Sampling design (with replacement)
+Called via srvyr
+Sampling variables:
+ - ids: `1`
+ - weights: poids
+Data variables: id (int), age (int), sexe (fct), nivetud (fct), poids (dbl),
+  occup (fct), qualif (fct), freres.soeurs (int), clso (fct), relig (fct),
+  trav.imp (fct), trav.satisf (fct), hard.rock (fct), lecture.bd (fct),
+  peche.chasse (fct), cuisine (fct), bricol (fct), cinema (fct), sport (fct),
+  heures.tv (dbl), groupe_ages (fct), etudes (fct)
+                                      Coef       SE       z       p
+(Intercept):1                      1.54769  0.87620  1.7664 0.07733
+(Intercept):2                      1.43158  0.85973  1.6652 0.09588
+sexeHomme:1                       -0.22193  0.27267 -0.8139 0.41569
+sexeHomme:2                       -0.26334  0.27602 -0.9541 0.34006
+etudesSecondaire:1                -0.41810  0.56320 -0.7424 0.45787
+etudesSecondaire:2                -0.30241  0.56127 -0.5388 0.59002
+etudesTechnique / Professionnel:1 -0.52902  0.50108 -1.0558 0.29108
+etudesTechnique / Professionnel:2 -0.30836  0.50245 -0.6137 0.53941
+etudesSupérieur:1                 -0.58432  0.52563 -1.1116 0.26629
+etudesSupérieur:2                  0.32148  0.51762  0.6211 0.53456
+etudesNon documenté:1             -0.64619  0.93975 -0.6876 0.49169
+etudesNon documenté:2             -0.96947  0.99357 -0.9757 0.32919
+trav.impAussi:1                    0.37488  0.82521  0.4543 0.64962
+trav.impAussi:2                    0.34736  0.79303  0.4380 0.66137
+trav.impMoins:1                    0.69357  0.79203  0.8757 0.38120
+trav.impMoins:2                    0.47287  0.76483  0.6183 0.53640
+trav.impPeu:1                     -1.58552  0.86653 -1.8297 0.06729
+trav.impPeu:2                     -1.65453  0.88398 -1.8717 0.06125</code></pre>
+</div>
+</div>
+<p>Là encore, le support de <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/tbl_regression.html">gtsummary::tbl_regression()</a></code> et <code><a href="https://larmarange.github.io/ggstats/reference/ggcoef_model.html">ggstats::ggcoef_model()</a></code> sera limité (seulement des résultats bruts). Pour calculer les <em>odds ratios</em> avec leurs intervalles de confiance, on pourra avoir recours à <code><a href="https://larmarange.github.io/broom.helpers/reference/tidy_parameters.html">broom.helpers::tidy_parameters()</a></code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1"></a>regm2 <span class="sc">|&gt;</span> broom.helpers<span class="sc">::</span><span class="fu">tidy_parameters</span>(<span class="at">exponentiate =</span> <span class="cn">TRUE</span>) </span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                                term  estimate std.error conf.level   conf.low
+1                      (Intercept):1 4.7006129 4.1186549       0.95 0.84398689
+2                      (Intercept):2 4.1852883 3.5982058       0.95 0.77611187
+3                        sexeHomme:1 0.8009716 0.2184001       0.95 0.46937595
+4                        sexeHomme:2 0.7684794 0.2121182       0.95 0.44738435
+5                 etudesSecondaire:1 0.6582952 0.3707550       0.95 0.21828299
+6                 etudesSecondaire:2 0.7390322 0.4147941       0.95 0.24598714
+7  etudesTechnique / Professionnel:1 0.5891823 0.2952276       0.95 0.22066292
+8  etudesTechnique / Professionnel:2 0.7346528 0.3691275       0.95 0.27440660
+9                  etudesSupérieur:1 0.5574848 0.2930326       0.95 0.19898171
+10                 etudesSupérieur:2 1.3791649 0.7138867       0.95 0.50005203
+11             etudesNon documenté:1 0.5240360 0.4924604       0.95 0.08307080
+12             etudesNon documenté:2 0.3792856 0.3768467       0.95 0.05410512
+13                   trav.impAussi:1 1.4548184 1.2005359       0.95 0.28865943
+14                   trav.impAussi:2 1.4153320 1.1223956       0.95 0.29911150
+15                   trav.impMoins:1 2.0008486 1.5847331       0.95 0.42367870
+16                   trav.impMoins:2 1.6045861 1.2272403       0.95 0.35837360
+17                     trav.impPeu:1 0.2048410 0.1775006       0.95 0.03748230
+18                     trav.impPeu:2 0.1911828 0.1690009       0.95 0.03380709
+   conf.high  statistic df.error    p.value
+1  26.180219  1.7663789      Inf 0.07733230
+2  22.569733  1.6651511      Inf 0.09588261
+3   1.366827 -0.8139164      Inf 0.41569286
+4   1.320030 -0.9540555      Inf 0.34005553
+5   1.985279 -0.7423620      Inf 0.45786805
+6   2.220314 -0.5388059      Inf 0.59002077
+7   1.573149 -1.0557583      Inf 0.29107864
+8   1.966843 -0.6137053      Inf 0.53941010
+9   1.561899 -1.1116495      Inf 0.26628888
+10  3.803796  0.6210669      Inf 0.53455559
+11  3.305779 -0.6876277      Inf 0.49168728
+12  2.658853 -0.9757401      Inf 0.32919328
+13  7.332158  0.4542837      Inf 0.64962461
+14  6.697050  0.4380235      Inf 0.66136925
+15  9.449130  0.8756877      Inf 0.38119983
+16  7.184392  0.6182603      Inf 0.53640380
+17  1.119457 -1.8297385      Inf 0.06728905
+18  1.081160 -1.8716874      Inf 0.06124986</code></pre>
+</div>
+</div>
+</section></section><section id="webin-r" class="level2" data-number="39.5"><h2 data-number="39.5" class="anchored" data-anchor-id="webin-r">
+<span class="header-section-number">39.5</span> webin-R</h2>
+<p>La régression logistique multinomiale est abordée dans le webin-R #20 (<em>trajectoires de soins : un exemple de données longitudinales (4)</em>) sur <a href="https://www.youtube.com/watch?v=8l70djhwk2E&amp;t=2381">YouTube</a>.</p>
+<div class="quarto-video ratio ratio-16x9"><iframe data-external="1" src="https://www.youtube.com/embed/8l70djhwk2E?start=2381" title="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe></div>
+
+
+</section></main><!-- /main --><script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copié");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copié");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script><script src="https://giscus.app/client.js" data-repo="larmarange/guide-R" data-repo-id="R_kgDOH6-xnw" data-category="Forum" data-category-id="DIC_kwDOH6-xn84CRLQy" data-mapping="pathname" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="top" data-theme="light" data-lang="fr" crossorigin="anonymous" data-loading="lazy" async="">
+</script><nav class="page-navigation"><div class="nav-page nav-page-previous">
+      <a href="../analyses_avancees/classification-ascendante-hierarchique.html" class="pagination-link">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">38</span>&nbsp; <span class="chapter-title">Classification ascendante hiérarchique</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../analyses_avancees/modeles-comptage.html" class="pagination-link">
+        <span class="nav-page-text"><span class="chapter-number">40</span>&nbsp; <span class="chapter-title">Modèles de comptage (Poisson &amp; apparentés)</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+<footer class="footer"><div class="nav-footer">
+    <div class="nav-footer-left">
+      <ul class="footer-items list-unstyled">
+<li class="nav-item">
+ guide-R : Guide pour l'analyse de données d'enquêtes avec R
+  </li>  
+</ul>
+</div>   
+    <div class="nav-footer-center"><div class="cookie-consent-footer"><a href="#" id="open_preferences_center">Cookie Preferences</a></div></div>
+    <div class="nav-footer-right">
+      <ul class="footer-items list-unstyled">
+<li class="nav-item compact">
+    <a class="nav-link" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">
+      <i class="bi bi-badge-cc-fill" role="img">
+</i> 
+    </a>
+  </li>  
+    <li class="nav-item compact">
+    <a class="nav-link active" href="https://github.com/larmarange/guide-R/" aria-current="page">
+      <i class="bi bi-github" role="img">
+</i> 
+    </a>
+  </li>  
+    <li class="nav-item compact">
+    <a class="nav-link" href="https://www.youtube.com/c/webinR">
+      <i class="bi bi-youtube" role="img">
+</i> 
+    </a>
+  </li>  
+    <li class="nav-item">
+    <a class="nav-link" href="https://larmarange.github.io/analyse-R/">analyse-R</a>
+  </li>  
+    <li class="nav-item">
+    <a class="nav-link" href="https://larmarange.github.io/webin-R/">webin-R</a>
+  </li>  
+</ul>
+</div>
+  </div>
+</footer><script>var lightboxQuarto = GLightbox({"selector":".lightbox","closeEffect":"zoom","loop":true,"descPosition":"bottom","openEffect":"zoom"});</script>
+
+
+<script src="../site_libs/quarto-html/zenscroll-min.js"></script>
+</body></html>
