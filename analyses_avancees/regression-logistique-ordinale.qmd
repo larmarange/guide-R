@@ -1,0 +1,298 @@
+# Régression logistique ordinale {#sec-regression-logistique-ordinale}
+
+La régression logistique ordinale est une extension de la régression logistique binaire (cf. @sec-regression-logistique-binaire) aux variables qualitatives à trois modalités ou plus qui sont ordonnées, par exemple *modéré*, *moyen* et *fort*.
+
+Pour une variable ordonnée, il est possible de réaliser une régression logistique multinomiale (cf. @sec-regression-logistique-multinomiale) comme on le ferait avec une variable non ordonnée. Dans ce cas de figure, chaque modalité de la variable d'intérêt serait comparée à une modalité de référence.
+
+Alternativement, on peut réaliser une **régression logistique ordinale** aussi appelée **modèle cumulatif** ou **modèle logistique à égalité des pentes**. Ce type de modèle est plus simple que la régression multinomiale car il ne renvoie, dans sa version la plus fréquence, qu'un seul jeu de coefficients.
+
+Supposons une variable d'intérêt à trois modalités A, B et C telles que A \< B \< C. Les *odds ratios* qui seront calculés comparerons la probabilité que Y≥B par rapport à la probabilité que Y≤A (aspect *cumulatif*) et ferons l'hypothèse que ce ratio est le même quand on compare la probabilité que Y≥C par rapport à la probabilité que Y≤B (*égalité des pentes*).
+
+## Données d'illustration
+
+Pour illustrer la régression logistique multinomiale, nous allons reprendre le jeu de données `hdv2003` du package `{questionr}` et portant sur l'enquête *histoires de vie 2003* de l'Insee et l'exemple utilisé dans le chapitre sur la régression logistique multinomiale (cf. @sec-regression-logistique-multinomiale).
+
+```{r}
+#| message: false
+library(tidyverse)
+library(labelled)
+data("hdv2003", package = "questionr")
+d <- hdv2003
+```
+
+Nous allons considérer comme variable d'intérêt la variable *trav.satisf*, à savoir la satisfaction ou l'insatisfaction au travail.
+
+```{r}
+questionr::freq(d$trav.satisf)
+```
+
+Nous allons devoir ordonner les modalités de la plus faible à la plus forte.
+
+```{r}
+d$trav.satisf <- d$trav.satisf |>
+  fct_relevel("Insatisfaction", "Equilibre")
+```
+
+Et nous allons indiquer qu'il s'agit d'un facteur ordonné.
+
+```{r}
+d$trav.satisf <- d$trav.satisf |>
+  as.ordered()
+```
+
+Nous allons aussi en profiter pour raccourcir les étiquettes de la variable *trav.imp* :
+
+```{r}
+levels(d$trav.imp) <- c("Le plus", "Aussi", "Moins", "Peu")
+```
+
+Enfin, procédons à quelques recodages additionnels :
+
+```{r}
+d <- d |> 
+  mutate(
+    sexe = sexe |> fct_relevel("Femme"),
+    groupe_ages = age |>
+      cut(
+        c(18, 25, 45, 99),
+        right = FALSE,
+        include.lowest = TRUE,
+        labels = c("18-24 ans", "25-44 ans",
+                   "45 et plus")
+      ),
+    etudes = nivetud |> 
+      fct_recode(
+        "Primaire" = "N'a jamais fait d'etudes",
+        "Primaire" = "A arrete ses etudes, avant la derniere annee d'etudes primaires",
+        "Primaire" = "Derniere annee d'etudes primaires",
+        "Secondaire" = "1er cycle",
+        "Secondaire" = "2eme cycle",
+        "Technique / Professionnel" = "Enseignement technique ou professionnel court",
+        "Technique / Professionnel" = "Enseignement technique ou professionnel long",
+        "Supérieur" = "Enseignement superieur y compris technique superieur"
+    ) |> 
+    fct_na_value_to_level("Non documenté")  
+  ) |> 
+  set_variable_labels(
+    trav.satisf = "Satisfaction dans le travail",
+    sexe = "Sexe",
+    groupe_ages = "Groupe d'âges",
+    etudes = "Niveau d'études",
+    trav.imp = "Importance accordée au travail"
+  )
+```
+
+## Calcul du modèle ordinal
+
+### avec MASS::polr()
+
+Le plus facile pour le calcul d'un modèle ordinal est d'avoir recours à la fonction `MASS::polr()`.
+
+```{r}
+rego <- MASS::polr(
+  trav.satisf ~ sexe + etudes + groupe_ages + trav.imp,
+  data = d
+)
+```
+
+Nous pouvons aisément simplifier le modèle avec `step()` (cf. @sec-selection-modele-pas-a-pas).
+
+```{r}
+rego2 <- rego |> step()
+```
+
+### Fonctions alternatives
+
+Un package alternatif pour le calcul de régressions ordinales est le package dédié `{ordinal}` et sa fonction `ordinal::clm()`. Pour les utilisateurs avancés, `{ordinal}` permet également de traiter certains prédicteurs comme ayant un effet nominal (et donc avec un coefficient par niveau) via l'argument `nominal`. Il existe également une fonction `ordinal::clmm()` permet de définir des modèles mixtes avec variables à effet aléatoire.
+
+```{r}
+rego3 <- ordinal::clm(
+  trav.satisf ~ sexe + etudes + groupe_ages + trav.imp,
+  data = d
+)
+```
+
+Les modèles créés avec `ordinal::clm()` sont plutôt bien traités par des fonctions comme `gtsummary::tbl_regression()` ou `ggstats::ggcoef_model()`.
+
+Enfin, on peut également citer la fonction `VGAM::vgam()` en spécifiant `family = VGAM::cumulative(parallel = TRUE)`. Cette famille de modèles offre des options avancées (par exemple il est possible de calculer des modèles non parallèles, c'est-à-dire avec une série de coefficients pour chaque changement de niveau). Par contre, le support de `gtsummary::tbl_regression()` et `ggstats::ggcoef_model()` sera limité (seulement des résultats bruts).
+
+```{r}
+rego4 <- VGAM::vgam(
+  trav.satisf ~ sexe + etudes + groupe_ages + trav.imp,
+  data = d,
+  family = VGAM::cumulative(parallel = TRUE)
+)
+```
+
+::: callout-important
+En toute rigueur, il faudrait **tester l'égalité des pentes**. Laurent Rouvière propose un code permettant d'effectuer ce test sous **R** à partir d'un modèle réalisé avec `VGAM::vglm()`, voir la diapositive 33 sur 35 d'un de ses cours de janvier 2015 intitulé [*Quelques modèles logistiques polytomiques*](https://perso.univ-rennes2.fr/system/files/users/rouviere_l/chapitre4_glm.pdf).
+:::
+
+## Affichage des résultats du modèle
+
+Pour un tableau des coefficients, on peut tout simplement appeler `gtsummary::tbl_regression()`. Nous allons indiquer `exponentiate = TRUE` car, comme pour la régression logistique binaire, l'exponentielle des coefficients peut s'interpréter comme des *odds ratios*. Pour éviter certains messages d'information, nous allons préciser `tidy_fun = broom.helpers::tidy_parameters` (cela implique juste que le tableau des coefficients sera calculé avec le package `{parameters}` plutôt qu'avec le package `{broom}`). Nous pouvons calculer à la volée la p-valeur globale de chaque variable avec `gtsummary::add_global_p()`.
+
+```{r}
+#| message: false
+library(gtsummary)
+theme_gtsummary_language("fr", decimal.mark = ",")
+```
+
+```{r}
+#| label: tbl-tbl_regression-ordinale
+#| tbl-cap: Tableau des odds ratio de la régression logistique ordinale
+rego2 |> 
+  tbl_regression(
+    exponentiate = TRUE,
+    tidy_fun = broom.helpers::tidy_parameters
+  ) |> 
+  bold_labels() |> 
+  add_global_p(keep = TRUE)
+```
+
+La même commande fonctionne avec un modèle créé avec `ordinal::clm()`.
+
+Pour un graphique des coefficients, on va procéder de même avec `ggstats::gcoef_model()` ou `ggstats::gcoef_table()`.
+
+```{r}
+#| label: fig-ggcoef_model-ordinal
+#| fig-cap: Graphique des coefficients du modèle ordinal
+#| message: false
+rego2 |> 
+  ggstats::ggcoef_model(
+    exponentiate = TRUE,
+    tidy_fun = broom.helpers::tidy_parameters
+  )
+```
+
+```{r}
+#| label: fig-ggcoef_table-ordinal
+#| fig-cap: Graphique et table des coefficients du modèle ordinal
+#| message: false
+rego2 |> 
+  ggstats::ggcoef_table(
+    exponentiate = TRUE,
+    tidy_fun = broom.helpers::tidy_parameters
+  )
+```
+
+Pour faciliter l'interprétation, on pourra représenter les prédictions marginales du modèle (cf. @sec-estimations-marginales) avec `broom.helpers::plot_marginal_predictions()`.
+
+```{r}
+#| label: fig-plot_marginal_predictions-ordinal
+#| fig-cap: Prédictions marginales du modèle ordinal
+#| fig-width: 7
+#| fig-height: 7
+#| warning: false
+#| message: false
+rego2 |> 
+  broom.helpers::plot_marginal_predictions() |> 
+  patchwork::wrap_plots(ncol = 1) &
+  scale_y_continuous(labels = scales::percent, limits = c(0, .6)) &
+  coord_flip()
+```
+
+## Données pondérées
+
+### avec `survey::svyolr()`
+
+L'extension `{survey}` (cf. @sec-plan-echantillonnage) propose une fonction native `survey::svyolr()` pour le calcul d'une régression ordinale.
+
+Nous allons commencer par définir le plan d'échantillonnage.
+
+```{r}
+#| message: false
+library(survey)
+library(srvyr)
+dw <- d |>
+  as_survey(weights = poids)
+```
+
+Calculons le modèle.
+
+```{r}
+rego5 <- svyolr(
+  trav.satisf ~ sexe + etudes + groupe_ages + trav.imp,
+  design = dw
+)
+```
+
+Le résultat peut être visualisé aisément avec `gtsummary::tbl_regression()` ou `ggstats::ggcoef_model()`.
+
+### avec `svrepmisc::svymultinom()`
+
+Alternativement, il est possible d'utiliser à `ordinal::clm()` en ayant recours à des poids de réplication, comme suggéré par Thomas Lumley dans son ouvrage *Complex Surveys: A Guide to Analysis Using R*.
+
+L'extension `{svrepmisc}` disponible sur [GitHub](https://github.com/carlganz/svrepmisc) fournit quelques fonctions facilitant l'utilisation des poids de réplication avec `{survey}`. Pour l'installer, on utilisera le code ci-dessous :
+
+```{r}
+#| eval: false
+remotes::install_github("carlganz/svrepmisc")
+```
+
+En premier lieu, il faut définir le design de notre tableau de données puis calculer des poids de réplication.
+
+```{r}
+#| message: false
+library(survey)
+library(srvyr)
+dw_rep <- d |>
+  as_survey(weights = poids) |> 
+  as_survey_rep(type = "bootstrap", replicates = 25)
+```
+
+Il faut prévoir un nombre de `replicates` suffisant pour calculer ultérieurement les intervalles de confiance des coefficients. Plus ce nombre est élevé, plus précise sera l'estimation de la variance et donc des valeurs p et des intervalles de confiance. Cependant, plus ce nombre est élevé, plus le temps de calcul sera important. Pour gagner en temps de calcul, nous avons ici pris une valeur de 25, mais l'usage est de considérer au moins 1000 réplications.
+
+`{svrepmisc}` fournit une fonction `svrepmisc::svyclm()` pour le calcul d'une régression multinomiale avec des poids de réplication.
+
+```{r}
+#| results: hide
+library(svrepmisc)
+rego6 <- svyclm(
+  trav.satisf ~ sexe + etudes + trav.imp,
+  design = dw_rep
+)
+```
+
+`{svrepmisc}` fournit également des méthodes `svrepmisc::confint()` et `svrepmisc::tidy()`. Nous pouvons donc calculer et afficher les *odds ratio* et leur intervalle de confiance.
+
+```{r}
+rego6
+rego6 |> confint()
+rego6 |>
+  broom::tidy(exponentiate = TRUE, conf.int = TRUE)
+```
+
+Par contre, le support de `gtsummary::tbl_regression()` et `ggstats::ggcoef_model()` est plus limité. Vous pourrez afficher un tableau basique des résultats et un graphiques des coefficients, mais sans les enrichissements usuels (identification des variables, étiquettes propres, identification des niveaux, etc.).
+
+### avec `svyVGAM::svy_glm()`
+
+Une alternative possible pour le calcul de la régression logistique multinomiale avec des données pondérées est `svyVGAM::svy_vglm()` avec `family = VGAM::multinomial`.
+
+Nous allons commencer par définir le plan d'échantillonnage.
+
+```{r}
+#| message: false
+library(survey)
+library(srvyr)
+dw <- d |>
+  as_survey(weights = poids)
+```
+
+Puis, on appelle `svyVGAM::svy_vglm()` en précisant `family = VGAM::cumulative(parallel = TRUE)`.
+
+```{r}
+#| message: false
+rego7 <- svyVGAM::svy_vglm(
+  trav.satisf ~ sexe + etudes + trav.imp,
+  family = VGAM::cumulative(parallel = TRUE),
+  design = dw
+)
+rego7 |> summary()
+```
+
+Là encore, le support de `gtsummary::tbl_regression()` et `ggstats::ggcoef_model()` sera limité (seulement des résultats bruts). Pour calculer les *odds ratios* avec leurs intervalles de confiance, on pourra avoir recours à `broom.helpers::tidy_parameters()`.
+
+```{r}
+rego7 |> broom.helpers::tidy_parameters(exponentiate = TRUE) 
+```
