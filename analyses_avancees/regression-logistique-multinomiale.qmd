@@ -117,8 +117,9 @@ theme_gtsummary_language("fr", decimal.mark = ",")
 ```{r}
 #| label: tbl-tbl_regression-multinom
 #| tbl-cap: Tableau des odds ratio de la régression logistique multinomiale
-reg2 |> 
+tbl <- reg2 |> 
   tbl_regression(exponentiate = TRUE)
+tbl
 ```
 
 L'*odds ratio* du niveau d'étude supérieur pour la modalité *satisfaction* est de 2,01, indiquant que les personnes ayant un niveau d'étude supérieur ont plus de chances d'être satisfait au travail que d'être à l'équilibre que les personnes de niveau primaire. Par contre, l'OR est de seulement 1,08 (et non significatif) pour la modalité *Insatisfait* indiquant que ces personnes n'ont ni plus ni moins de chance d'être insatisfaite que d'être à l'équilibre.
@@ -128,6 +129,44 @@ On notera au passage un message d'avertissement de `{gtsummary}` sur le fait que
 ```{r}
 reg2 |> car::Anova()
 ```
+
+::: callout-tip
+La fonction `gtsummary::tbl_regression()` affiche le tableau des coefficients dans un format long. Or, il est souvent plus lisible de présenter les coefficients dans un format large, avec les coefficients pour chaque modalité côte à côte.
+
+Cela n'est pas possible nativement avec `{gtsummary}` mais on pourra éventuellement utiliser la fonction `multinom_pivot_wider()` proposée sur [GitHub Gist](https://gist.github.com/ddsjoberg/a55afa74ac58e1f895862fcabab62406). Voici son code à recopier dans son script.
+
+```{r}
+multinom_pivot_wider <- function(x) {
+  # check inputs match expectatations
+  if (!inherits(x, "tbl_regression") || !inherits(x$model_obj, "multinom")) {
+    stop("`x=` must be class 'tbl_regression' summary of a `nnet::multinom()` model.")
+  }
+  
+  # create tibble of results
+  df <- tibble::tibble(outcome_level = unique(x$table_body$groupname_col))
+  df$tbl <- 
+    purrr::map(
+      df$outcome_level,
+      function(lvl) {
+        gtsummary::modify_table_body(
+          x, 
+          ~dplyr::filter(.x, .data$groupname_col %in% lvl) %>%
+            dplyr::ungroup() %>%
+            dplyr::select(-.data$groupname_col)
+        )
+      }
+    )
+  
+  tbl_merge(df$tbl, tab_spanner = paste0("**", df$outcome_level, "**"))
+}
+```
+
+Il ne reste plus qu'à l'appliquer au tableau généré avec `gtsummary::tbl_regression()`. Attention : cette fonction n'est compatible qu'avec les modèles `nnet::multinom()`.
+
+```{r}
+tbl |> multinom_pivot_wider()
+```
+:::
 
 Pour un graphique des coefficients, on ne peut appeler directement `ggstats::gcoef_model()` en raison de la structure différente du modèle. Heureusement, `{ggstats}` propose une fonction spécifique `ggstats::ggcoef_multinom()` avec trois types de visualisation.
 
