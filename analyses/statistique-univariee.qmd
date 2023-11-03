@@ -68,7 +68,7 @@ ggplot(iris) +
 
 ### Variable catégorielle {#sec-graph-univ-var-cat}
 
-Pour représenter la répartition des effectifs parmi les modalités d'une variable catégorielle, on a souvent tendance à utiliser des diagrammes en secteurs (<q>camemberts</q>). Or, ce type de représentation graphique est très rarement appropriée : l’œil humain préfère comparer des longueurs plutôt que des surfaces[^statistique-univariee-1].
+Pour représenter la répartition des effectifs parmi les modalités d'une variable catégorielle, on a souvent tendance à utiliser des diagrammes en secteurs (<q>camemberts</q>). Or, ce type de représentation graphique est très rarement appropriée : l'œil humain préfère comparer des longueurs plutôt que des surfaces[^statistique-univariee-1].
 
 [^statistique-univariee-1]: Voir en particulier <https://www.data-to-viz.com/caveat/pie.html> pour un exemple concret.
 
@@ -463,6 +463,30 @@ trial |>
   )
 ```
 
+Il ne faut pas oublier que, par défaut, `{gtsummary}` traite les variables quantitatives avec moins de 10 valeurs comme des variables catégorielles. Prenons un exemple :
+
+```{r}
+trial$alea <- sample(1:4, size = nrow(trial), replace = TRUE)
+#| label: tbl-types-defaut-alea
+#| tbl-cap: traitement par défaut d'une variable numérique à 4 valeurs uniques
+trial |>
+  tbl_summary(
+    include = alea
+  )
+```
+
+On pourra forcer le traitement de cette variable comme continue.
+
+```{r}
+#| label: tbl-types-alea-continue
+#| tbl-cap: forcer le traitement continu d'une variable numérique à 4 valeurs uniques
+trial |>
+  tbl_summary(
+    include = alea,
+    type = alea ~ "continuous"
+  )
+```
+
 ### Afficher des statistiques sur plusieurs lignes (variables continues)
 
 Pour les variables continues, `{gtsummary}` a introduit un type de variable `"continuous2"`, qui doit être attribué manuellement via `type`, et qui permets d'afficher plusieurs lignes de statistiques (en indiquant plusieurs chaînes de caractères dans `statistic`). À noter le sélecteur dédié `gtsummary::all_continuous2()`.
@@ -515,7 +539,7 @@ hdv2003 |>
   )
 ```
 
-Comme `digits` s’attend à recevoir une fonction (et non le résultat) d'une fonction, on ne peut pas passer directement des arguments aux fonctions `style_*()` de `{gtsummary}`. Pour cela il faut créer une fonction à la levée :
+Comme `digits` s'attend à recevoir une fonction (et non le résultat) d'une fonction, on ne peut pas passer directement des arguments aux fonctions `style_*()` de `{gtsummary}`. Pour cela il faut créer une fonction à la levée :
 
 ```{r}
 #| label: tbl-digits-3
