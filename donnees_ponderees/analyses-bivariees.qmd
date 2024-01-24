@@ -25,7 +25,7 @@ library(gtsummary)
 theme_gtsummary_language(
   language = "fr", 
   decimal.mark = ",", 
-  big.mark = " "
+  big.mark = ""
 )
 ```
 
@@ -179,6 +179,54 @@ dp |>
   ) |> 
   add_p() |> 
   bold_labels()
+```
+
+## Calcul manuel avec `{srvyr}`
+
+On peut avoir besoin de calculer des moyennes et/ou des proportions par sous-groupe, avec leurs intervalles de confiance, de manière manuelle, par exemple en amont d'un graphique à représenter avec `{ggplot2}`. Dans ce cas de figure, les fonctions natives de `{survey}` ne sont pas toujours très facile d'emploi et l'on pourra avantageusement recourir à `{srvyr}` pour bénéficier d'une syntaxe à la `{dplyr}`.
+
+Par exemple, pour calculer l'âge moyen des femmes par région, on combinera `srvyr::survey_mean()` avec `srvyr::group_by()` et `srvyr::summarise()`  :
+
+```{r}
+dp |> 
+  group_by(region) |> 
+  summarise(moy = survey_mean())
+```
+
+Par défaut, cela renvoie les moyennes et les erreurs standards. Pour les intervalles de confiance, on précisera simplement `vartype = "ci"`.
+
+```{r}
+dp |> 
+  group_by(region) |> 
+  summarise(moy = survey_mean(vartype = "ci"))
+```
+
+Pour des proportions, on aura recours à `srvyr::survey_prop()`. Par exemple, pour un tri à plat du niveau d'éducation :
+
+```{r}
+dp |> 
+  group_by(educ) |> 
+  summarise(prop = survey_prop())
+```
+
+Là encore, on peut passer l'option `vartpe = "ci"` pour obtenir les intervalles de confiance[^analyses-bivariees-3].
+
+[^analyses-bivariees-3]: Par défaut, les intervalles de confiance sont calculés avec `survey::svymean()` et peuvent générer des valeurs inférieures à 0 ou supérieures à 1. Pour un calcul plus précis reposant sur `survey::svyciprop()`, on précisera `proportion = TRUE`. Plusieurs méthodes existent pour ce calcul, voir l'aide de `survey::svyciprop()`.
+
+Si l'on passe plusieurs variables dans le `group_by()`, les proportions sont calculées pour la dernière variable pour chaque combinaison des autres variables. Par exemple, pour la distribution du niveau d'éducation par milieu de résidence (i.e. la somme des proportions est de 100% pour le milieu urbain et de 100% pour celles du milieu rural, soit 200% au total) :
+
+```{r}
+dp |> 
+  group_by(milieu, educ) |> 
+  summarise(prop = survey_prop(vartype = "ci", proportion = TRUE))
+```
+
+Si l'on souhaite les pourcentages que représentent chaque combinaison au sein de l'ensemble de l'échantillon (i.e. que la somme de toutes les proportions soit de 100%), on aura recours à `srvyr::interact()`.
+
+```{r}
+dp |> 
+  group_by(interact(milieu, educ)) |> 
+  summarise(prop = survey_prop(vartype = "ci", proportion = TRUE))
 ```
 
 ## Impact du plan d'échantillonnage
