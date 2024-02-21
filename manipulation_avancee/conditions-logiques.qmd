@@ -1,0 +1,224 @@
+# Conditions logiques {#sec-conditions-logiques}
+
+Dans ce chapitre, nous allons aborder les conditions et vecteurs logiques qui sont composés de trois valeurs possibles : `TRUE` (vrai), `FALSE` (faux) et `NA` (manquant). Les vecteurs logiques sont notamment utiliser pour sélectionner des observations, par exemple avec `dplyr::filter()`.
+
+Nous avons également déjà aborder les conditions pour combiner ensemble plusieurs variables (cf. @sec-combiner-variables), notamment avec `dplyr::if_else()` ou `dplyr::case_when()`.
+
+## Opérateurs de comparaison
+
+Une manière commune de créer un vecteur logique consiste à utiliser l'un des opérateurs de comparaison suivants : \< (strictement inférieur), `<=` (inférieur ou égal), `>` (strictement supérieur), `>=` (supérieur ou égal), `==` (est égal à), `!=` (est différent de).
+
+On peut comparer un vecteur de plusieurs valeurs avec une valeur unique.
+
+```{r}
+x <- c(1, 5, 2, 8)
+x < 3
+```
+
+Si l'on prend deux vecteurs de même longueur, la comparaison se fera ligne à ligne.
+
+```{r}
+y <- c(3, 5, 1, 7)
+y >= x
+y == x
+y != x
+```
+
+On peut ainsi facilement sélectionner des lignes d'un tableau de données à partir d'une condition sur certaines variables.
+
+```{r}
+library(tidyverse)
+data("hdv2003", package = "questionr")
+hdv2003 |> nrow()
+hdv2003 |>
+  filter(sexe == "Femme") |> 
+  nrow()
+hdv2003 |> 
+  filter(age < 25) |> 
+  nrow()
+```
+
+::: callout-tip
+## Tester l'égalité d'une valeur décimale
+
+Lorsque l'on effectue un test d'égalité avec des valeurs décimales, le test échouera si les deux valeurs ne sont pas parfaitement identique.
+
+Prenons un exemple :
+
+```{r}
+x <- 1 / 49 * 49
+x
+x == 1
+```
+
+Pourquoi ce test échoue-t-il ? Le nombre de décimales stockées par l'ordinateur est limité et, de ce fait, il peut y avoir quelques écarts d'arrondis. Ainsi, `x` n'est pas tout à fait égal à `1`, ce qui devient visible si on l'affiche avec un nombre élevé de décimales.
+
+```{r}
+print(x, digits = 16)
+```
+
+Dans ce cas là, on pourra avoir recours à `dplyr::near()` qui prendra en compte la précision de l'ordinateur dans la comparaison.
+
+```{r}
+near(x, 1)
+```
+
+On peut aussi utiliser cette fonction en personnalisant le niveau de tolérance pour la comparaison.
+
+```{r}
+near(c(2.1, 3.4), 2, tol = 1)
+```
+:::
+
+## Comparaison et valeurs manquantes
+
+Les valeurs manquantes (`NA`) peuvent être parfois problématiques lors d'une comparaison car elles renvoient systématique une valeur manquante.
+
+```{r}
+2 < NA
+NA == 6
+```
+
+Lorsque l'on sélectionne des observations avec la syntaxe des crochets (`[]`, voir @sec-tableaux-donnees), cela va générer des lignes <q>vides</q> / <q>manquantes</q>.
+
+```{r}
+d <- tibble(
+  a = c(1, NA, 3, 4),
+  b = c("x", "y", "x", "y")
+)
+d[d$a > 2, ]
+```
+
+Le recours à `dplyr::filter()` est plus sûr car les lignes pour lesquelles la condition renvoie `NA` ne sont pas sélectionnées.
+
+```{r}
+d |> filter(a > 2)
+```
+
+L'opérateur `==` ne peut pas être utilisé pour tester si une valeur est manquante. On utilisera à la place la fonction `is.na()`.
+
+```{r}
+d$a == NA
+is.na(d$a)
+```
+
+::: callout-tip
+Voici deux petites fonctions permettant de tester si deux valeurs sont identiques ou différentes, en tenant compte des `NA` comme l'un des valeurs possibles (deux `NA` seront alors considérés comme égaux).
+
+```{r}
+is_different <- function(x, y) {
+  (x != y & !is.na(x) & !is.na(y)) | xor(is.na(x), is.na(y))
+}
+
+is_equal <- function(x, y) {
+  (x == y & !is.na(x) & !is.na(y)) | (is.na(x) & is.na(y))
+}
+
+v <- c(1, NA, NA, 2)
+w <- c(1, 2, NA, 3)
+
+v == w
+is_equal(v, w)
+v != w
+is_different(v, w)
+```
+:::
+
+## Opérateurs logiques (algèbre booléenne)
+
+Les opérateurs logiques permettent de combiner ensemble plusieurs vecteurs logiques :
+
+-   `&` : opérateur <q>et</q> (`x & y` est vrai si à la fois `x` et `y` sont vrais) ;
+
+-   `|` : opérateur <q>ou</q> (`x | y` est vrai si `x` ou `y` ou les deux sont vrais) ;
+
+-   `xor()` : opérateur <q>ou exclusif</q> (`xor(x, y)` est vrai si seulement `x` ou seulement `y` est vrai, mais pas les deux) ;
+
+-   `!` : opérateur <q>non</q> (`!x` est vrai si `x` est faux).
+
+![Représentation graphique de l'ensemble des opérations logiques. Le cercle de gauche représente x et celui de droite y. La région colorée représente le résultat de l'opération.](ressources/operations_logiques.png)
+
+Ils permettent de combiner plusieurs conditions entre elles.
+
+```{r}
+hdv2003 |>
+  filter(sexe == "Femme" & age < 25) |> 
+  nrow()
+hdv2003 |>
+  filter(sexe == "Femme" | age < 25) |> 
+  nrow()
+```
+
+Pour des conditions complexes, on utilisera des parenthèses pour indiquer dans quel ordre effectuer les opérations.
+
+```{r}
+# sélectionne les jeunes femmes et les hommes âgés
+hdv2003 |>
+  filter(
+    (sexe == "Femme" & age < 25) | 
+      (sexe == "Homme" & age > 60)) |> 
+  nrow()
+```
+
+### Opérations logiques et Valeurs manquantes
+
+On sera vigilant·e avec les valeurs manquantes. Cela peut paraître un peu obscur au premier abord, mais est en fait parfaitement logique.
+
+```{r}
+df <- tibble(x = c(TRUE, FALSE, NA))
+
+df |> 
+  mutate(
+    et_na = x & NA,
+    ou_na = x | NA
+  )
+```
+
+`TRUE | NA` vaut `TRUE` car la condition reste vrai quelle que soit la valeur du deuxième paramètre, tandis que `FALSE | NA` renvoie `NA` car le résultat est indéterminé (il dépend du deuxième paramètre).
+
+### L'opérateur `%in%`
+
+Il est fréquent de vouloir tester simultanément plusieurs égalités. Par exemple :
+
+```{r}
+x <- c("a", "b", "c", "d")
+x == "a" | x == "b"
+```
+
+On aura alors avantageusement recours à l'opérateur *%in%* que l'on peut traduire par <q>appartient à</q> et qui teste si les éléments appartiennent à un certain ensemble.
+
+```{r}
+x %in% c("a", "b")
+```
+
+## Aggrégation
+
+Pour résumer un ensemble de valeurs logiques en une seule, on utilisera les fonction `all()` et `any()` qui teste si toutes les valeurs / au moins une valeur est vrai. Ces deux fonctions acceptent un argument `na.rm` permettant de ne pas tenir compte des valeurs manquantes.
+
+```{r}
+x <- c(TRUE, NA, FALSE, FALSE)
+any(x)
+all(x)
+```
+
+Un vecteur logique peut-être vu comme un vecteur de valeur binaire (`0` si `FALSE`, `1` si `TRUE`). On peut dès lors effectuer des opérations comme la somme ou la moyenne.
+
+```{r}
+sum(x, na.rm = TRUE)
+mean(x, na.rm = TRUE)
+```
+
+## Programmation
+
+Lorsque l'on programme avec `R`, notamment avec des structures conditionnelles telles que `if ... else ...`, on a besoin d'écrire des conditions qui ne renvoient qu'une et une seule valeur logique.
+
+Les opérateurs `&` et `|` s'appliquent sur des vecteurs et donc renvoient potentiellement plusieurs valeurs. On privilégiera alors les variantes `&&` et `||` qui ne renvoient qu'une seule valeur et produise une erreur sinon.
+
+De même, pour vérifier qu'un objet est bien égal à `TRUE` ou à `FALSE`, n'est pas nul, n'est pas manquant et est de longueur 1, on utilisera `isTRUE()` et `isFALSE()`.
+
+```{r}
+isTRUE(TRUE)
+isTRUE(NA)
+isTRUE(NULL)
+isTRUE(c(TRUE, TRUE))
+```
