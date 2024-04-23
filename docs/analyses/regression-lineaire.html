@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="fr" xml:lang="fr"><head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.3.433">
+<meta name="generator" content="quarto-1.4.553">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 <title>guide-R - 21&nbsp; Régression linéaire</title>
 <style>
@@ -19,7 +19,7 @@ ul.task-list li input[type="checkbox"] {
 }
 /* CSS for syntax highlighting */
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -82,7 +82,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   "collapse-after": 3,
   "panel-placement": "start",
   "type": "overlay",
-  "limit": 20,
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
   "language": {
     "search-no-results-text": "Pas de résultats",
     "search-matching-documents-text": "documents trouvés",
@@ -91,6 +96,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     "search-more-match-text": "correspondance de plus dans ce document",
     "search-more-matches-text": "correspondances de plus dans ce document",
     "search-clear-button-title": "Effacer",
+    "search-text-placeholder": "",
     "search-detached-cancel-button-title": "Annuler",
     "search-submit-button-title": "Envoyer",
     "search-label": "Recherche"
@@ -112,36 +118,62 @@ cookieconsent.run({
   "notice_banner_reject_button_hide":false,
   "preferences_center_close_button_hide":false,
   "website_name":""
+  ,
+"language":"fr"
   });
 });
 </script><style>html{ scroll-behavior: smooth; }</style>
-<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script><link rel="stylesheet" href="../styles.css">
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script><script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script><link rel="stylesheet" href="../styles.css">
 </head>
 <body class="nav-sidebar floating slimcontent">
 
-
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top"><nav class="quarto-secondary-nav"><div class="container-fluid d-flex">
-      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Basculer la barre latérale" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Basculer la barre latérale" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../analyses/ggplot2.html"><strong>Analyses</strong></a></li><li class="breadcrumb-item"><a href="../analyses/regression-lineaire.html"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Régression linéaire</span></a></li></ol></nav>
-      <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Basculer la barre latérale" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
-      </a>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../analyses/ggplot2.html"><strong>Analyses</strong></a></li><li class="breadcrumb-item"><a href="../analyses/regression-lineaire.html"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Régression linéaire</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Basculer la barre latérale" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
       <button type="button" class="btn quarto-search-button" aria-label="" onclick="window.quartoOpenSearch();">
         <i class="bi bi-search"></i>
       </button>
     </div>
   </nav></header><!-- content --><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
 <!-- sidebar -->
-  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal sidebar-navigation floating overflow-auto"><div class="pt-lg-2 mt-2 text-left sidebar-header sidebar-header-stacked">
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto"><div class="pt-lg-2 mt-2 text-left sidebar-header sidebar-header-stacked">
       <a href="../index.html" class="sidebar-logo-link">
       <img src="../ressources/typewriter.png" alt="" class="sidebar-logo py-0 d-lg-inline d-none"></a>
     <div class="sidebar-title mb-0 py-0">
       <a href="../">guide-R</a> 
         <div class="sidebar-tools-main tools-wide">
-    <a href="https://github.com/larmarange/guide-R/" rel="" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
-    <a href="../guide-R.pdf" rel="" title="Download PDF" class="quarto-navigation-tool px-1" aria-label="Download PDF"><i class="bi bi-file-pdf"></i></a>
+    <a href="https://github.com/larmarange/guide-R/" title="Code source" class="quarto-navigation-tool px-1" aria-label="Code source"><i class="bi bi-github"></i></a>
+    <a href="../guide-R.pdf" title="Download PDF" class="quarto-navigation-tool px-1" aria-label="Download PDF"><i class="bi bi-file-pdf"></i></a>
     <div class="dropdown">
       <a href="" title="Share" id="quarto-navigation-tool-dropdown-0" class="quarto-navigation-tool dropdown-toggle px-1" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Share"><i class="bi bi-share"></i></a>
       <ul class="dropdown-menu" aria-labelledby="quarto-navigation-tool-dropdown-0">
@@ -165,14 +197,10 @@ cookieconsent.run({
           </li>
       </ul>
 </div>
+    <div id="quarto-search" class="quarto-navigation-tool px-1" title="Recherche"></div>
 </div>
     </div>
       </div>
-        <div class="mt-2 flex-shrink-0 align-items-center">
-        <div class="sidebar-search">
-        <div id="quarto-search" class="" title="Recherche"></div>
-        </div>
-        </div>
     <div class="sidebar-menu-container"> 
     <ul class="list-unstyled mt-1">
 <li class="sidebar-item">
@@ -542,7 +570,7 @@ cookieconsent.run({
 </li>
     </ul>
 </div>
-</nav><div id="quarto-sidebar-glass" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass"></div>
+</nav><div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
         <nav id="TOC" role="doc-toc" class="toc-active"><h2 id="toc-title">Table des matières</h2>
@@ -551,10 +579,10 @@ cookieconsent.run({
 <li><a href="#sec-regression-lineaire-variable-explicative-continue" id="toc-sec-regression-lineaire-variable-explicative-continue" class="nav-link active" data-scroll-target="#sec-regression-lineaire-variable-explicative-continue"><span class="header-section-number">21.1</span> Modèle à une seule variable explicative continue</a></li>
   <li><a href="#sec-regression-lineaire-variable-explicative-categorielle" id="toc-sec-regression-lineaire-variable-explicative-categorielle" class="nav-link" data-scroll-target="#sec-regression-lineaire-variable-explicative-categorielle"><span class="header-section-number">21.2</span> Modèle à une seule variable explicative catégorielle</a></li>
   <li><a href="#sec-regression-lineaire-multivariee" id="toc-sec-regression-lineaire-multivariee" class="nav-link" data-scroll-target="#sec-regression-lineaire-multivariee"><span class="header-section-number">21.3</span> Modèle à plusieurs variables explicatives</a></li>
-  </ul><div class="toc-actions"><div><i class="bi bi-github"></i></div><div class="action-links"><p><a href="https://github.com/larmarange/guide-R/blob/main/analyses/regression-lineaire.qmd" class="toc-action">Voir la source</a></p><p><a href="https://github.com/larmarange/guide-R/issues/new" class="toc-action">Faire part d'un problème</a></p></div></div></nav>
+  </ul><div class="toc-actions"><ul><li><a href="https://github.com/larmarange/guide-R/blob/main/analyses/regression-lineaire.qmd" class="toc-action"><i class="bi bi-github"></i>Voir la source</a></li><li><a href="https://github.com/larmarange/guide-R/issues/new" class="toc-action"><i class="bi empty"></i>Faire part d'un problème</a></li></ul></div></nav>
     </div>
 <!-- main -->
-<main class="content page-columns page-full" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block default"><div class="quarto-title">
+<main class="content page-columns page-full" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../analyses/ggplot2.html"><strong>Analyses</strong></a></li><li class="breadcrumb-item"><a href="../analyses/regression-lineaire.html"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Régression linéaire</span></a></li></ol></nav><div class="quarto-title">
 <h1 class="title"><span id="sec-regression-lineaire" class="quarto-section-identifier"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Régression linéaire</span></span></h1>
 </div>
 
@@ -568,10 +596,11 @@ cookieconsent.run({
   </div>
   
 
+
 </header><p>Un modèle de régression linéaire est un modèle de régression qui cherche à établir une relation linéaire entre une <strong>variable continue</strong>, dite expliquée, et une ou plusieurs variables, dites explicatives.</p>
 <section id="sec-regression-lineaire-variable-explicative-continue" class="level2 page-columns page-full" data-number="21.1"><h2 data-number="21.1" class="anchored" data-anchor-id="sec-regression-lineaire-variable-explicative-continue">
 <span class="header-section-number">21.1</span> Modèle à une seule variable explicative continue</h2>
-<p>Nous avons déjà abordé très rapidement la régression linéaire dans le chapitre sur la <em>statistique bivariée</em> (cf. <a href="statistique-bivariee.html#sec-deux-variables-continues"><span>Section&nbsp;19.3</span></a>).</p>
+<p>Nous avons déjà abordé très rapidement la régression linéaire dans le chapitre sur la <em>statistique bivariée</em> (cf. <a href="statistique-bivariee.html#sec-deux-variables-continues" class="quarto-xref"><span>Section 19.3</span></a>).</p>
 <p>Reprenons le même exemple à partir du jeu de données <code>iris</code> qui comporte les caractéristiques de 150 fleurs de trois espèces différentes d’iris. Nous cherchons dans un premier temps à explorer la relation entre la largeur (<em>Petal.Width</em>) et la longueur des pétales (<em>Petal.Length</em>). Représentons cette relation sous la forme d’un nuage de points.</p>
 <div class="cell page-columns page-full">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="fu">library</span>(tidyverse)</span>
@@ -581,9 +610,13 @@ cookieconsent.run({
 <span id="cb1-5"><a href="#cb1-5"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Longueur"</span>, <span class="at">y =</span> <span class="st">"Largeur"</span>) <span class="sc">+</span></span>
 <span id="cb1-6"><a href="#cb1-6"></a>  <span class="fu">theme_light</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display page-columns page-full">
-<div id="fig-rel-petal.width-petal.length" class="quarto-figure quarto-figure-center anchored page-columns page-full">
-<figure class="figure page-columns page-full"><p><a href="regression-lineaire_files/figure-html/fig-rel-petal.width-petal.length-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-1" title="Relation entre la largeur et la longueur des pétales (nuage de points)"><img src="regression-lineaire_files/figure-html/fig-rel-petal.width-petal.length-1.png" class="img-fluid figure-img" width="672"></a></p>
-<figcaption class="figure-caption margin-caption">Figure&nbsp;21.1: Relation entre la largeur et la longueur des pétales (nuage de points)</figcaption></figure>
+<div id="fig-rel-petal.width-petal.length" class="quarto-figure quarto-figure-center quarto-float anchored page-columns page-full">
+<figure class="quarto-float quarto-float-fig figure page-columns page-full"><div aria-describedby="fig-rel-petal.width-petal.length-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="regression-lineaire_files/figure-html/fig-rel-petal.width-petal.length-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-1" data-glightbox="description: .lightbox-desc-1"><img src="regression-lineaire_files/figure-html/fig-rel-petal.width-petal.length-1.png" class="img-fluid figure-img" width="672"></a>
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig margin-caption" id="fig-rel-petal.width-petal.length-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;21.1: Relation entre la largeur et la longueur des pétales (nuage de points)
+</figcaption></figure>
 </div>
 </div>
 </div>
@@ -596,14 +629,18 @@ cookieconsent.run({
 <span id="cb2-5"><a href="#cb2-5"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Longueur"</span>, <span class="at">y =</span> <span class="st">"Largeur"</span>) <span class="sc">+</span></span>
 <span id="cb2-6"><a href="#cb2-6"></a>  <span class="fu">theme_light</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display page-columns page-full">
-<div id="fig-rel-petal.width-petal.length-lm" class="quarto-figure quarto-figure-center anchored page-columns page-full">
-<figure class="figure page-columns page-full"><p><a href="regression-lineaire_files/figure-html/fig-rel-petal.width-petal.length-lm-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-2" title="Relation linéaire entre la largeur et la longueur des pétales"><img src="regression-lineaire_files/figure-html/fig-rel-petal.width-petal.length-lm-1.png" class="img-fluid figure-img" width="672"></a></p>
-<figcaption class="figure-caption margin-caption">Figure&nbsp;21.2: Relation linéaire entre la largeur et la longueur des pétales</figcaption></figure>
+<div id="fig-rel-petal.width-petal.length-lm" class="quarto-figure quarto-figure-center quarto-float anchored page-columns page-full">
+<figure class="quarto-float quarto-float-fig figure page-columns page-full"><div aria-describedby="fig-rel-petal.width-petal.length-lm-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="regression-lineaire_files/figure-html/fig-rel-petal.width-petal.length-lm-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-2" data-glightbox="description: .lightbox-desc-2"><img src="regression-lineaire_files/figure-html/fig-rel-petal.width-petal.length-lm-1.png" class="img-fluid figure-img" width="672"></a>
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig margin-caption" id="fig-rel-petal.width-petal.length-lm-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;21.2: Relation linéaire entre la largeur et la longueur des pétales
+</figcaption></figure>
 </div>
 </div>
 </div>
-<div class="page-columns page-full"><p>La fonction de base pour calculer une régression linéaire est la fonction <code>stats::m()</code>. On doit en premier lieu spécifier le modèle à l’aide d’une <strong>formule</strong> : on indique la variable à expliquer dans la partie gauche de la formule et la variable explicative dans la partie droite, les deux parties étant séparées par un tilde<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> (<code>~</code>).</p><div class="no-row-height column-margin column-container"><li id="fn1"><p><sup>1</sup>&nbsp;Avec un clavier français, sous Windows, le caractère tilde s’obtient en pressant simultanément les touches <kbd>Alt Gr</kbd> et <kbd>7</kbd>.</p></li></div></div>
-<p>Dans le cas présent, la variable <em>Petal.Width</em> fait office de variable à expliquer et <em>Petal.Length</em> de variable explicative. Le modèle s’écrit donc <code>Petal.Width ~ Petal.Length</code>.</p>
+<p>La fonction de base pour calculer une régression linéaire est la fonction <code>stats::m()</code>. On doit en premier lieu spécifier le modèle à l’aide d’une <strong>formule</strong> : on indique la variable à expliquer dans la partie gauche de la formule et la variable explicative dans la partie droite, les deux parties étant séparées par un tilde<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> (<code>~</code>).</p>
+<div class="no-row-height column-margin column-container"><div id="fn1"><p><sup>1</sup>&nbsp;Avec un clavier français, sous Windows, le caractère tilde s’obtient en pressant simultanément les touches <kbd>Alt Gr</kbd> et <kbd>7</kbd>.</p></div></div><p>Dans le cas présent, la variable <em>Petal.Width</em> fait office de variable à expliquer et <em>Petal.Length</em> de variable explicative. Le modèle s’écrit donc <code>Petal.Width ~ Petal.Length</code>.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a>mod <span class="ot">&lt;-</span> <span class="fu">lm</span>(Petal.Width <span class="sc">~</span> Petal.Length, <span class="at">data =</span> iris)</span>
 <span id="cb3-2"><a href="#cb3-2"></a>mod</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -633,9 +670,13 @@ Coefficients:
 <span id="cb5-12"><a href="#cb5-12"></a>  <span class="fu">expand_limits</span>(<span class="at">x =</span> <span class="dv">0</span>, <span class="at">y =</span> <span class="sc">-</span><span class="dv">1</span>) <span class="sc">+</span></span>
 <span id="cb5-13"><a href="#cb5-13"></a>  <span class="fu">theme_light</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display page-columns page-full">
-<div id="fig-rel-petal.width-petal.length-lm2" class="quarto-figure quarto-figure-center anchored page-columns page-full">
-<figure class="figure page-columns page-full"><p><a href="regression-lineaire_files/figure-html/fig-rel-petal.width-petal.length-lm2-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-3" title="Relation linéaire entre la largeur et la longueur des pétales (représentation graphique de l’intercept)"><img src="regression-lineaire_files/figure-html/fig-rel-petal.width-petal.length-lm2-1.png" class="img-fluid figure-img" width="672"></a></p>
-<figcaption class="figure-caption margin-caption">Figure&nbsp;21.3: Relation linéaire entre la largeur et la longueur des pétales (représentation graphique de l’intercept)</figcaption></figure>
+<div id="fig-rel-petal.width-petal.length-lm2" class="quarto-figure quarto-figure-center quarto-float anchored page-columns page-full">
+<figure class="quarto-float quarto-float-fig figure page-columns page-full"><div aria-describedby="fig-rel-petal.width-petal.length-lm2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="regression-lineaire_files/figure-html/fig-rel-petal.width-petal.length-lm2-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-3" data-glightbox="description: .lightbox-desc-3"><img src="regression-lineaire_files/figure-html/fig-rel-petal.width-petal.length-lm2-1.png" class="img-fluid figure-img" width="672"></a>
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig margin-caption" id="fig-rel-petal.width-petal.length-lm2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;21.3: Relation linéaire entre la largeur et la longueur des pétales (représentation graphique de l’intercept)
+</figcaption></figure>
 </div>
 </div>
 </div>
@@ -643,34 +684,32 @@ Coefficients:
 <p><span class="math display">\[
 Petal.Width = 0,4158 \cdot Petal.Length - 0,3631
 \]</span></p>
-<div class="page-columns page-full"><p>Le package <a href="https://github.com/ddsjoberg/gtsummary">gtsummary</a> fournit <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/tbl_regression.html">gtsummary::tbl_regression()</a></code>, une fonction bien pratique pour produire un tableau propre avec les coefficients du modèle, leur intervalle de confiance à 95% et leur p-valeurs<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a>. On précisera <code>intercept = TRUE</code> pour forcer l’affichage de l’<em>intercept</em> qui est masqué par défaut.</p><div class="no-row-height column-margin column-container"><li id="fn2"><p><sup>2</sup>&nbsp;Si l’on a besoin de ces informations sous la forme d’un tableau de données classique, on pourra se référer à <code><a href="https://larmarange.github.io/broom.helpers/reference/tidy_plus_plus.html">broom.helpers::tidy_plus_plus()</a></code>, utilisée de manière sous-jacente par <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/tbl_regression.html">gtsummary::tbl_regression()</a></code>, ainsi qu’à la méthode <code><a href="https://generics.r-lib.org/reference/tidy.html">broom::tidy()</a></code>. Ces fonctions sont génériques et peut être utilisées avec une très grande variété de modèles.</p></li></div></div>
-<div class="cell page-columns page-full">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a><span class="fu">library</span>(gtsummary)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>#Uighur</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a>mod <span class="sc">%&gt;%</span></span>
-<span id="cb8-2"><a href="#cb8-2"></a>  <span class="fu">tbl_regression</span>(<span class="at">intercept =</span> <span class="cn">TRUE</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display page-columns page-full">
-<div id="tbl-regression-lm" class="anchored page-columns page-full">
-
-<div id="gnyrmgfllv" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;" class="page-columns page-full">
-<style>#gnyrmgfllv table {
+<p>Le package <a href="https://github.com/ddsjoberg/gtsummary">gtsummary</a> fournit <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/tbl_regression.html">gtsummary::tbl_regression()</a></code>, une fonction bien pratique pour produire un tableau propre avec les coefficients du modèle, leur intervalle de confiance à 95% et leur p-valeurs<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a>. On précisera <code>intercept = TRUE</code> pour forcer l’affichage de l’<em>intercept</em> qui est masqué par défaut.</p>
+<div class="no-row-height column-margin column-container"><div id="fn2"><p><sup>2</sup>&nbsp;Si l’on a besoin de ces informations sous la forme d’un tableau de données classique, on pourra se référer à <code><a href="https://larmarange.github.io/broom.helpers/reference/tidy_plus_plus.html">broom.helpers::tidy_plus_plus()</a></code>, utilisée de manière sous-jacente par <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/tbl_regression.html">gtsummary::tbl_regression()</a></code>, ainsi qu’à la méthode <code><a href="https://generics.r-lib.org/reference/tidy.html">broom::tidy()</a></code>. Ces fonctions sont génériques et peut être utilisées avec une très grande variété de modèles.</p></div></div><div class="cell page-columns page-full">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a><span class="fu">library</span>(gtsummary)</span>
+<span id="cb6-2"><a href="#cb6-2"></a>mod <span class="sc">%&gt;%</span></span>
+<span id="cb6-3"><a href="#cb6-3"></a>  <span class="fu">tbl_regression</span>(<span class="at">intercept =</span> <span class="cn">TRUE</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="tbl-regression-lm" class="cell quarto-float anchored page-columns page-full">
+<figure class="quarto-float quarto-float-tbl figure page-columns page-full"><div aria-describedby="tbl-regression-lm-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<div>
+<div id="hsatqbcqyv" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#hsatqbcqyv table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#gnyrmgfllv thead, #gnyrmgfllv tbody, #gnyrmgfllv tfoot, #gnyrmgfllv tr, #gnyrmgfllv td, #gnyrmgfllv th {
+#hsatqbcqyv thead, #hsatqbcqyv tbody, #hsatqbcqyv tfoot, #hsatqbcqyv tr, #hsatqbcqyv td, #hsatqbcqyv th {
   border-style: none;
 }
 
-#gnyrmgfllv p {
+#hsatqbcqyv p {
   margin: 0;
   padding: 0;
 }
 
-#gnyrmgfllv .gt_table {
+#hsatqbcqyv .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -696,12 +735,12 @@ Petal.Width = 0,4158 \cdot Petal.Length - 0,3631
   border-left-color: #D3D3D3;
 }
 
-#gnyrmgfllv .gt_caption {
+#hsatqbcqyv .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#gnyrmgfllv .gt_title {
+#hsatqbcqyv .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -713,7 +752,7 @@ Petal.Width = 0,4158 \cdot Petal.Length - 0,3631
   border-bottom-width: 0;
 }
 
-#gnyrmgfllv .gt_subtitle {
+#hsatqbcqyv .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -725,7 +764,7 @@ Petal.Width = 0,4158 \cdot Petal.Length - 0,3631
   border-top-width: 0;
 }
 
-#gnyrmgfllv .gt_heading {
+#hsatqbcqyv .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -737,13 +776,13 @@ Petal.Width = 0,4158 \cdot Petal.Length - 0,3631
   border-right-color: #D3D3D3;
 }
 
-#gnyrmgfllv .gt_bottom_border {
+#hsatqbcqyv .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#gnyrmgfllv .gt_col_headings {
+#hsatqbcqyv .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -758,7 +797,7 @@ Petal.Width = 0,4158 \cdot Petal.Length - 0,3631
   border-right-color: #D3D3D3;
 }
 
-#gnyrmgfllv .gt_col_heading {
+#hsatqbcqyv .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -778,7 +817,7 @@ Petal.Width = 0,4158 \cdot Petal.Length - 0,3631
   overflow-x: hidden;
 }
 
-#gnyrmgfllv .gt_column_spanner_outer {
+#hsatqbcqyv .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -790,15 +829,15 @@ Petal.Width = 0,4158 \cdot Petal.Length - 0,3631
   padding-right: 4px;
 }
 
-#gnyrmgfllv .gt_column_spanner_outer:first-child {
+#hsatqbcqyv .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#gnyrmgfllv .gt_column_spanner_outer:last-child {
+#hsatqbcqyv .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#gnyrmgfllv .gt_column_spanner {
+#hsatqbcqyv .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -810,11 +849,11 @@ Petal.Width = 0,4158 \cdot Petal.Length - 0,3631
   width: 100%;
 }
 
-#gnyrmgfllv .gt_spanner_row {
+#hsatqbcqyv .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#gnyrmgfllv .gt_group_heading {
+#hsatqbcqyv .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -840,7 +879,7 @@ Petal.Width = 0,4158 \cdot Petal.Length - 0,3631
   text-align: left;
 }
 
-#gnyrmgfllv .gt_empty_group_heading {
+#hsatqbcqyv .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -855,15 +894,15 @@ Petal.Width = 0,4158 \cdot Petal.Length - 0,3631
   vertical-align: middle;
 }
 
-#gnyrmgfllv .gt_from_md > :first-child {
+#hsatqbcqyv .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#gnyrmgfllv .gt_from_md > :last-child {
+#hsatqbcqyv .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#gnyrmgfllv .gt_row {
+#hsatqbcqyv .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -882,7 +921,7 @@ Petal.Width = 0,4158 \cdot Petal.Length - 0,3631
   overflow-x: hidden;
 }
 
-#gnyrmgfllv .gt_stub {
+#hsatqbcqyv .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -895,7 +934,7 @@ Petal.Width = 0,4158 \cdot Petal.Length - 0,3631
   padding-right: 5px;
 }
 
-#gnyrmgfllv .gt_stub_row_group {
+#hsatqbcqyv .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -909,15 +948,15 @@ Petal.Width = 0,4158 \cdot Petal.Length - 0,3631
   vertical-align: top;
 }
 
-#gnyrmgfllv .gt_row_group_first td {
+#hsatqbcqyv .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#gnyrmgfllv .gt_row_group_first th {
+#hsatqbcqyv .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#gnyrmgfllv .gt_summary_row {
+#hsatqbcqyv .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -927,16 +966,16 @@ Petal.Width = 0,4158 \cdot Petal.Length - 0,3631
   padding-right: 5px;
 }
 
-#gnyrmgfllv .gt_first_summary_row {
+#hsatqbcqyv .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#gnyrmgfllv .gt_first_summary_row.thick {
+#hsatqbcqyv .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#gnyrmgfllv .gt_last_summary_row {
+#hsatqbcqyv .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -946,7 +985,7 @@ Petal.Width = 0,4158 \cdot Petal.Length - 0,3631
   border-bottom-color: #D3D3D3;
 }
 
-#gnyrmgfllv .gt_grand_summary_row {
+#hsatqbcqyv .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -956,7 +995,7 @@ Petal.Width = 0,4158 \cdot Petal.Length - 0,3631
   padding-right: 5px;
 }
 
-#gnyrmgfllv .gt_first_grand_summary_row {
+#hsatqbcqyv .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -966,7 +1005,7 @@ Petal.Width = 0,4158 \cdot Petal.Length - 0,3631
   border-top-color: #D3D3D3;
 }
 
-#gnyrmgfllv .gt_last_grand_summary_row_top {
+#hsatqbcqyv .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -976,11 +1015,11 @@ Petal.Width = 0,4158 \cdot Petal.Length - 0,3631
   border-bottom-color: #D3D3D3;
 }
 
-#gnyrmgfllv .gt_striped {
+#hsatqbcqyv .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#gnyrmgfllv .gt_table_body {
+#hsatqbcqyv .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -989,7 +1028,7 @@ Petal.Width = 0,4158 \cdot Petal.Length - 0,3631
   border-bottom-color: #D3D3D3;
 }
 
-#gnyrmgfllv .gt_footnotes {
+#hsatqbcqyv .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1003,7 +1042,7 @@ Petal.Width = 0,4158 \cdot Petal.Length - 0,3631
   border-right-color: #D3D3D3;
 }
 
-#gnyrmgfllv .gt_footnote {
+#hsatqbcqyv .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -1012,7 +1051,7 @@ Petal.Width = 0,4158 \cdot Petal.Length - 0,3631
   padding-right: 5px;
 }
 
-#gnyrmgfllv .gt_sourcenotes {
+#hsatqbcqyv .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1026,7 +1065,7 @@ Petal.Width = 0,4158 \cdot Petal.Length - 0,3631
   border-right-color: #D3D3D3;
 }
 
-#gnyrmgfllv .gt_sourcenote {
+#hsatqbcqyv .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -1034,97 +1073,101 @@ Petal.Width = 0,4158 \cdot Petal.Length - 0,3631
   padding-right: 5px;
 }
 
-#gnyrmgfllv .gt_left {
+#hsatqbcqyv .gt_left {
   text-align: left;
 }
 
-#gnyrmgfllv .gt_center {
+#hsatqbcqyv .gt_center {
   text-align: center;
 }
 
-#gnyrmgfllv .gt_right {
+#hsatqbcqyv .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#gnyrmgfllv .gt_font_normal {
+#hsatqbcqyv .gt_font_normal {
   font-weight: normal;
 }
 
-#gnyrmgfllv .gt_font_bold {
+#hsatqbcqyv .gt_font_bold {
   font-weight: bold;
 }
 
-#gnyrmgfllv .gt_font_italic {
+#hsatqbcqyv .gt_font_italic {
   font-style: italic;
 }
 
-#gnyrmgfllv .gt_super {
+#hsatqbcqyv .gt_super {
   font-size: 65%;
 }
 
-#gnyrmgfllv .gt_footnote_marks {
+#hsatqbcqyv .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#gnyrmgfllv .gt_asterisk {
+#hsatqbcqyv .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#gnyrmgfllv .gt_indent_1 {
+#hsatqbcqyv .gt_indent_1 {
   text-indent: 5px;
 }
 
-#gnyrmgfllv .gt_indent_2 {
+#hsatqbcqyv .gt_indent_2 {
   text-indent: 10px;
 }
 
-#gnyrmgfllv .gt_indent_3 {
+#hsatqbcqyv .gt_indent_3 {
   text-indent: 15px;
 }
 
-#gnyrmgfllv .gt_indent_4 {
+#hsatqbcqyv .gt_indent_4 {
   text-indent: 20px;
 }
 
-#gnyrmgfllv .gt_indent_5 {
+#hsatqbcqyv .gt_indent_5 {
   text-indent: 25px;
 }
 </style>
-<table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
-
-  <thead><tr class="gt_col_headings">
-<th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="<strong>Characteristic</strong>"><strong>Characteristic</strong></th>
-      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="<strong>Beta</strong>"><strong>Beta</strong></th>
-      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="<strong>95% CI</strong><span class=&quot;gt_footnote_marks&quot; style=&quot;white-space:nowrap;font-style:italic;font-weight:normal;&quot;><sup>1</sup></span>">
+<table class="gt_table do-not-create-environment cell table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<thead><tr class="header gt_col_headings">
+<th id="<strong>Characteristic</strong>" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col"><strong>Characteristic</strong></th>
+<th id="<strong>Beta</strong>" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col"><strong>Beta</strong></th>
+<th id="<strong>95% CI</strong><span class=&quot;gt_footnote_marks&quot; style=&quot;white-space:nowrap;font-style:italic;font-weight:normal;&quot;><sup>1</sup></span>" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col">
 <strong>95% CI</strong><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;"><sup>1</sup></span>
 </th>
-      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="<strong>p-value</strong>"><strong>p-value</strong></th>
-    </tr></thead>
+<th id="<strong>p-value</strong>" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col"><strong>p-value</strong></th>
+</tr></thead>
 <tbody class="gt_table_body">
-<tr>
-<td headers="label" class="gt_row gt_left">(Intercept)</td>
-<td headers="estimate" class="gt_row gt_center">-0.36</td>
-<td headers="ci" class="gt_row gt_center">-0.44, -0.28</td>
-<td headers="p.value" class="gt_row gt_center">&lt;0.001</td>
+<tr class="odd">
+<td class="gt_row gt_left" headers="label">(Intercept)</td>
+<td class="gt_row gt_center" headers="estimate">-0.36</td>
+<td class="gt_row gt_center" headers="ci">-0.44, -0.28</td>
+<td class="gt_row gt_center" headers="p.value">&lt;0.001</td>
 </tr>
-<tr>
-<td headers="label" class="gt_row gt_left">Petal.Length</td>
-<td headers="estimate" class="gt_row gt_center">0.42</td>
-<td headers="ci" class="gt_row gt_center">0.40, 0.43</td>
-<td headers="p.value" class="gt_row gt_center">&lt;0.001</td>
+<tr class="even">
+<td class="gt_row gt_left" headers="label">Petal.Length</td>
+<td class="gt_row gt_center" headers="estimate">0.42</td>
+<td class="gt_row gt_center" headers="ci">0.40, 0.43</td>
+<td class="gt_row gt_center" headers="p.value">&lt;0.001</td>
 </tr>
 </tbody>
-<tfoot class="gt_footnotes"><tr>
-<td class="gt_footnote" colspan="4">
+<tfoot class="gt_footnotes"><tr class="odd">
+<td colspan="4" class="gt_footnote">
 <span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;"><sup>1</sup></span> CI = Confidence Interval</td>
-    </tr></tfoot>
+</tr></tfoot>
 </table>
-<div class="quarto-table-caption margin-caption">Table&nbsp;21.1:  <p>un tableau mis en forme des coefficients du modèle</p> </div></div>
 </div>
+</div>
+</div>
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-tbl margin-caption" id="tbl-regression-lm-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;21.1: un tableau mis en forme des coefficients du modèle
+</figcaption></figure>
 </div>
 </div>
 <p>Les p-valeurs calculées nous indique si le coefficient est statistiquement différent de 0. En effet, pour la variable explicative, cela nous indique si la relation est statistiquement significative. Le signe du coefficient (positif ou négatif) nous indique le sens de la relation.</p>
@@ -1140,7 +1183,7 @@ Astuce
 <div class="callout-body-container callout-body">
 <p>Dans certains cas, si l’on suppose que la relation entre les deux variables est proportionnelle, on peut souhaiter calculer un modèle sans <em>intercept</em>. Par défaut, <strong>R</strong> ajoute un <em>intercept</em> à ses modèles. Pour forcer le calcul d’un modèle sans <em>intercept</em>, on ajoutera <code>- 1</code> à la formule définissant le modèle.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a><span class="fu">lm</span>(Petal.Width <span class="sc">~</span> Petal.Length <span class="sc">-</span> <span class="dv">1</span>, <span class="at">data =</span> iris)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a><span class="fu">lm</span>(Petal.Width <span class="sc">~</span> Petal.Length <span class="sc">-</span> <span class="dv">1</span>, <span class="at">data =</span> iris)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 Call:
@@ -1157,8 +1200,8 @@ Petal.Length
 <span class="header-section-number">21.2</span> Modèle à une seule variable explicative catégorielle</h2>
 <p>Si dans un modèle linéaire la variable à expliquer est nécessairement continue, il est possible de définir une variable explicative catégorielle. Prenons la variable <em>Species</em>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a><span class="fu">library</span>(labelled)</span>
-<span id="cb11-2"><a href="#cb11-2"></a>iris <span class="sc">%&gt;%</span> <span class="fu">look_for</span>(<span class="st">"Species"</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a><span class="fu">library</span>(labelled)</span>
+<span id="cb9-2"><a href="#cb9-2"></a>iris <span class="sc">%&gt;%</span> <span class="fu">look_for</span>(<span class="st">"Species"</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code> pos variable label col_type missing values    
  5   Species  —     fct      0       setosa    
@@ -1168,8 +1211,8 @@ Petal.Length
 </div>
 <p>Il s’agit d’un facteur à trois modalités. Par défaut, la première valeur du facteur (ici <em>setosa</em>) va servir de modalité de référence.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a>mod <span class="ot">&lt;-</span> <span class="fu">lm</span>(Petal.Width <span class="sc">~</span> Species, <span class="at">data =</span> iris)</span>
-<span id="cb13-2"><a href="#cb13-2"></a>mod</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a>mod <span class="ot">&lt;-</span> <span class="fu">lm</span>(Petal.Width <span class="sc">~</span> Species, <span class="at">data =</span> iris)</span>
+<span id="cb11-2"><a href="#cb11-2"></a>mod</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 Call:
@@ -1181,28 +1224,29 @@ Coefficients:
 </div>
 </div>
 <div class="cell page-columns page-full">
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1"></a>mod <span class="sc">%&gt;%</span></span>
-<span id="cb15-2"><a href="#cb15-2"></a>  <span class="fu">tbl_regression</span>(<span class="at">intercept =</span> <span class="cn">TRUE</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display page-columns page-full">
-<div id="tbl-regression-lm-2" class="anchored page-columns page-full">
-
-<div id="cyzcnmlxxf" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;" class="page-columns page-full">
-<style>#cyzcnmlxxf table {
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a>mod <span class="sc">%&gt;%</span></span>
+<span id="cb13-2"><a href="#cb13-2"></a>  <span class="fu">tbl_regression</span>(<span class="at">intercept =</span> <span class="cn">TRUE</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="tbl-regression-lm-2" class="cell quarto-float anchored page-columns page-full">
+<figure class="quarto-float quarto-float-tbl figure page-columns page-full"><div aria-describedby="tbl-regression-lm-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<div>
+<div id="lxtvkvcpft" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#lxtvkvcpft table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#cyzcnmlxxf thead, #cyzcnmlxxf tbody, #cyzcnmlxxf tfoot, #cyzcnmlxxf tr, #cyzcnmlxxf td, #cyzcnmlxxf th {
+#lxtvkvcpft thead, #lxtvkvcpft tbody, #lxtvkvcpft tfoot, #lxtvkvcpft tr, #lxtvkvcpft td, #lxtvkvcpft th {
   border-style: none;
 }
 
-#cyzcnmlxxf p {
+#lxtvkvcpft p {
   margin: 0;
   padding: 0;
 }
 
-#cyzcnmlxxf .gt_table {
+#lxtvkvcpft .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -1228,12 +1272,12 @@ Coefficients:
   border-left-color: #D3D3D3;
 }
 
-#cyzcnmlxxf .gt_caption {
+#lxtvkvcpft .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#cyzcnmlxxf .gt_title {
+#lxtvkvcpft .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -1245,7 +1289,7 @@ Coefficients:
   border-bottom-width: 0;
 }
 
-#cyzcnmlxxf .gt_subtitle {
+#lxtvkvcpft .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -1257,7 +1301,7 @@ Coefficients:
   border-top-width: 0;
 }
 
-#cyzcnmlxxf .gt_heading {
+#lxtvkvcpft .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -1269,13 +1313,13 @@ Coefficients:
   border-right-color: #D3D3D3;
 }
 
-#cyzcnmlxxf .gt_bottom_border {
+#lxtvkvcpft .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#cyzcnmlxxf .gt_col_headings {
+#lxtvkvcpft .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1290,7 +1334,7 @@ Coefficients:
   border-right-color: #D3D3D3;
 }
 
-#cyzcnmlxxf .gt_col_heading {
+#lxtvkvcpft .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1310,7 +1354,7 @@ Coefficients:
   overflow-x: hidden;
 }
 
-#cyzcnmlxxf .gt_column_spanner_outer {
+#lxtvkvcpft .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1322,15 +1366,15 @@ Coefficients:
   padding-right: 4px;
 }
 
-#cyzcnmlxxf .gt_column_spanner_outer:first-child {
+#lxtvkvcpft .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#cyzcnmlxxf .gt_column_spanner_outer:last-child {
+#lxtvkvcpft .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#cyzcnmlxxf .gt_column_spanner {
+#lxtvkvcpft .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -1342,11 +1386,11 @@ Coefficients:
   width: 100%;
 }
 
-#cyzcnmlxxf .gt_spanner_row {
+#lxtvkvcpft .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#cyzcnmlxxf .gt_group_heading {
+#lxtvkvcpft .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1372,7 +1416,7 @@ Coefficients:
   text-align: left;
 }
 
-#cyzcnmlxxf .gt_empty_group_heading {
+#lxtvkvcpft .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -1387,15 +1431,15 @@ Coefficients:
   vertical-align: middle;
 }
 
-#cyzcnmlxxf .gt_from_md > :first-child {
+#lxtvkvcpft .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#cyzcnmlxxf .gt_from_md > :last-child {
+#lxtvkvcpft .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#cyzcnmlxxf .gt_row {
+#lxtvkvcpft .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1414,7 +1458,7 @@ Coefficients:
   overflow-x: hidden;
 }
 
-#cyzcnmlxxf .gt_stub {
+#lxtvkvcpft .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1427,7 +1471,7 @@ Coefficients:
   padding-right: 5px;
 }
 
-#cyzcnmlxxf .gt_stub_row_group {
+#lxtvkvcpft .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1441,15 +1485,15 @@ Coefficients:
   vertical-align: top;
 }
 
-#cyzcnmlxxf .gt_row_group_first td {
+#lxtvkvcpft .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#cyzcnmlxxf .gt_row_group_first th {
+#lxtvkvcpft .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#cyzcnmlxxf .gt_summary_row {
+#lxtvkvcpft .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1459,16 +1503,16 @@ Coefficients:
   padding-right: 5px;
 }
 
-#cyzcnmlxxf .gt_first_summary_row {
+#lxtvkvcpft .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#cyzcnmlxxf .gt_first_summary_row.thick {
+#lxtvkvcpft .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#cyzcnmlxxf .gt_last_summary_row {
+#lxtvkvcpft .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1478,7 +1522,7 @@ Coefficients:
   border-bottom-color: #D3D3D3;
 }
 
-#cyzcnmlxxf .gt_grand_summary_row {
+#lxtvkvcpft .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1488,7 +1532,7 @@ Coefficients:
   padding-right: 5px;
 }
 
-#cyzcnmlxxf .gt_first_grand_summary_row {
+#lxtvkvcpft .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1498,7 +1542,7 @@ Coefficients:
   border-top-color: #D3D3D3;
 }
 
-#cyzcnmlxxf .gt_last_grand_summary_row_top {
+#lxtvkvcpft .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1508,11 +1552,11 @@ Coefficients:
   border-bottom-color: #D3D3D3;
 }
 
-#cyzcnmlxxf .gt_striped {
+#lxtvkvcpft .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#cyzcnmlxxf .gt_table_body {
+#lxtvkvcpft .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1521,7 +1565,7 @@ Coefficients:
   border-bottom-color: #D3D3D3;
 }
 
-#cyzcnmlxxf .gt_footnotes {
+#lxtvkvcpft .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1535,7 +1579,7 @@ Coefficients:
   border-right-color: #D3D3D3;
 }
 
-#cyzcnmlxxf .gt_footnote {
+#lxtvkvcpft .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -1544,7 +1588,7 @@ Coefficients:
   padding-right: 5px;
 }
 
-#cyzcnmlxxf .gt_sourcenotes {
+#lxtvkvcpft .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1558,7 +1602,7 @@ Coefficients:
   border-right-color: #D3D3D3;
 }
 
-#cyzcnmlxxf .gt_sourcenote {
+#lxtvkvcpft .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -1566,123 +1610,133 @@ Coefficients:
   padding-right: 5px;
 }
 
-#cyzcnmlxxf .gt_left {
+#lxtvkvcpft .gt_left {
   text-align: left;
 }
 
-#cyzcnmlxxf .gt_center {
+#lxtvkvcpft .gt_center {
   text-align: center;
 }
 
-#cyzcnmlxxf .gt_right {
+#lxtvkvcpft .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#cyzcnmlxxf .gt_font_normal {
+#lxtvkvcpft .gt_font_normal {
   font-weight: normal;
 }
 
-#cyzcnmlxxf .gt_font_bold {
+#lxtvkvcpft .gt_font_bold {
   font-weight: bold;
 }
 
-#cyzcnmlxxf .gt_font_italic {
+#lxtvkvcpft .gt_font_italic {
   font-style: italic;
 }
 
-#cyzcnmlxxf .gt_super {
+#lxtvkvcpft .gt_super {
   font-size: 65%;
 }
 
-#cyzcnmlxxf .gt_footnote_marks {
+#lxtvkvcpft .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#cyzcnmlxxf .gt_asterisk {
+#lxtvkvcpft .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#cyzcnmlxxf .gt_indent_1 {
+#lxtvkvcpft .gt_indent_1 {
   text-indent: 5px;
 }
 
-#cyzcnmlxxf .gt_indent_2 {
+#lxtvkvcpft .gt_indent_2 {
   text-indent: 10px;
 }
 
-#cyzcnmlxxf .gt_indent_3 {
+#lxtvkvcpft .gt_indent_3 {
   text-indent: 15px;
 }
 
-#cyzcnmlxxf .gt_indent_4 {
+#lxtvkvcpft .gt_indent_4 {
   text-indent: 20px;
 }
 
-#cyzcnmlxxf .gt_indent_5 {
+#lxtvkvcpft .gt_indent_5 {
   text-indent: 25px;
 }
 </style>
-<table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
-
-  <thead><tr class="gt_col_headings">
-<th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="<strong>Characteristic</strong>"><strong>Characteristic</strong></th>
-      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="<strong>Beta</strong>"><strong>Beta</strong></th>
-      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="<strong>95% CI</strong><span class=&quot;gt_footnote_marks&quot; style=&quot;white-space:nowrap;font-style:italic;font-weight:normal;&quot;><sup>1</sup></span>">
+<table class="gt_table do-not-create-environment cell table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead><tr class="header gt_col_headings">
+<th id="<strong>Characteristic</strong>" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col"><strong>Characteristic</strong></th>
+<th id="<strong>Beta</strong>" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col"><strong>Beta</strong></th>
+<th id="<strong>95% CI</strong><span class=&quot;gt_footnote_marks&quot; style=&quot;white-space:nowrap;font-style:italic;font-weight:normal;&quot;><sup>1</sup></span>" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col">
 <strong>95% CI</strong><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;"><sup>1</sup></span>
 </th>
-      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="<strong>p-value</strong>"><strong>p-value</strong></th>
-    </tr></thead>
+<th id="<strong>p-value</strong>" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col"><strong>p-value</strong></th>
+</tr></thead>
 <tbody class="gt_table_body">
-<tr>
-<td headers="label" class="gt_row gt_left">(Intercept)</td>
-<td headers="estimate" class="gt_row gt_center">0.25</td>
-<td headers="ci" class="gt_row gt_center">0.19, 0.30</td>
-<td headers="p.value" class="gt_row gt_center">&lt;0.001</td>
+<tr class="odd">
+<td class="gt_row gt_left" headers="label">(Intercept)</td>
+<td class="gt_row gt_center" headers="estimate">0.25</td>
+<td class="gt_row gt_center" headers="ci">0.19, 0.30</td>
+<td class="gt_row gt_center" headers="p.value">&lt;0.001</td>
 </tr>
-<tr>
-<td headers="label" class="gt_row gt_left">Species</td>
-<td headers="estimate" class="gt_row gt_center"></td>
-<td headers="ci" class="gt_row gt_center"></td>
-<td headers="p.value" class="gt_row gt_center"></td>
+<tr class="even">
+<td class="gt_row gt_left" headers="label">Species</td>
+<td class="gt_row gt_center" headers="estimate"><br></td>
+<td class="gt_row gt_center" headers="ci"><br></td>
+<td class="gt_row gt_center" headers="p.value"><br></td>
 </tr>
-<tr>
-<td headers="label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;setosa</td>
-<td headers="estimate" class="gt_row gt_center">—</td>
-<td headers="ci" class="gt_row gt_center">—</td>
-<td headers="p.value" class="gt_row gt_center"></td>
+<tr class="odd">
+<td class="gt_row gt_left" headers="label">&nbsp;&nbsp;&nbsp;&nbsp;setosa</td>
+<td class="gt_row gt_center" headers="estimate">—</td>
+<td class="gt_row gt_center" headers="ci">—</td>
+<td class="gt_row gt_center" headers="p.value"><br></td>
 </tr>
-<tr>
-<td headers="label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;versicolor</td>
-<td headers="estimate" class="gt_row gt_center">1.1</td>
-<td headers="ci" class="gt_row gt_center">1.0, 1.2</td>
-<td headers="p.value" class="gt_row gt_center">&lt;0.001</td>
+<tr class="even">
+<td class="gt_row gt_left" headers="label">&nbsp;&nbsp;&nbsp;&nbsp;versicolor</td>
+<td class="gt_row gt_center" headers="estimate">1.1</td>
+<td class="gt_row gt_center" headers="ci">1.0, 1.2</td>
+<td class="gt_row gt_center" headers="p.value">&lt;0.001</td>
 </tr>
-<tr>
-<td headers="label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;virginica</td>
-<td headers="estimate" class="gt_row gt_center">1.8</td>
-<td headers="ci" class="gt_row gt_center">1.7, 1.9</td>
-<td headers="p.value" class="gt_row gt_center">&lt;0.001</td>
+<tr class="odd">
+<td class="gt_row gt_left" headers="label">&nbsp;&nbsp;&nbsp;&nbsp;virginica</td>
+<td class="gt_row gt_center" headers="estimate">1.8</td>
+<td class="gt_row gt_center" headers="ci">1.7, 1.9</td>
+<td class="gt_row gt_center" headers="p.value">&lt;0.001</td>
 </tr>
 </tbody>
-<tfoot class="gt_footnotes"><tr>
-<td class="gt_footnote" colspan="4">
+<tfoot class="gt_footnotes"><tr class="even">
+<td colspan="4" class="gt_footnote">
 <span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;"><sup>1</sup></span> CI = Confidence Interval</td>
-    </tr></tfoot>
+</tr></tfoot>
 </table>
-<div class="quarto-table-caption margin-caption">Table&nbsp;21.2:  <p>régression linaire avec une variable explicative catégorielle</p> </div></div>
 </div>
+</div>
+</div>
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-tbl margin-caption" id="tbl-regression-lm-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;21.2: régression linaire avec une variable explicative catégorielle
+</figcaption></figure>
 </div>
 </div>
 <p>Dans ce cas de figure, l’<em>intercept</em> représente la situation à la référence, donc pour l’espèce <em>setosa</em>.</p>
 <p>Calculons les moyennes par espèce&nbsp;:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1"></a>iris <span class="sc">%&gt;%</span></span>
-<span id="cb16-2"><a href="#cb16-2"></a>  <span class="fu">group_by</span>(Species) <span class="sc">%&gt;%</span></span>
-<span id="cb16-3"><a href="#cb16-3"></a>  <span class="fu">summarise</span>(<span class="fu">mean</span>(Petal.Width))</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a>iris <span class="sc">%&gt;%</span></span>
+<span id="cb14-2"><a href="#cb14-2"></a>  <span class="fu">group_by</span>(Species) <span class="sc">%&gt;%</span></span>
+<span id="cb14-3"><a href="#cb14-3"></a>  <span class="fu">summarise</span>(<span class="fu">mean</span>(Petal.Width))</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 3 × 2
   Species    `mean(Petal.Width)`
@@ -1707,7 +1761,7 @@ Astuce
 <div class="callout-body-container callout-body">
 <p>Lorsque l’on calcule le même modèle sans <em>intercept</em>, les coefficients s’interprètent un différemment&nbsp;:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1"></a><span class="fu">lm</span>(Petal.Width <span class="sc">~</span> Species <span class="sc">-</span> <span class="dv">1</span>, <span class="at">data =</span> iris)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1"></a><span class="fu">lm</span>(Petal.Width <span class="sc">~</span> Species <span class="sc">-</span> <span class="dv">1</span>, <span class="at">data =</span> iris)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 Call:
@@ -1719,18 +1773,18 @@ Coefficients:
 </div>
 </div>
 <p>En l’absence d’<em>intercept</em>, trois coefficients sont calculés et il n’y a plus ici de modalité de référence. Chaque coefficient représente donc la moyenne observée pour chaque modalité.</p>
-<p>On appelle <strong>contrastes</strong> les différents manières de coder des variables catégorielles dans un modèle. Nous y reviendrons plus en détail dans un chapitre dédié (cf. <a href="contrastes.html"><span>Chapitre&nbsp;25</span></a>).</p>
+<p>On appelle <strong>contrastes</strong> les différents manières de coder des variables catégorielles dans un modèle. Nous y reviendrons plus en détail dans un chapitre dédié (cf. <a href="contrastes.html" class="quarto-xref"><span>Chapitre 25</span></a>).</p>
 </div>
 </div>
 </section><section id="sec-regression-lineaire-multivariee" class="level2 page-columns page-full" data-number="21.3"><h2 data-number="21.3" class="anchored" data-anchor-id="sec-regression-lineaire-multivariee">
 <span class="header-section-number">21.3</span> Modèle à plusieurs variables explicatives</h2>
 <p>Un des intérêts de la régression linéaire est de pouvoir estimer un modèle multivarié, c’est-à-dire avec plusieurs variables explicatives. Pour cela, on listera les différentes variables explicatives dans la partie droite de la formule, séparées par le symbole <code>+</code>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1"></a>mod <span class="ot">&lt;-</span> <span class="fu">lm</span>(</span>
-<span id="cb20-2"><a href="#cb20-2"></a>  Petal.Width <span class="sc">~</span> Petal.Length <span class="sc">+</span> Sepal.Width <span class="sc">+</span> Sepal.Length <span class="sc">+</span> Species,</span>
-<span id="cb20-3"><a href="#cb20-3"></a>  <span class="at">data =</span> iris</span>
-<span id="cb20-4"><a href="#cb20-4"></a>)</span>
-<span id="cb20-5"><a href="#cb20-5"></a>mod</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1"></a>mod <span class="ot">&lt;-</span> <span class="fu">lm</span>(</span>
+<span id="cb18-2"><a href="#cb18-2"></a>  Petal.Width <span class="sc">~</span> Petal.Length <span class="sc">+</span> Sepal.Width <span class="sc">+</span> Sepal.Length <span class="sc">+</span> Species,</span>
+<span id="cb18-3"><a href="#cb18-3"></a>  <span class="at">data =</span> iris</span>
+<span id="cb18-4"><a href="#cb18-4"></a>)</span>
+<span id="cb18-5"><a href="#cb18-5"></a>mod</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 Call:
@@ -1745,28 +1799,29 @@ Speciesversicolor   Speciesvirginica
 </div>
 </div>
 <div class="cell page-columns page-full">
-<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1"></a>mod <span class="sc">%&gt;%</span></span>
-<span id="cb22-2"><a href="#cb22-2"></a>  <span class="fu">tbl_regression</span>(<span class="at">intercept =</span> <span class="cn">TRUE</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display page-columns page-full">
-<div id="tbl-regression-lm-3" class="anchored page-columns page-full">
-
-<div id="sclawvpquq" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;" class="page-columns page-full">
-<style>#sclawvpquq table {
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1"></a>mod <span class="sc">%&gt;%</span></span>
+<span id="cb20-2"><a href="#cb20-2"></a>  <span class="fu">tbl_regression</span>(<span class="at">intercept =</span> <span class="cn">TRUE</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="tbl-regression-lm-3" class="cell quarto-float anchored page-columns page-full">
+<figure class="quarto-float quarto-float-tbl figure page-columns page-full"><div aria-describedby="tbl-regression-lm-3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<div>
+<div id="dydfilnfww" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#dydfilnfww table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#sclawvpquq thead, #sclawvpquq tbody, #sclawvpquq tfoot, #sclawvpquq tr, #sclawvpquq td, #sclawvpquq th {
+#dydfilnfww thead, #dydfilnfww tbody, #dydfilnfww tfoot, #dydfilnfww tr, #dydfilnfww td, #dydfilnfww th {
   border-style: none;
 }
 
-#sclawvpquq p {
+#dydfilnfww p {
   margin: 0;
   padding: 0;
 }
 
-#sclawvpquq .gt_table {
+#dydfilnfww .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -1792,12 +1847,12 @@ Speciesversicolor   Speciesvirginica
   border-left-color: #D3D3D3;
 }
 
-#sclawvpquq .gt_caption {
+#dydfilnfww .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#sclawvpquq .gt_title {
+#dydfilnfww .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -1809,7 +1864,7 @@ Speciesversicolor   Speciesvirginica
   border-bottom-width: 0;
 }
 
-#sclawvpquq .gt_subtitle {
+#dydfilnfww .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -1821,7 +1876,7 @@ Speciesversicolor   Speciesvirginica
   border-top-width: 0;
 }
 
-#sclawvpquq .gt_heading {
+#dydfilnfww .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -1833,13 +1888,13 @@ Speciesversicolor   Speciesvirginica
   border-right-color: #D3D3D3;
 }
 
-#sclawvpquq .gt_bottom_border {
+#dydfilnfww .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#sclawvpquq .gt_col_headings {
+#dydfilnfww .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1854,7 +1909,7 @@ Speciesversicolor   Speciesvirginica
   border-right-color: #D3D3D3;
 }
 
-#sclawvpquq .gt_col_heading {
+#dydfilnfww .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1874,7 +1929,7 @@ Speciesversicolor   Speciesvirginica
   overflow-x: hidden;
 }
 
-#sclawvpquq .gt_column_spanner_outer {
+#dydfilnfww .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1886,15 +1941,15 @@ Speciesversicolor   Speciesvirginica
   padding-right: 4px;
 }
 
-#sclawvpquq .gt_column_spanner_outer:first-child {
+#dydfilnfww .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#sclawvpquq .gt_column_spanner_outer:last-child {
+#dydfilnfww .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#sclawvpquq .gt_column_spanner {
+#dydfilnfww .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -1906,11 +1961,11 @@ Speciesversicolor   Speciesvirginica
   width: 100%;
 }
 
-#sclawvpquq .gt_spanner_row {
+#dydfilnfww .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#sclawvpquq .gt_group_heading {
+#dydfilnfww .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1936,7 +1991,7 @@ Speciesversicolor   Speciesvirginica
   text-align: left;
 }
 
-#sclawvpquq .gt_empty_group_heading {
+#dydfilnfww .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -1951,15 +2006,15 @@ Speciesversicolor   Speciesvirginica
   vertical-align: middle;
 }
 
-#sclawvpquq .gt_from_md > :first-child {
+#dydfilnfww .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#sclawvpquq .gt_from_md > :last-child {
+#dydfilnfww .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#sclawvpquq .gt_row {
+#dydfilnfww .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1978,7 +2033,7 @@ Speciesversicolor   Speciesvirginica
   overflow-x: hidden;
 }
 
-#sclawvpquq .gt_stub {
+#dydfilnfww .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1991,7 +2046,7 @@ Speciesversicolor   Speciesvirginica
   padding-right: 5px;
 }
 
-#sclawvpquq .gt_stub_row_group {
+#dydfilnfww .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2005,15 +2060,15 @@ Speciesversicolor   Speciesvirginica
   vertical-align: top;
 }
 
-#sclawvpquq .gt_row_group_first td {
+#dydfilnfww .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#sclawvpquq .gt_row_group_first th {
+#dydfilnfww .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#sclawvpquq .gt_summary_row {
+#dydfilnfww .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -2023,16 +2078,16 @@ Speciesversicolor   Speciesvirginica
   padding-right: 5px;
 }
 
-#sclawvpquq .gt_first_summary_row {
+#dydfilnfww .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#sclawvpquq .gt_first_summary_row.thick {
+#dydfilnfww .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#sclawvpquq .gt_last_summary_row {
+#dydfilnfww .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2042,7 +2097,7 @@ Speciesversicolor   Speciesvirginica
   border-bottom-color: #D3D3D3;
 }
 
-#sclawvpquq .gt_grand_summary_row {
+#dydfilnfww .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -2052,7 +2107,7 @@ Speciesversicolor   Speciesvirginica
   padding-right: 5px;
 }
 
-#sclawvpquq .gt_first_grand_summary_row {
+#dydfilnfww .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2062,7 +2117,7 @@ Speciesversicolor   Speciesvirginica
   border-top-color: #D3D3D3;
 }
 
-#sclawvpquq .gt_last_grand_summary_row_top {
+#dydfilnfww .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2072,11 +2127,11 @@ Speciesversicolor   Speciesvirginica
   border-bottom-color: #D3D3D3;
 }
 
-#sclawvpquq .gt_striped {
+#dydfilnfww .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#sclawvpquq .gt_table_body {
+#dydfilnfww .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -2085,7 +2140,7 @@ Speciesversicolor   Speciesvirginica
   border-bottom-color: #D3D3D3;
 }
 
-#sclawvpquq .gt_footnotes {
+#dydfilnfww .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -2099,7 +2154,7 @@ Speciesversicolor   Speciesvirginica
   border-right-color: #D3D3D3;
 }
 
-#sclawvpquq .gt_footnote {
+#dydfilnfww .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -2108,7 +2163,7 @@ Speciesversicolor   Speciesvirginica
   padding-right: 5px;
 }
 
-#sclawvpquq .gt_sourcenotes {
+#dydfilnfww .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -2122,7 +2177,7 @@ Speciesversicolor   Speciesvirginica
   border-right-color: #D3D3D3;
 }
 
-#sclawvpquq .gt_sourcenote {
+#dydfilnfww .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -2130,149 +2185,169 @@ Speciesversicolor   Speciesvirginica
   padding-right: 5px;
 }
 
-#sclawvpquq .gt_left {
+#dydfilnfww .gt_left {
   text-align: left;
 }
 
-#sclawvpquq .gt_center {
+#dydfilnfww .gt_center {
   text-align: center;
 }
 
-#sclawvpquq .gt_right {
+#dydfilnfww .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#sclawvpquq .gt_font_normal {
+#dydfilnfww .gt_font_normal {
   font-weight: normal;
 }
 
-#sclawvpquq .gt_font_bold {
+#dydfilnfww .gt_font_bold {
   font-weight: bold;
 }
 
-#sclawvpquq .gt_font_italic {
+#dydfilnfww .gt_font_italic {
   font-style: italic;
 }
 
-#sclawvpquq .gt_super {
+#dydfilnfww .gt_super {
   font-size: 65%;
 }
 
-#sclawvpquq .gt_footnote_marks {
+#dydfilnfww .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#sclawvpquq .gt_asterisk {
+#dydfilnfww .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#sclawvpquq .gt_indent_1 {
+#dydfilnfww .gt_indent_1 {
   text-indent: 5px;
 }
 
-#sclawvpquq .gt_indent_2 {
+#dydfilnfww .gt_indent_2 {
   text-indent: 10px;
 }
 
-#sclawvpquq .gt_indent_3 {
+#dydfilnfww .gt_indent_3 {
   text-indent: 15px;
 }
 
-#sclawvpquq .gt_indent_4 {
+#dydfilnfww .gt_indent_4 {
   text-indent: 20px;
 }
 
-#sclawvpquq .gt_indent_5 {
+#dydfilnfww .gt_indent_5 {
   text-indent: 25px;
 }
 </style>
-<table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
-
-  <thead><tr class="gt_col_headings">
-<th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="<strong>Characteristic</strong>"><strong>Characteristic</strong></th>
-      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="<strong>Beta</strong>"><strong>Beta</strong></th>
-      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="<strong>95% CI</strong><span class=&quot;gt_footnote_marks&quot; style=&quot;white-space:nowrap;font-style:italic;font-weight:normal;&quot;><sup>1</sup></span>">
+<table class="gt_table do-not-create-environment cell table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead><tr class="header gt_col_headings">
+<th id="<strong>Characteristic</strong>" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col"><strong>Characteristic</strong></th>
+<th id="<strong>Beta</strong>" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col"><strong>Beta</strong></th>
+<th id="<strong>95% CI</strong><span class=&quot;gt_footnote_marks&quot; style=&quot;white-space:nowrap;font-style:italic;font-weight:normal;&quot;><sup>1</sup></span>" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col">
 <strong>95% CI</strong><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;"><sup>1</sup></span>
 </th>
-      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="<strong>p-value</strong>"><strong>p-value</strong></th>
-    </tr></thead>
+<th id="<strong>p-value</strong>" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col"><strong>p-value</strong></th>
+</tr></thead>
 <tbody class="gt_table_body">
-<tr>
-<td headers="label" class="gt_row gt_left">(Intercept)</td>
-<td headers="estimate" class="gt_row gt_center">-0.47</td>
-<td headers="ci" class="gt_row gt_center">-0.82, -0.12</td>
-<td headers="p.value" class="gt_row gt_center">0.008</td>
+<tr class="odd">
+<td class="gt_row gt_left" headers="label">(Intercept)</td>
+<td class="gt_row gt_center" headers="estimate">-0.47</td>
+<td class="gt_row gt_center" headers="ci">-0.82, -0.12</td>
+<td class="gt_row gt_center" headers="p.value">0.008</td>
 </tr>
-<tr>
-<td headers="label" class="gt_row gt_left">Petal.Length</td>
-<td headers="estimate" class="gt_row gt_center">0.24</td>
-<td headers="ci" class="gt_row gt_center">0.15, 0.34</td>
-<td headers="p.value" class="gt_row gt_center">&lt;0.001</td>
+<tr class="even">
+<td class="gt_row gt_left" headers="label">Petal.Length</td>
+<td class="gt_row gt_center" headers="estimate">0.24</td>
+<td class="gt_row gt_center" headers="ci">0.15, 0.34</td>
+<td class="gt_row gt_center" headers="p.value">&lt;0.001</td>
 </tr>
-<tr>
-<td headers="label" class="gt_row gt_left">Sepal.Width</td>
-<td headers="estimate" class="gt_row gt_center">0.24</td>
-<td headers="ci" class="gt_row gt_center">0.15, 0.34</td>
-<td headers="p.value" class="gt_row gt_center">&lt;0.001</td>
+<tr class="odd">
+<td class="gt_row gt_left" headers="label">Sepal.Width</td>
+<td class="gt_row gt_center" headers="estimate">0.24</td>
+<td class="gt_row gt_center" headers="ci">0.15, 0.34</td>
+<td class="gt_row gt_center" headers="p.value">&lt;0.001</td>
 </tr>
-<tr>
-<td headers="label" class="gt_row gt_left">Sepal.Length</td>
-<td headers="estimate" class="gt_row gt_center">-0.09</td>
-<td headers="ci" class="gt_row gt_center">-0.18, 0.00</td>
-<td headers="p.value" class="gt_row gt_center">0.039</td>
+<tr class="even">
+<td class="gt_row gt_left" headers="label">Sepal.Length</td>
+<td class="gt_row gt_center" headers="estimate">-0.09</td>
+<td class="gt_row gt_center" headers="ci">-0.18, 0.00</td>
+<td class="gt_row gt_center" headers="p.value">0.039</td>
 </tr>
-<tr>
-<td headers="label" class="gt_row gt_left">Species</td>
-<td headers="estimate" class="gt_row gt_center"></td>
-<td headers="ci" class="gt_row gt_center"></td>
-<td headers="p.value" class="gt_row gt_center"></td>
+<tr class="odd">
+<td class="gt_row gt_left" headers="label">Species</td>
+<td class="gt_row gt_center" headers="estimate"><br></td>
+<td class="gt_row gt_center" headers="ci"><br></td>
+<td class="gt_row gt_center" headers="p.value"><br></td>
 </tr>
-<tr>
-<td headers="label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;setosa</td>
-<td headers="estimate" class="gt_row gt_center">—</td>
-<td headers="ci" class="gt_row gt_center">—</td>
-<td headers="p.value" class="gt_row gt_center"></td>
+<tr class="even">
+<td class="gt_row gt_left" headers="label">&nbsp;&nbsp;&nbsp;&nbsp;setosa</td>
+<td class="gt_row gt_center" headers="estimate">—</td>
+<td class="gt_row gt_center" headers="ci">—</td>
+<td class="gt_row gt_center" headers="p.value"><br></td>
 </tr>
-<tr>
-<td headers="label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;versicolor</td>
-<td headers="estimate" class="gt_row gt_center">0.65</td>
-<td headers="ci" class="gt_row gt_center">0.40, 0.89</td>
-<td headers="p.value" class="gt_row gt_center">&lt;0.001</td>
+<tr class="odd">
+<td class="gt_row gt_left" headers="label">&nbsp;&nbsp;&nbsp;&nbsp;versicolor</td>
+<td class="gt_row gt_center" headers="estimate">0.65</td>
+<td class="gt_row gt_center" headers="ci">0.40, 0.89</td>
+<td class="gt_row gt_center" headers="p.value">&lt;0.001</td>
 </tr>
-<tr>
-<td headers="label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;virginica</td>
-<td headers="estimate" class="gt_row gt_center">1.0</td>
-<td headers="ci" class="gt_row gt_center">0.72, 1.4</td>
-<td headers="p.value" class="gt_row gt_center">&lt;0.001</td>
+<tr class="even">
+<td class="gt_row gt_left" headers="label">&nbsp;&nbsp;&nbsp;&nbsp;virginica</td>
+<td class="gt_row gt_center" headers="estimate">1.0</td>
+<td class="gt_row gt_center" headers="ci">0.72, 1.4</td>
+<td class="gt_row gt_center" headers="p.value">&lt;0.001</td>
 </tr>
 </tbody>
-<tfoot class="gt_footnotes"><tr>
-<td class="gt_footnote" colspan="4">
+<tfoot class="gt_footnotes"><tr class="odd">
+<td colspan="4" class="gt_footnote">
 <span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;"><sup>1</sup></span> CI = Confidence Interval</td>
-    </tr></tfoot>
+</tr></tfoot>
 </table>
-<div class="quarto-table-caption margin-caption">Table&nbsp;21.3:  <p>régression linaire avec plusieurs variables explicatives</p> </div></div>
 </div>
+</div>
+</div>
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-tbl margin-caption" id="tbl-regression-lm-3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;21.3: régression linaire avec plusieurs variables explicatives
+</figcaption></figure>
 </div>
 </div>
 <p>Ce type de modèle permet d’estimer l’effet de chaque variable explicative, <q>toutes choses égales par ailleurs</q>. Dans le cas présent, on s’aperçoit que la largeur des pétales diffère significativement selon les espèces, est fortement corrélée positivement à la longueur du pétale et la largeur du sépale et qu’il y a, lorsque l’on ajuste sur l’ensemble des autres variables, une relation négative (faiblement significative) avec la longueur du sépale.</p>
 <p>Lorsque le nombre de coefficients est élevé, une représentation graphique est souvent plus facile à lire qu’un tableau. On parle alors de graphique en forêt ou <em>forest plot</em> en anglais. Rien de plus facile&nbsp;! Il suffit d’avoir recours à <code><a href="https://larmarange.github.io/ggstats/reference/ggcoef_model.html">ggstats::ggcoef_model()</a></code>.</p>
 <div class="cell page-columns page-full">
-<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1"></a><span class="fu">library</span>(ggstats)</span>
-<span id="cb23-2"><a href="#cb23-2"></a><span class="fu">ggcoef_model</span>(mod)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1"></a><span class="fu">library</span>(ggstats)</span>
+<span id="cb21-2"><a href="#cb21-2"></a><span class="fu">ggcoef_model</span>(mod)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display page-columns page-full">
-<div id="fig-forest-plot-lm" class="quarto-figure quarto-figure-center anchored page-columns page-full">
-<figure class="figure page-columns page-full"><p><a href="regression-lineaire_files/figure-html/fig-forest-plot-lm-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-4" title="un graphique en forêt des coefficients du modèle"><img src="regression-lineaire_files/figure-html/fig-forest-plot-lm-1.png" class="img-fluid figure-img" width="672"></a></p>
-<figcaption class="figure-caption margin-caption">Figure&nbsp;21.4: un graphique en forêt des coefficients du modèle</figcaption></figure>
+<div id="fig-forest-plot-lm" class="quarto-figure quarto-figure-center quarto-float anchored page-columns page-full">
+<figure class="quarto-float quarto-float-fig figure page-columns page-full"><div aria-describedby="fig-forest-plot-lm-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="regression-lineaire_files/figure-html/fig-forest-plot-lm-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-4" data-glightbox="description: .lightbox-desc-4"><img src="regression-lineaire_files/figure-html/fig-forest-plot-lm-1.png" class="img-fluid figure-img" width="672"></a>
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig margin-caption" id="fig-forest-plot-lm-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;21.4: un graphique en forêt des coefficients du modèle
+</figcaption></figure>
 </div>
 </div>
 </div>
 
 
+<div class="hidden" aria-hidden="true">
+<span class="glightbox-desc lightbox-desc-1">Figure&nbsp;21.1: Relation entre la largeur et la longueur des pétales (nuage de points)</span>
+<span class="glightbox-desc lightbox-desc-2">Figure&nbsp;21.2: Relation linéaire entre la largeur et la longueur des pétales</span>
+<span class="glightbox-desc lightbox-desc-3">Figure&nbsp;21.3: Relation linéaire entre la largeur et la longueur des pétales (représentation graphique de l’intercept)</span>
+<span class="glightbox-desc lightbox-desc-4">Figure&nbsp;21.4: un graphique en forêt des coefficients du modèle</span>
+</div>
 </section></main><!-- /main --><script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
   const toggleBodyColorMode = (bsSheetEl) => {
@@ -2352,10 +2427,27 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     // clear code selection
     e.clearSelection();
   });
-  function tippyHover(el, contentFn) {
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
     const config = {
       allowHTML: true,
-      content: contentFn,
       maxWidth: 500,
       delay: 100,
       arrow: false,
@@ -2365,8 +2457,17 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       interactive: true,
       interactiveBorder: 10,
       theme: 'quarto',
-      placement: 'bottom-start'
+      placement: 'bottom-start',
     };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
     window.tippy(el, config); 
   }
   const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
@@ -2378,7 +2479,130 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       try { href = new URL(href).hash; } catch {}
       const id = href.replace(/^#\/?/, "");
       const note = window.document.getElementById(id);
-      return note.innerHTML;
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
     });
   }
       let selectedAnnoteEl;
@@ -2422,6 +2646,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
             }
             div.style.top = top - 2 + "px";
             div.style.height = height + 4 + "px";
+            div.style.left = 0;
             let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
             if (gutterDiv === null) {
               gutterDiv = window.document.createElement("div");
@@ -2447,6 +2672,32 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
         });
         selectedAnnoteEl = undefined;
       };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
       // Attach click handler to the DT
       const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
       for (const annoteDlNode of annoteDls) {
@@ -2506,13 +2757,13 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
   }
 });
 </script><script src="https://giscus.app/client.js" data-repo="larmarange/guide-R" data-repo-id="R_kgDOH6-xnw" data-category="Forum" data-category-id="DIC_kwDOH6-xn84CRLQy" data-mapping="pathname" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="top" data-theme="light" data-lang="fr" crossorigin="anonymous" data-loading="lazy" async="">
-</script><nav class="page-navigation"><div class="nav-page nav-page-previous">
-      <a href="../analyses/likert.html" class="pagination-link">
+</script><input type="hidden" id="giscus-base-theme" value="light"><input type="hidden" id="giscus-alt-theme" value="dark"><nav class="page-navigation"><div class="nav-page nav-page-previous">
+      <a href="../analyses/likert.html" class="pagination-link" aria-label="Échelles de Likert">
         <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Échelles de Likert</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../analyses/regression-logistique-binaire.html" class="pagination-link">
+      <a href="../analyses/regression-logistique-binaire.html" class="pagination-link" aria-label="Régression logistique binaire">
         <span class="nav-page-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Régression logistique binaire</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
@@ -2526,7 +2777,9 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
   </li>  
 </ul>
 </div>   
-    <div class="nav-footer-center"><div class="cookie-consent-footer"><a href="#" id="open_preferences_center">Cookie Preferences</a></div></div>
+    <div class="nav-footer-center">
+
+<div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/larmarange/guide-R/blob/main/analyses/regression-lineaire.qmd" class="toc-action"><i class="bi bi-github"></i>Voir la source</a></li><li><a href="https://github.com/larmarange/guide-R/issues/new" class="toc-action"><i class="bi empty"></i>Faire part d'un problème</a></li></ul></div><div class="cookie-consent-footer"><a href="#" id="open_preferences_center">Cookie Preferences</a></div></div>
     <div class="nav-footer-right">
       <ul class="footer-items list-unstyled">
 <li class="nav-item compact">
@@ -2548,15 +2801,43 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     </a>
   </li>  
     <li class="nav-item">
-    <a class="nav-link" href="https://larmarange.github.io/analyse-R/">analyse-R</a>
+    <a class="nav-link" href="https://larmarange.github.io/analyse-R/">
+<p>analyse-R</p>
+</a>
   </li>  
     <li class="nav-item">
-    <a class="nav-link" href="https://larmarange.github.io/webin-R/">webin-R</a>
+    <a class="nav-link" href="https://larmarange.github.io/webin-R/">
+<p>webin-R</p>
+</a>
   </li>  
 </ul>
 </div>
   </div>
-</footer><script>var lightboxQuarto = GLightbox({"closeEffect":"zoom","loop":true,"descPosition":"bottom","openEffect":"zoom","selector":".lightbox"});</script>
+</footer><script>var lightboxQuarto = GLightbox({"selector":".lightbox","closeEffect":"zoom","openEffect":"zoom","loop":false,"descPosition":"bottom"});
+window.onload = () => {
+  lightboxQuarto.on('slide_before_load', (data) => {
+    const { slideIndex, slideNode, slideConfig, player, trigger } = data;
+    const href = trigger.getAttribute('href');
+    if (href !== null) {
+      const imgEl = window.document.querySelector(`a[href="${href}"] img`);
+      if (imgEl !== null) {
+        const srcAttr = imgEl.getAttribute("src");
+        if (srcAttr && srcAttr.startsWith("data:")) {
+          slideConfig.href = srcAttr;
+        }
+      }
+    } 
+  });
+
+  lightboxQuarto.on('slide_after_load', (data) => {
+    const { slideIndex, slideNode, slideConfig, player, trigger } = data;
+    if (window.Quarto?.typesetMath) {
+      window.Quarto.typesetMath(slideNode);
+    }
+  });
+
+};
+          </script>
 
 
 <script src="../site_libs/quarto-html/zenscroll-min.js"></script>
