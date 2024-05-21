@@ -22,19 +22,58 @@ Prenons un premier exemple à partir du jeux de données `gtsummary::trial` qui 
 
 -   *response* : une variable binaire (0/1) indiquant si le traitement a eu un effet sur la tumeur (diminution)
 
-Nous nous intéressons donc aux facteurs associés au taux de mortalité (*death/ttdeath*) : nous allons donc réaliser un modèle de Poisson sur la variable *death* en ajoutant un décalage (*offset*) correspondant à *log(ttdeath)*. Pour ajouter un décalage, nous avons deux syntaxes équivalentes : soit en ajoutant `offset(log(ttdeath))` directement à l'équation du modèle, soit en passant à `glm()` l'argument `offset = log(ttdeath)`.
+Nous nous intéressons donc aux facteurs associés au taux de mortalité (*death/ttdeath*) : nous allons donc réaliser un modèle de Poisson sur la variable *death* en ajoutant un décalage (*offset*) correspondant à *log(ttdeath)*.
+
+### Statistiques descriptives
+
+Pour réaliser un tableau des incidences, nous aurons recours à `gtsummary::tbl_custom_summary()` qui permets de réaliser des tableaux avancés avec des statistiques personnalisées. Nous allons utiliser cette fonction en combinaison avec `gtsummary::ratio_summary()` qui permet de calculer le ratio de deux variables ainsi que des intervalles de confiance à 95% via la fonction `poisson.test()`. Nous allons exprimer les taux d'incidence pour 100 personne-mois (pm, *person-months* en anglais).
+
+N'oublions pas, en amont, de recoder la variable *response* en un facteur.
+
+```{r}
+trial <- gtsummary::trial |> 
+  mutate(
+    response = response |> 
+      as_factor() |> 
+      fct_recode(no = "0", yes = "1")
+  ) |> 
+  set_variable_labels(response = "Tumor Response")
+```
+
+```{r}
+#| label: tbl-stats-desc-trial-death
+#| tbl-cap: Taux de mortalité (pour 100 personne-mois) selon différents prédicteurs
+library(gtsummary)
+percent2 <- scales::label_percent(accuracy = .01, suffix = "")
+trial |> 
+  tbl_custom_summary(
+    include = c(stage, trt, response),
+    stat_fns = ~ ratio_summary("death", "ttdeath"),
+    statistic = ~"{ratio}/100pm [{conf.low} - {conf.high}] ({num}/{denom})",
+    digits = ~ c(percent2, percent2, percent2, 0, 0),
+    overall_row = TRUE,
+    overall_row_label = "Overall"
+  ) |> 
+  bold_labels()
+```
+
+Il n'existe pas de méthode `add_p()` utilisable ici. Nous verrons un peu plus loin (cf. @sec-models-univariables-incidence) comment réaliser des modèles univariables qui permettront de calculer la relation de chaque prédicteur avec l'outcome avant ajustement.
+
+### Calcul et interprétation du modèle multivariable
+
+Pour ajouter un décalage, nous avons deux syntaxes équivalentes : soit en ajoutant `offset(log(ttdeath))` directement à l'équation du modèle, soit en passant à `glm()` l'argument `offset = log(ttdeath)`.
 
 ```{r}
 mod1_poisson <- glm(
   death ~ stage + trt + response + offset(log(ttdeath)),
   family = poisson,
-  data = gtsummary::trial
+  data = trial
 )
 mod1_poisson_alt <- glm(
   death ~ stage + trt + response,
   offset = log(ttdeath),
   family = poisson,
-  data = gtsummary::trial
+  data = trial
 )
 ```
 
@@ -57,6 +96,30 @@ mod1_poisson |>
 ```
 
 Nous avons affiché ici l'exponentielle des coefficients qui s'interprètent ici comme des IRR ou *incidence rate ratio* : le taux de décès est deux fois moindre pour les patients pour lesquels le traitement a eu un effet sur la tumeur (variable *Tumor response*). Sans surprise, le taux de décès est bien plus élevé selon la taille de la tumeur : 2,1 fois plus important pour ceux avec une tumeur au stade T4 par rapport à ceux ayant une tumeur au stade T1.
+
+### Modèles univariables {#sec-models-univariables-incidence}
+
+Pour tester les associations bivariées, nous pouvons recours à des régressions univariables, que nous avons déjà abordé dans le chapitre sur la régression logistique binaire (cf. @Tumor Response).
+
+Pour cela, nous allons tout simplement appeler `gtsummary::tbl_uvregression()` avec `gtsummary::add_global_p()` pour obtenir des p-valeurs globales indiquant si chaque variable prédictive est associée à la mortalité (sans ajustement sur les autres variables).
+
+```{r}
+#| label: tbl-incidence-regressions-univariables
+#| tbl-cap: Facteurs associés à la mortalité des patients atteints d'un cancer (régressions univariables)
+trial |> 
+  tbl_uvregression(
+    y = death,
+    include = c(stage, trt, response),
+    method = glm,
+    method.args = list(
+      family = poisson,
+      offset = log(ttdeath)
+    ),
+    exponentiate = TRUE
+  ) |> 
+  add_global_p() |> 
+  bold_labels()
+```
 
 ## Deuxième exemple (données agrégées)
 

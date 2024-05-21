@@ -79,6 +79,13 @@ mod_nb |>
 
 Comme nous pouvons le voir sur ce graphique, le nombre de 0 prédit par le modèle est inférieur à celui observé. Cela signifie que les 0 sont sur-représentés dans nos données par rapport à une distribution négative binomiale. Ces 0 ont tendance à <q>tirer</q> la moyenne vers le bas. Dès lors, le nombre de 1 et de 2 prédits par le modèle sont quant à eux sur-représentés par rapport aux données observées. On dit alors qu'il y a une <q>inflation de zéros</q> dans les données (*zero-inflated* en anglais).
 
+On peut essayer de regarder s'il y a une sous- ou une sur-représentation de zéros avec la fonction `performance::check_zeroinflation()`.
+
+```{r}
+mod_nb |> 
+  performance::check_zeroinflation(tolerance = 0.05)
+```
+
 ## Modèles *zero-inflated*
 
 Les modèles *zero-inflated* ont justement été prévus pour ce cas de figure. Un modèle de Poisson *zero-inflated* combine deux modèles : un modèle logistique binaire et un modèle de Poisson. Dans un premier temps, on applique le modèle logistique binaire. Si la valeur obtenue est 0, le résultat final est 0. Si la valeur obtenue est 1, alors on applique le modèle de Poisson.
@@ -235,6 +242,33 @@ mod_hurdle_nb |>
       zero_inflated = "Facteurs associés au fait d'avoir vécu l'évènement"
     )
   )
+```
+
+Nous pouvons également produire un tableau avec `gtsummary::tbl_regression()`. L'astuce consiste à générer un tableau pour chaque composante du modèle puis à les fusionner.
+
+```{r}
+#| label: tbl-tbl_regression-mod_hurdle_nb
+#| fig-cap: Coefficients des deux composantes du modèle hurdle
+tbl_log <- mod_hurdle_nb |> 
+  tbl_regression(
+    tidy_fun = broom.helpers::tidy_zeroinfl,
+    component = "zero_inflated",
+    exponentiate = TRUE
+  )
+tbl_nb <- mod_hurdle_nb |> 
+  tbl_regression(
+    tidy_fun = broom.helpers::tidy_zeroinfl,
+    component = "conditional",
+    exponentiate = TRUE
+  )
+list(tbl_log, tbl_nb) |> 
+  tbl_merge(
+    c(
+      "**OR (régression logistique)**",
+      "**RR (négatif binomial)**"
+    )
+  ) |> 
+  bold_labels()
 ```
 
 Avec un tel modèle, on cherche à répondre à deux questions :

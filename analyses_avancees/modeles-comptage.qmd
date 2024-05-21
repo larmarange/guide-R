@@ -68,7 +68,10 @@ femmes <-
       count(name = "enfants_avt_30"),
     by = "id_femme"
   ) |> 
-  tidyr::replace_na(list(enfants_avt_30 = 0L))
+  tidyr::replace_na(list(enfants_avt_30 = 0L)) |> 
+  set_variable_labels(
+    enfants_avt_30 = "Nombre d'enfants nés avant 30 ans exact"
+  )
 ```
 
 Il nous reste à calculer l'âge des femmes au moment de l'enquête. Nous allons en profiter pour recoder (cf. @sec-modifier-modalites) la variable éducation en regroupant les modalités <q>secondaire</q> et <q>supérieur</q>.
@@ -97,6 +100,56 @@ femmes30p <-
   filter(age >= 30)
 ```
 
+### Statistiques descriptives
+
+Avant de réaliser un modèle multivariable, il est toujours bon de réaliser au préalable des analyses bivariées. Notre *outcome* étant numérique, nous pouvons comparer sa moyenne selon nos différentes variables catégorielles.
+
+Pour cela, nous aurons recours à `gtsummary::tbl_continuous()` (une variante de `gtsummary::tbl_summary()`.
+
+```{r}
+library(gtsummary)
+theme_gtsummary_language(
+  "fr",
+  decimal.mark = ",",
+  big.mark = " "
+)
+```
+
+```{r}
+#| label: tbl-stats-desc-descendance-atteinte
+#| tbl-cap: Descendance atteinte moyenne à 30 ans
+femmes30p |> 
+  tbl_continuous(
+    variable = enfants_avt_30,
+    include = c(educ2, milieu, region),
+    statistic = ~ "{mean} ({sd})",
+    digits = ~ 2
+  ) |> 
+  bold_labels()
+```
+
+Le nombre d'observations par ligne n'est pas directement accessible peut s'ajouter aisément en utilisant `{length}`. De même, il n'y a pas de méthode `add_ci()` pour les objets `tbl_continuous` mais nous pouvons définir nos propres fonctions pour calculer, à l'aide de `t.test()` (cf. @sec-calcul-manuel-ic). Enfin, calculons des p-valeurs avec `gtsummary::add_p()` et en utilisant une ANOVA à un facteur (qui permet de prendre en compte des variables explicatives à plus de deux modalités).
+
+```{r}
+#| label: tbl-stats-desc-descendance-atteinte-2
+#| tbl-cap: Descendance atteinte moyenne à 30 ans
+ci_low <- function(x, conf.level = 0.95) {
+  t.test(x, conf.level = conf.level)$conf.int[1]
+}
+ci_high <- function(x, conf.level = 0.95) {
+  t.test(x, conf.level = conf.level)$conf.int[2]
+}
+femmes30p |> 
+  tbl_continuous(
+    variable = enfants_avt_30,
+    include = c(educ2, milieu, region),
+    statistic = ~ "{mean} [{ci_low} - {ci_high}] ({sd}) [n={length}]",
+    digits = ~ c(2, 2, 2, 2, 0)
+  ) |> 
+  add_p(test = ~ "aov") |> 
+  bold_labels()
+```
+
 ### Calcul & Interprétation du modèle de Poisson
 
 Les modèles de Poisson font partie de la famille des modèles linéaires généralisés (*GLM* en anglais) et se calculent dont avec la fonction `stats::glm()` en précisant `family = poisson`.
@@ -120,11 +173,6 @@ Par défaut, les modèles de Poisson utilisent une fonction de lien logarithmiqu
 [^modeles-comptage-1]: À ne pas confondre avec les *odds ratio* ou OR de la régression logistique.
 
 Pour un tableau mis en forme des coefficients, on aura tout simplement recours à `{gtsummary}` et sa fonction `gtsummary::tbl_regression()`.
-
-```{r}
-library(gtsummary)
-theme_gtsummary_language("fr", decimal.mark = ",", big.mark = " ")
-```
 
 ```{r}
 #| label: tbl-regression-poisson
