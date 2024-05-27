@@ -315,16 +315,27 @@ mod_na_reduit2 <- glm(
 **Attention :** `mod_na_reduit` et `mod_na_reduit2` ne sont pas identiques puisque le second a été calculé sur un plus grand nombre d'observations, ce qui change très légèrement les valeurs des coefficients.
 
 ::: callout-tip
-Pour automatiser l'ensemble de ce processus, on peut copier/coller le code de la fonction générique suivante :
+Pour automatiser l'ensemble de ce processus, on peut copier/coller le code de la fonction générique suivante[^selection-modele-pas-a-pas-1] :
 
 ```{r}
-step_with_na <- function(model, ...) {
+step_with_na <- function(model,
+                         full_data = NULL, ...) {
   # refit the model without NAs
-  model_no_na <- update(model, data = model.frame(model))  
+  model_no_na <- update(
+    model,
+    formula = terms(model),
+    data = model.frame(model))  
   # apply step()
   model_simplified <- step(model_no_na, ...)
   # recompute simplified model using full data
-  update(model, formula = terms(model_simplified))
+  if (is.null(full_data)) {
+    update(model,
+           formula = terms(model_simplified))
+  } else {
+    update(model,
+           formula = terms(model_simplified),
+           data = full_data)
+  }
 }
 ```
 
@@ -342,3 +353,5 @@ Le résultat obtenu est strictement identique.
 anova(mod_na_reduit2, mod_na_reduit_direct)
 ```
 :::
+
+[^selection-modele-pas-a-pas-1]: L'argument `full_data` peut-être utile lorsque le jeu de données n'est pas disponible dans l'environnement parent, par exemple lorsque l'on imbrique des calculs avec `lapply()` ou `purrr:map()`. On pourra lors passer manuellement le jeu de données complet à la fonction.
