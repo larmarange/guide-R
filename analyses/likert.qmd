@@ -50,39 +50,53 @@ df |>
   tbl_summary(include = q1:q6)
 ```
 
-<!-- Cependant, cela produit un tableau inutilement long, d'autant plus que les variables *q1* à *q6* ont les mêmes modalités de réponse. Le package `{bstfun}` propose une fonction expérimentale `bstfun::tbl_likert()` offrant un affichage plus compact.
-
-::: callout-important
-Ce package n'est pas disponible sur **CRAN** : il est donc nécessaire de l'installer depuis **GitHub** avec la commande suivante : `remotes::install_github("MSKCC-Epi-Bio/bstfun")`. Si vous êtes sous **Windows**, il vous faudra probablement installer au préalable **RTools** qui peut être téléchargé à l'adresse <https://cran.r-project.org/bin/windows/Rtools/>.
-:::
+Cependant, cela produit un tableau inutilement long, d'autant plus que les variables *q1* à *q6* ont les mêmes modalités de réponse. La fonction `gtsummary::tbl_likert()` offre un affichage plus compact.
 
 ```{r}
-#| eval: false
-library(bstfun)
 df |> 
   tbl_likert(
     include = q1:q6
   )
 ```
 
-On peut utiliser `add_n()` pour ajouter les effectifs totaux et `add_continuous_stat()` pour ajouter une statistique continue en traitant la variable comme un score (ici nous allons attribuer les valeurs -2, -1, 0, +1 et +2).
+On peut utiliser `add_n()` pour ajouter les effectifs totaux.
 
 ```{r}
-#| eval: false
 df |> 
   tbl_likert(
     include = q1:q6,
     statistic = ~ "{p}%"
   ) |> 
-  add_n() |> 
-  add_continuous_stat(score_values = -2:2)
+  add_n()
 ```
 
--->
+::: callout-tip
+Dans certains contextes, il est envisageable de traiter notre variable ordinale comme un score numérique. Ici, nous allons attribuer les valeurs -2, -1, 0, +1 et +2 à nos 5 modalités. Dès lors, nous pourrions être intéressé de rajouter à notre tableau le score moyen. Cela est possible en quelques étapes :
+
+1.  transformer nos facteurs en scores : les fonctions `as.integer()` ou `unclass()` permettent de transformer un facteur en valeurs numériques (1 pour la première modalité, 2 pour la seconde, etc.). Dans le cas présent, il est préférable d'utiliser `unclass()` qui préserve les étiquettes de variables ce qui n'est pas le cas de `as.integer()`. Il ne faut pas oublier de retirer 3 pour obtenir des scores allant de -2 à +2. La fonction `dplyr::across()` permet d'effectuer l'opération sur plusieurs variables en même temps.
+
+2.  calculer / générer un tableau statistique avec une colonne par statistique, ce qui se fait avec `gtsummary::tbl_wide_summary()` qui est très similaire à `gtsummary::tbl_summary()`.
+
+3.  mettre les deux tableaux dans une liste et les fusionner avec `gtsummary::tbl_merge()`.
+
+```{r}
+list(
+  df |> tbl_likert(include = q1:q6),
+  tbl_wide_summary(
+    df|> mutate(across(q1:q6, \(x) unclass(x) - 3)),
+    statistic = c("{mean}", "{sd}"),
+    type = ~ "continuous",
+    include = q1:q6,
+    digits = ~ 1
+  )
+) |>
+  tbl_merge(tab_spanner = FALSE)
+```
+:::
 
 ## Représentations graphiques
 
-À partir de sa version 0.3.0, le package `{ggstats}` propose une fonction `ggstats::gglikert()` pour représenter des données de Likert sous forme d'un diagramme en barre centré sur la modalité centrale.
+Le package `{ggstats}` propose une fonction `ggstats::gglikert()` pour représenter des données de Likert sous la forme d'un diagramme en barres centré sur la modalité centrale.
 
 ```{r}
 library(ggstats)
