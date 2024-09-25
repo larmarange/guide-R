@@ -1,0 +1,202 @@
+# Fonctions à fenêtre {#sec-fonctions-a-fenetre}
+
+Les opérateurs classiques tels que `+` ou `-` fonctionnent ligne à ligne et s'utilisent pour du calcul classique par exemple avec `dplyr::mutate()`.
+
+Dans le cadre des opérations groupées avec `dplyr::summarise()` (voir @sec-summarise), nous avons abordé les fonctions d’**agrégation** telles que `sum()` ou `mean()` qui prennent un ensemble de valeurs et n'en renvoient qu'une seule.
+
+Les **fonctions à fenêtre**, quant à elles, renvoient autant de valeurs que de valeurs en entrées, mais le calcul, au lieu de se faire ligne à ligne, tient compte des valeurs précédentes et suivantes. Ces fonctions sont donc sensibles au tri du tableau de données.
+
+On peut distinguer les fonctions permettant d'accéder aux valeurs précédentes et suivantes, les fonctions de calcul d'un rang et les fonctions cumulatives.
+
+## Rappels à propos du tri
+
+La fonction `dplyr::arange()` permet de trier les valeurs d'un tableau de données. Par exemple, pour trier sur la longueur des pétales :
+
+```{r}
+library(tidyverse)
+iris |>
+  arrange(Petal.Length) |> 
+  head()
+```
+
+Pour un tri décroissant, on utilisera `dplyr::desc()`.
+
+```{r}
+iris |>
+  arrange(desc(Petal.Length)) |> 
+  head()
+```
+
+Il est possible de fournir plusieurs variables de tri. Par exemple, pour trier sur l'espèce puis, pour les observations d'une même espace, selon la longueur du sépale de manière décroissante :
+
+```{r}
+iris |>
+  arrange(Species, desc(Sepal.Length)) |> 
+  head()
+```
+
+Par défaut, `arrange()` ne tient pas compte des variables de groupement quand elles existent.
+
+```{r}
+iris |> 
+  group_by(Species) |> 
+  arrange(desc(Sepal.Length))
+```
+
+Pour inclure les variables de groupement dans le tri, il faut préciser `.by_group = TRUE`.
+
+```{r}
+iris |> 
+  group_by(Species) |> 
+  arrange(desc(Sepal.Length), .by_group = TRUE)
+```
+
+## Valeurs précédentes et suivantes
+
+La fonction `dplyr::lag()` permet d'accéder à la valeur précédente d'un vecteur et la fonction `dplyr::lead()` à la valeur suivante. Il est donc prudent de toujours bien trier son tableau en amont. L'argument `n` permet d'accéder à la seconde valeur suivante, ou la troisième, etc.
+
+```{r}
+d <- tibble(
+  nom = c("marc", "marie", "antoine", "dominique", "michelle"),
+  score = c(122, 182, 144, 167, 144),
+  groupe = c("a", "a", "a", "b", "b")
+)
+
+d |> 
+  arrange(desc(score)) |> 
+  mutate(
+    precedent = lag(nom),
+    suivant = lead(nom),
+    sur_suivant = lead(nom, n = 2)
+  )
+```
+
+À noter, cela génère des valeurs manquantes (`NA`) au début ou à la fin de la nouvelle variable.
+
+## Fonctions de rang
+
+Les fonctions de rang vise à calculer le rang d'un individu, c'est-à-dire sa position quand le vecteur est trié d'une certaine manière. La fonction de base sous **R** est `rank()` qui propose plusieurs options. Mais l'on pourra se référer plus facilement aux différentes fonctions disponibles dans `{dplyr}`.
+
+La première est `dplyr::row_number()` qui par défaut va <q>numéroter</q> les lignes du tableau selon le tri actuel.
+
+```{r}
+d |> mutate(rang = row_number())
+```
+
+On peut optionnellement lui passer une variable de tri pour le calcul du rang.
+
+```{r}
+d |> mutate(rang = row_number(desc(score)))
+```
+
+Ou encore trier notre tableau en amont.
+
+```{r}
+d |> 
+  arrange(desc(score)) |> 
+  mutate(rang = row_number())
+```
+
+Chaque rang est ici unique. En cas d'égalité, les individus sont classés selon l'ordre du tableau. Mais dans cet exemple, il semble <q>injuste</q> de classer Michelle derrière Antoine dans la mesure où ils ont eu le même score. On pourra alors utiliser `dplyr::min_rank()` qui attribue aux observations égales le premier rang. Ici, Michelle et Antoine seront tous les deux classés 3<sup>e</sup> et Marc classé 5<sup>e</sup>.
+
+```{r}
+d |> 
+  arrange(desc(score)) |> 
+  mutate(rang = min_rank(desc(score)))
+```
+
+Pour éviter la présence de <q>sauts</q> dans le classement et considéré Marc comme 4<sup>e</sup>, on utilisera `dplyr::dense_rank()`.
+
+```{r}
+d |> 
+  arrange(desc(score)) |> 
+  mutate(rang = dense_rank(desc(score)))
+```
+
+Pour plus d'options, on aura recours à `rank()`, qui par défaut attribue un rang moyen.
+
+```{r}
+d |> 
+  arrange(desc(score)) |> 
+  mutate(rang = rank(desc(score)))
+```
+
+Mais il est possible d'indiquer d'autres méthodes de traitement des égalités, par exemple l'utilisation du rang maximum (<q>l'inverse</q> de `min_rank()`).
+
+```{r}
+d |> 
+  arrange(desc(score)) |> 
+  mutate(rang = rank(desc(score), ties.method = "max"))
+```
+
+La fonction `dplyr::percent_risk()` renvoie un rang en <q>pourcentage</q>, c'est-à-dire une valeur numérique entre 0 et 1 où 0 représente le plus petit rang et 1 le plus grand.
+
+```{r}
+d |> 
+  arrange(desc(score)) |> 
+  mutate(rang = percent_rank(desc(score)))
+```
+
+Enfin, les rangs peuvent être calculés par groupe.
+
+```{r}
+d |> 
+  group_by(groupe) |>  
+  mutate(rang = min_rank(desc(score))) |> 
+  arrange(groupe, rang)
+```
+
+## Fonctions cumulatives
+
+**R** propose nativement plusieurs fonctions cumulatives comme la somme (`cumsum()`), le minimum (`cummin()`), le maximum (`cummax()`) ou encore le produit (`cumprod()`). `{dplyr}` fournit la moyenne cumulée (`dplyr::cummean()`). Le calcul s'effectue à chaque fois sur les premières lignes du tableau jusqu'à la ligne considérée.
+
+```{r}
+d |> 
+  mutate(
+    sum = cumsum(score),
+    mean = cummean(score),
+    min = cummin(score),
+    max = cummax(score),
+    prod = cumprod(score)
+  )
+```
+
+Le résultat est *de facto* fortement dépendant du tri du tableau.
+
+```{r}
+d |> 
+  arrange(score) |> 
+  mutate(
+    sum = cumsum(score),
+    mean = cummean(score),
+    min = cummin(score),
+    max = cummax(score),
+    prod = cumprod(score)
+  )
+```
+
+Pour des tests sur des valeurs conditions, on pourra avoir recours à `dplyr::cumany()` ou `dplyr::cumall()`.
+
+```{r}
+d |> 
+  mutate(
+    cumany = cumany(score > 150)
+  )
+```
+
+On peut, notamment dans des analyses longitudinales, avoir besoin de repérer chaque changement d'une certaine valeur. Dans le chapitre sur les conditions logiques, nous avions proposé une fonction `is_different()` permettant de comparer deux valeurs tout en tenant compte des valeurs manquantes (voir @sec-comparaison-valeurs-manquantes). Nous proposons ici une fonction `cumdifferent()` permettant de compter les changements de valeurs (et donc d'identifier les lignes continues ayant les mêmes valeurs).
+
+```{r}
+is_different <- function(x, y) {
+  (x != y & !is.na(x) & !is.na(y)) | xor(is.na(x), is.na(y))
+}
+cumdifferent <- function(x) {
+  cumsum(is_different(x, lag(x)))
+}
+```
+
+```{r}
+d |> 
+  arrange(score) |> 
+  mutate(sous_groupe = cumdifferent(groupe))
+```
