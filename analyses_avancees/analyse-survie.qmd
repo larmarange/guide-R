@@ -1,0 +1,280 @@
+# Analyse de survie {#sec-analyse-survie}
+
+L'analyse de survie s'intéresse à la survenue d'un évènement au cours du temps. Elle tire son nom de l'analyse de la mortalité en démographie.
+
+Elle nécessite d'identifier un **évènement origine** qui servira de point de départ de notre **calendrier** (par exemple la naissance), de définir une **unité de temps** (par exemple en années), et un **évènement d'intérêt** (par exemple le décès).
+
+Dans l'analyse de survie simple que nous aborderons ici, cet évènement est binaire et unique, c'est-à-dire qu'il ne peut avoir lieu qu'une fois et que nous ne considérons que deux états : non vécu / vécu[^analyse-survie-1]. Ainsi, l'analyse de survie simple n'est pas adaptée pour l'étude de la survenue d'un enfant car l'on peut avoir plusieurs enfants. Par contre, on peut étudier la survenue d'un premier enfant (évènement unique) depuis la mise en couple (évènement origine).
+
+[^analyse-survie-1]: Il existe des modèles de survie plus complexe dit multi-états dans lesquels il est possible de prendre en compte plusieurs types de transitions; où encore des modèles à évènements répétés.
+
+De même, nous allons supposer ici que tous les individus sont observés depuis l'évènement origine, autrement dit qu'il n'y a pas de **censure** <q>**à gauche**</q>[^analyse-survie-2]. Par contre, nous allons considérer la possibilité d'une **censure** <q>**à droite**</q>, c'est-à-dire que tous les individus ne seront peut être pas observé jusqu'à la survenue de l'évènement et que certains pourront ne jamais le vivre. Par exemple, si dans notre enquête nous avons un couple ensemble depuis 3 ans et sans enfant au moment de l'enquête, nous savons qu'il n'ont pas vécu l'évènement <q>avoir eu un premier enfant</q> au cours de ces trois premières années mais sans savoir ce qu'il adviendra ensuite (fin de l'observation).
+
+[^analyse-survie-2]: De même, il est possible de concevoir des modèles plus complexes avec prise en compte d'une censure à droite.
+
+Pour réaliser une analyse de survie simple, nous avons donc besoin de deux variables :
+
+-   une variable *évènement* qui nous indique si l'individu a vécu ou non l'évènement analysé : le mieux est de la coder sous la forme d'une valeur logique (`TRUE` si l'évènement a été vécu, `FALSE` sinon) ou bien sous une forme numérique `0/1` où `0` indique que l'évènement n'a pas été vécu et `1` que l'évènement a été vécu ;
+
+-   une variable *temps* qui nous indique le temps écoulé entre l'évènement origine et l'évènement vécu (si l'évènement a eu lieu) ou alors le temps écoulé entre l'évènement origine et la fin de l'observation (censure à droite).
+
+Le package **R** de référence pour l'analyse de survie est `{survival}`.
+
+## Données de l'exemple
+
+Nous allons utiliser le jeu de données `gtsummary::trial` qui fournit des observations sur 200 patients atteints d'un cancer. La variable <q>death</q> indique si la personne est décédée (`1`) ou toujours en vie (`1`) et la variable <q>ttdeath</q> indique en mois la durée entre le diagnostic et le décès ou la censure à droite. Les données sont donc déjà codées de manière à être utilisée dans une analyse de survie.
+
+La variable catégorielle <q>trt</q> indique si le patient a reçu le traitement A ou le traitement B. La variable catégorielle <q>stage</q> correspond au stade du cancer au moment du diagnostic : plus il est élevé plus le cancer est grave et avancé. Enfin, la variable continue <q>age</q> correspond à l'âge révolu du patient au moment du diagnostic.
+
+## Analyse univariée (courbe de Kaplan-Meier)
+
+La courbe de survie de **Kaplan-Meier** permet de décrire la probabilité de survie au cours du temps tout en tenant compte des éventuelles censures à droite.
+
+Elle se calcule avec la fonction `survival::survfit()` à laquelle nous allons décrire notre *outcome* à l'aide de `survival::Surv()` en lui indiquant d'abord la variable temps puis la variable évènement.
+
+```{r}
+library(gtsummary)
+library(survival)
+km <- survfit(Surv(ttdeath, death) ~ 1, data = trial)
+```
+
+Pour un graphique rapide, on peut utiliser `plot()`.
+
+```{r}
+km |> plot()
+```
+
+Cependant, il est préférable d'avoir recours au package {ggsurvfit}, développé par le même auteur que `{gtsummary}`, et sa fonction homonyme `ggsurvfit::ggsurvfit()`.
+
+```{r}
+library(ggsurvfit)
+km |> ggsurvfit()
+```
+
+Le package fournit de multiples options :
+
+-   `ggsurvfit::add_confidence_interval()` pour ajouter les intervalles de confiance de la courbe,
+-   `ggsurvfit::add_risk_table()` pour ajouter une table avec le nombre de personnes encore à risque à chaque pas de temps et le nombre d'évènements,
+-   `ggsurvfit::add_quantile()` pour ajouter des lignes indiquant un certain quantile (par exemple à quel moment la moitié de la population a connu l'évènement),
+-   `ggsurvfit::add_censor_mark()` pour ajouter des marques indiquant les censures à droite.
+
+Le graphique renvoyé est un objet `{ggplot2}` et l'on peut appliquer toute fonction graphique additionnelle.
+
+```{r}
+library(ggplot2)
+km |> 
+  ggsurvfit() +
+  add_confidence_interval() +
+  add_risktable(
+    stats_label = list(
+      "n.risk" = "Personnes à risque",
+      "cum.event" = "Nombre de décès"
+    )
+  ) +
+  add_quantile(
+    y_value = 0.5, 
+    color = "gray50", 
+    linewidth = 0.75
+  ) +
+  scale_x_continuous(breaks = 0:4*6) +
+  scale_y_continuous(labels = scales::percent) +
+  xlab("Mois depuis le diagnostic") +
+  ylab("Proportion toujours en vie")
+```
+
+Il est également possible de représenter la proportion de personnes ayant vécu l'évènement plutôt que celle ne l'ayant toujours pas vécu.
+
+```{r}
+km |> 
+  ggsurvfit(type = "risk") +
+  add_confidence_interval() +
+  scale_ggsurvfit() +
+  xlab("Mois depuis le diagnostic") +
+  ylab("Proportion décédée")
+```
+
+Pour un tableau des résultats, on fera appel à `gtsummary::tbl_survfit()` à laquelle on indiquera soit des points dans le temps, soit une série de quantiles. Par défaut, cela affiche la valeur de la courbe et les intervalles de confiance à 95%.
+
+```{r}
+# affichage des résultats en français
+theme_gtsummary_language("fr", decimal.mark = ",")
+
+km |> 
+  tbl_survfit(
+    times = c(6, 12, 18, 24),
+    label_header = "**Mois {time}**"
+  )
+
+km |> 
+  tbl_survfit(
+    probs = c(.25, .5, .75)
+  ) |> 
+  modify_spanning_header(
+    all_stat_cols() ~ "**Proportion décédée**"
+  )
+```
+
+## Analyse bivariée (Kaplan-Meier)
+
+Il est possible de calculer des courbes de Kaplan-Meier selon une variable catégorielle (analyse stratifiée). Par exemple, pour voir comment varie la survie en fonction du stade au diagnostic.
+
+```{r}
+km_stade <- survfit(
+  Surv(ttdeath, death) ~ stage,
+  data = trial
+)
+km_stade |> ggsurvfit()
+```
+
+Nous pouvons facilement améliorer le rendu du graphique en utilisant `ggsurvfit::surfit2()` à la place de `survival::survfit()`. Les deux fonctions sont équivalentes à l'exception du fait que la version fournie par `{ggsurvfit}` concerne certaines informations, comme les étiquettes de variables, afin d'améliorer le rendu visuel par défaut du graphique.
+
+```{r}
+km_stade <- survfit2(
+  Surv(ttdeath, death) ~ stage,
+  data = trial
+)
+km_stade |> 
+  ggsurvfit() +
+  scale_ggsurvfit()
+```
+
+Il est possible de faire un test statistique pour déterminer si les courbes de survie diffèrent selon les stades avec la fonction `survival::survdiff()` qui implémente le test du *log-rank* ou de Mantel-Haenszel (par défaut).
+
+```{r}
+survdiff(
+  Surv(ttdeath, death) ~ stage,
+  data = trial
+)
+```
+
+Il est possible de calculer et d'afficher directement ce résultat sur le graphique (en bas à droite) avec `ggsurvfit::add_pvalue()`.
+
+```{r}
+km_stade |> 
+  ggsurvfit() +
+  add_confidence_interval() +
+  add_pvalue() +
+  scale_ggsurvfit()
+```
+
+Dans un tableau, on aura recours à `gtsummary::add_p()`.
+
+```{r}
+km_stade |> 
+  tbl_survfit(times = c(12, 24)) |> 
+  add_p() |> 
+  bold_labels()
+```
+
+Il est possible de réaliser simultanément plusieurs analyses de survie bivariées avec `tbl_survfit()`. La syntaxe est juste un peu différente. Au lieu de passer un objet `survfit()` à `tbl_survfit()`, on lui passera le jeu de données et on utilisera `y` et `include` pour indiquer comment calculer les courbes de survies.
+
+```{r}
+trial |> 
+  tbl_survfit(
+    y = Surv(ttdeath, death),
+    include = c(stage, trt),
+    times = c(12, 24)
+  ) |> 
+  add_p() |> 
+  bold_labels()
+```
+
+## Analyse multivariable (modèle de Cox)
+
+Pour une analyse multivariable, on aura recours à un modèle de Cox. Il est tout à fait possible d'inclure des variables continues, par exemple l'âge des patients. Ici, nous n'abordons qu'un modèle avec des variables fixes au cours du temps. Mais il est possible de calculer un modèle de Cox avec des variables explicatives pouvant changer au cours du temps.
+
+Le modèle de Cox se calcule avec `survival::coxph()`.
+
+```{r}
+mod <- coxph(
+  Surv(ttdeath, death) ~ stage + trt + age,
+  data = trial
+)
+```
+
+### Visualisation des résultats
+
+Comme pour la régression logistique (cf. @sec-regression-logistique-binaire), nous pouvons utiliser `gtsummary::tbl_regression()`, `ggstats::ggcoef_model()` et `ggstats::ggcoef_table()` pour afficher les coefficients du modèle.
+
+Il est pertinent d'afficher l'exponentielle des coefficients car il s'interprètent comme des risque relatifs ou *hazard ratios*.
+
+```{r}
+mod |> 
+  tbl_regression(exponentiate = TRUE) |> 
+  add_global_p(keep = TRUE) |> 
+  bold_labels()
+```
+
+```{r}
+library(ggstats)
+mod |> 
+  ggcoef_model(exponentiate = TRUE)
+```
+
+```{r}
+mod |> 
+  ggcoef_table(exponentiate = TRUE)
+```
+
+Le risque relatif correspond au rapport des risques instantanés. Il est par exemple de 2,7 pour les personnes au stade T4 par rapport à celles au stade T1. Cela signifie donc qu'à tout moment le risque de décéder est 2,7 fois plus important pour les personnes au stade 4 par rapport à celles au stade 1.
+
+### Vérification des hypothèses
+
+Le modèle de Cox considère que, bien que le risque de décès évolue au cours du temps, les risques relatifs restent quant à eux identiques. Il s'agit de l’hypothèse de la proportionnalité des risques relatifs. Selon cette hypothèse les résidus de Schoenfeld ne dépendent pas du temps. Cette hypothèse peut être testée avec la fonction `cox.zph()`.
+
+```{r}
+mod |> cox.zph()
+```
+
+Un test est ici effectué globalement et pour chaque variable individuellement. Une valeur de p inférieure à 5% indique un problème potentiel en termes de proportionnalité des risques.
+
+La fonction `survminer::ggcoxzph()` du package `{survminer}` permet de représenter les résidus de Schoenfeld et de visualiser si leur répartition est relativement stable au cours du temps (visuellement <q>horizontale</q> autour de 0) ou bien s'ils suivent une autre distribution.
+
+```{r}
+#| fig-width: 6
+#| fig-height: 8
+mod |> cox.zph() |> survminer::ggcoxzph()
+```
+
+### Représentation graphique d'une courbe de survie ajustée
+
+Il est possible de calculer, avec `survfit2()`, des courbes de survie ajustées à partir d'un modèle de Cox. Cependant, pour indiquer la variable de stratification des courbes, il est nécessaire de l'inclure avec `strata()` dans l'appel du modèle de Cox.
+
+```{r}
+trial |> 
+  coxph(
+    Surv(ttdeath, death) ~ strata(stage) + trt + age,
+    data = _
+  ) |> 
+  survfit2() |> 
+  ggsurvfit()
+```
+
+### Modèles de Cox univariables
+
+Comme déjà abordé dans le chapitre sur la régression logistique binaire, il est possible d'effectuer en une fois plusieurs modèles univariables avec `gtsummary::tbl_uvregression()` (cf. @sec-regressions-logistiques-univariables).
+
+```{r}
+trial |> 
+  tbl_uvregression(
+    method = coxph,
+    y = Surv(ttdeath, death),
+    include = c(stage, trt, age),
+    exponentiate = TRUE
+  ) |> 
+  bold_labels()
+```
+
+## webin-R
+
+L'analyse de survie est présentée sur YouTube dans le [webin-R #15](https://youtu.be/3XLx1SHc2fw) (*Analyse de survie*).
+
+{{< video https://youtu.be/3XLx1SHc2fw >}}
+
+## Lectures complémentaires
+
+-   [*Introduction à l’analyse de survie, courbe de Kaplan-Meier*](https://youtu.be/R9sTHZjIStM) et [*Introduction au modèle à risque proportionnel de Cox*](https://youtu.be/uO8pFkk3vBs) sur la chaîne YouTube "EpiMed Open Course".
+
+-   [*Introduction à l'analyse des durée de survie*](https://perso.math.univ-toulouse.fr/psaintpi/files/2021/04/Cours_Survie_1.pdf) par Philippe Saint Pierre de l'université de Toulouse (cours assez technique avec formalisme mathématique)
+
+-   Les cours du [*Master 2 : Modélisation en pharmacologie clinique et épidémiologique*](https://divat.fr/biostatistique/enseignements) de l'université de Nantes qui abordent des modèles plus complexes (modèles à risques compétitifs, modèles de fragilité, modèles additifs, variables dépendantes du temps, modèles mixtes...) avec des illustrations sous R.
