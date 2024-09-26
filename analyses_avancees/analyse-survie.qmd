@@ -265,6 +265,105 @@ trial |>
   bold_labels()
 ```
 
+## Analyse de survie pondérée
+
+Lorsque l'on travaille avec des données pondérées et un plan d'échantillonnage complexe, le plus pertinent est d'avoir recours au package `{survey}` (cf. @sec-plan-echantillonnage) qui propose des fonctions adaptées à l'analyse de survie.
+
+Pour l'exemple, nous allons transformer le jeu de données en objet `survey` en indiquant simplement des poids uniformes égaux à 1.
+
+```{r}
+library(survey)
+strial <- svydesign(~ 1, data = trial)
+```
+
+Pour le calcul d'une courbe de Kaplan-Meier, nous allons utiliser la fonction `survey::svykm()`. Il est préférable de préciser `se = TRUE` pour que les erreurs standards soient calculées, ce qui permettra plus tard de récupérer les intervalles de confiance.
+
+```{r}
+skm <- svykm(
+  Surv(ttdeath, death) ~ 1,
+  design = strial,
+  se = TRUE
+)
+skm_trt <- svykm(
+  Surv(ttdeath, death) ~ trt,
+  design = strial,
+  se = TRUE
+)
+```
+
+Malheureusement, `ggsurvfit::ggsurvfit()` et `gtsummary::tbl_survfit()` ne sont pas (encore ?) compatibles avec les courbes de survies créées avec `survey::svykm()`. On devra donc avoir recours aux fonctions de bases.
+
+Pour un graphique avec affichage des intervalles de confiance :
+
+```{r}
+skm |>  plot(ci = TRUE)
+```
+
+```{r}
+skm_trt |> plot(
+  ci = TRUE,
+  pars = list(
+    col = c("red", "blue")
+  ),
+  lwd = 2
+)
+```
+
+Pour récupérer la durée à laquelle certains quantiles son atteints :
+
+```{r}
+skm |>
+  quantile(
+    probs = c(1, .75, .5),
+    ci = TRUE
+  )
+```
+
+On ne peut pas facilement accéder aux valeurs de la courbe de survie à certains points de temps. Mais la fonction suivante permets de la faire aisément. Il faut lui passer, via `times`, une liste de points de temps.
+
+```{r}
+svykm_time_values <- function(x, times, ci_level = .95) {
+  idx <- sapply(
+    times,
+    function(t) max(which(x$time <= t))
+  )
+  ci <- confint(x, parm = times, level = ci_level)
+  dplyr::tibble(
+    time = times,
+    estimate = x$surv[idx],
+    conf.low = ci[, 1],
+    conf.high = ci[, 2]
+  )
+}
+```
+
+```{r}
+skm |> svykm_time_values(c(5, 10, 15, 20))
+```
+
+Pour le modèle de Cox, on aura recours à la fonction `survey::svycoxph()`.
+
+```{r}
+mods <- svycoxph(
+  Surv(ttdeath, death) ~ stage + trt + age,
+  design = strial
+)
+```
+
+Cette fois-ci, il est possible d'utiliser `gtsummary::tbl_regression()` ou `ggstats::ggcoef_model()` sans problème.
+
+```{r}
+mods |> 
+  tbl_regression(exponentiate = TRUE) |> 
+  bold_labels()
+```
+
+Enfin, pour le test de l'hypothèse de proportionnalité des risques, on peut utiliser comme précédemment la fonction `cox.zph()`.
+
+```{r}
+mods |> cox.zph()
+```
+
 ## webin-R
 
 L'analyse de survie est présentée sur YouTube dans le [webin-R #15](https://youtu.be/3XLx1SHc2fw) (*Analyse de survie*).
