@@ -250,6 +250,39 @@ trial |>
   ggsurvfit()
 ```
 
+### Sélection pas à pas d'un modèle réduit
+
+Pour réduire le modèle (voir @sec-selection-modele-pas-a-pas), il est possible d'utiliser la fonction `step()`.
+
+```{r}
+#| error: true
+mod |> step()
+```
+
+Dans notre exemple, nous rencontrons une erreur liée à des valeurs manquantes pour l'une des variables explicatives. Comme abordé précédemment (cf. @sec-step-avec-na), nous pouvons avoir recours à la fonction `step_with_na()` de notre cru.
+
+```{r}
+#| file: ../analyses/step_with_na.R
+```
+
+Il y a néanmoins une petite subtilité pour l'utiliser ici. En effet, elle a besoin de pouvoir reconstruire notre outcome qui est ici une variable composée créée avec `Surv()`. Deux possibilités. La première consiste à transmettre à `step_with_na()` le jeu de données complet.
+
+```{r}
+mod |> step_with_na(full_data = trial)
+```
+
+La seconde consiste à créer notre outcome en amont du calcul du modèle.
+
+```{r}
+trial <- trial |> 
+  mutate(survie = Surv(ttdeath, death))
+mod2 <- coxph(
+  survie ~ stage + trt + age,
+  data = trial
+)
+mod2 |> step_with_na()
+```
+
 ### Modèles de Cox univariables
 
 Comme déjà abordé dans le chapitre sur la régression logistique binaire, il est possible d'effectuer en une fois plusieurs modèles univariables avec `gtsummary::tbl_uvregression()` (cf. @sec-regressions-logistiques-univariables).
