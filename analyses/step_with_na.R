@@ -1,11 +1,11 @@
 step_with_na <- function(model,
-                         full_data = NULL, ...) {
+                         full_data = eval(model$call$data),
+                         ...) {
   # data with no NAs
   if (is.null(full_data)) {
     ...data_no_na <- model.frame(model)
   } else {
-    ...data_no_na <- get_all_vars(model, data = full_data)
-    ...data_no_na <- ...data_no_na[complete.cases(...data_no_na), ]
+    ...data_no_na <- get_all_vars(model, data = full_data) |> na.omit()
   }
   
   # assign ...data_no_na in parent.frame()
