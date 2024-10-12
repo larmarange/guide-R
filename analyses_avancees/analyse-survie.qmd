@@ -302,14 +302,18 @@ trial |>
 
 Lorsque l'on travaille avec des données pondérées et un plan d'échantillonnage complexe, le plus pertinent est d'avoir recours au package `{survey}` (cf. @sec-plan-echantillonnage) qui propose des fonctions adaptées à l'analyse de survie.
 
-Pour l'exemple, nous allons transformer le jeu de données en objet `survey` en indiquant simplement des poids uniformes égaux à 1.
+Pour l'exemple, nous allons transformer le jeu de données en objet `survey` en indiquant simplement des poids uniformes égaux à 1, dans la mesure où ce jeux de données n'a pas de poids.
 
 ```{r}
 library(survey)
-strial <- svydesign(~ 1, data = trial)
+strial <- svydesign(~ 1, data = trial, weights = ~ 1)
 ```
 
-Pour le calcul d'une courbe de Kaplan-Meier, nous allons utiliser la fonction `survey::svykm()`. Il est préférable de préciser `se = TRUE` pour que les erreurs standards soient calculées, ce qui permettra plus tard de récupérer les intervalles de confiance.
+### Courbes de Kaplan-Meier
+
+Pour le calcul d'une courbe de Kaplan-Meier, nous allons utiliser la fonction `survey::svykm()`.
+
+Il est préférable de préciser `se = TRUE` pour que les erreurs standards soient calculées, ce qui permettra plus tard de récupérer les intervalles de confiance. **Attention :** sur un gros jeu de données, ce temps de calcul peut être très long (plusieurs minutes ou dizaines de minutes).
 
 ```{r}
 skm <- svykm(
@@ -362,37 +366,112 @@ skm_trt |>
   )
 ```
 
-Pour récupérer la durée à laquelle certains quantiles sont atteints :
+La fonction `quantile()` peut-être appliquée à une courbe de survie simple (ici `skm`) mais dans le cadre d'une courbe de survie stratifiée (ici `skm_trt`) il faut l'appliquer à chaque sous-élément. On pourra alors s'aider de la petite fonction ci-dessous (utiliser `ci_level = NULL` pour ne pas calculer les intervalles de confiance.
 
 ```{r}
-skm |>
-  quantile(
-    probs = c(1, .75, .5),
-    ci = TRUE
-  )
+svykm_probs <- function(x,
+                        probs = c(1, .75, 5, .25),
+                        ci_level = .95,
+                        strata = NULL) {
+  if (inherits(x, "svykm")) {
+    if (is.null(ci_level) | is.null(x$varlog)) {
+      res <- quantile(x, probs, ci = FALSE) |> 
+        dplyr::as_tibble(rownames = "prob")
+    } else {
+      tmp <- quantile(
+        x,
+        probs,
+        ci = TRUE,
+        level = ci_level
+      )
+      ci <- attr(tmp, "ci") |> 
+        dplyr::as_tibble(rownames = "prob") |> 
+        dplyr::rename(conf.low = 2, conf.high = 3)
+      res <- tmp |> 
+        dplyr::as_tibble(rownames = "prob") |> 
+        dplyr::left_join(ci, by = "prob")
+    }
+    if (!is.null(strata))
+      res$strata <- strata
+    res
+  } else {
+    x |> 
+      seq_along() |> 
+      lapply(
+        \(i) {
+          svykm_probs(
+            x[[i]],
+            probs = probs,
+            ci_level = ci_level,
+            strata = names(x)[[i]]
+          )
+        }
+      ) |> 
+      dplyr::bind_rows()
+  }
+}
+```
+
+Ainsi :
+
+```{r}
+skm |> svykm_probs()
+skm_trt |> svykm_probs(probs = c(1, .8, .6, .4))
 ```
 
 On ne peut pas facilement accéder aux valeurs de la courbe de survie à certains points de temps. Mais la fonction suivante permets de la faire aisément. Il faut lui passer, via `times`, une liste de points de temps.
 
 ```{r}
-svykm_time_values <- function(x, times, ci_level = .95) {
-  idx <- sapply(
-    times,
-    function(t) max(which(x$time <= t))
-  )
-  ci <- confint(x, parm = times, level = ci_level)
-  dplyr::tibble(
-    time = times,
-    estimate = x$surv[idx],
-    conf.low = ci[, 1],
-    conf.high = ci[, 2]
-  )
+svykm_times <- function(x,
+                        times,
+                        ci_level = .95,
+                        strata = NULL) {
+  if (inherits(x, "svykm")) {
+    idx <- sapply(
+      times,
+      function(t) max(which(x$time <= t))
+    )
+    if (is.null(ci_level) | is.null(x$varlog)) {
+      res <- dplyr::tibble(
+        time = times,
+        value = x$surv[idx]
+      )
+    } else {
+      ci <- confint(x, parm = times, level = ci_level)
+      res <- dplyr::tibble(
+        time = times,
+        value = x$surv[idx],
+        conf.low = ci[, 1],
+        conf.high = ci[, 2]
+      )
+    }  
+    if (!is.null(strata))
+      res$strata <- strata
+    res
+  } else {
+    x |> 
+      seq_along() |> 
+      lapply(
+        \(i) {
+          svykm_times(
+            x[[i]],
+            times = times,
+            ci_level = ci_level,
+            strata = names(x)[[i]]
+          )
+        }
+      ) |> 
+      dplyr::bind_rows()
+  }
 }
 ```
 
 ```{r}
-skm |> svykm_time_values(c(5, 10, 15, 20))
+skm |> svykm_times(c(5, 10, 15, 20))
+skm_trt |> svykm_times(c(5, 10, 15, 20))
 ```
+
+### Modèle de Cox
 
 Pour le modèle de Cox, on aura recours à la fonction `survey::svycoxph()`.
 
