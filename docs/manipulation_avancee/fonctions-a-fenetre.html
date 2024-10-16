@@ -911,7 +911,7 @@ cookieconsent.run({
 5 michelle    144 b      TRUE  </code></pre>
 </div>
 </div>
-<p>On peut, notamment dans des analyses longitudinales, avoir besoin de repérer chaque changement d’une certaine valeur. Dans le chapitre sur les conditions logiques, nous avions proposé une fonction <code>is_different()</code> permettant de comparer deux valeurs tout en tenant compte des valeurs manquantes (voir <a href="conditions-logiques.html#sec-comparaison-valeurs-manquantes" class="quarto-xref"><span>Section 37.2</span></a>). Nous proposons ici une fonction <code>cumdifferent()</code> permettant de compter les changements de valeurs (et donc d’identifier les lignes continues ayant les mêmes valeurs).</p>
+<p>On peut, notamment dans des analyses longitudinales, avoir besoin de repérer chaque changement d’une certaine valeur. Dans le chapitre sur les conditions logiques, nous avions proposé une fonction <code>is_different()</code> permettant de comparer deux valeurs tout en tenant compte des valeurs manquantes (voir <a href="conditions-logiques.html#sec-comparaison-valeurs-manquantes" class="quarto-xref"><span>Section 37.2</span></a>). Nous proposons ici une fonction <code>cumdifferent()</code> permettant de compter les changements de valeurs (et donc d’identifier les lignes continues ayant les mêmes valeurs). Cela est particulièrement utile dans le cadre d’analyses longitudinales.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb39"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1"></a>is_different <span class="ot">&lt;-</span> <span class="cf">function</span>(x, y) {</span>
 <span id="cb39-2"><a href="#cb39-2"></a>  (x <span class="sc">!=</span> y <span class="sc">&amp;</span> <span class="sc">!</span><span class="fu">is.na</span>(x) <span class="sc">&amp;</span> <span class="sc">!</span><span class="fu">is.na</span>(y)) <span class="sc">|</span> <span class="fu">xor</span>(<span class="fu">is.na</span>(x), <span class="fu">is.na</span>(y))</span>
@@ -921,9 +921,10 @@ cookieconsent.run({
 <span id="cb39-6"><a href="#cb39-6"></a>}</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1"></a>d <span class="sc">|&gt;</span> </span>
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1"></a>d <span class="ot">&lt;-</span> d <span class="sc">|&gt;</span> </span>
 <span id="cb40-2"><a href="#cb40-2"></a>  <span class="fu">arrange</span>(score) <span class="sc">|&gt;</span> </span>
-<span id="cb40-3"><a href="#cb40-3"></a>  <span class="fu">mutate</span>(<span class="at">sous_groupe =</span> <span class="fu">cumdifferent</span>(groupe))</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb40-3"><a href="#cb40-3"></a>  <span class="fu">mutate</span>(<span class="at">sous_groupe =</span> <span class="fu">cumdifferent</span>(groupe))</span>
+<span id="cb40-4"><a href="#cb40-4"></a>d</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 5 × 4
   nom       score groupe sous_groupe
@@ -933,6 +934,34 @@ cookieconsent.run({
 3 michelle    144 b                2
 4 dominique   167 b                2
 5 marie       182 a                3</code></pre>
+</div>
+</div>
+<p>Dans la cas présent, cela permet d’identifier des sous-groupes, i.e.&nbsp;des lignes contiguës ayant le même groupe&nbsp;: <strong>1</strong> est le sous-groupe de tête du groupe <strong>a</strong>, <strong>2</strong> le sous-groupe <strong>b</strong> et <strong>3</strong> le deuxième sous-groupe issu de <strong>a</strong>.</p>
+<p>Une variante est la fonction <code>num_cycle()</code> ci-après. On doit lui passer une condition / vecteur logique en entrée. Il numérote uniquement les <q>sous-groupes</q> remplissant la condition et renvoie <code>NA</code> sinon.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1"></a>num_cycle <span class="ot">&lt;-</span> <span class="cf">function</span>(x) {</span>
+<span id="cb42-2"><a href="#cb42-2"></a>  <span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.logical</span>(x))</span>
+<span id="cb42-3"><a href="#cb42-3"></a>    <span class="fu">stop</span>(<span class="st">"'x' should be logical."</span>)</span>
+<span id="cb42-4"><a href="#cb42-4"></a>  res <span class="ot">&lt;-</span> <span class="fu">cumsum</span>(x <span class="sc">&amp;</span> <span class="fu">is_different</span>(x, <span class="fu">lag</span>(x)))</span>
+<span id="cb42-5"><a href="#cb42-5"></a>  res[<span class="sc">!</span>x] <span class="ot">&lt;-</span> <span class="cn">NA</span></span>
+<span id="cb42-6"><a href="#cb42-6"></a>  res</span>
+<span id="cb42-7"><a href="#cb42-7"></a>}</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1"></a>d <span class="sc">|&gt;</span> </span>
+<span id="cb43-2"><a href="#cb43-2"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb43-3"><a href="#cb43-3"></a>    <span class="at">sous_groupe_a =</span> <span class="fu">num_cycle</span>(groupe <span class="sc">==</span> <span class="st">"a"</span>),</span>
+<span id="cb43-4"><a href="#cb43-4"></a>    <span class="at">sous_groupe_b =</span> <span class="fu">num_cycle</span>(groupe <span class="sc">==</span> <span class="st">"b"</span>)</span>
+<span id="cb43-5"><a href="#cb43-5"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 5 × 6
+  nom       score groupe sous_groupe sous_groupe_a sous_groupe_b
+  &lt;chr&gt;     &lt;dbl&gt; &lt;chr&gt;        &lt;int&gt;         &lt;int&gt;         &lt;int&gt;
+1 marc        122 a                1             1            NA
+2 antoine     144 a                1             1            NA
+3 michelle    144 b                2            NA             1
+4 dominique   167 b                2            NA             1
+5 marie       182 a                3             2            NA</code></pre>
 </div>
 </div>
 
