@@ -1,0 +1,1616 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="fr" xml:lang="fr"><head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.4.553">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<title>guide-R - 35&nbsp; Chaînes de texte avec stringr</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../manipulation_avancee/tidyr.html" rel="next">
+<link href="../manipulation_avancee/dates.html" rel="prev">
+<link href="../ressources/favicon.png" rel="icon" type="image/png">
+<script src="../site_libs/cookie-consent/cookie-consent.js"></script>
+<link href="../site_libs/cookie-consent/cookie-consent.css" rel="stylesheet">
+<script src="../site_libs/quarto-html/quarto.js"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark.min.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark"><script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "language": {
+    "search-no-results-text": "Pas de résultats",
+    "search-matching-documents-text": "documents trouvés",
+    "search-copy-link-title": "Copier le lien vers la recherche",
+    "search-hide-matches-text": "Cacher les correspondances additionnelles",
+    "search-more-match-text": "correspondance de plus dans ce document",
+    "search-more-matches-text": "correspondances de plus dans ce document",
+    "search-clear-button-title": "Effacer",
+    "search-text-placeholder": "Rechercher",
+    "search-detached-cancel-button-title": "Annuler",
+    "search-submit-button-title": "Envoyer",
+    "search-label": "Recherche"
+  }
+}</script><script async="" src="https://www.googletagmanager.com/gtag/js?id=G-8BT7D9P85Y"></script><script type="text/plain" cookie-consent="tracking">
+
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-8BT7D9P85Y', { 'anonymize_ip': true});
+</script><script type="text/javascript" charset="UTF-8">
+document.addEventListener('DOMContentLoaded', function () {
+cookieconsent.run({
+  "notice_banner_type":"simple",
+  "consent_type":"implied",
+  "palette":"light",
+  "language":"en",
+  "page_load_consent_levels":["strictly-necessary","functionality","tracking","targeting"],
+  "notice_banner_reject_button_hide":false,
+  "preferences_center_close_button_hide":false,
+  "website_name":""
+  ,
+"language":"fr"
+  });
+});
+</script><style>html{ scroll-behavior: smooth; }</style>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body class="nav-sidebar floating slimcontent">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top"><nav class="quarto-secondary-nav"><div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Basculer la barre latérale" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../manipulation_avancee/fusion-tables.html"><strong>Manipulation avancée</strong></a></li><li class="breadcrumb-item"><a href="../manipulation_avancee/stringr.html"><span class="chapter-number">35</span>&nbsp; <span class="chapter-title">Chaînes de texte avec <code>stringr</code></span></a></li></ol></nav>
+        <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Basculer la barre latérale" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav></header><!-- content --><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto"><div class="pt-lg-2 mt-2 text-left sidebar-header sidebar-header-stacked">
+      <a href="../index.html" class="sidebar-logo-link">
+      <img src="../ressources/typewriter.png" alt="" class="sidebar-logo py-0 d-lg-inline d-none"></a>
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../">guide-R</a> 
+        <div class="sidebar-tools-main">
+    <a href="https://github.com/larmarange/guide-R/" title="Code source" class="quarto-navigation-tool px-1" aria-label="Code source"><i class="bi bi-github"></i></a>
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Basculer le mode sombre"><i class="bi"></i></a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Recherche"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+<li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Préface</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true">
+ <span class="menu-text"><strong>Bases du langage</strong></span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true" aria-label="Basculer la section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">
+<li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../bases/packages.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Packages</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../bases/vecteurs.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Vecteurs</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../bases/listes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Listes</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../bases/tableaux_donnees.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Tableaux de données</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../bases/tibbles.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Tibbles</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../bases/attributs.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Attributs</span></span></a>
+  </div>
+</li>
+      </ul>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="true">
+ <span class="menu-text"><strong>Manipulation de données</strong></span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="true" aria-label="Basculer la section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">
+<li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../manipulation/pipe.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Le pipe</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../manipulation/dplyr.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title"><code>dplyr</code></span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../manipulation/facteurs.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Facteurs et <code>forcats</code></span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../manipulation/combiner-variables.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Combiner plusieurs variables</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../manipulation/etiquettes-variables.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Étiquettes de variables</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../manipulation/etiquettes-valeurs.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Étiquettes de valeurs</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../manipulation/valeurs-manquantes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Valeurs manquantes</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../manipulation/import-export.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Import &amp; Export de données</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../manipulation/formater-nombre.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Mettre en forme des nombres</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../manipulation/couleurs.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Couleurs &amp; Palettes</span></span></a>
+  </div>
+</li>
+      </ul>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" aria-expanded="true">
+ <span class="menu-text"><strong>Analyses</strong></span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" aria-expanded="true" aria-label="Basculer la section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">
+<li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses/ggplot2.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Graphiques avec <code>ggplot2</code></span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses/statistique-univariee.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Statistique univariée &amp; Intervalles de confiance</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses/statistique-bivariee.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Statistique bivariée &amp; Tests de comparaison</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses/likert.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Échelles de Likert</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses/regression-lineaire.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Régression linéaire</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses/regression-logistique-binaire.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Régression logistique binaire</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses/selection-modele-pas-a-pas.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">23</span>&nbsp; <span class="chapter-title">Sélection pas à pas d’un modèle réduit</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses/estimations-marginales.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">24</span>&nbsp; <span class="chapter-title">Prédictions marginales, contrastes marginaux &amp; effets marginaux</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses/contrastes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">25</span>&nbsp; <span class="chapter-title">Contrastes (variables catégorielles)</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses/interactions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">26</span>&nbsp; <span class="chapter-title">Interactions</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses/multicolinearite.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">27</span>&nbsp; <span class="chapter-title">Multicolinéarité</span></span></a>
+  </div>
+</li>
+      </ul>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" aria-expanded="true">
+ <span class="menu-text"><strong>Données pondérées avec <code>survey</code></strong></span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" aria-expanded="true" aria-label="Basculer la section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">
+<li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../donnees_ponderees/plan-echantillonnage.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">28</span>&nbsp; <span class="chapter-title">Définir un plan d’échantillonnage</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../donnees_ponderees/manipulation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">29</span>&nbsp; <span class="chapter-title">Manipulation de données pondérées</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../donnees_ponderees/analyses-bivariees.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">30</span>&nbsp; <span class="chapter-title">Analyses uni- et bivariées pondérées</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../donnees_ponderees/graphiques-ponderes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">31</span>&nbsp; <span class="chapter-title">Graphiques pondérés</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../donnees_ponderees/regression-logistique-binaire-ponderee.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">32</span>&nbsp; <span class="chapter-title">Régression logistique binaire pondérée</span></span></a>
+  </div>
+</li>
+      </ul>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" aria-expanded="true">
+ <span class="menu-text"><strong>Manipulation avancée</strong></span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" aria-expanded="true" aria-label="Basculer la section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">
+<li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../manipulation_avancee/fusion-tables.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">33</span>&nbsp; <span class="chapter-title">Fusion de tables</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../manipulation_avancee/dates.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">34</span>&nbsp; <span class="chapter-title">Dates avec <code>lubridate</code></span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../manipulation_avancee/stringr.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">35</span>&nbsp; <span class="chapter-title">Chaînes de texte avec <code>stringr</code></span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../manipulation_avancee/tidyr.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">36</span>&nbsp; <span class="chapter-title">Réorganisation avec <code>tidyr</code></span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../manipulation_avancee/conditions-logiques.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">37</span>&nbsp; <span class="chapter-title">Conditions logiques</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../manipulation_avancee/fonctions-a-fenetre.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">38</span>&nbsp; <span class="chapter-title">Fonctions à fenêtre</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../manipulation_avancee/transformations-multiples.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">39</span>&nbsp; <span class="chapter-title">Transformations multiples</span></span></a>
+  </div>
+</li>
+      </ul>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" aria-expanded="true">
+ <span class="menu-text"><strong>Analyses avancées</strong></span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" aria-expanded="true" aria-label="Basculer la section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 show">
+<li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses_avancees/analyse-factorielle.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">40</span>&nbsp; <span class="chapter-title">Analyse factorielle</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses_avancees/classification-ascendante-hierarchique.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">41</span>&nbsp; <span class="chapter-title">Classification ascendante hiérarchique</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses_avancees/analyse-survie.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">42</span>&nbsp; <span class="chapter-title">Analyse de survie</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses_avancees/regression-logistique-multinomiale.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">43</span>&nbsp; <span class="chapter-title">Régression logistique multinomiale</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses_avancees/regression-logistique-ordinale.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">44</span>&nbsp; <span class="chapter-title">Régression logistique ordinale</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses_avancees/modeles-comptage.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">45</span>&nbsp; <span class="chapter-title">Modèles de comptage (Poisson &amp; apparentés)</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses_avancees/modeles-incidence.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">46</span>&nbsp; <span class="chapter-title">Modèles d’incidence / de taux</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses_avancees/modeles-zero-inflated.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">47</span>&nbsp; <span class="chapter-title">Modèles de comptage <em>zero-inflated</em> et <em>hurdle</em></span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses_avancees/choix-modele.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">48</span>&nbsp; <span class="chapter-title">Quel modèle choisir&nbsp;?</span></span></a>
+  </div>
+</li>
+      </ul>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" aria-expanded="true">
+ <span class="menu-text"><strong>Pour aller plus loin</strong></span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" aria-expanded="true" aria-label="Basculer la section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth1 show">
+<li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../extra/ressources-documentaires.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">49</span>&nbsp; <span class="chapter-title">Ressources documentaires</span></span></a>
+  </div>
+</li>
+      </ul>
+</li>
+    </ul>
+</div>
+</nav><div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active"><h2 id="toc-title">Table des matières</h2>
+   
+  <ul>
+<li><a href="#concat%C3%A9ner-des-cha%C3%AEnes" id="toc-concaténer-des-chaînes" class="nav-link active" data-scroll-target="#concat%C3%A9ner-des-cha%C3%AEnes"><span class="header-section-number">35.1</span> Concaténer des chaînes</a></li>
+  <li><a href="#convertir-en-majuscules-minuscules" id="toc-convertir-en-majuscules-minuscules" class="nav-link" data-scroll-target="#convertir-en-majuscules-minuscules"><span class="header-section-number">35.2</span> Convertir en majuscules / minuscules</a></li>
+  <li><a href="#d%C3%A9couper-des-cha%C3%AEnes" id="toc-découper-des-chaînes" class="nav-link" data-scroll-target="#d%C3%A9couper-des-cha%C3%AEnes"><span class="header-section-number">35.3</span> Découper des chaînes</a></li>
+  <li><a href="#extraire-des-sous-cha%C3%AEnes-par-position" id="toc-extraire-des-sous-chaînes-par-position" class="nav-link" data-scroll-target="#extraire-des-sous-cha%C3%AEnes-par-position"><span class="header-section-number">35.4</span> Extraire des sous-chaînes par position</a></li>
+  <li><a href="#str_detect" id="toc-str_detect" class="nav-link" data-scroll-target="#str_detect"><span class="header-section-number">35.5</span> Détecter des motifs</a></li>
+  <li><a href="#expressions-r%C3%A9guli%C3%A8res" id="toc-expressions-régulières" class="nav-link" data-scroll-target="#expressions-r%C3%A9guli%C3%A8res"><span class="header-section-number">35.6</span> Expressions régulières</a></li>
+  <li><a href="#extraire-des-motifs" id="toc-extraire-des-motifs" class="nav-link" data-scroll-target="#extraire-des-motifs"><span class="header-section-number">35.7</span> Extraire des motifs</a></li>
+  <li><a href="#remplacer-des-motifs" id="toc-remplacer-des-motifs" class="nav-link" data-scroll-target="#remplacer-des-motifs"><span class="header-section-number">35.8</span> Remplacer des motifs</a></li>
+  <li><a href="#modificateurs" id="toc-modificateurs" class="nav-link" data-scroll-target="#modificateurs"><span class="header-section-number">35.9</span> Modificateurs de motifs</a></li>
+  <li><a href="#ins%C3%A9rer-une-variable-dans-une-cha%C3%AEne-de-caract%C3%A8res" id="toc-insérer-une-variable-dans-une-chaîne-de-caractères" class="nav-link" data-scroll-target="#ins%C3%A9rer-une-variable-dans-une-cha%C3%AEne-de-caract%C3%A8res"><span class="header-section-number">35.10</span> Insérer une variable dans une chaîne de caractères</a></li>
+  <li><a href="#ressources" id="toc-ressources" class="nav-link" data-scroll-target="#ressources"><span class="header-section-number">35.11</span> Ressources</a></li>
+  </ul><div class="toc-actions"><ul><li><a href="https://github.com/larmarange/guide-R/blob/main/manipulation_avancee/stringr.qmd" class="toc-action"><i class="bi bi-github"></i>Voir la source</a></li><li><a href="https://github.com/larmarange/guide-R/issues/new" class="toc-action"><i class="bi empty"></i>Faire part d'un problème</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content page-columns page-full" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../manipulation_avancee/fusion-tables.html"><strong>Manipulation avancée</strong></a></li><li class="breadcrumb-item"><a href="../manipulation_avancee/stringr.html"><span class="chapter-number">35</span>&nbsp; <span class="chapter-title">Chaînes de texte avec <code>stringr</code></span></a></li></ol></nav><div class="quarto-title">
+<h1 class="title"><span id="sec-stringr" class="quarto-section-identifier"><span class="chapter-number">35</span>&nbsp; <span class="chapter-title">Chaînes de texte avec <code>stringr</code></span></span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header><p>Les fonctions de <a href="https://forcats.tidyverse.org/">forcats</a> vues précédemment permettent de modifier des modalités d’une variables qualitative globalement. Mais parfois on a besoin de manipuler le contenu même du texte d’une variable de type chaîne de caractères&nbsp;: combiner, rechercher, remplacer…</p>
+<p>On va utiliser ici les fonctions de l’extension <a href="https://stringr.tidyverse.org">stringr</a>. Celle-ci fait partie du cœur du <strong>tidyverse</strong>, elle est donc automatiquement chargée avec&nbsp;:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="fu">library</span>(tidyverse)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><a href="https://stringr.tidyverse.org">stringr</a> est en fait une interface simplifiée aux fonctions d’une autre extension, <a href="https://stringi.gagolewski.com/">stringi</a>. Si les fonctions de <a href="https://stringr.tidyverse.org">stringr</a> ne sont pas suffisantes ou si on manipule beaucoup de chaînes de caractères, ne pas hésiter à se reporter à la documentation de <a href="https://stringi.gagolewski.com/">stringi</a>.</p>
+</div>
+</div>
+<p>Dans ce qui suit on va utiliser le court tableau d’exemple <code>d</code> suivant&nbsp;:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a>d <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb2-2"><a href="#cb2-2"></a>  <span class="at">nom =</span> <span class="fu">c</span>(</span>
+<span id="cb2-3"><a href="#cb2-3"></a>    <span class="st">"Mr Félicien Machin"</span>, <span class="st">"Mme Raymonde Bidule"</span>,</span>
+<span id="cb2-4"><a href="#cb2-4"></a>    <span class="st">"M. Martial Truc"</span>, <span class="st">"Mme Huguette Chose"</span></span>
+<span id="cb2-5"><a href="#cb2-5"></a>  ),</span>
+<span id="cb2-6"><a href="#cb2-6"></a>  <span class="at">adresse =</span> <span class="fu">c</span>(</span>
+<span id="cb2-7"><a href="#cb2-7"></a>    <span class="st">"3 rue des Fleurs"</span>, <span class="st">"47 ave de la Libération"</span>,</span>
+<span id="cb2-8"><a href="#cb2-8"></a>    <span class="st">"12 rue du 17 octobre 1961"</span>, <span class="st">"221 avenue de la Libération"</span></span>
+<span id="cb2-9"><a href="#cb2-9"></a>  ),</span>
+<span id="cb2-10"><a href="#cb2-10"></a>  <span class="at">ville =</span> <span class="fu">c</span>(<span class="st">"Nouméa"</span>, <span class="st">"Marseille"</span>, <span class="st">"Vénissieux"</span>, <span class="st">"Marseille"</span>) </span>
+<span id="cb2-11"><a href="#cb2-11"></a>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<table class="table table-sm table-striped small">
+<thead><tr class="header">
+<th style="text-align: left;">nom</th>
+<th style="text-align: left;">adresse</th>
+<th style="text-align: left;">ville</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Mr Félicien Machin</td>
+<td style="text-align: left;">3 rue des Fleurs</td>
+<td style="text-align: left;">Nouméa</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Mme Raymonde Bidule</td>
+<td style="text-align: left;">47 ave de la Libération</td>
+<td style="text-align: left;">Marseille</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">M. Martial Truc</td>
+<td style="text-align: left;">12 rue du 17 octobre 1961</td>
+<td style="text-align: left;">Vénissieux</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Mme Huguette Chose</td>
+<td style="text-align: left;">221 avenue de la Libération</td>
+<td style="text-align: left;">Marseille</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<section id="concaténer-des-chaînes" class="level2" data-number="35.1"><h2 data-number="35.1" class="anchored" data-anchor-id="concaténer-des-chaînes">
+<span class="header-section-number">35.1</span> Concaténer des chaînes</h2>
+<p>La première opération de base consiste à concaténer des chaînes de caractères entre elles. On peut le faire avec la fonction <code><a href="https://rdrr.io/r/base/paste.html">paste()</a></code>.</p>
+<p>Par exemple, si on veut concaténer l’adresse et la ville&nbsp;:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a><span class="fu">paste</span>(d<span class="sc">$</span>adresse, d<span class="sc">$</span>ville)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "3 rue des Fleurs Nouméa"              
+[2] "47 ave de la Libération Marseille"    
+[3] "12 rue du 17 octobre 1961 Vénissieux" 
+[4] "221 avenue de la Libération Marseille"</code></pre>
+</div>
+</div>
+<p>Par défaut, <code><a href="https://rdrr.io/r/base/paste.html">paste()</a></code> concatène en ajoutant un espace entre les différentes chaînes. On peut spécifier un autre séparateur avec son argument <code>sep</code>&nbsp;:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a><span class="fu">paste</span>(d<span class="sc">$</span>adresse, d<span class="sc">$</span>ville, <span class="at">sep =</span> <span class="st">" - "</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "3 rue des Fleurs - Nouméa"              
+[2] "47 ave de la Libération - Marseille"    
+[3] "12 rue du 17 octobre 1961 - Vénissieux" 
+[4] "221 avenue de la Libération - Marseille"</code></pre>
+</div>
+</div>
+<p>Il existe une variante, <code><a href="https://rdrr.io/r/base/paste.html">paste0()</a></code>, qui concatène sans mettre de séparateur, et qui est légèrement plus rapide&nbsp;:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a><span class="fu">paste0</span>(d<span class="sc">$</span>adresse, d<span class="sc">$</span>ville)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "3 rue des FleursNouméa"              
+[2] "47 ave de la LibérationMarseille"    
+[3] "12 rue du 17 octobre 1961Vénissieux" 
+[4] "221 avenue de la LibérationMarseille"</code></pre>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>À noter que <code><a href="https://rdrr.io/r/base/paste.html">paste()</a></code> et <code><a href="https://rdrr.io/r/base/paste.html">paste0()</a></code> sont des fonctions R de base. L’équivalent pour <a href="https://stringr.tidyverse.org">stringr</a> se nomme <code><a href="https://stringr.tidyverse.org/reference/str_c.html">stringr::str_c()</a></code>.</p>
+</div>
+</div>
+<p>Parfois on cherche à concaténer les différents éléments d’un vecteur non pas avec ceux d’un autre vecteur, comme on l’a fait précédemment, mais <em>entre eux</em>. Dans ce cas <code><a href="https://rdrr.io/r/base/paste.html">paste()</a></code> seule ne fera rien&nbsp;:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a><span class="fu">paste</span>(d<span class="sc">$</span>ville)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Nouméa"     "Marseille"  "Vénissieux" "Marseille" </code></pre>
+</div>
+</div>
+<p>Il faut lui ajouter un argument <code>collapse</code>, avec comme valeur la chaîne à utiliser pour concaténer les éléments&nbsp;:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a>d<span class="sc">$</span>ville <span class="sc">|&gt;</span> <span class="fu">paste</span>(<span class="at">collapse =</span> <span class="st">", "</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Nouméa, Marseille, Vénissieux, Marseille"</code></pre>
+</div>
+</div>
+</section><section id="convertir-en-majuscules-minuscules" class="level2" data-number="35.2"><h2 data-number="35.2" class="anchored" data-anchor-id="convertir-en-majuscules-minuscules">
+<span class="header-section-number">35.2</span> Convertir en majuscules / minuscules</h2>
+<p>Les fonctions <code><a href="https://stringr.tidyverse.org/reference/case.html">stringr::str_to_lower()</a></code>, <code><a href="https://stringr.tidyverse.org/reference/case.html">stringr::str_to_upper()</a></code> et <code><a href="https://stringr.tidyverse.org/reference/case.html">stringr::str_to_title()</a></code> permettent respectivement de mettre en minuscules, mettre en majuscules, ou de capitaliser les éléments d’un vecteur de chaînes de caractères&nbsp;:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a>d<span class="sc">$</span>nom <span class="sc">|&gt;</span> <span class="fu">str_to_lower</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "mr félicien machin"  "mme raymonde bidule" "m. martial truc"    
+[4] "mme huguette chose" </code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1"></a>d<span class="sc">$</span>nom <span class="sc">|&gt;</span> <span class="fu">str_to_upper</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "MR FÉLICIEN MACHIN"  "MME RAYMONDE BIDULE" "M. MARTIAL TRUC"    
+[4] "MME HUGUETTE CHOSE" </code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1"></a>d<span class="sc">$</span>nom <span class="sc">|&gt;</span> <span class="fu">str_to_title</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Mr Félicien Machin"  "Mme Raymonde Bidule" "M. Martial Truc"    
+[4] "Mme Huguette Chose" </code></pre>
+</div>
+</div>
+</section><section id="découper-des-chaînes" class="level2" data-number="35.3"><h2 data-number="35.3" class="anchored" data-anchor-id="découper-des-chaînes">
+<span class="header-section-number">35.3</span> Découper des chaînes</h2>
+<p>La fonction <code><a href="https://stringr.tidyverse.org/reference/str_split.html">stringr::str_split()</a></code> permet de “découper” une chaîne de caractère en fonction d’un délimiteur. On passe la chaîne en premier argument, et le délimiteur en second&nbsp;:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1"></a><span class="st">"un-deux-trois"</span> <span class="sc">|&gt;</span> </span>
+<span id="cb19-2"><a href="#cb19-2"></a>  <span class="fu">str_split</span>(<span class="st">"-"</span>) </span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[[1]]
+[1] "un"    "deux"  "trois"</code></pre>
+</div>
+</div>
+<p>On peut appliquer la fonction à un vecteur, dans ce cas le résultat sera une liste&nbsp;:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1"></a><span class="fu">str_split</span>(d<span class="sc">$</span>nom, <span class="st">" "</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[[1]]
+[1] "Mr"       "Félicien" "Machin"  
+
+[[2]]
+[1] "Mme"      "Raymonde" "Bidule"  
+
+[[3]]
+[1] "M."      "Martial" "Truc"   
+
+[[4]]
+[1] "Mme"      "Huguette" "Chose"   </code></pre>
+</div>
+</div>
+<p>Ou un tableau (plus précisément une matrice) si on ajoute <code>simplify = TRUE</code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1"></a>d<span class="sc">$</span>nom <span class="sc">|&gt;</span> </span>
+<span id="cb23-2"><a href="#cb23-2"></a>  <span class="fu">str_split</span>(<span class="st">" "</span>, <span class="at">simplify =</span> <span class="cn">TRUE</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     [,1]  [,2]       [,3]    
+[1,] "Mr"  "Félicien" "Machin"
+[2,] "Mme" "Raymonde" "Bidule"
+[3,] "M."  "Martial"  "Truc"  
+[4,] "Mme" "Huguette" "Chose" </code></pre>
+</div>
+</div>
+<p>Si on souhaite créer de nouvelles colonnes dans un tableau de données en découpant une colonne de type texte, on pourra utiliser la fonction <code><a href="https://tidyr.tidyverse.org/reference/separate.html">tidyr::separate()</a></code> de l’extension <a href="https://tidyr.tidyverse.org">tidyr</a> (cf. <a href="tidyr.html#sec-separate" class="quarto-xref"><span>Section 36.5</span></a>).</p>
+<p>Voici juste un exemple de son utilisation&nbsp;:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1"></a>d <span class="sc">|&gt;</span> </span>
+<span id="cb25-2"><a href="#cb25-2"></a>  tidyr<span class="sc">::</span><span class="fu">separate</span>(</span>
+<span id="cb25-3"><a href="#cb25-3"></a>    <span class="at">col =</span> nom,</span>
+<span id="cb25-4"><a href="#cb25-4"></a>    <span class="at">into =</span> <span class="fu">c</span>(<span class="st">"genre"</span>, <span class="st">"prenom"</span>, <span class="st">"nom"</span>)</span>
+<span id="cb25-5"><a href="#cb25-5"></a>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Expected 3 pieces. Additional pieces discarded in 1 rows [1].</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 4 × 5
+  genre prenom   nom    adresse                     ville     
+  &lt;chr&gt; &lt;chr&gt;    &lt;chr&gt;  &lt;chr&gt;                       &lt;chr&gt;     
+1 Mr    F        licien 3 rue des Fleurs            Nouméa    
+2 Mme   Raymonde Bidule 47 ave de la Libération     Marseille 
+3 M     Martial  Truc   12 rue du 17 octobre 1961   Vénissieux
+4 Mme   Huguette Chose  221 avenue de la Libération Marseille </code></pre>
+</div>
+</div>
+</section><section id="extraire-des-sous-chaînes-par-position" class="level2" data-number="35.4"><h2 data-number="35.4" class="anchored" data-anchor-id="extraire-des-sous-chaînes-par-position">
+<span class="header-section-number">35.4</span> Extraire des sous-chaînes par position</h2>
+<p>La fonction <code><a href="https://stringr.tidyverse.org/reference/str_sub.html">stringr::str_sub()</a></code> permet d’extraire des sous-chaînes par position, en indiquant simplement les positions des premier et dernier caractères&nbsp;:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1"></a>d<span class="sc">$</span>ville <span class="sc">|&gt;</span> <span class="fu">str_sub</span>(<span class="dv">1</span>, <span class="dv">3</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Nou" "Mar" "Vén" "Mar"</code></pre>
+</div>
+</div>
+</section><section id="str_detect" class="level2" data-number="35.5"><h2 data-number="35.5" class="anchored" data-anchor-id="str_detect">
+<span class="header-section-number">35.5</span> Détecter des motifs</h2>
+<p><code><a href="https://stringr.tidyverse.org/reference/str_detect.html">stringr::str_detect()</a></code> permet de détecter la présence d’un motif parmi les éléments d’un vecteur. Par exemple, si on souhaite identifier toutes les adresses contenant <q>Libération</q>&nbsp;:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1"></a>d<span class="sc">$</span>adresse <span class="sc">|&gt;</span> <span class="fu">str_detect</span>(<span class="st">"Libération"</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] FALSE  TRUE FALSE  TRUE</code></pre>
+</div>
+</div>
+<p><code><a href="https://stringr.tidyverse.org/reference/str_detect.html">stringr::str_detect()</a></code> renvoi un vecteur de valeurs logiques et peut donc être utilisée, par exemple, avec le verbe <code><a href="https://dplyr.tidyverse.org/reference/filter.html">dplyr::filter()</a></code> pour extraire des sous-populations.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1"></a>d <span class="sc">|&gt;</span> </span>
+<span id="cb32-2"><a href="#cb32-2"></a>  <span class="fu">filter</span>(adresse <span class="sc">|&gt;</span>  <span class="fu">str_detect</span>(<span class="st">"Libération"</span>))</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 2 × 3
+  nom                 adresse                     ville    
+  &lt;chr&gt;               &lt;chr&gt;                       &lt;chr&gt;    
+1 Mme Raymonde Bidule 47 ave de la Libération     Marseille
+2 Mme Huguette Chose  221 avenue de la Libération Marseille</code></pre>
+</div>
+</div>
+<p>Une variante, <code><a href="https://stringr.tidyverse.org/reference/str_count.html">stringr::str_count()</a></code>, compte le nombre d’occurrences d’une chaîne pour chaque élément d’un vecteur&nbsp;:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1"></a>d<span class="sc">$</span>ville</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Nouméa"     "Marseille"  "Vénissieux" "Marseille" </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1"></a>d<span class="sc">$</span>ville <span class="sc">|&gt;</span> <span class="fu">str_count</span>(<span class="st">"s"</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0 1 2 1</code></pre>
+</div>
+</div>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Important
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Attention, les fonctions de <a href="https://stringr.tidyverse.org">stringr</a> étant prévues pour fonctionner avec des expressions régulières, certains caractères n’auront pas le sens habituel dans la chaîne indiquant le motif à rechercher. Par exemple, le <code>.</code> ne sera pas un point mais le symbole représentant <q>n’importe quel caractère</q>.</p>
+<p>La section sur les modificateurs de motifs explique comment utiliser des chaîne <q>classiques</q> au lieu d’expressions régulières.</p>
+</div>
+</div>
+<p>On peut aussi utiliser <code><a href="https://stringr.tidyverse.org/reference/str_subset.html">stringr::str_subset()</a></code> pour ne garder d’un vecteur que les éléments correspondant au motif&nbsp;:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1"></a>d<span class="sc">$</span>adresse <span class="sc">|&gt;</span> <span class="fu">str_subset</span>(<span class="st">"Libération"</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "47 ave de la Libération"     "221 avenue de la Libération"</code></pre>
+</div>
+</div>
+</section><section id="expressions-régulières" class="level2 page-columns page-full" data-number="35.6"><h2 data-number="35.6" class="anchored" data-anchor-id="expressions-régulières">
+<span class="header-section-number">35.6</span> Expressions régulières</h2>
+<p>Les fonctions présentées ici sont pour la plupart prévues pour fonctionner avec des expressions régulières. Celles-ci constituent un mini-langage, qui peut paraître assez cryptique, mais qui est très puissant pour spécifier des motifs de chaînes de caractères.</p>
+<p>Elles permettent par exemple de sélectionner le dernier mot avant la fin d’une chaîne, l’ensemble des suites alphanumériques commençant par une majuscule, des nombres de 3 ou 4 chiffres situés en début de chaîne, et beaucoup beaucoup d’autres choses encore bien plus complexes.</p>
+<p>Pour donner un exemple concret, l’expression régulière suivante permet de détecter une adresse de courrier électronique<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>&nbsp;:</p>
+<div class="no-row-height column-margin column-container"><div id="fn1"><p><sup>1</sup>&nbsp;Il s’agit en fait d’une version très simplifiée, la <q>véritable</q> expression permettant de tester si une adresse mail est valide fait plus de 80 lignes…</p></div></div><p><code>[\w\d+.-_]+@[\w\d.-]+\.[a-zA-Z]{2,}</code></p>
+<p>Les exemples donnés dans ce chapitre ont utilisés autant que possible de simples chaînes de texte, sans expression régulière. Mais si vous pensez manipuler des données textuelles, il peut être très utile de s’intéresser à cette syntaxe.</p>
+</section><section id="extraire-des-motifs" class="level2" data-number="35.7"><h2 data-number="35.7" class="anchored" data-anchor-id="extraire-des-motifs">
+<span class="header-section-number">35.7</span> Extraire des motifs</h2>
+<p><code><a href="https://stringr.tidyverse.org/reference/str_extract.html">stringr::str_extract()</a></code> permet d’extraire les valeurs correspondant à un motif. Si on lui passe comme motif une chaîne de caractère, cela aura peu d’intérêt&nbsp;:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1"></a>d<span class="sc">$</span>adresse <span class="sc">|&gt;</span> </span>
+<span id="cb40-2"><a href="#cb40-2"></a>  <span class="fu">str_extract</span>(<span class="st">"Libération"</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] NA           "Libération" NA           "Libération"</code></pre>
+</div>
+</div>
+<p>C’est tout de suite plus intéressant si on utilise des expressions régulières. Par exemple la commande suivante permet d’isoler les numéros de rue.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1"></a>d<span class="sc">$</span>adresse <span class="sc">|&gt;</span> <span class="fu">str_extract</span>(<span class="st">"^</span><span class="sc">\\</span><span class="st">d+"</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "3"   "47"  "12"  "221"</code></pre>
+</div>
+</div>
+<p><code><a href="https://stringr.tidyverse.org/reference/str_extract.html">stringr::str_extract()</a></code> ne récupère que la première occurrence du motif. Si on veut toutes les extraire on peut utiliser <code><a href="https://stringr.tidyverse.org/reference/str_extract.html">stringr::str_extract_all()</a></code>. Ainsi, si on veut extraire l’ensemble des nombres présents dans les adresses&nbsp;:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1"></a>d<span class="sc">$</span>adresse <span class="sc">|&gt;</span> <span class="fu">str_extract_all</span>(<span class="st">"</span><span class="sc">\\</span><span class="st">d+"</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[[1]]
+[1] "3"
+
+[[2]]
+[1] "47"
+
+[[3]]
+[1] "12"   "17"   "1961"
+
+[[4]]
+[1] "221"</code></pre>
+</div>
+</div>
+<div class="note">
+<p>Si on veut faire de l’extraction de groupes dans des expressions régulières (identifiés avec des parenthèses), on pourra utiliser <code>str_match</code>.</p>
+</div>
+<p>À noter que si on souhaite extraire des valeurs d’une colonne texte d’un tableau de données pour créer de nouvelles variables, on pourra plutôt utiliser la fonction <code><a href="https://tidyr.tidyverse.org/reference/extract.html">tidyr::extract()</a></code> de l’extension <a href="https://tidyr.tidyverse.org">tidyr</a> (cf. <a href="tidyr.html#sec-extract" class="quarto-xref"><span>Section 36.8</span></a>).</p>
+<p>Par exemple&nbsp;:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1"></a>d <span class="sc">|&gt;</span></span>
+<span id="cb46-2"><a href="#cb46-2"></a>  tidyr<span class="sc">::</span><span class="fu">extract</span>(</span>
+<span id="cb46-3"><a href="#cb46-3"></a>    <span class="at">col =</span> adresse,</span>
+<span id="cb46-4"><a href="#cb46-4"></a>    <span class="at">into =</span> <span class="st">"type_rue"</span>,</span>
+<span id="cb46-5"><a href="#cb46-5"></a>    <span class="at">regex =</span> <span class="st">"^</span><span class="sc">\\</span><span class="st">d+ (.*?) "</span>,</span>
+<span id="cb46-6"><a href="#cb46-6"></a>    <span class="at">remove =</span> <span class="cn">FALSE</span></span>
+<span id="cb46-7"><a href="#cb46-7"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 4 × 4
+  nom                 adresse                     type_rue ville     
+  &lt;chr&gt;               &lt;chr&gt;                       &lt;chr&gt;    &lt;chr&gt;     
+1 Mr Félicien Machin  3 rue des Fleurs            rue      Nouméa    
+2 Mme Raymonde Bidule 47 ave de la Libération     ave      Marseille 
+3 M. Martial Truc     12 rue du 17 octobre 1961   rue      Vénissieux
+4 Mme Huguette Chose  221 avenue de la Libération avenue   Marseille </code></pre>
+</div>
+</div>
+</section><section id="remplacer-des-motifs" class="level2" data-number="35.8"><h2 data-number="35.8" class="anchored" data-anchor-id="remplacer-des-motifs">
+<span class="header-section-number">35.8</span> Remplacer des motifs</h2>
+<p>La fonction <code><a href="https://stringr.tidyverse.org/reference/str_replace.html">stringr::str_replace()</a></code> permet de remplacer une chaîne ou un motif par une autre.</p>
+<p>Par exemple, on peut remplace les occurrence de “Mr” par “M.” dans les noms de notre tableau&nbsp;:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1"></a>d<span class="sc">$</span>nom <span class="sc">|&gt;</span> </span>
+<span id="cb48-2"><a href="#cb48-2"></a>  <span class="fu">str_replace</span>(<span class="st">"Mr"</span>, <span class="st">"M."</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "M. Félicien Machin"  "Mme Raymonde Bidule" "M. Martial Truc"    
+[4] "Mme Huguette Chose" </code></pre>
+</div>
+</div>
+<p>La variante <code><a href="https://stringr.tidyverse.org/reference/str_replace.html">stringr::str_replace_all()</a></code> permet de spécifier plusieurs remplacements d’un coup&nbsp;:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1"></a>d<span class="sc">$</span>adresse <span class="sc">|&gt;</span> </span>
+<span id="cb50-2"><a href="#cb50-2"></a>  <span class="fu">str_replace_all</span>(</span>
+<span id="cb50-3"><a href="#cb50-3"></a>    <span class="fu">c</span>(</span>
+<span id="cb50-4"><a href="#cb50-4"></a>      <span class="st">"avenue"</span><span class="ot">=</span><span class="st">"Avenue"</span>,</span>
+<span id="cb50-5"><a href="#cb50-5"></a>      <span class="st">"ave"</span><span class="ot">=</span><span class="st">"Avenue"</span>,</span>
+<span id="cb50-6"><a href="#cb50-6"></a>      <span class="st">"rue"</span><span class="ot">=</span><span class="st">"Rue"</span></span>
+<span id="cb50-7"><a href="#cb50-7"></a>    )</span>
+<span id="cb50-8"><a href="#cb50-8"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "3 Rue des Fleurs"            "47 Avenue de la Libération" 
+[3] "12 Rue du 17 octobre 1961"   "221 Avenue de la Libération"</code></pre>
+</div>
+</div>
+</section><section id="modificateurs" class="level2" data-number="35.9"><h2 data-number="35.9" class="anchored" data-anchor-id="modificateurs">
+<span class="header-section-number">35.9</span> Modificateurs de motifs</h2>
+<p>Par défaut, les motifs passés aux fonctions comme <code><a href="https://stringr.tidyverse.org/reference/str_detect.html">stringr::str_detect()</a></code>, <code><a href="https://stringr.tidyverse.org/reference/str_extract.html">stringr::str_extract()</a></code> ou <code><a href="https://stringr.tidyverse.org/reference/str_replace.html">stringr::str_replace()</a></code> sont des expressions régulières classiques.</p>
+<p>On peut spécifier qu’un motif n’est pas une expression régulière mais une chaîne de caractères normale en lui appliquant la fonction <code><a href="https://stringr.tidyverse.org/reference/modifiers.html">stringr::fixed()</a></code>. Par exemple, si on veut compter le nombre de points dans les noms de notre tableau, le paramétrage par défaut ne fonctionnera pas car dans une expression régulière le <code>.</code> est un symbole signifiant <q>n’importe quel caractère</q>&nbsp;:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb52"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1"></a>d<span class="sc">$</span>nom <span class="sc">|&gt;</span> <span class="fu">str_count</span>(<span class="st">"."</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 18 19 15 18</code></pre>
+</div>
+</div>
+<p>Il faut donc spécifier que notre point est bien un point avec <code><a href="https://stringr.tidyverse.org/reference/modifiers.html">stringr::fixed()</a></code>&nbsp;:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb54"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1"></a>d<span class="sc">$</span>nom <span class="sc">|&gt;</span> <span class="fu">str_count</span>(<span class="fu">fixed</span>(<span class="st">"."</span>))</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0 0 1 0</code></pre>
+</div>
+</div>
+<p>On peut aussi modifier le comportement des expressions régulières à l’aide de la fonction <code><a href="https://stringr.tidyverse.org/reference/modifiers.html">stringr::regex()</a></code>. On peut ainsi rendre les motifs insensibles à la casse avec <code>ignore_case</code>&nbsp;:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb56"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1"></a>d<span class="sc">$</span>nom <span class="sc">|&gt;</span> <span class="fu">str_detect</span>(<span class="st">"mme"</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] FALSE FALSE FALSE FALSE</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb58"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb58-1"><a href="#cb58-1"></a>d<span class="sc">$</span>nom <span class="sc">|&gt;</span> </span>
+<span id="cb58-2"><a href="#cb58-2"></a>  <span class="fu">str_detect</span>(<span class="fu">regex</span>(<span class="st">"mme"</span>, <span class="at">ignore_case =</span> <span class="cn">TRUE</span>))</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] FALSE  TRUE FALSE  TRUE</code></pre>
+</div>
+</div>
+<p>On peut également permettre aux expressions régulières d’être multilignes avec l’option <code>multiline = TRUE</code>, etc.</p>
+</section><section id="insérer-une-variable-dans-une-chaîne-de-caractères" class="level2" data-number="35.10"><h2 data-number="35.10" class="anchored" data-anchor-id="insérer-une-variable-dans-une-chaîne-de-caractères">
+<span class="header-section-number">35.10</span> Insérer une variable dans une chaîne de caractères</h2>
+<p>La fonction <code data-pkg="stringr"><a href="https://stringr.tidyverse.org/reference/str_glue.html">stringr::str_glue()</a></code> repose sur l’extension <a href="https://glue.tidyverse.org/">glue</a>. Elle permet, à l’aide d’une syntaxe un peu spécifique, de pouvoir insérer facilement les valeurs d’une ou plusieurs variables dans une chaîne de caractères. Prenons un exemple&nbsp;:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb60"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb60-1"><a href="#cb60-1"></a>prenom <span class="ot">&lt;-</span> <span class="st">"Fred"</span></span>
+<span id="cb60-2"><a href="#cb60-2"></a>age <span class="ot">&lt;-</span> <span class="dv">28</span></span>
+<span id="cb60-3"><a href="#cb60-3"></a>anniversaire <span class="ot">&lt;-</span> <span class="fu">as.Date</span>(<span class="st">"1991-10-12"</span>)</span>
+<span id="cb60-4"><a href="#cb60-4"></a><span class="fu">str_glue</span>(</span>
+<span id="cb60-5"><a href="#cb60-5"></a>  <span class="st">"Je m'appelle {prenom}. "</span>,</span>
+<span id="cb60-6"><a href="#cb60-6"></a>  <span class="st">"L'année prochaine j'aurai {age + 1} ans, "</span>,</span>
+<span id="cb60-7"><a href="#cb60-7"></a>  <span class="st">"car je suis né le {format(anniversaire, '%A %d %B %Y')}."</span></span>
+<span id="cb60-8"><a href="#cb60-8"></a>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Je m'appelle Fred. L'année prochaine j'aurai 29 ans, car je suis né le samedi 12 octobre 1991.</code></pre>
+</div>
+</div>
+<p>Sa variante <code><a href="https://stringr.tidyverse.org/reference/str_glue.html">stringr::str_glue_data()</a></code> est adaptée lorsque l’on travaille sur un tableau de données.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb62"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb62-1"><a href="#cb62-1"></a>d <span class="sc">|&gt;</span> <span class="fu">str_glue_data</span>(<span class="st">"{nom} habite à {ville}."</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Mr Félicien Machin habite à Nouméa.
+Mme Raymonde Bidule habite à Marseille.
+M. Martial Truc habite à Vénissieux.
+Mme Huguette Chose habite à Marseille.</code></pre>
+</div>
+</div>
+</section><section id="ressources" class="level2" data-number="35.11"><h2 data-number="35.11" class="anchored" data-anchor-id="ressources">
+<span class="header-section-number">35.11</span> Ressources</h2>
+<p>L’ouvrage <em>R for Data Science</em>, accessible en ligne, contient <a href="https://r4ds.hadley.nz/strings.html">un chapitre entier</a> sur les chaînes de caractères et les expressions régulières (en anglais).</p>
+<p>Le <a href="http://stringr.tidyverse.org/">site officiel de stringr</a> contient une <a href="http://stringr.tidyverse.org/reference/index.html">liste des fonctions</a> et les pages d’aide associées, ainsi qu’un <a href="http://stringr.tidyverse.org/articles/regular-expressions.html">article dédié aux expressions régulières</a>.</p>
+<p>Pour des besoins plus pointus, on pourra aussi utiliser le package <a href="http://www.gagolewski.com/software/stringi/">stringi</a> sur lequel est basé <a href="https://stringr.tidyverse.org">stringr</a>.</p>
+
+
+</section></main><!-- /main --><script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const disableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'prefetch';
+    }
+  }
+  const enableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'stylesheet';
+    }
+  }
+  const manageTransitions = (selector, allowTransitions) => {
+    const els = window.document.querySelectorAll(selector);
+    for (let i=0; i < els.length; i++) {
+      const el = els[i];
+      if (allowTransitions) {
+        el.classList.remove('notransition');
+      } else {
+        el.classList.add('notransition');
+      }
+    }
+  }
+  const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+    const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+    const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+    let newTheme = '';
+    if(darkModeDefault) {
+      newTheme = isAlternate ? baseTheme : alternateTheme;
+    } else {
+      newTheme = isAlternate ? alternateTheme : baseTheme;
+    }
+    const changeGiscusTheme = () => {
+      // From: https://github.com/giscus/giscus/issues/336
+      const sendMessage = (message) => {
+        const iframe = document.querySelector('iframe.giscus-frame');
+        if (!iframe) return;
+        iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+      }
+      sendMessage({
+        setConfig: {
+          theme: newTheme
+        }
+      });
+    }
+    const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+    if (isGiscussLoaded) {
+      changeGiscusTheme();
+    }
+  }
+  const toggleColorMode = (alternate) => {
+    // Switch the stylesheets
+    const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+    manageTransitions('#quarto-margin-sidebar .nav-link', false);
+    if (alternate) {
+      enableStylesheet(alternateStylesheets);
+      for (const sheetNode of alternateStylesheets) {
+        if (sheetNode.id === "quarto-bootstrap") {
+          toggleBodyColorMode(sheetNode);
+        }
+      }
+    } else {
+      disableStylesheet(alternateStylesheets);
+      toggleBodyColorPrimary();
+    }
+    manageTransitions('#quarto-margin-sidebar .nav-link', true);
+    // Switch the toggles
+    const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+    for (let i=0; i < toggles.length; i++) {
+      const toggle = toggles[i];
+      if (toggle) {
+        if (alternate) {
+          toggle.classList.add("alternate");     
+        } else {
+          toggle.classList.remove("alternate");
+        }
+      }
+    }
+    // Hack to workaround the fact that safari doesn't
+    // properly recolor the scrollbar when toggling (#1455)
+    if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+      manageTransitions("body", false);
+      window.scrollTo(0, 1);
+      setTimeout(() => {
+        window.scrollTo(0, 0);
+        manageTransitions("body", true);
+      }, 40);  
+    }
+  }
+  const isFileUrl = () => { 
+    return window.location.protocol === 'file:';
+  }
+  const hasAlternateSentinel = () => {  
+    let styleSentinel = getColorSchemeSentinel();
+    if (styleSentinel !== null) {
+      return styleSentinel === "alternate";
+    } else {
+      return false;
+    }
+  }
+  const setStyleSentinel = (alternate) => {
+    const value = alternate ? "alternate" : "default";
+    if (!isFileUrl()) {
+      window.localStorage.setItem("quarto-color-scheme", value);
+    } else {
+      localAlternateSentinel = value;
+    }
+  }
+  const getColorSchemeSentinel = () => {
+    if (!isFileUrl()) {
+      const storageValue = window.localStorage.getItem("quarto-color-scheme");
+      return storageValue != null ? storageValue : localAlternateSentinel;
+    } else {
+      return localAlternateSentinel;
+    }
+  }
+  const darkModeDefault = false;
+  let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+  // Dark / light mode switch
+  window.quartoToggleColorScheme = () => {
+    // Read the current dark / light value 
+    let toAlternate = !hasAlternateSentinel();
+    toggleColorMode(toAlternate);
+    setStyleSentinel(toAlternate);
+    toggleGiscusIfUsed(toAlternate, darkModeDefault);
+  };
+  // Ensure there is a toggle, if there isn't float one in the top right
+  if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+    const a = window.document.createElement('a');
+    a.classList.add('top-right');
+    a.classList.add('quarto-color-scheme-toggle');
+    a.href = "";
+    a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+    const i = window.document.createElement("i");
+    i.classList.add('bi');
+    a.appendChild(i);
+    window.document.body.appendChild(a);
+  }
+  // Switch to dark mode if need be
+  if (hasAlternateSentinel()) {
+    toggleColorMode(true);
+  } else {
+    toggleColorMode(false);
+  }
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copié");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copié");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script><script src="https://giscus.app/client.js" data-repo="larmarange/guide-R" data-repo-id="R_kgDOH6-xnw" data-category="Forum" data-category-id="DIC_kwDOH6-xn84CRLQy" data-mapping="pathname" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="top" data-theme="light" data-lang="fr" crossorigin="anonymous" data-loading="lazy" async="">
+</script><input type="hidden" id="giscus-base-theme" value="light"><input type="hidden" id="giscus-alt-theme" value="dark"><nav class="page-navigation"><div class="nav-page nav-page-previous">
+      <a href="../manipulation_avancee/dates.html" class="pagination-link" aria-label="Dates avec `lubridate`">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">34</span>&nbsp; <span class="chapter-title">Dates avec <code>lubridate</code></span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../manipulation_avancee/tidyr.html" class="pagination-link" aria-label="Réorganisation avec `tidyr`">
+        <span class="nav-page-text"><span class="chapter-number">36</span>&nbsp; <span class="chapter-title">Réorganisation avec <code>tidyr</code></span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+<footer class="footer"><div class="nav-footer">
+    <div class="nav-footer-left">
+      <ul class="footer-items list-unstyled">
+<li class="nav-item">
+ guide-R : Guide pour l'analyse de données d'enquêtes avec R
+  </li>  
+</ul>
+</div>   
+    <div class="nav-footer-center">
+
+<div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/larmarange/guide-R/blob/main/manipulation_avancee/stringr.qmd" class="toc-action"><i class="bi bi-github"></i>Voir la source</a></li><li><a href="https://github.com/larmarange/guide-R/issues/new" class="toc-action"><i class="bi empty"></i>Faire part d'un problème</a></li></ul></div><div class="cookie-consent-footer"><a href="#" id="open_preferences_center">Cookie Preferences</a></div></div>
+    <div class="nav-footer-right">
+      <ul class="footer-items list-unstyled">
+<li class="nav-item compact">
+    <a class="nav-link" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">
+      <i class="bi bi-badge-cc-fill" role="img">
+</i> 
+    </a>
+  </li>  
+    <li class="nav-item compact">
+    <a class="nav-link active" href="https://github.com/larmarange/guide-R/" aria-current="page">
+      <i class="bi bi-github" role="img">
+</i> 
+    </a>
+  </li>  
+    <li class="nav-item compact">
+    <a class="nav-link" href="https://www.youtube.com/c/webinR">
+      <i class="bi bi-youtube" role="img">
+</i> 
+    </a>
+  </li>  
+    <li class="nav-item">
+    <a class="nav-link" href="https://larmarange.github.io/analyse-R/">
+<p>analyse-R</p>
+</a>
+  </li>  
+    <li class="nav-item">
+    <a class="nav-link" href="https://larmarange.github.io/webin-R/">
+<p>webin-R</p>
+</a>
+  </li>  
+</ul>
+</div>
+  </div>
+</footer>
+
+
+<script src="../site_libs/quarto-html/zenscroll-min.js"></script>
+</body></html>
