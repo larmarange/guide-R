@@ -1,0 +1,2187 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="fr" xml:lang="fr"><head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.4.553">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<title>guide-R - 44&nbsp; Régression logistique ordinale</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../analyses_avancees/modeles-comptage.html" rel="next">
+<link href="../analyses_avancees/regression-logistique-multinomiale.html" rel="prev">
+<link href="../ressources/favicon.png" rel="icon" type="image/png">
+<script src="../site_libs/cookie-consent/cookie-consent.js"></script>
+<link href="../site_libs/cookie-consent/cookie-consent.css" rel="stylesheet">
+<script src="../site_libs/quarto-html/quarto.js"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark.min.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<script src="../site_libs/quarto-contrib/glightbox/glightbox.min.js"></script>
+<link href="../site_libs/quarto-contrib/glightbox/glightbox.min.css" rel="stylesheet">
+<link href="../site_libs/quarto-contrib/glightbox/lightbox.css" rel="stylesheet"><script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "language": {
+    "search-no-results-text": "Pas de résultats",
+    "search-matching-documents-text": "documents trouvés",
+    "search-copy-link-title": "Copier le lien vers la recherche",
+    "search-hide-matches-text": "Cacher les correspondances additionnelles",
+    "search-more-match-text": "correspondance de plus dans ce document",
+    "search-more-matches-text": "correspondances de plus dans ce document",
+    "search-clear-button-title": "Effacer",
+    "search-text-placeholder": "Rechercher",
+    "search-detached-cancel-button-title": "Annuler",
+    "search-submit-button-title": "Envoyer",
+    "search-label": "Recherche"
+  }
+}</script><script async="" src="https://www.googletagmanager.com/gtag/js?id=G-8BT7D9P85Y"></script><script type="text/plain" cookie-consent="tracking">
+
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-8BT7D9P85Y', { 'anonymize_ip': true});
+</script><script type="text/javascript" charset="UTF-8">
+document.addEventListener('DOMContentLoaded', function () {
+cookieconsent.run({
+  "notice_banner_type":"simple",
+  "consent_type":"implied",
+  "palette":"light",
+  "language":"en",
+  "page_load_consent_levels":["strictly-necessary","functionality","tracking","targeting"],
+  "notice_banner_reject_button_hide":false,
+  "preferences_center_close_button_hide":false,
+  "website_name":""
+  ,
+"language":"fr"
+  });
+});
+</script><style>html{ scroll-behavior: smooth; }</style>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body class="nav-sidebar floating slimcontent">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top"><nav class="quarto-secondary-nav"><div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Basculer la barre latérale" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../analyses_avancees/analyse-factorielle.html"><strong>Analyses avancées</strong></a></li><li class="breadcrumb-item"><a href="../analyses_avancees/regression-logistique-ordinale.html"><span class="chapter-number">44</span>&nbsp; <span class="chapter-title">Régression logistique ordinale</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Basculer la barre latérale" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav></header><!-- content --><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto"><div class="pt-lg-2 mt-2 text-left sidebar-header sidebar-header-stacked">
+      <a href="../index.html" class="sidebar-logo-link">
+      <img src="../ressources/typewriter.png" alt="" class="sidebar-logo py-0 d-lg-inline d-none"></a>
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../">guide-R</a> 
+        <div class="sidebar-tools-main">
+    <a href="https://github.com/larmarange/guide-R/" title="Code source" class="quarto-navigation-tool px-1" aria-label="Code source"><i class="bi bi-github"></i></a>
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Basculer le mode sombre"><i class="bi"></i></a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Recherche"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+<li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Préface</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true">
+ <span class="menu-text"><strong>Bases du langage</strong></span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true" aria-label="Basculer la section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">
+<li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../bases/packages.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Packages</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../bases/vecteurs.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Vecteurs</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../bases/listes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Listes</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../bases/tableaux_donnees.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Tableaux de données</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../bases/tibbles.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Tibbles</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../bases/attributs.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Attributs</span></span></a>
+  </div>
+</li>
+      </ul>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="true">
+ <span class="menu-text"><strong>Manipulation de données</strong></span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="true" aria-label="Basculer la section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">
+<li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../manipulation/pipe.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Le pipe</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../manipulation/dplyr.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title"><code>dplyr</code></span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../manipulation/facteurs.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Facteurs et <code>forcats</code></span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../manipulation/combiner-variables.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Combiner plusieurs variables</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../manipulation/etiquettes-variables.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Étiquettes de variables</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../manipulation/etiquettes-valeurs.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Étiquettes de valeurs</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../manipulation/valeurs-manquantes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Valeurs manquantes</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../manipulation/import-export.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Import &amp; Export de données</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../manipulation/formater-nombre.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Mettre en forme des nombres</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../manipulation/couleurs.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Couleurs &amp; Palettes</span></span></a>
+  </div>
+</li>
+      </ul>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" aria-expanded="true">
+ <span class="menu-text"><strong>Analyses</strong></span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" aria-expanded="true" aria-label="Basculer la section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">
+<li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses/ggplot2.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Graphiques avec <code>ggplot2</code></span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses/statistique-univariee.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Statistique univariée &amp; Intervalles de confiance</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses/statistique-bivariee.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Statistique bivariée &amp; Tests de comparaison</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses/likert.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Échelles de Likert</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses/regression-lineaire.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Régression linéaire</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses/regression-logistique-binaire.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Régression logistique binaire</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses/selection-modele-pas-a-pas.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">23</span>&nbsp; <span class="chapter-title">Sélection pas à pas d’un modèle réduit</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses/estimations-marginales.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">24</span>&nbsp; <span class="chapter-title">Prédictions marginales, contrastes marginaux &amp; effets marginaux</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses/contrastes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">25</span>&nbsp; <span class="chapter-title">Contrastes (variables catégorielles)</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses/interactions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">26</span>&nbsp; <span class="chapter-title">Interactions</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses/multicolinearite.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">27</span>&nbsp; <span class="chapter-title">Multicolinéarité</span></span></a>
+  </div>
+</li>
+      </ul>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" aria-expanded="true">
+ <span class="menu-text"><strong>Données pondérées avec <code>survey</code></strong></span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" aria-expanded="true" aria-label="Basculer la section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">
+<li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../donnees_ponderees/plan-echantillonnage.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">28</span>&nbsp; <span class="chapter-title">Définir un plan d’échantillonnage</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../donnees_ponderees/manipulation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">29</span>&nbsp; <span class="chapter-title">Manipulation de données pondérées</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../donnees_ponderees/analyses-bivariees.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">30</span>&nbsp; <span class="chapter-title">Analyses uni- et bivariées pondérées</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../donnees_ponderees/graphiques-ponderes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">31</span>&nbsp; <span class="chapter-title">Graphiques pondérés</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../donnees_ponderees/regression-logistique-binaire-ponderee.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">32</span>&nbsp; <span class="chapter-title">Régression logistique binaire pondérée</span></span></a>
+  </div>
+</li>
+      </ul>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" aria-expanded="true">
+ <span class="menu-text"><strong>Manipulation avancée</strong></span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" aria-expanded="true" aria-label="Basculer la section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">
+<li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../manipulation_avancee/fusion-tables.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">33</span>&nbsp; <span class="chapter-title">Fusion de tables</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../manipulation_avancee/dates.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">34</span>&nbsp; <span class="chapter-title">Dates avec <code>lubridate</code></span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../manipulation_avancee/stringr.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">35</span>&nbsp; <span class="chapter-title">Chaînes de texte avec <code>stringr</code></span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../manipulation_avancee/tidyr.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">36</span>&nbsp; <span class="chapter-title">Réorganisation avec <code>tidyr</code></span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../manipulation_avancee/conditions-logiques.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">37</span>&nbsp; <span class="chapter-title">Conditions logiques</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../manipulation_avancee/fonctions-a-fenetre.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">38</span>&nbsp; <span class="chapter-title">Fonctions à fenêtre</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../manipulation_avancee/transformations-multiples.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">39</span>&nbsp; <span class="chapter-title">Transformations multiples</span></span></a>
+  </div>
+</li>
+      </ul>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" aria-expanded="true">
+ <span class="menu-text"><strong>Analyses avancées</strong></span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" aria-expanded="true" aria-label="Basculer la section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 show">
+<li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses_avancees/analyse-factorielle.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">40</span>&nbsp; <span class="chapter-title">Analyse factorielle</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses_avancees/classification-ascendante-hierarchique.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">41</span>&nbsp; <span class="chapter-title">Classification ascendante hiérarchique</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses_avancees/analyse-survie.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">42</span>&nbsp; <span class="chapter-title">Analyse de survie</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses_avancees/regression-logistique-multinomiale.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">43</span>&nbsp; <span class="chapter-title">Régression logistique multinomiale</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses_avancees/regression-logistique-ordinale.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">44</span>&nbsp; <span class="chapter-title">Régression logistique ordinale</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses_avancees/modeles-comptage.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">45</span>&nbsp; <span class="chapter-title">Modèles de comptage (Poisson &amp; apparentés)</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses_avancees/modeles-incidence.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">46</span>&nbsp; <span class="chapter-title">Modèles d’incidence / de taux</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses_avancees/modeles-zero-inflated.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">47</span>&nbsp; <span class="chapter-title">Modèles de comptage <em>zero-inflated</em> et <em>hurdle</em></span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses_avancees/choix-modele.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">48</span>&nbsp; <span class="chapter-title">Quel modèle choisir&nbsp;?</span></span></a>
+  </div>
+</li>
+      </ul>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" aria-expanded="true">
+ <span class="menu-text"><strong>Pour aller plus loin</strong></span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" aria-expanded="true" aria-label="Basculer la section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth1 show">
+<li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../extra/ressources-documentaires.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">49</span>&nbsp; <span class="chapter-title">Ressources documentaires</span></span></a>
+  </div>
+</li>
+      </ul>
+</li>
+    </ul>
+</div>
+</nav><div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active"><h2 id="toc-title">Table des matières</h2>
+   
+  <ul>
+<li><a href="#donn%C3%A9es-dillustration" id="toc-données-dillustration" class="nav-link active" data-scroll-target="#donn%C3%A9es-dillustration"><span class="header-section-number">44.1</span> Données d’illustration</a></li>
+  <li>
+<a href="#calcul-du-mod%C3%A8le-ordinal" id="toc-calcul-du-modèle-ordinal" class="nav-link" data-scroll-target="#calcul-du-mod%C3%A8le-ordinal"><span class="header-section-number">44.2</span> Calcul du modèle ordinal</a>
+  <ul class="collapse">
+<li><a href="#avec-masspolr" id="toc-avec-masspolr" class="nav-link" data-scroll-target="#avec-masspolr"><span class="header-section-number">44.2.1</span> avec MASS::polr()</a></li>
+  <li><a href="#fonctions-alternatives" id="toc-fonctions-alternatives" class="nav-link" data-scroll-target="#fonctions-alternatives"><span class="header-section-number">44.2.2</span> Fonctions alternatives</a></li>
+  </ul>
+</li>
+  <li><a href="#affichage-des-r%C3%A9sultats-du-mod%C3%A8le" id="toc-affichage-des-résultats-du-modèle" class="nav-link" data-scroll-target="#affichage-des-r%C3%A9sultats-du-mod%C3%A8le"><span class="header-section-number">44.3</span> Affichage des résultats du modèle</a></li>
+  <li>
+<a href="#donn%C3%A9es-pond%C3%A9r%C3%A9es" id="toc-données-pondérées" class="nav-link" data-scroll-target="#donn%C3%A9es-pond%C3%A9r%C3%A9es"><span class="header-section-number">44.4</span> Données pondérées</a>
+  <ul class="collapse">
+<li><a href="#avec-surveysvyolr" id="toc-avec-surveysvyolr" class="nav-link" data-scroll-target="#avec-surveysvyolr"><span class="header-section-number">44.4.1</span> avec <code>survey::svyolr()</code></a></li>
+  <li><a href="#avec-svrepmiscsvymultinom" id="toc-avec-svrepmiscsvymultinom" class="nav-link" data-scroll-target="#avec-svrepmiscsvymultinom"><span class="header-section-number">44.4.2</span> avec <code>svrepmisc::svymultinom()</code></a></li>
+  <li><a href="#avec-svyvgamsvy_glm" id="toc-avec-svyvgamsvy_glm" class="nav-link" data-scroll-target="#avec-svyvgamsvy_glm"><span class="header-section-number">44.4.3</span> avec <code>svyVGAM::svy_glm()</code></a></li>
+  </ul>
+</li>
+  </ul><div class="toc-actions"><ul><li><a href="https://github.com/larmarange/guide-R/blob/main/analyses_avancees/regression-logistique-ordinale.qmd" class="toc-action"><i class="bi bi-github"></i>Voir la source</a></li><li><a href="https://github.com/larmarange/guide-R/issues/new" class="toc-action"><i class="bi empty"></i>Faire part d'un problème</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content page-columns page-full" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../analyses_avancees/analyse-factorielle.html"><strong>Analyses avancées</strong></a></li><li class="breadcrumb-item"><a href="../analyses_avancees/regression-logistique-ordinale.html"><span class="chapter-number">44</span>&nbsp; <span class="chapter-title">Régression logistique ordinale</span></a></li></ol></nav><div class="quarto-title">
+<h1 class="title"><span id="sec-regression-logistique-ordinale" class="quarto-section-identifier"><span class="chapter-number">44</span>&nbsp; <span class="chapter-title">Régression logistique ordinale</span></span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header><p>La régression logistique ordinale est une extension de la régression logistique binaire (cf. <a href="#sec-regression-logistique-binaire" class="quarto-xref"><span class="quarto-unresolved-ref">sec-regression-logistique-binaire</span></a>) aux variables qualitatives à trois modalités ou plus qui sont ordonnées, par exemple <em>modéré</em>, <em>moyen</em> et <em>fort</em>.</p>
+<p>Pour une variable ordonnée, il est possible de réaliser une régression logistique multinomiale (cf. <a href="#sec-regression-logistique-multinomiale" class="quarto-xref"><span class="quarto-unresolved-ref">sec-regression-logistique-multinomiale</span></a>) comme on le ferait avec une variable non ordonnée. Dans ce cas de figure, chaque modalité de la variable d’intérêt serait comparée à une modalité de référence.</p>
+<p>Alternativement, on peut réaliser une <strong>régression logistique ordinale</strong> aussi appelée <strong>modèle cumulatif</strong> ou <strong>modèle logistique à égalité des pentes</strong>. Ce type de modèle est plus simple que la régression multinomiale car il ne renvoie qu’un seul jeu de coefficients.</p>
+<p>Supposons une variable d’intérêt à trois modalités A, B et C telles que A &lt; B &lt; C. Les <em>odds ratios</em> qui seront calculés comparerons la probabilité que Y≥B par rapport à la probabilité que Y≤A (aspect <em>cumulatif</em>) et ferons l’hypothèse que ce ratio est le même quand on compare la probabilité que Y≥C par rapport à la probabilité que Y≤B (<em>égalité des pentes</em>).</p>
+<section id="données-dillustration" class="level2" data-number="44.1"><h2 data-number="44.1" class="anchored" data-anchor-id="données-dillustration">
+<span class="header-section-number">44.1</span> Données d’illustration</h2>
+<p>Pour illustrer la régression logistique multinomiale, nous allons reprendre le jeu de données <code>hdv2003</code> du package <a href="https://juba.github.io/questionr/">questionr</a> et portant sur l’enquête <em>histoires de vie 2003</em> de l’Insee et l’exemple utilisé dans le chapitre sur la régression logistique multinomiale (cf. <a href="#sec-regression-logistique-multinomiale" class="quarto-xref"><span class="quarto-unresolved-ref">sec-regression-logistique-multinomiale</span></a>).</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-2"><a href="#cb1-2"></a><span class="fu">library</span>(labelled)</span>
+<span id="cb1-3"><a href="#cb1-3"></a><span class="fu">data</span>(<span class="st">"hdv2003"</span>, <span class="at">package =</span> <span class="st">"questionr"</span>)</span>
+<span id="cb1-4"><a href="#cb1-4"></a>d <span class="ot">&lt;-</span> hdv2003</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Nous allons considérer comme variable d’intérêt la variable <em>trav.satisf</em>, à savoir la satisfaction ou l’insatisfaction au travail.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a>questionr<span class="sc">::</span><span class="fu">freq</span>(d<span class="sc">$</span>trav.satisf)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                 n    % val%
+Satisfaction   480 24.0 45.8
+Insatisfaction 117  5.9 11.2
+Equilibre      451 22.6 43.0
+NA             952 47.6   NA</code></pre>
+</div>
+</div>
+<p>Nous allons devoir ordonner les modalités de la plus faible à la plus forte.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a>d<span class="sc">$</span>trav.satisf <span class="ot">&lt;-</span> d<span class="sc">$</span>trav.satisf <span class="sc">|&gt;</span></span>
+<span id="cb4-2"><a href="#cb4-2"></a>  <span class="fu">fct_relevel</span>(<span class="st">"Insatisfaction"</span>, <span class="st">"Equilibre"</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Et nous allons indiquer qu’il s’agit d’un facteur ordonné.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a>d<span class="sc">$</span>trav.satisf <span class="ot">&lt;-</span> d<span class="sc">$</span>trav.satisf <span class="sc">|&gt;</span></span>
+<span id="cb5-2"><a href="#cb5-2"></a>  <span class="fu">as.ordered</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Nous allons aussi en profiter pour raccourcir les étiquettes de la variable <em>trav.imp</em>&nbsp;:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a><span class="fu">levels</span>(d<span class="sc">$</span>trav.imp) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"Le plus"</span>, <span class="st">"Aussi"</span>, <span class="st">"Moins"</span>, <span class="st">"Peu"</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Enfin, procédons à quelques recodages additionnels&nbsp;:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a>d <span class="ot">&lt;-</span> d <span class="sc">|&gt;</span> </span>
+<span id="cb7-2"><a href="#cb7-2"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb7-3"><a href="#cb7-3"></a>    <span class="at">sexe =</span> sexe <span class="sc">|&gt;</span> <span class="fu">fct_relevel</span>(<span class="st">"Femme"</span>),</span>
+<span id="cb7-4"><a href="#cb7-4"></a>    <span class="at">groupe_ages =</span> age <span class="sc">|&gt;</span></span>
+<span id="cb7-5"><a href="#cb7-5"></a>      <span class="fu">cut</span>(</span>
+<span id="cb7-6"><a href="#cb7-6"></a>        <span class="fu">c</span>(<span class="dv">18</span>, <span class="dv">25</span>, <span class="dv">45</span>, <span class="dv">99</span>),</span>
+<span id="cb7-7"><a href="#cb7-7"></a>        <span class="at">right =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb7-8"><a href="#cb7-8"></a>        <span class="at">include.lowest =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb7-9"><a href="#cb7-9"></a>        <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"18-24 ans"</span>, <span class="st">"25-44 ans"</span>,</span>
+<span id="cb7-10"><a href="#cb7-10"></a>                   <span class="st">"45 et plus"</span>)</span>
+<span id="cb7-11"><a href="#cb7-11"></a>      ),</span>
+<span id="cb7-12"><a href="#cb7-12"></a>    <span class="at">etudes =</span> nivetud <span class="sc">|&gt;</span> </span>
+<span id="cb7-13"><a href="#cb7-13"></a>      <span class="fu">fct_recode</span>(</span>
+<span id="cb7-14"><a href="#cb7-14"></a>        <span class="st">"Primaire"</span> <span class="ot">=</span> <span class="st">"N'a jamais fait d'etudes"</span>,</span>
+<span id="cb7-15"><a href="#cb7-15"></a>        <span class="st">"Primaire"</span> <span class="ot">=</span> <span class="st">"A arrete ses etudes, avant la derniere annee d'etudes primaires"</span>,</span>
+<span id="cb7-16"><a href="#cb7-16"></a>        <span class="st">"Primaire"</span> <span class="ot">=</span> <span class="st">"Derniere annee d'etudes primaires"</span>,</span>
+<span id="cb7-17"><a href="#cb7-17"></a>        <span class="st">"Secondaire"</span> <span class="ot">=</span> <span class="st">"1er cycle"</span>,</span>
+<span id="cb7-18"><a href="#cb7-18"></a>        <span class="st">"Secondaire"</span> <span class="ot">=</span> <span class="st">"2eme cycle"</span>,</span>
+<span id="cb7-19"><a href="#cb7-19"></a>        <span class="st">"Technique / Professionnel"</span> <span class="ot">=</span> <span class="st">"Enseignement technique ou professionnel court"</span>,</span>
+<span id="cb7-20"><a href="#cb7-20"></a>        <span class="st">"Technique / Professionnel"</span> <span class="ot">=</span> <span class="st">"Enseignement technique ou professionnel long"</span>,</span>
+<span id="cb7-21"><a href="#cb7-21"></a>        <span class="st">"Supérieur"</span> <span class="ot">=</span> <span class="st">"Enseignement superieur y compris technique superieur"</span></span>
+<span id="cb7-22"><a href="#cb7-22"></a>    ) <span class="sc">|&gt;</span> </span>
+<span id="cb7-23"><a href="#cb7-23"></a>    <span class="fu">fct_na_value_to_level</span>(<span class="st">"Non documenté"</span>)  </span>
+<span id="cb7-24"><a href="#cb7-24"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb7-25"><a href="#cb7-25"></a>  <span class="fu">set_variable_labels</span>(</span>
+<span id="cb7-26"><a href="#cb7-26"></a>    <span class="at">trav.satisf =</span> <span class="st">"Satisfaction dans le travail"</span>,</span>
+<span id="cb7-27"><a href="#cb7-27"></a>    <span class="at">sexe =</span> <span class="st">"Sexe"</span>,</span>
+<span id="cb7-28"><a href="#cb7-28"></a>    <span class="at">groupe_ages =</span> <span class="st">"Groupe d'âges"</span>,</span>
+<span id="cb7-29"><a href="#cb7-29"></a>    <span class="at">etudes =</span> <span class="st">"Niveau d'études"</span>,</span>
+<span id="cb7-30"><a href="#cb7-30"></a>    <span class="at">trav.imp =</span> <span class="st">"Importance accordée au travail"</span></span>
+<span id="cb7-31"><a href="#cb7-31"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section><section id="calcul-du-modèle-ordinal" class="level2" data-number="44.2"><h2 data-number="44.2" class="anchored" data-anchor-id="calcul-du-modèle-ordinal">
+<span class="header-section-number">44.2</span> Calcul du modèle ordinal</h2>
+<section id="avec-masspolr" class="level3" data-number="44.2.1"><h3 data-number="44.2.1" class="anchored" data-anchor-id="avec-masspolr">
+<span class="header-section-number">44.2.1</span> avec MASS::polr()</h3>
+<p>Le plus facile pour le calcul d’un modèle ordinal est d’avoir recours à la fonction <code><a href="https://rdrr.io/pkg/MASS/man/polr.html">MASS::polr()</a></code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a>rego <span class="ot">&lt;-</span> MASS<span class="sc">::</span><span class="fu">polr</span>(</span>
+<span id="cb8-2"><a href="#cb8-2"></a>  trav.satisf <span class="sc">~</span> sexe <span class="sc">+</span> etudes <span class="sc">+</span> groupe_ages <span class="sc">+</span> trav.imp,</span>
+<span id="cb8-3"><a href="#cb8-3"></a>  <span class="at">data =</span> d</span>
+<span id="cb8-4"><a href="#cb8-4"></a>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Nous pouvons aisément simplifier le modèle avec <code><a href="https://rdrr.io/r/stats/step.html">step()</a></code> (cf. <a href="#sec-selection-modele-pas-a-pas" class="quarto-xref"><span class="quarto-unresolved-ref">sec-selection-modele-pas-a-pas</span></a>).</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a>rego2 <span class="ot">&lt;-</span> rego <span class="sc">|&gt;</span> <span class="fu">step</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Start:  AIC=1978.29
+trav.satisf ~ sexe + etudes + groupe_ages + trav.imp
+
+              Df    AIC
+- groupe_ages  2 1977.2
+- sexe         1 1978.3
+&lt;none&gt;           1978.3
+- etudes       4 1991.5
+- trav.imp     3 2014.0
+
+Step:  AIC=1977.23
+trav.satisf ~ sexe + etudes + trav.imp
+
+           Df    AIC
+- sexe      1 1977.0
+&lt;none&gt;        1977.2
+- etudes    4 1990.6
+- trav.imp  3 2013.2
+
+Step:  AIC=1976.97
+trav.satisf ~ etudes + trav.imp
+
+           Df    AIC
+&lt;none&gt;        1977.0
+- etudes    4 1990.6
+- trav.imp  3 2011.6</code></pre>
+</div>
+</div>
+</section><section id="fonctions-alternatives" class="level3" data-number="44.2.2"><h3 data-number="44.2.2" class="anchored" data-anchor-id="fonctions-alternatives">
+<span class="header-section-number">44.2.2</span> Fonctions alternatives</h3>
+<p>Un package alternatif pour le calcul de régressions ordinales est le package dédié <a href="https://github.com/runehaubo/ordinal">ordinal</a> et sa fonction <code><a href="https://rdrr.io/pkg/ordinal/man/clm.html">ordinal::clm()</a></code>. Pour les utilisateurs avancés, <a href="https://github.com/runehaubo/ordinal">ordinal</a> permet également de traiter certains prédicteurs comme ayant un effet nominal (et donc avec un coefficient par niveau) via l’argument <code>nominal</code>. Il existe également une fonction <code><a href="https://rdrr.io/pkg/ordinal/man/clmm.html">ordinal::clmm()</a></code> permet de définir des modèles mixtes avec variables à effet aléatoire.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a>rego3 <span class="ot">&lt;-</span> ordinal<span class="sc">::</span><span class="fu">clm</span>(</span>
+<span id="cb11-2"><a href="#cb11-2"></a>  trav.satisf <span class="sc">~</span> sexe <span class="sc">+</span> etudes <span class="sc">+</span> groupe_ages <span class="sc">+</span> trav.imp,</span>
+<span id="cb11-3"><a href="#cb11-3"></a>  <span class="at">data =</span> d</span>
+<span id="cb11-4"><a href="#cb11-4"></a>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Les modèles créés avec <code><a href="https://rdrr.io/pkg/ordinal/man/clm.html">ordinal::clm()</a></code> sont plutôt bien traités par des fonctions comme <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/tbl_regression.html">gtsummary::tbl_regression()</a></code> ou <code><a href="https://larmarange.github.io/ggstats/reference/ggcoef_model.html">ggstats::ggcoef_model()</a></code>.</p>
+<p>Enfin, on peut également citer la fonction <code><a href="https://rdrr.io/pkg/VGAM/man/vgam.html">VGAM::vgam()</a></code> en spécifiant <code>family = VGAM::cumulative(parallel = TRUE)</code>. Cette famille de modèles offre des options avancées (par exemple il est possible de calculer des modèles non parallèles, c’est-à-dire avec une série de coefficients pour chaque changement de niveau). Par contre, le support de <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/tbl_regression.html">gtsummary::tbl_regression()</a></code> et <code><a href="https://larmarange.github.io/ggstats/reference/ggcoef_model.html">ggstats::ggcoef_model()</a></code> sera limité (seulement des résultats bruts).</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a>rego4 <span class="ot">&lt;-</span> VGAM<span class="sc">::</span><span class="fu">vgam</span>(</span>
+<span id="cb12-2"><a href="#cb12-2"></a>  trav.satisf <span class="sc">~</span> sexe <span class="sc">+</span> etudes <span class="sc">+</span> groupe_ages <span class="sc">+</span> trav.imp,</span>
+<span id="cb12-3"><a href="#cb12-3"></a>  <span class="at">data =</span> d,</span>
+<span id="cb12-4"><a href="#cb12-4"></a>  <span class="at">family =</span> VGAM<span class="sc">::</span><span class="fu">cumulative</span>(<span class="at">parallel =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb12-5"><a href="#cb12-5"></a>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Important
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>En toute rigueur, il faudrait <strong>tester l’égalité des pentes</strong>. Laurent Rouvière propose un code permettant d’effectuer ce test sous <strong>R</strong> à partir d’un modèle réalisé avec <code><a href="https://rdrr.io/pkg/VGAM/man/vglm.html">VGAM::vglm()</a></code>, voir la diapositive 33 sur 35 d’un de ses cours de janvier 2015 intitulé <a href="https://perso.univ-rennes2.fr/system/files/users/rouviere_l/chapitre4_glm.pdf"><em>Quelques modèles logistiques polytomiques</em></a>.</p>
+</div>
+</div>
+</section></section><section id="affichage-des-résultats-du-modèle" class="level2 page-columns page-full" data-number="44.3"><h2 data-number="44.3" class="anchored" data-anchor-id="affichage-des-résultats-du-modèle">
+<span class="header-section-number">44.3</span> Affichage des résultats du modèle</h2>
+<p>Pour un tableau des coefficients, on peut tout simplement appeler <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/tbl_regression.html">gtsummary::tbl_regression()</a></code>. Nous allons indiquer <code>exponentiate = TRUE</code> car, comme pour la régression logistique binaire, l’exponentielle des coefficients peut s’interpréter comme des <em>odds ratios</em>. Pour éviter certains messages d’information, nous allons préciser <code>tidy_fun = broom.helpers::tidy_parameters</code> (cela implique juste que le tableau des coefficients sera calculé avec le package <a href="https://easystats.github.io/parameters/">parameters</a> plutôt qu’avec le package <a href="https://broom.tidymodels.org/">broom</a>). Nous pouvons calculer à la volée la p-valeur globale de chaque variable avec <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/add_global_p.html">gtsummary::add_global_p()</a></code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a><span class="fu">library</span>(gtsummary)</span>
+<span id="cb13-2"><a href="#cb13-2"></a><span class="fu">theme_gtsummary_language</span>(<span class="st">"fr"</span>, <span class="at">decimal.mark =</span> <span class="st">","</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell page-columns page-full">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a>rego2 <span class="sc">|&gt;</span> </span>
+<span id="cb14-2"><a href="#cb14-2"></a>  <span class="fu">tbl_regression</span>(</span>
+<span id="cb14-3"><a href="#cb14-3"></a>    <span class="at">exponentiate =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb14-4"><a href="#cb14-4"></a>    <span class="at">tidy_fun =</span> broom.helpers<span class="sc">::</span>tidy_parameters</span>
+<span id="cb14-5"><a href="#cb14-5"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb14-6"><a href="#cb14-6"></a>  <span class="fu">bold_labels</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb14-7"><a href="#cb14-7"></a>  <span class="fu">add_global_p</span>(<span class="at">keep =</span> <span class="cn">TRUE</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Réajustement pour obtenir le Hessien</code></pre>
+</div>
+<div id="tbl-tbl_regression-ordinale" class="cell quarto-float anchored page-columns page-full">
+<figure class="quarto-float quarto-float-tbl figure page-columns page-full"><div aria-describedby="tbl-tbl_regression-ordinale-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<div>
+<div id="lfmvjpolre" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#lfmvjpolre table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#lfmvjpolre thead, #lfmvjpolre tbody, #lfmvjpolre tfoot, #lfmvjpolre tr, #lfmvjpolre td, #lfmvjpolre th {
+  border-style: none;
+}
+
+#lfmvjpolre p {
+  margin: 0;
+  padding: 0;
+}
+
+#lfmvjpolre .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#lfmvjpolre .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#lfmvjpolre .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#lfmvjpolre .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#lfmvjpolre .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#lfmvjpolre .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#lfmvjpolre .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#lfmvjpolre .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#lfmvjpolre .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#lfmvjpolre .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#lfmvjpolre .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#lfmvjpolre .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#lfmvjpolre .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#lfmvjpolre .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#lfmvjpolre .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#lfmvjpolre .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#lfmvjpolre .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#lfmvjpolre .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#lfmvjpolre .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#lfmvjpolre .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#lfmvjpolre .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#lfmvjpolre .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#lfmvjpolre .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#lfmvjpolre .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#lfmvjpolre .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#lfmvjpolre .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#lfmvjpolre .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#lfmvjpolre .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#lfmvjpolre .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#lfmvjpolre .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#lfmvjpolre .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#lfmvjpolre .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#lfmvjpolre .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#lfmvjpolre .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#lfmvjpolre .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#lfmvjpolre .gt_left {
+  text-align: left;
+}
+
+#lfmvjpolre .gt_center {
+  text-align: center;
+}
+
+#lfmvjpolre .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#lfmvjpolre .gt_font_normal {
+  font-weight: normal;
+}
+
+#lfmvjpolre .gt_font_bold {
+  font-weight: bold;
+}
+
+#lfmvjpolre .gt_font_italic {
+  font-style: italic;
+}
+
+#lfmvjpolre .gt_super {
+  font-size: 65%;
+}
+
+#lfmvjpolre .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#lfmvjpolre .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#lfmvjpolre .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#lfmvjpolre .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#lfmvjpolre .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#lfmvjpolre .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#lfmvjpolre .gt_indent_5 {
+  text-indent: 25px;
+}
+
+#lfmvjpolre .katex-display {
+  display: inline-flex !important;
+  margin-bottom: 0.75em !important;
+}
+
+#lfmvjpolre div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+  height: 0px !important;
+}
+</style>
+<table class="gt_table do-not-create-environment cell table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead><tr class="header gt_col_headings">
+<th id="<div data-qmd-base64=&quot;KipDYXJhY3TDqXJpc3RpcXVlKio=&quot;><div class='gt_from_md'><p><strong>Caractéristique</strong></p>
+</div></div>" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col"><p><strong>Caractéristique</strong></p></th>
+<th id="<div data-qmd-base64=&quot;KipPUioq&quot;><div class='gt_from_md'><p><strong>OR</strong></p>
+</div></div><span class=&quot;gt_footnote_marks&quot; style=&quot;white-space:nowrap;font-style:italic;font-weight:normal;line-height: 0;&quot;><sup>1</sup></span>" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col">
+<p><strong>OR</strong></p>
+<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height: 0;"><sup>1</sup></span>
+</th>
+<th id="<div data-qmd-base64=&quot;Kio5NSUgSUMqKg==&quot;><div class='gt_from_md'><p><strong>95% IC</strong></p>
+</div></div><span class=&quot;gt_footnote_marks&quot; style=&quot;white-space:nowrap;font-style:italic;font-weight:normal;line-height: 0;&quot;><sup>1</sup></span>" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col">
+<p><strong>95% IC</strong></p>
+<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height: 0;"><sup>1</sup></span>
+</th>
+<th id="<div data-qmd-base64=&quot;KipwLXZhbGV1cioq&quot;><div class='gt_from_md'><p><strong>p-valeur</strong></p>
+</div></div>" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col"><p><strong>p-valeur</strong></p></th>
+</tr></thead>
+<tbody class="gt_table_body">
+<tr class="odd">
+<td class="gt_row gt_left" headers="label" style="font-weight: bold">Niveau d'études</td>
+<td class="gt_row gt_center" headers="estimate"><br></td>
+<td class="gt_row gt_center" headers="conf.low"><br></td>
+<td class="gt_row gt_center" headers="p.value">&lt;0,001</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="label">&nbsp;&nbsp;&nbsp;&nbsp;Primaire</td>
+<td class="gt_row gt_center" headers="estimate">—</td>
+<td class="gt_row gt_center" headers="conf.low">—</td>
+<td class="gt_row gt_center" headers="p.value"><br></td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="label">&nbsp;&nbsp;&nbsp;&nbsp;Secondaire</td>
+<td class="gt_row gt_center" headers="estimate">1,06</td>
+<td class="gt_row gt_center" headers="conf.low">0,67 – 1,67</td>
+<td class="gt_row gt_center" headers="p.value">0,8</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="label">&nbsp;&nbsp;&nbsp;&nbsp;Technique / Professionnel</td>
+<td class="gt_row gt_center" headers="estimate">1,01</td>
+<td class="gt_row gt_center" headers="conf.low">0,67 – 1,53</td>
+<td class="gt_row gt_center" headers="p.value">&gt;0,9</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="label">&nbsp;&nbsp;&nbsp;&nbsp;Supérieur</td>
+<td class="gt_row gt_center" headers="estimate">1,84</td>
+<td class="gt_row gt_center" headers="conf.low">1,20 – 2,83</td>
+<td class="gt_row gt_center" headers="p.value">0,006</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="label">&nbsp;&nbsp;&nbsp;&nbsp;Non documenté</td>
+<td class="gt_row gt_center" headers="estimate">0,66</td>
+<td class="gt_row gt_center" headers="conf.low">0,25 – 1,72</td>
+<td class="gt_row gt_center" headers="p.value">0,4</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="label" style="font-weight: bold">Importance accordée au travail</td>
+<td class="gt_row gt_center" headers="estimate"><br></td>
+<td class="gt_row gt_center" headers="conf.low"><br></td>
+<td class="gt_row gt_center" headers="p.value">&lt;0,001</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="label">&nbsp;&nbsp;&nbsp;&nbsp;Le plus</td>
+<td class="gt_row gt_center" headers="estimate">—</td>
+<td class="gt_row gt_center" headers="conf.low">—</td>
+<td class="gt_row gt_center" headers="p.value"><br></td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="label">&nbsp;&nbsp;&nbsp;&nbsp;Aussi</td>
+<td class="gt_row gt_center" headers="estimate">1,39</td>
+<td class="gt_row gt_center" headers="conf.low">0,65 – 2,97</td>
+<td class="gt_row gt_center" headers="p.value">0,4</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="label">&nbsp;&nbsp;&nbsp;&nbsp;Moins</td>
+<td class="gt_row gt_center" headers="estimate">1,03</td>
+<td class="gt_row gt_center" headers="conf.low">0,50 – 2,14</td>
+<td class="gt_row gt_center" headers="p.value">&gt;0,9</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="label">&nbsp;&nbsp;&nbsp;&nbsp;Peu</td>
+<td class="gt_row gt_center" headers="estimate">0,19</td>
+<td class="gt_row gt_center" headers="conf.low">0,08 – 0,48</td>
+<td class="gt_row gt_center" headers="p.value">&lt;0,001</td>
+</tr>
+</tbody>
+<tfoot class="gt_footnotes"><tr class="even">
+<td colspan="4" class="gt_footnote">
+<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height: 0;"><sup>1</sup></span>
+<p>OR = rapport de cotes, IC = intervalle de confiance</p>
+</td>
+</tr></tfoot>
+</table>
+</div>
+</div>
+</div>
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-tbl margin-caption" id="tbl-tbl_regression-ordinale-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;44.1: Tableau des odds ratio de la régression logistique ordinale
+</figcaption></figure>
+</div>
+</div>
+<p>La même commande fonctionne avec un modèle créé avec <code><a href="https://rdrr.io/pkg/ordinal/man/clm.html">ordinal::clm()</a></code>.</p>
+<p>Pour un graphique des coefficients, on va procéder de même avec <code>ggstats::gcoef_model()</code> ou <code>ggstats::gcoef_table()</code>.</p>
+<div class="cell page-columns page-full">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1"></a>rego2 <span class="sc">|&gt;</span> </span>
+<span id="cb16-2"><a href="#cb16-2"></a>  ggstats<span class="sc">::</span><span class="fu">ggcoef_model</span>(</span>
+<span id="cb16-3"><a href="#cb16-3"></a>    <span class="at">exponentiate =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb16-4"><a href="#cb16-4"></a>    <span class="at">tidy_fun =</span> broom.helpers<span class="sc">::</span>tidy_parameters</span>
+<span id="cb16-5"><a href="#cb16-5"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display page-columns page-full">
+<div id="fig-ggcoef_model-ordinal" class="quarto-figure quarto-figure-center quarto-float anchored page-columns page-full">
+<figure class="quarto-float quarto-float-fig figure page-columns page-full"><div aria-describedby="fig-ggcoef_model-ordinal-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="regression-logistique-ordinale_files/figure-html/fig-ggcoef_model-ordinal-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-1" data-glightbox="description: .lightbox-desc-1"><img src="regression-logistique-ordinale_files/figure-html/fig-ggcoef_model-ordinal-1.png" class="img-fluid figure-img" width="672"></a>
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig margin-caption" id="fig-ggcoef_model-ordinal-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;44.1: Graphique des coefficients du modèle ordinal
+</figcaption></figure>
+</div>
+</div>
+</div>
+<div class="cell page-columns page-full">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1"></a>rego2 <span class="sc">|&gt;</span> </span>
+<span id="cb17-2"><a href="#cb17-2"></a>  ggstats<span class="sc">::</span><span class="fu">ggcoef_table</span>(</span>
+<span id="cb17-3"><a href="#cb17-3"></a>    <span class="at">exponentiate =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb17-4"><a href="#cb17-4"></a>    <span class="at">tidy_fun =</span> broom.helpers<span class="sc">::</span>tidy_parameters</span>
+<span id="cb17-5"><a href="#cb17-5"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display page-columns page-full">
+<div id="fig-ggcoef_table-ordinal" class="quarto-figure quarto-figure-center quarto-float anchored page-columns page-full">
+<figure class="quarto-float quarto-float-fig figure page-columns page-full"><div aria-describedby="fig-ggcoef_table-ordinal-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="regression-logistique-ordinale_files/figure-html/fig-ggcoef_table-ordinal-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-2" data-glightbox="description: .lightbox-desc-2"><img src="regression-logistique-ordinale_files/figure-html/fig-ggcoef_table-ordinal-1.png" class="img-fluid figure-img" width="672"></a>
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig margin-caption" id="fig-ggcoef_table-ordinal-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;44.2: Graphique et table des coefficients du modèle ordinal
+</figcaption></figure>
+</div>
+</div>
+</div>
+<p>Pour faciliter l’interprétation, on pourra représenter les prédictions marginales du modèle (cf. <a href="#sec-estimations-marginales" class="quarto-xref"><span class="quarto-unresolved-ref">sec-estimations-marginales</span></a>) avec <code><a href="https://larmarange.github.io/broom.helpers/reference/tidy_marginal_predictions.html">broom.helpers::plot_marginal_predictions()</a></code>.</p>
+<div class="cell page-columns page-full">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1"></a>rego2 <span class="sc">|&gt;</span> </span>
+<span id="cb18-2"><a href="#cb18-2"></a>  broom.helpers<span class="sc">::</span><span class="fu">plot_marginal_predictions</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb18-3"><a href="#cb18-3"></a>  patchwork<span class="sc">::</span><span class="fu">wrap_plots</span>(<span class="at">ncol =</span> <span class="dv">1</span>) <span class="sc">&amp;</span></span>
+<span id="cb18-4"><a href="#cb18-4"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">labels =</span> scales<span class="sc">::</span>percent, <span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>, .<span class="dv">6</span>)) <span class="sc">&amp;</span></span>
+<span id="cb18-5"><a href="#cb18-5"></a>  <span class="fu">coord_flip</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display page-columns page-full">
+<div id="fig-plot_marginal_predictions-ordinal" class="quarto-figure quarto-figure-center quarto-float anchored page-columns page-full">
+<figure class="quarto-float quarto-float-fig figure page-columns page-full"><div aria-describedby="fig-plot_marginal_predictions-ordinal-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="regression-logistique-ordinale_files/figure-html/fig-plot_marginal_predictions-ordinal-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-3" data-glightbox="description: .lightbox-desc-3"><img src="regression-logistique-ordinale_files/figure-html/fig-plot_marginal_predictions-ordinal-1.png" class="img-fluid figure-img" width="672"></a>
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig margin-caption" id="fig-plot_marginal_predictions-ordinal-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;44.3: Prédictions marginales du modèle ordinal
+</figcaption></figure>
+</div>
+</div>
+</div>
+</section><section id="données-pondérées" class="level2" data-number="44.4"><h2 data-number="44.4" class="anchored" data-anchor-id="données-pondérées">
+<span class="header-section-number">44.4</span> Données pondérées</h2>
+<section id="avec-surveysvyolr" class="level3" data-number="44.4.1"><h3 data-number="44.4.1" class="anchored" data-anchor-id="avec-surveysvyolr">
+<span class="header-section-number">44.4.1</span> avec <code>survey::svyolr()</code>
+</h3>
+<p>L’extension <a href="http://r-survey.r-forge.r-project.org/survey/">survey</a> (cf. <a href="#sec-plan-echantillonnage" class="quarto-xref"><span class="quarto-unresolved-ref">sec-plan-echantillonnage</span></a>) propose une fonction native <code><a href="https://rdrr.io/pkg/survey/man/svyolr.html">survey::svyolr()</a></code> pour le calcul d’une régression ordinale.</p>
+<p>Nous allons commencer par définir le plan d’échantillonnage.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1"></a><span class="fu">library</span>(survey)</span>
+<span id="cb19-2"><a href="#cb19-2"></a><span class="fu">library</span>(srvyr)</span>
+<span id="cb19-3"><a href="#cb19-3"></a>dw <span class="ot">&lt;-</span> d <span class="sc">|&gt;</span></span>
+<span id="cb19-4"><a href="#cb19-4"></a>  <span class="fu">as_survey</span>(<span class="at">weights =</span> poids)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Calculons le modèle.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1"></a>rego5 <span class="ot">&lt;-</span> <span class="fu">svyolr</span>(</span>
+<span id="cb20-2"><a href="#cb20-2"></a>  trav.satisf <span class="sc">~</span> sexe <span class="sc">+</span> etudes <span class="sc">+</span> groupe_ages <span class="sc">+</span> trav.imp,</span>
+<span id="cb20-3"><a href="#cb20-3"></a>  <span class="at">design =</span> dw</span>
+<span id="cb20-4"><a href="#cb20-4"></a>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Le résultat peut être visualisé aisément avec <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/tbl_regression.html">gtsummary::tbl_regression()</a></code> ou <code><a href="https://larmarange.github.io/ggstats/reference/ggcoef_model.html">ggstats::ggcoef_model()</a></code>.</p>
+</section><section id="avec-svrepmiscsvymultinom" class="level3" data-number="44.4.2"><h3 data-number="44.4.2" class="anchored" data-anchor-id="avec-svrepmiscsvymultinom">
+<span class="header-section-number">44.4.2</span> avec <code>svrepmisc::svymultinom()</code>
+</h3>
+<p>Alternativement, il est possible d’utiliser à <code><a href="https://rdrr.io/pkg/ordinal/man/clm.html">ordinal::clm()</a></code> en ayant recours à des poids de réplication, comme suggéré par Thomas Lumley dans son ouvrage <em>Complex Surveys: A Guide to Analysis Using R</em>.</p>
+<p>L’extension <a href="https://github.com/carlganz/svrepmisc">svrepmisc</a> disponible sur <a href="https://github.com/carlganz/svrepmisc">GitHub</a> fournit quelques fonctions facilitant l’utilisation des poids de réplication avec <a href="http://r-survey.r-forge.r-project.org/survey/">survey</a>. Pour l’installer, on utilisera le code ci-dessous&nbsp;:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1"></a>remotes<span class="sc">::</span><span class="fu">install_github</span>(<span class="st">"carlganz/svrepmisc"</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>En premier lieu, il faut définir le design de notre tableau de données puis calculer des poids de réplication.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1"></a><span class="fu">library</span>(survey)</span>
+<span id="cb22-2"><a href="#cb22-2"></a><span class="fu">library</span>(srvyr)</span>
+<span id="cb22-3"><a href="#cb22-3"></a>dw_rep <span class="ot">&lt;-</span> d <span class="sc">|&gt;</span></span>
+<span id="cb22-4"><a href="#cb22-4"></a>  <span class="fu">as_survey</span>(<span class="at">weights =</span> poids) <span class="sc">|&gt;</span> </span>
+<span id="cb22-5"><a href="#cb22-5"></a>  <span class="fu">as_survey_rep</span>(<span class="at">type =</span> <span class="st">"bootstrap"</span>, <span class="at">replicates =</span> <span class="dv">25</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Il faut prévoir un nombre de <code>replicates</code> suffisant pour calculer ultérieurement les intervalles de confiance des coefficients. Plus ce nombre est élevé, plus précise sera l’estimation de la variance et donc des valeurs p et des intervalles de confiance. Cependant, plus ce nombre est élevé, plus le temps de calcul sera important. Pour gagner en temps de calcul, nous avons ici pris une valeur de 25, mais l’usage est de considérer au moins 1000 réplications.</p>
+<p><a href="https://github.com/carlganz/svrepmisc">svrepmisc</a> fournit une fonction <code><a href="https://rdrr.io/pkg/svrepmisc/man/svyclm.html">svrepmisc::svyclm()</a></code> pour le calcul d’une régression multinomiale avec des poids de réplication.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1"></a><span class="fu">library</span>(svrepmisc)</span>
+<span id="cb23-2"><a href="#cb23-2"></a>rego6 <span class="ot">&lt;-</span> <span class="fu">svyclm</span>(</span>
+<span id="cb23-3"><a href="#cb23-3"></a>  trav.satisf <span class="sc">~</span> sexe <span class="sc">+</span> etudes <span class="sc">+</span> trav.imp,</span>
+<span id="cb23-4"><a href="#cb23-4"></a>  <span class="at">design =</span> dw_rep</span>
+<span id="cb23-5"><a href="#cb23-5"></a>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><a href="https://github.com/carlganz/svrepmisc">svrepmisc</a> fournit également des méthodes <code>svrepmisc::confint()</code> et <code>svrepmisc::tidy()</code>. Nous pouvons donc calculer et afficher les <em>odds ratio</em> et leur intervalle de confiance.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1"></a>rego6</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                                Coefficient          SE t value Pr(&gt;|t|)   
+Insatisfaction|Equilibre        -2.03917466  0.68578624 -2.9735  0.00947 **
+Equilibre|Satisfaction           0.27271800  0.70391645  0.3874  0.70388   
+sexeHomme                       -0.13280477  0.16514615 -0.8042  0.43386   
+etudesSecondaire                -0.04271403  0.29847702 -0.1431  0.88811   
+etudesTechnique / Professionnel  0.00042809  0.19997661  0.0021  0.99832   
+etudesSupérieur                  0.64247607  0.22827571  2.8145  0.01307 * 
+etudesNon documenté             -0.46945975  0.53333962 -0.8802  0.39262   
+trav.impAussi                    0.12071087  0.58062352  0.2079  0.83810   
+trav.impMoins                    0.05267146  0.62836491  0.0838  0.93431   
+trav.impPeu                     -1.53039056  0.66160102 -2.3132  0.03531 * 
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1"></a>rego6 <span class="sc">|&gt;</span> <span class="fu">confint</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                                     2.5 %     97.5 %
+Insatisfaction|Equilibre        -3.5008934 -0.5774559
+Equilibre|Satisfaction          -1.2276444  1.7730804
+sexeHomme                       -0.4848055  0.2191959
+etudesSecondaire                -0.6789027  0.5934747
+etudesTechnique / Professionnel -0.4258120  0.4266681
+etudesSupérieur                  0.1559179  1.1290342
+etudesNon documenté             -1.6062462  0.6673267
+trav.impAussi                   -1.1168589  1.3582806
+trav.impMoins                   -1.2866566  1.3919996
+trav.impPeu                     -2.9405598 -0.1202214</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1"></a>rego6 <span class="sc">|&gt;</span></span>
+<span id="cb28-2"><a href="#cb28-2"></a>  broom<span class="sc">::</span><span class="fu">tidy</span>(<span class="at">exponentiate =</span> <span class="cn">TRUE</span>, <span class="at">conf.int =</span> <span class="cn">TRUE</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                              term  estimate std.error    statistic     p.value
+1           Equilibre|Satisfaction 1.3135298 0.7039165  0.387429505 0.703880188
+2              etudesNon documenté 0.6253400 0.5333396 -0.880226664 0.392621184
+3                 etudesSecondaire 0.9581854 0.2984770 -0.143106607 0.888110688
+4                  etudesSupérieur 1.9011825 0.2282757  2.814474071 0.013072196
+5  etudesTechnique / Professionnel 1.0004282 0.1999766  0.002140676 0.998320199
+6         Insatisfaction|Equilibre 0.1301361 0.6857862 -2.973484363 0.009470254
+7                        sexeHomme 0.8756360 0.1651462 -0.804165077 0.433862196
+8                    trav.impAussi 1.1282986 0.5806235  0.207898683 0.838104447
+9                    trav.impMoins 1.0540833 0.6283649  0.083823045 0.934305585
+10                     trav.impPeu 0.2164511 0.6616010 -2.313162322 0.035313682
+     conf.low conf.high
+1  0.29298191 5.8889659
+2  0.20063935 1.9490201
+3  0.50717319 1.8102676
+4  1.16873026 3.0926683
+5  0.65323915 1.5321441
+6  0.03017042 0.5613246
+7  0.61581699 1.2450752
+8  0.32730629 3.8895000
+9  0.27619265 4.0228860
+10 0.05283614 0.8867241</code></pre>
+</div>
+</div>
+<p>Par contre, le support de <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/tbl_regression.html">gtsummary::tbl_regression()</a></code> et <code><a href="https://larmarange.github.io/ggstats/reference/ggcoef_model.html">ggstats::ggcoef_model()</a></code> est plus limité. Vous pourrez afficher un tableau basique des résultats et un graphiques des coefficients, mais sans les enrichissements usuels (identification des variables, étiquettes propres, identification des niveaux, etc.).</p>
+</section><section id="avec-svyvgamsvy_glm" class="level3" data-number="44.4.3"><h3 data-number="44.4.3" class="anchored" data-anchor-id="avec-svyvgamsvy_glm">
+<span class="header-section-number">44.4.3</span> avec <code>svyVGAM::svy_glm()</code>
+</h3>
+<p>Une alternative possible pour le calcul de la régression logistique multinomiale avec des données pondérées est <code><a href="https://rdrr.io/pkg/svyVGAM/man/svy_vglm.html">svyVGAM::svy_vglm()</a></code> avec <code>family = VGAM::multinomial</code>.</p>
+<p>Nous allons commencer par définir le plan d’échantillonnage.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1"></a><span class="fu">library</span>(survey)</span>
+<span id="cb30-2"><a href="#cb30-2"></a><span class="fu">library</span>(srvyr)</span>
+<span id="cb30-3"><a href="#cb30-3"></a>dw <span class="ot">&lt;-</span> d <span class="sc">|&gt;</span></span>
+<span id="cb30-4"><a href="#cb30-4"></a>  <span class="fu">as_survey</span>(<span class="at">weights =</span> poids)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Puis, on appelle <code><a href="https://rdrr.io/pkg/svyVGAM/man/svy_vglm.html">svyVGAM::svy_vglm()</a></code> en précisant <code>family = VGAM::cumulative(parallel = TRUE)</code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1"></a>rego7 <span class="ot">&lt;-</span> svyVGAM<span class="sc">::</span><span class="fu">svy_vglm</span>(</span>
+<span id="cb31-2"><a href="#cb31-2"></a>  trav.satisf <span class="sc">~</span> sexe <span class="sc">+</span> etudes <span class="sc">+</span> trav.imp,</span>
+<span id="cb31-3"><a href="#cb31-3"></a>  <span class="at">family =</span> VGAM<span class="sc">::</span><span class="fu">cumulative</span>(<span class="at">parallel =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb31-4"><a href="#cb31-4"></a>  <span class="at">design =</span> dw</span>
+<span id="cb31-5"><a href="#cb31-5"></a>)</span>
+<span id="cb31-6"><a href="#cb31-6"></a>rego7 <span class="sc">|&gt;</span> <span class="fu">summary</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>svy_vglm.survey.design(trav.satisf ~ sexe + etudes + trav.imp, 
+    family = VGAM::cumulative(parallel = TRUE), design = dw)
+Independent Sampling design (with replacement)
+Called via srvyr
+Sampling variables:
+  - ids: `1` 
+  - weights: poids 
+Data variables: 
+  - id (int), age (int), sexe (fct), nivetud (fct), poids (dbl), occup (fct),
+    qualif (fct), freres.soeurs (int), clso (fct), relig (fct), trav.imp (fct),
+    trav.satisf (ord), hard.rock (fct), lecture.bd (fct), peche.chasse (fct),
+    cuisine (fct), bricol (fct), cinema (fct), sport (fct), heures.tv (dbl),
+    groupe_ages (fct), etudes (fct)
+                                       Coef          SE       z         p
+(Intercept):1                   -2.03917232  0.52467564 -3.8865 0.0001017
+(Intercept):2                    0.27272042  0.51315926  0.5315 0.5951044
+sexeHomme                        0.13280416  0.15421876  0.8611 0.3891602
+etudesSecondaire                 0.04271296  0.28498254  0.1499 0.8808599
+etudesTechnique / Professionnel -0.00043004  0.25720348 -0.0017 0.9986659
+etudesSupérieur                 -0.64247750  0.26590126 -2.4162 0.0156823
+etudesNon documenté              0.46945812  0.52541495  0.8935 0.3715896
+trav.impAussi                   -0.12071140  0.48525530 -0.2488 0.8035476
+trav.impMoins                   -0.05267211  0.47029563 -0.1120 0.9108251
+trav.impPeu                      1.53036737  0.65156164  2.3488 0.0188356</code></pre>
+</div>
+</div>
+<p>Là encore, le support de <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/tbl_regression.html">gtsummary::tbl_regression()</a></code> et <code><a href="https://larmarange.github.io/ggstats/reference/ggcoef_model.html">ggstats::ggcoef_model()</a></code> sera limité (seulement des résultats bruts). Pour calculer les <em>odds ratios</em> avec leurs intervalles de confiance, on pourra avoir recours à <code><a href="https://larmarange.github.io/broom.helpers/reference/tidy_parameters.html">broom.helpers::tidy_parameters()</a></code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1"></a>rego7 <span class="sc">|&gt;</span> broom.helpers<span class="sc">::</span><span class="fu">tidy_parameters</span>(<span class="at">exponentiate =</span> <span class="cn">TRUE</span>) </span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                              term  estimate  std.error conf.level   conf.low
+1                    (Intercept):1 0.1301364 0.06827939       0.95 0.04653653
+2                    (Intercept):2 1.3135330 0.67405160       0.95 0.48043985
+3                        sexeHomme 1.1420263 0.17612188       0.95 0.84412131
+4                 etudesSecondaire 1.0436383 0.29741869       0.95 0.59699738
+5  etudesTechnique / Professionnel 0.9995700 0.25709290       0.95 0.60378349
+6                  etudesSupérieur 0.5259877 0.13986079       0.95 0.31234891
+7              etudesNon documenté 1.5991274 0.84020546       0.95 0.57101702
+8                    trav.impAussi 0.8862897 0.43007677       0.95 0.34239361
+9                    trav.impMoins 0.9486910 0.44616524       0.95 0.37740568
+10                     trav.impPeu 4.6198737 3.01013253       0.95 1.28830837
+    conf.high    statistic df.error      p.value
+1   0.3639179 -3.886538948      Inf 0.0001016836
+2   3.5912276  0.531453766      Inf 0.5951043720
+3   1.5450672  0.861141383      Inf 0.3891601794
+4   1.8244316  0.149879202      Inf 0.8808599211
+5   1.6547990 -0.001671995      Inf 0.9986659418
+6   0.8857499 -2.416225817      Inf 0.0156823321
+7   4.4783403  0.893499744      Inf 0.3715896094
+8   2.2941709 -0.248758549      Inf 0.8035475563
+9   2.3847407 -0.111997880      Inf 0.9108250872
+10 16.5668669  2.348768359      Inf 0.0188356206</code></pre>
+</div>
+</div>
+
+
+<div class="hidden" aria-hidden="true">
+<span class="glightbox-desc lightbox-desc-1">Figure&nbsp;44.1: Graphique des coefficients du modèle ordinal</span>
+<span class="glightbox-desc lightbox-desc-2">Figure&nbsp;44.2: Graphique et table des coefficients du modèle ordinal</span>
+<span class="glightbox-desc lightbox-desc-3">Figure&nbsp;44.3: Prédictions marginales du modèle ordinal</span>
+</div>
+</section></section></main><!-- /main --><script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const disableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'prefetch';
+    }
+  }
+  const enableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'stylesheet';
+    }
+  }
+  const manageTransitions = (selector, allowTransitions) => {
+    const els = window.document.querySelectorAll(selector);
+    for (let i=0; i < els.length; i++) {
+      const el = els[i];
+      if (allowTransitions) {
+        el.classList.remove('notransition');
+      } else {
+        el.classList.add('notransition');
+      }
+    }
+  }
+  const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+    const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+    const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+    let newTheme = '';
+    if(darkModeDefault) {
+      newTheme = isAlternate ? baseTheme : alternateTheme;
+    } else {
+      newTheme = isAlternate ? alternateTheme : baseTheme;
+    }
+    const changeGiscusTheme = () => {
+      // From: https://github.com/giscus/giscus/issues/336
+      const sendMessage = (message) => {
+        const iframe = document.querySelector('iframe.giscus-frame');
+        if (!iframe) return;
+        iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+      }
+      sendMessage({
+        setConfig: {
+          theme: newTheme
+        }
+      });
+    }
+    const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+    if (isGiscussLoaded) {
+      changeGiscusTheme();
+    }
+  }
+  const toggleColorMode = (alternate) => {
+    // Switch the stylesheets
+    const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+    manageTransitions('#quarto-margin-sidebar .nav-link', false);
+    if (alternate) {
+      enableStylesheet(alternateStylesheets);
+      for (const sheetNode of alternateStylesheets) {
+        if (sheetNode.id === "quarto-bootstrap") {
+          toggleBodyColorMode(sheetNode);
+        }
+      }
+    } else {
+      disableStylesheet(alternateStylesheets);
+      toggleBodyColorPrimary();
+    }
+    manageTransitions('#quarto-margin-sidebar .nav-link', true);
+    // Switch the toggles
+    const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+    for (let i=0; i < toggles.length; i++) {
+      const toggle = toggles[i];
+      if (toggle) {
+        if (alternate) {
+          toggle.classList.add("alternate");     
+        } else {
+          toggle.classList.remove("alternate");
+        }
+      }
+    }
+    // Hack to workaround the fact that safari doesn't
+    // properly recolor the scrollbar when toggling (#1455)
+    if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+      manageTransitions("body", false);
+      window.scrollTo(0, 1);
+      setTimeout(() => {
+        window.scrollTo(0, 0);
+        manageTransitions("body", true);
+      }, 40);  
+    }
+  }
+  const isFileUrl = () => { 
+    return window.location.protocol === 'file:';
+  }
+  const hasAlternateSentinel = () => {  
+    let styleSentinel = getColorSchemeSentinel();
+    if (styleSentinel !== null) {
+      return styleSentinel === "alternate";
+    } else {
+      return false;
+    }
+  }
+  const setStyleSentinel = (alternate) => {
+    const value = alternate ? "alternate" : "default";
+    if (!isFileUrl()) {
+      window.localStorage.setItem("quarto-color-scheme", value);
+    } else {
+      localAlternateSentinel = value;
+    }
+  }
+  const getColorSchemeSentinel = () => {
+    if (!isFileUrl()) {
+      const storageValue = window.localStorage.getItem("quarto-color-scheme");
+      return storageValue != null ? storageValue : localAlternateSentinel;
+    } else {
+      return localAlternateSentinel;
+    }
+  }
+  const darkModeDefault = false;
+  let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+  // Dark / light mode switch
+  window.quartoToggleColorScheme = () => {
+    // Read the current dark / light value 
+    let toAlternate = !hasAlternateSentinel();
+    toggleColorMode(toAlternate);
+    setStyleSentinel(toAlternate);
+    toggleGiscusIfUsed(toAlternate, darkModeDefault);
+  };
+  // Ensure there is a toggle, if there isn't float one in the top right
+  if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+    const a = window.document.createElement('a');
+    a.classList.add('top-right');
+    a.classList.add('quarto-color-scheme-toggle');
+    a.href = "";
+    a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+    const i = window.document.createElement("i");
+    i.classList.add('bi');
+    a.appendChild(i);
+    window.document.body.appendChild(a);
+  }
+  // Switch to dark mode if need be
+  if (hasAlternateSentinel()) {
+    toggleColorMode(true);
+  } else {
+    toggleColorMode(false);
+  }
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copié");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copié");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script><script src="https://giscus.app/client.js" data-repo="larmarange/guide-R" data-repo-id="R_kgDOH6-xnw" data-category="Forum" data-category-id="DIC_kwDOH6-xn84CRLQy" data-mapping="pathname" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="top" data-theme="light" data-lang="fr" crossorigin="anonymous" data-loading="lazy" async="">
+</script><input type="hidden" id="giscus-base-theme" value="light"><input type="hidden" id="giscus-alt-theme" value="dark"><nav class="page-navigation"><div class="nav-page nav-page-previous">
+      <a href="../analyses_avancees/regression-logistique-multinomiale.html" class="pagination-link" aria-label="Régression logistique multinomiale">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">43</span>&nbsp; <span class="chapter-title">Régression logistique multinomiale</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../analyses_avancees/modeles-comptage.html" class="pagination-link" aria-label="Modèles de comptage (Poisson &amp; apparentés)">
+        <span class="nav-page-text"><span class="chapter-number">45</span>&nbsp; <span class="chapter-title">Modèles de comptage (Poisson &amp; apparentés)</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+<footer class="footer"><div class="nav-footer">
+    <div class="nav-footer-left">
+      <ul class="footer-items list-unstyled">
+<li class="nav-item">
+ guide-R : Guide pour l'analyse de données d'enquêtes avec R
+  </li>  
+</ul>
+</div>   
+    <div class="nav-footer-center">
+
+<div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/larmarange/guide-R/blob/main/analyses_avancees/regression-logistique-ordinale.qmd" class="toc-action"><i class="bi bi-github"></i>Voir la source</a></li><li><a href="https://github.com/larmarange/guide-R/issues/new" class="toc-action"><i class="bi empty"></i>Faire part d'un problème</a></li></ul></div><div class="cookie-consent-footer"><a href="#" id="open_preferences_center">Cookie Preferences</a></div></div>
+    <div class="nav-footer-right">
+      <ul class="footer-items list-unstyled">
+<li class="nav-item compact">
+    <a class="nav-link" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">
+      <i class="bi bi-badge-cc-fill" role="img">
+</i> 
+    </a>
+  </li>  
+    <li class="nav-item compact">
+    <a class="nav-link active" href="https://github.com/larmarange/guide-R/" aria-current="page">
+      <i class="bi bi-github" role="img">
+</i> 
+    </a>
+  </li>  
+    <li class="nav-item compact">
+    <a class="nav-link" href="https://www.youtube.com/c/webinR">
+      <i class="bi bi-youtube" role="img">
+</i> 
+    </a>
+  </li>  
+    <li class="nav-item">
+    <a class="nav-link" href="https://larmarange.github.io/analyse-R/">
+<p>analyse-R</p>
+</a>
+  </li>  
+    <li class="nav-item">
+    <a class="nav-link" href="https://larmarange.github.io/webin-R/">
+<p>webin-R</p>
+</a>
+  </li>  
+</ul>
+</div>
+  </div>
+</footer><script>var lightboxQuarto = GLightbox({"selector":".lightbox","descPosition":"bottom","openEffect":"zoom","loop":false,"closeEffect":"zoom"});
+window.onload = () => {
+  lightboxQuarto.on('slide_before_load', (data) => {
+    const { slideIndex, slideNode, slideConfig, player, trigger } = data;
+    const href = trigger.getAttribute('href');
+    if (href !== null) {
+      const imgEl = window.document.querySelector(`a[href="${href}"] img`);
+      if (imgEl !== null) {
+        const srcAttr = imgEl.getAttribute("src");
+        if (srcAttr && srcAttr.startsWith("data:")) {
+          slideConfig.href = srcAttr;
+        }
+      }
+    } 
+  });
+
+  lightboxQuarto.on('slide_after_load', (data) => {
+    const { slideIndex, slideNode, slideConfig, player, trigger } = data;
+    if (window.Quarto?.typesetMath) {
+      window.Quarto.typesetMath(slideNode);
+    }
+  });
+
+};
+          </script>
+
+
+<script src="../site_libs/quarto-html/zenscroll-min.js"></script>
+</body></html>

@@ -1,0 +1,2507 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="fr" xml:lang="fr"><head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.4.553">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<title>guide-R - 36&nbsp; Réorganisation avec tidyr</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../manipulation_avancee/conditions-logiques.html" rel="next">
+<link href="../manipulation_avancee/stringr.html" rel="prev">
+<link href="../ressources/favicon.png" rel="icon" type="image/png">
+<script src="../site_libs/cookie-consent/cookie-consent.js"></script>
+<link href="../site_libs/cookie-consent/cookie-consent.css" rel="stylesheet">
+<script src="../site_libs/quarto-html/quarto.js"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark.min.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<script src="../site_libs/quarto-contrib/glightbox/glightbox.min.js"></script>
+<link href="../site_libs/quarto-contrib/glightbox/glightbox.min.css" rel="stylesheet">
+<link href="../site_libs/quarto-contrib/glightbox/lightbox.css" rel="stylesheet"><script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "language": {
+    "search-no-results-text": "Pas de résultats",
+    "search-matching-documents-text": "documents trouvés",
+    "search-copy-link-title": "Copier le lien vers la recherche",
+    "search-hide-matches-text": "Cacher les correspondances additionnelles",
+    "search-more-match-text": "correspondance de plus dans ce document",
+    "search-more-matches-text": "correspondances de plus dans ce document",
+    "search-clear-button-title": "Effacer",
+    "search-text-placeholder": "Rechercher",
+    "search-detached-cancel-button-title": "Annuler",
+    "search-submit-button-title": "Envoyer",
+    "search-label": "Recherche"
+  }
+}</script><script async="" src="https://www.googletagmanager.com/gtag/js?id=G-8BT7D9P85Y"></script><script type="text/plain" cookie-consent="tracking">
+
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-8BT7D9P85Y', { 'anonymize_ip': true});
+</script><script type="text/javascript" charset="UTF-8">
+document.addEventListener('DOMContentLoaded', function () {
+cookieconsent.run({
+  "notice_banner_type":"simple",
+  "consent_type":"implied",
+  "palette":"light",
+  "language":"en",
+  "page_load_consent_levels":["strictly-necessary","functionality","tracking","targeting"],
+  "notice_banner_reject_button_hide":false,
+  "preferences_center_close_button_hide":false,
+  "website_name":""
+  ,
+"language":"fr"
+  });
+});
+</script><style>html{ scroll-behavior: smooth; }</style>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body class="nav-sidebar floating">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top"><nav class="quarto-secondary-nav"><div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Basculer la barre latérale" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../manipulation_avancee/fusion-tables.html"><strong>Manipulation avancée</strong></a></li><li class="breadcrumb-item"><a href="../manipulation_avancee/tidyr.html"><span class="chapter-number">36</span>&nbsp; <span class="chapter-title">Réorganisation avec <code>tidyr</code></span></a></li></ol></nav>
+        <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Basculer la barre latérale" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav></header><!-- content --><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto"><div class="pt-lg-2 mt-2 text-left sidebar-header sidebar-header-stacked">
+      <a href="../index.html" class="sidebar-logo-link">
+      <img src="../ressources/typewriter.png" alt="" class="sidebar-logo py-0 d-lg-inline d-none"></a>
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../">guide-R</a> 
+        <div class="sidebar-tools-main">
+    <a href="https://github.com/larmarange/guide-R/" title="Code source" class="quarto-navigation-tool px-1" aria-label="Code source"><i class="bi bi-github"></i></a>
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Basculer le mode sombre"><i class="bi"></i></a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Recherche"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+<li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Préface</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true">
+ <span class="menu-text"><strong>Bases du langage</strong></span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true" aria-label="Basculer la section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">
+<li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../bases/packages.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Packages</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../bases/vecteurs.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Vecteurs</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../bases/listes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Listes</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../bases/tableaux_donnees.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Tableaux de données</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../bases/tibbles.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Tibbles</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../bases/attributs.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Attributs</span></span></a>
+  </div>
+</li>
+      </ul>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="true">
+ <span class="menu-text"><strong>Manipulation de données</strong></span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="true" aria-label="Basculer la section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">
+<li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../manipulation/pipe.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Le pipe</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../manipulation/dplyr.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title"><code>dplyr</code></span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../manipulation/facteurs.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Facteurs et <code>forcats</code></span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../manipulation/combiner-variables.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Combiner plusieurs variables</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../manipulation/etiquettes-variables.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Étiquettes de variables</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../manipulation/etiquettes-valeurs.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Étiquettes de valeurs</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../manipulation/valeurs-manquantes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Valeurs manquantes</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../manipulation/import-export.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Import &amp; Export de données</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../manipulation/formater-nombre.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Mettre en forme des nombres</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../manipulation/couleurs.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Couleurs &amp; Palettes</span></span></a>
+  </div>
+</li>
+      </ul>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" aria-expanded="true">
+ <span class="menu-text"><strong>Analyses</strong></span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" aria-expanded="true" aria-label="Basculer la section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">
+<li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses/ggplot2.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Graphiques avec <code>ggplot2</code></span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses/statistique-univariee.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Statistique univariée &amp; Intervalles de confiance</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses/statistique-bivariee.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Statistique bivariée &amp; Tests de comparaison</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses/likert.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Échelles de Likert</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses/regression-lineaire.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Régression linéaire</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses/regression-logistique-binaire.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Régression logistique binaire</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses/selection-modele-pas-a-pas.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">23</span>&nbsp; <span class="chapter-title">Sélection pas à pas d’un modèle réduit</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses/estimations-marginales.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">24</span>&nbsp; <span class="chapter-title">Prédictions marginales, contrastes marginaux &amp; effets marginaux</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses/contrastes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">25</span>&nbsp; <span class="chapter-title">Contrastes (variables catégorielles)</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses/interactions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">26</span>&nbsp; <span class="chapter-title">Interactions</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses/multicolinearite.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">27</span>&nbsp; <span class="chapter-title">Multicolinéarité</span></span></a>
+  </div>
+</li>
+      </ul>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" aria-expanded="true">
+ <span class="menu-text"><strong>Données pondérées avec <code>survey</code></strong></span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" aria-expanded="true" aria-label="Basculer la section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">
+<li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../donnees_ponderees/plan-echantillonnage.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">28</span>&nbsp; <span class="chapter-title">Définir un plan d’échantillonnage</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../donnees_ponderees/manipulation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">29</span>&nbsp; <span class="chapter-title">Manipulation de données pondérées</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../donnees_ponderees/analyses-bivariees.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">30</span>&nbsp; <span class="chapter-title">Analyses uni- et bivariées pondérées</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../donnees_ponderees/graphiques-ponderes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">31</span>&nbsp; <span class="chapter-title">Graphiques pondérés</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../donnees_ponderees/regression-logistique-binaire-ponderee.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">32</span>&nbsp; <span class="chapter-title">Régression logistique binaire pondérée</span></span></a>
+  </div>
+</li>
+      </ul>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" aria-expanded="true">
+ <span class="menu-text"><strong>Manipulation avancée</strong></span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" aria-expanded="true" aria-label="Basculer la section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">
+<li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../manipulation_avancee/fusion-tables.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">33</span>&nbsp; <span class="chapter-title">Fusion de tables</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../manipulation_avancee/dates.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">34</span>&nbsp; <span class="chapter-title">Dates avec <code>lubridate</code></span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../manipulation_avancee/stringr.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">35</span>&nbsp; <span class="chapter-title">Chaînes de texte avec <code>stringr</code></span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../manipulation_avancee/tidyr.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">36</span>&nbsp; <span class="chapter-title">Réorganisation avec <code>tidyr</code></span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../manipulation_avancee/conditions-logiques.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">37</span>&nbsp; <span class="chapter-title">Conditions logiques</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../manipulation_avancee/fonctions-a-fenetre.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">38</span>&nbsp; <span class="chapter-title">Fonctions à fenêtre</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../manipulation_avancee/transformations-multiples.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">39</span>&nbsp; <span class="chapter-title">Transformations multiples</span></span></a>
+  </div>
+</li>
+      </ul>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" aria-expanded="true">
+ <span class="menu-text"><strong>Analyses avancées</strong></span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" aria-expanded="true" aria-label="Basculer la section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 show">
+<li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses_avancees/analyse-factorielle.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">40</span>&nbsp; <span class="chapter-title">Analyse factorielle</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses_avancees/classification-ascendante-hierarchique.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">41</span>&nbsp; <span class="chapter-title">Classification ascendante hiérarchique</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses_avancees/analyse-survie.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">42</span>&nbsp; <span class="chapter-title">Analyse de survie</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses_avancees/regression-logistique-multinomiale.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">43</span>&nbsp; <span class="chapter-title">Régression logistique multinomiale</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses_avancees/regression-logistique-ordinale.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">44</span>&nbsp; <span class="chapter-title">Régression logistique ordinale</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses_avancees/modeles-comptage.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">45</span>&nbsp; <span class="chapter-title">Modèles de comptage (Poisson &amp; apparentés)</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses_avancees/modeles-incidence.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">46</span>&nbsp; <span class="chapter-title">Modèles d’incidence / de taux</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses_avancees/modeles-zero-inflated.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">47</span>&nbsp; <span class="chapter-title">Modèles de comptage <em>zero-inflated</em> et <em>hurdle</em></span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analyses_avancees/choix-modele.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">48</span>&nbsp; <span class="chapter-title">Quel modèle choisir&nbsp;?</span></span></a>
+  </div>
+</li>
+      </ul>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" aria-expanded="true">
+ <span class="menu-text"><strong>Pour aller plus loin</strong></span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" aria-expanded="true" aria-label="Basculer la section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth1 show">
+<li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../extra/ressources-documentaires.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">49</span>&nbsp; <span class="chapter-title">Ressources documentaires</span></span></a>
+  </div>
+</li>
+      </ul>
+</li>
+    </ul>
+</div>
+</nav><div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active"><h2 id="toc-title">Table des matières</h2>
+   
+  <ul>
+<li><a href="#tidy-data" id="toc-tidy-data" class="nav-link active" data-scroll-target="#tidy-data"><span class="header-section-number">36.1</span> Tidy data</a></li>
+  <li><a href="#trois-r%C3%A8gles-pour-des-donn%C3%A9es-bien-rang%C3%A9es" id="toc-trois-règles-pour-des-données-bien-rangées" class="nav-link" data-scroll-target="#trois-r%C3%A8gles-pour-des-donn%C3%A9es-bien-rang%C3%A9es"><span class="header-section-number">36.2</span> Trois règles pour des données bien rangées</a></li>
+  <li><a href="#pivot_longer-rassembler-des-colonnes" id="toc-pivot_longer-rassembler-des-colonnes" class="nav-link" data-scroll-target="#pivot_longer-rassembler-des-colonnes"><span class="header-section-number">36.3</span> <code>pivot_longer()</code>&nbsp;: rassembler des colonnes</a></li>
+  <li><a href="#pivot_wider-disperser-des-lignes" id="toc-pivot_wider-disperser-des-lignes" class="nav-link" data-scroll-target="#pivot_wider-disperser-des-lignes"><span class="header-section-number">36.4</span> <code>pivot_wider()</code>&nbsp;: disperser des lignes</a></li>
+  <li><a href="#sec-separate" id="toc-sec-separate" class="nav-link" data-scroll-target="#sec-separate"><span class="header-section-number">36.5</span> <code>separate()</code>&nbsp;: séparer une colonne en plusieurs colonnes</a></li>
+  <li><a href="#separate_rows-s%C3%A9parer-une-colonne-en-plusieurs-lignes" id="toc-separate_rows-séparer-une-colonne-en-plusieurs-lignes" class="nav-link" data-scroll-target="#separate_rows-s%C3%A9parer-une-colonne-en-plusieurs-lignes"><span class="header-section-number">36.6</span> separate_rows()&nbsp;: séparer une colonne en plusieurs lignes</a></li>
+  <li><a href="#unite-regrouper-plusieurs-colonnes-en-une-seule" id="toc-unite-regrouper-plusieurs-colonnes-en-une-seule" class="nav-link" data-scroll-target="#unite-regrouper-plusieurs-colonnes-en-une-seule"><span class="header-section-number">36.7</span> <code>unite()</code>&nbsp;: regrouper plusieurs colonnes en une seule</a></li>
+  <li><a href="#sec-extract" id="toc-sec-extract" class="nav-link" data-scroll-target="#sec-extract"><span class="header-section-number">36.8</span> <code>extract()</code>&nbsp;: créer de nouvelles colonnes à partir d’une colonne de texte</a></li>
+  <li><a href="#complete-compl%C3%A9ter-des-combinaisons-de-variables-manquantes" id="toc-complete-compléter-des-combinaisons-de-variables-manquantes" class="nav-link" data-scroll-target="#complete-compl%C3%A9ter-des-combinaisons-de-variables-manquantes"><span class="header-section-number">36.9</span> <code>complete()</code>&nbsp;: compléter des combinaisons de variables manquantes</a></li>
+  <li><a href="#ressources" id="toc-ressources" class="nav-link" data-scroll-target="#ressources"><span class="header-section-number">36.10</span> Ressources</a></li>
+  <li><a href="#fichiers-volumineux" id="toc-fichiers-volumineux" class="nav-link" data-scroll-target="#fichiers-volumineux"><span class="header-section-number">36.11</span> Fichiers volumineux</a></li>
+  <li><a href="#webin-r" id="toc-webin-r" class="nav-link" data-scroll-target="#webin-r"><span class="header-section-number">36.12</span> webin-R</a></li>
+  </ul><div class="toc-actions"><ul><li><a href="https://github.com/larmarange/guide-R/blob/main/manipulation_avancee/tidyr.qmd" class="toc-action"><i class="bi bi-github"></i>Voir la source</a></li><li><a href="https://github.com/larmarange/guide-R/issues/new" class="toc-action"><i class="bi empty"></i>Faire part d'un problème</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../manipulation_avancee/fusion-tables.html"><strong>Manipulation avancée</strong></a></li><li class="breadcrumb-item"><a href="../manipulation_avancee/tidyr.html"><span class="chapter-number">36</span>&nbsp; <span class="chapter-title">Réorganisation avec <code>tidyr</code></span></a></li></ol></nav><div class="quarto-title">
+<h1 class="title"><span id="sec-tidyr" class="quarto-section-identifier"><span class="chapter-number">36</span>&nbsp; <span class="chapter-title">Réorganisation avec <code>tidyr</code></span></span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header><section id="tidy-data" class="level2" data-number="36.1"><h2 data-number="36.1" class="anchored" data-anchor-id="tidy-data">
+<span class="header-section-number">36.1</span> Tidy data</h2>
+<p>Comme indiqué dans le chapitre sur les tibbles (cf. <a href="#sec-tibbles" class="quarto-xref"><span class="quarto-unresolved-ref">sec-tibbles</span></a>), les extensions du <strong>tidyverse</strong> comme <a href="https://dplyr.tidyverse.org">dplyr</a> ou <a href="https://ggplot2.tidyverse.org">ggplot2</a> partent du principe que les données sont “bien rangées” sous forme de <em>tidy data</em>.</p>
+<p>Prenons un exemple avec les données suivantes, qui indique la population de trois pays pour quatre années différentes&nbsp;:</p>
+<div class="cell">
+<div class="cell-output-display">
+<table class="table table-sm table-striped small">
+<thead><tr class="header">
+<th style="text-align: left;">country</th>
+<th style="text-align: right;">1992</th>
+<th style="text-align: right;">1997</th>
+<th style="text-align: right;">2002</th>
+<th style="text-align: right;">2007</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Belgium</td>
+<td style="text-align: right;">10045622</td>
+<td style="text-align: right;">10199787</td>
+<td style="text-align: right;">10311970</td>
+<td style="text-align: right;">10392226</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">France</td>
+<td style="text-align: right;">57374179</td>
+<td style="text-align: right;">58623428</td>
+<td style="text-align: right;">59925035</td>
+<td style="text-align: right;">61083916</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Germany</td>
+<td style="text-align: right;">80597764</td>
+<td style="text-align: right;">82011073</td>
+<td style="text-align: right;">82350671</td>
+<td style="text-align: right;">82400996</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>Imaginons qu’on souhaite représenter avec <a href="https://ggplot2.tidyverse.org">ggplot2</a> l’évolution de la population pour chaque pays sous forme de lignes&nbsp;: c’est impossible avec les données sous ce format. On a besoin d’arranger le tableau de la manière suivante&nbsp;:</p>
+<div class="cell">
+<div class="cell-output-display">
+<table class="table table-sm table-striped small">
+<thead><tr class="header">
+<th style="text-align: left;">country</th>
+<th style="text-align: right;">year</th>
+<th style="text-align: right;">population</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Belgium</td>
+<td style="text-align: right;">1992</td>
+<td style="text-align: right;">10045622</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Belgium</td>
+<td style="text-align: right;">1997</td>
+<td style="text-align: right;">10199787</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Belgium</td>
+<td style="text-align: right;">2002</td>
+<td style="text-align: right;">10311970</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Belgium</td>
+<td style="text-align: right;">2007</td>
+<td style="text-align: right;">10392226</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">France</td>
+<td style="text-align: right;">1992</td>
+<td style="text-align: right;">57374179</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">France</td>
+<td style="text-align: right;">1997</td>
+<td style="text-align: right;">58623428</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">France</td>
+<td style="text-align: right;">2002</td>
+<td style="text-align: right;">59925035</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">France</td>
+<td style="text-align: right;">2007</td>
+<td style="text-align: right;">61083916</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Germany</td>
+<td style="text-align: right;">1992</td>
+<td style="text-align: right;">80597764</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Germany</td>
+<td style="text-align: right;">1997</td>
+<td style="text-align: right;">82011073</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Germany</td>
+<td style="text-align: right;">2002</td>
+<td style="text-align: right;">82350671</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Germany</td>
+<td style="text-align: right;">2007</td>
+<td style="text-align: right;">82400996</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>C’est seulement avec les données dans ce format qu’on peut réaliser le graphique&nbsp;:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-2"><a href="#cb1-2"></a><span class="fu">ggplot</span>(d) <span class="sc">+</span> </span>
+<span id="cb1-3"><a href="#cb1-3"></a>  <span class="fu">aes</span>(<span class="at">x =</span> year, <span class="at">y =</span> population, <span class="at">color =</span> country) <span class="sc">+</span></span>
+<span id="cb1-4"><a href="#cb1-4"></a>  <span class="fu">geom_line</span>() <span class="sc">+</span></span>
+<span id="cb1-5"><a href="#cb1-5"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">breaks =</span> <span class="fu">unique</span>(d<span class="sc">$</span>year)) <span class="sc">+</span></span>
+<span id="cb1-6"><a href="#cb1-6"></a>  <span class="fu">scale_y_continuous</span>(</span>
+<span id="cb1-7"><a href="#cb1-7"></a>    <span class="at">labels =</span> scales<span class="sc">::</span><span class="fu">label_number</span>(</span>
+<span id="cb1-8"><a href="#cb1-8"></a>      <span class="at">scale =</span> <span class="dv">10</span><span class="sc">^-</span><span class="dv">6</span>,</span>
+<span id="cb1-9"><a href="#cb1-9"></a>      <span class="at">suffix =</span> <span class="st">" millions"</span></span>
+<span id="cb1-10"><a href="#cb1-10"></a>    )</span>
+<span id="cb1-11"><a href="#cb1-11"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure"><p><a href="tidyr_files/figure-html/unnamed-chunk-4-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-1"><img src="tidyr_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid figure-img" width="672"></a></p>
+</figure>
+</div>
+</div>
+</div>
+<p>C’est la même chose pour <a href="https://dplyr.tidyverse.org">dplyr</a>, par exemple si on voulait calculer la population minimale pour chaque pays avec <code><a href="https://dplyr.tidyverse.org/reference/summarise.html">dplyr::summarise()</a></code>&nbsp;:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a>d <span class="sc">|&gt;</span> </span>
+<span id="cb2-2"><a href="#cb2-2"></a>  <span class="fu">group_by</span>(country) <span class="sc">|&gt;</span>  </span>
+<span id="cb2-3"><a href="#cb2-3"></a>  <span class="fu">summarise</span>(<span class="at">pop_min =</span> <span class="fu">min</span>(population))</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 3 × 2
+  country  pop_min
+  &lt;fct&gt;      &lt;int&gt;
+1 Belgium 10045622
+2 France  57374179
+3 Germany 80597764</code></pre>
+</div>
+</div>
+</section><section id="trois-règles-pour-des-données-bien-rangées" class="level2" data-number="36.2"><h2 data-number="36.2" class="anchored" data-anchor-id="trois-règles-pour-des-données-bien-rangées">
+<span class="header-section-number">36.2</span> Trois règles pour des données bien rangées</h2>
+<p>Le concept de <em>tidy data</em> repose sur trois règles interdépendantes. Des données sont considérées comme <em>tidy</em> si&nbsp;:</p>
+<ol type="1">
+<li>chaque ligne correspond à une observation</li>
+<li>chaque colonne correspond à une variable</li>
+<li>chaque valeur est présente dans une unique case de la table ou, de manière équivalente, si des unités d’observations différentes sont présentes dans des tables différentes</li>
+</ol>
+<p>Ces règles ne sont pas forcément très intuitives. De plus, il y a une infinité de manières pour un tableau de données de ne pas être <em>tidy</em>.</p>
+<p>Prenons par exemple les règles 1 et 2 et le tableau de notre premier exemple&nbsp;:</p>
+<div class="cell">
+<div class="cell-output-display">
+<table class="table table-sm table-striped small">
+<thead><tr class="header">
+<th style="text-align: left;">country</th>
+<th style="text-align: right;">1992</th>
+<th style="text-align: right;">1997</th>
+<th style="text-align: right;">2002</th>
+<th style="text-align: right;">2007</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Belgium</td>
+<td style="text-align: right;">10045622</td>
+<td style="text-align: right;">10199787</td>
+<td style="text-align: right;">10311970</td>
+<td style="text-align: right;">10392226</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">France</td>
+<td style="text-align: right;">57374179</td>
+<td style="text-align: right;">58623428</td>
+<td style="text-align: right;">59925035</td>
+<td style="text-align: right;">61083916</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Germany</td>
+<td style="text-align: right;">80597764</td>
+<td style="text-align: right;">82011073</td>
+<td style="text-align: right;">82350671</td>
+<td style="text-align: right;">82400996</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>Pourquoi ce tableau n’est pas <em>tidy</em>&nbsp;? Parce que si l’on essaie d’identifier les variables mesurées dans le tableau, il y en a trois&nbsp;: le pays, l’année et la population. Or elles ne correspondent pas aux colonnes de la table. C’est le cas par contre pour la table transformée&nbsp;:</p>
+<div class="cell">
+<div class="cell-output-display">
+<table class="table table-sm table-striped small">
+<thead><tr class="header">
+<th style="text-align: left;">country</th>
+<th style="text-align: left;">annee</th>
+<th style="text-align: right;">population</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Belgium</td>
+<td style="text-align: left;">1992</td>
+<td style="text-align: right;">10045622</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">France</td>
+<td style="text-align: left;">1992</td>
+<td style="text-align: right;">57374179</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Germany</td>
+<td style="text-align: left;">1992</td>
+<td style="text-align: right;">80597764</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Belgium</td>
+<td style="text-align: left;">1997</td>
+<td style="text-align: right;">10199787</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">France</td>
+<td style="text-align: left;">1997</td>
+<td style="text-align: right;">58623428</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Germany</td>
+<td style="text-align: left;">1997</td>
+<td style="text-align: right;">82011073</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Belgium</td>
+<td style="text-align: left;">2002</td>
+<td style="text-align: right;">10311970</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">France</td>
+<td style="text-align: left;">2002</td>
+<td style="text-align: right;">59925035</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Germany</td>
+<td style="text-align: left;">2002</td>
+<td style="text-align: right;">82350671</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Belgium</td>
+<td style="text-align: left;">2007</td>
+<td style="text-align: right;">10392226</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">France</td>
+<td style="text-align: left;">2007</td>
+<td style="text-align: right;">61083916</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Germany</td>
+<td style="text-align: left;">2007</td>
+<td style="text-align: right;">82400996</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>On peut remarquer qu’en modifiant notre table pour satisfaire à la deuxième règle, on a aussi réglé la première&nbsp;: chaque ligne correspond désormais à une observation, en l’occurrence l’observation de trois pays à plusieurs moments dans le temps. Dans notre table d’origine, chaque ligne comportait en réalité quatre observations différentes.</p>
+<p>Ce point permet d’illustrer le fait que les règles sont interdépendantes.</p>
+<p>Autre exemple, généré depuis le jeu de données <a href="https://github.com/hadley/nycflights13">nycflights13</a>, permettant cette fois d’illustrer la troisième règle&nbsp;:</p>
+<div class="cell">
+<div class="cell-output-display">
+<table class="table table-sm table-striped small">
+<colgroup>
+<col style="width: 6%">
+<col style="width: 8%">
+<col style="width: 5%">
+<col style="width: 12%">
+<col style="width: 11%">
+<col style="width: 31%">
+<col style="width: 23%">
+</colgroup>
+<thead><tr class="header">
+<th style="text-align: right;">year</th>
+<th style="text-align: right;">month</th>
+<th style="text-align: right;">day</th>
+<th style="text-align: right;">dep_time</th>
+<th style="text-align: left;">carrier</th>
+<th style="text-align: left;">name</th>
+<th style="text-align: right;">flights_per_year</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">2013</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">517</td>
+<td style="text-align: left;">UA</td>
+<td style="text-align: left;">United Air Lines Inc.</td>
+<td style="text-align: right;">58665</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2013</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">533</td>
+<td style="text-align: left;">UA</td>
+<td style="text-align: left;">United Air Lines Inc.</td>
+<td style="text-align: right;">58665</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">2013</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">542</td>
+<td style="text-align: left;">AA</td>
+<td style="text-align: left;">American Airlines Inc.</td>
+<td style="text-align: right;">32729</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2013</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">554</td>
+<td style="text-align: left;">UA</td>
+<td style="text-align: left;">United Air Lines Inc.</td>
+<td style="text-align: right;">58665</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">2013</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">558</td>
+<td style="text-align: left;">AA</td>
+<td style="text-align: left;">American Airlines Inc.</td>
+<td style="text-align: right;">32729</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2013</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">558</td>
+<td style="text-align: left;">UA</td>
+<td style="text-align: left;">United Air Lines Inc.</td>
+<td style="text-align: right;">58665</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">2013</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">558</td>
+<td style="text-align: left;">UA</td>
+<td style="text-align: left;">United Air Lines Inc.</td>
+<td style="text-align: right;">58665</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2013</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">559</td>
+<td style="text-align: left;">AA</td>
+<td style="text-align: left;">American Airlines Inc.</td>
+<td style="text-align: right;">32729</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>Dans ce tableau on a bien une observation par ligne (un vol), et une variable par colonne. Mais on a une “infraction” à la troisième règle, qui est que chaque valeur doit être présente dans une unique case&nbsp;: si on regarde la colonne <code>name</code>, on a en effet une duplication de l’information concernant le nom des compagnies aériennes. Notre tableau mêle en fait deux types d’observations différents&nbsp;: des observations sur les vols, et des observations sur les compagnies aériennes.</p>
+<p>Pour “arranger” ce tableau, il faut séparer les deux types d’observations en deux tables différentes&nbsp;:</p>
+<div class="cell">
+<div class="cell-output-display">
+<table class="table table-sm table-striped small">
+<thead><tr class="header">
+<th style="text-align: right;">year</th>
+<th style="text-align: right;">month</th>
+<th style="text-align: right;">day</th>
+<th style="text-align: right;">dep_time</th>
+<th style="text-align: left;">carrier</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">2013</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">517</td>
+<td style="text-align: left;">UA</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2013</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">533</td>
+<td style="text-align: left;">UA</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">2013</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">542</td>
+<td style="text-align: left;">AA</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2013</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">554</td>
+<td style="text-align: left;">UA</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">2013</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">558</td>
+<td style="text-align: left;">AA</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2013</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">558</td>
+<td style="text-align: left;">UA</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">2013</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">558</td>
+<td style="text-align: left;">UA</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2013</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">559</td>
+<td style="text-align: left;">AA</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<table class="table table-sm table-striped small">
+<thead><tr class="header">
+<th style="text-align: left;">carrier</th>
+<th style="text-align: left;">name</th>
+<th style="text-align: right;">flights_per_year</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">UA</td>
+<td style="text-align: left;">United Air Lines Inc.</td>
+<td style="text-align: right;">58665</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">AA</td>
+<td style="text-align: left;">American Airlines Inc.</td>
+<td style="text-align: right;">32729</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>On a désormais deux tables distinctes, l’information n’est pas dupliquée, et on peut facilement faire une jointure si on a besoin de récupérer l’information d’une table dans une autre.</p>
+<p>L’objectif de <a href="https://tidyr.tidyverse.org">tidyr</a> est de fournir des fonctions pour arranger ses données et les convertir dans un format <em>tidy</em>. Ces fonctions prennent la forme de verbes qui viennent compléter ceux de <a href="https://dplyr.tidyverse.org">dplyr</a> et s’intègrent parfaitement dans les séries de <em>pipes</em> (<code>|&gt;</code>, cf. <a href="#sec-pipe" class="quarto-xref"><span class="quarto-unresolved-ref">sec-pipe</span></a>), les <em>pipelines</em>, permettant d’enchaîner les opérations.</p>
+</section><section id="pivot_longer-rassembler-des-colonnes" class="level2" data-number="36.3"><h2 data-number="36.3" class="anchored" data-anchor-id="pivot_longer-rassembler-des-colonnes">
+<span class="header-section-number">36.3</span> <code>pivot_longer()</code>&nbsp;: rassembler des colonnes</h2>
+<p>Prenons le tableau <code>d</code> suivant, qui liste la population de 4 pays en 2002 et 2007&nbsp;:</p>
+<div class="cell">
+<div class="cell-output-display">
+<table class="table table-sm table-striped small">
+<thead><tr class="header">
+<th style="text-align: left;">country</th>
+<th style="text-align: right;">2002</th>
+<th style="text-align: right;">2007</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Belgium</td>
+<td style="text-align: right;">10311970</td>
+<td style="text-align: right;">10392226</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">France</td>
+<td style="text-align: right;">59925035</td>
+<td style="text-align: right;">61083916</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Germany</td>
+<td style="text-align: right;">82350671</td>
+<td style="text-align: right;">82400996</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Spain</td>
+<td style="text-align: right;">40152517</td>
+<td style="text-align: right;">40448191</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>Dans ce tableau, une même variable (la population) est répartie sur plusieurs colonnes, chacune représentant une observation à un moment différent. On souhaite que la variable ne représente plus qu’une seule colonne, et que les observations soient réparties sur plusieurs lignes.</p>
+<p>Pour cela on va utiliser la fonction <code><a href="https://tidyr.tidyverse.org/reference/pivot_longer.html">tidyr::pivot_longer()</a></code>&nbsp;:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a>d <span class="sc">|&gt;</span></span>
+<span id="cb4-2"><a href="#cb4-2"></a>  <span class="fu">pivot_longer</span>(</span>
+<span id="cb4-3"><a href="#cb4-3"></a>    <span class="at">cols =</span> <span class="fu">c</span>(<span class="st">`</span><span class="at">2002</span><span class="st">`</span>,<span class="st">`</span><span class="at">2007</span><span class="st">`</span>),</span>
+<span id="cb4-4"><a href="#cb4-4"></a>    <span class="at">names_to =</span> <span class="st">"annee"</span>,</span>
+<span id="cb4-5"><a href="#cb4-5"></a>    <span class="at">values_to =</span> <span class="st">"population"</span></span>
+<span id="cb4-6"><a href="#cb4-6"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 8 × 3
+  country annee population
+  &lt;fct&gt;   &lt;chr&gt;      &lt;int&gt;
+1 Belgium 2002    10311970
+2 Belgium 2007    10392226
+3 France  2002    59925035
+4 France  2007    61083916
+5 Germany 2002    82350671
+6 Germany 2007    82400996
+7 Spain   2002    40152517
+8 Spain   2007    40448191</code></pre>
+</div>
+</div>
+<p>La fonction <code><a href="https://tidyr.tidyverse.org/reference/pivot_longer.html">tidyr::pivot_longer()</a></code> prend comme arguments la liste des colonnes à rassembler (on peut également y utiliser les différentes fonctions de sélection de variables utilisables avec <code><a href="https://dplyr.tidyverse.org/reference/select.html">dplyr::select()</a></code>), ainsi que deux arguments <code>names_to</code> et <code>values_to</code>&nbsp;:</p>
+<ul>
+<li>
+<code>names_to</code> est le nom de la colonne qui va contenir les “noms” des colonnes originelles, c’est-à-dire les identifiants des différentes observations</li>
+<li>
+<code>values_to</code> est le nom de la colonne qui va contenir la valeur des observations</li>
+</ul>
+<p>Parfois il est plus rapide d’indiquer à <code><a href="https://tidyr.tidyverse.org/reference/pivot_longer.html">tidyr::pivot_longer()</a></code> les colonnes qu’on ne souhaite pas rassembler. On peut le faire avec la syntaxe suivante&nbsp;:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a>d <span class="sc">|&gt;</span></span>
+<span id="cb6-2"><a href="#cb6-2"></a>  <span class="fu">pivot_longer</span>(</span>
+<span id="cb6-3"><a href="#cb6-3"></a>    <span class="sc">-</span>country,</span>
+<span id="cb6-4"><a href="#cb6-4"></a>    <span class="at">names_to =</span> <span class="st">"annee"</span>,</span>
+<span id="cb6-5"><a href="#cb6-5"></a>    <span class="at">values_to =</span> <span class="st">"population"</span></span>
+<span id="cb6-6"><a href="#cb6-6"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 8 × 3
+  country annee population
+  &lt;fct&gt;   &lt;chr&gt;      &lt;int&gt;
+1 Belgium 2002    10311970
+2 Belgium 2007    10392226
+3 France  2002    59925035
+4 France  2007    61083916
+5 Germany 2002    82350671
+6 Germany 2007    82400996
+7 Spain   2002    40152517
+8 Spain   2007    40448191</code></pre>
+</div>
+</div>
+</section><section id="pivot_wider-disperser-des-lignes" class="level2" data-number="36.4"><h2 data-number="36.4" class="anchored" data-anchor-id="pivot_wider-disperser-des-lignes">
+<span class="header-section-number">36.4</span> <code>pivot_wider()</code>&nbsp;: disperser des lignes</h2>
+<p>La fonction <code><a href="https://tidyr.tidyverse.org/reference/pivot_wider.html">tidyr::pivot_wider()</a></code> est l’inverse de <code><a href="https://tidyr.tidyverse.org/reference/pivot_longer.html">tidyr::pivot_longer()</a></code>.</p>
+<p>Soit le tableau <code>d</code> suivant&nbsp;:</p>
+<div class="cell">
+<div class="cell-output-display">
+<table class="table table-sm table-striped small">
+<thead><tr class="header">
+<th style="text-align: left;">country</th>
+<th style="text-align: left;">continent</th>
+<th style="text-align: right;">year</th>
+<th style="text-align: left;">variable</th>
+<th style="text-align: right;">value</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Belgium</td>
+<td style="text-align: left;">Europe</td>
+<td style="text-align: right;">2002</td>
+<td style="text-align: left;">lifeExp</td>
+<td style="text-align: right;">78.320</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Belgium</td>
+<td style="text-align: left;">Europe</td>
+<td style="text-align: right;">2007</td>
+<td style="text-align: left;">lifeExp</td>
+<td style="text-align: right;">79.441</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">France</td>
+<td style="text-align: left;">Europe</td>
+<td style="text-align: right;">2002</td>
+<td style="text-align: left;">lifeExp</td>
+<td style="text-align: right;">79.590</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">France</td>
+<td style="text-align: left;">Europe</td>
+<td style="text-align: right;">2007</td>
+<td style="text-align: left;">lifeExp</td>
+<td style="text-align: right;">80.657</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Germany</td>
+<td style="text-align: left;">Europe</td>
+<td style="text-align: right;">2002</td>
+<td style="text-align: left;">lifeExp</td>
+<td style="text-align: right;">78.670</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Germany</td>
+<td style="text-align: left;">Europe</td>
+<td style="text-align: right;">2007</td>
+<td style="text-align: left;">lifeExp</td>
+<td style="text-align: right;">79.406</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Belgium</td>
+<td style="text-align: left;">Europe</td>
+<td style="text-align: right;">2002</td>
+<td style="text-align: left;">pop</td>
+<td style="text-align: right;">10311970.000</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Belgium</td>
+<td style="text-align: left;">Europe</td>
+<td style="text-align: right;">2007</td>
+<td style="text-align: left;">pop</td>
+<td style="text-align: right;">10392226.000</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">France</td>
+<td style="text-align: left;">Europe</td>
+<td style="text-align: right;">2002</td>
+<td style="text-align: left;">pop</td>
+<td style="text-align: right;">59925035.000</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">France</td>
+<td style="text-align: left;">Europe</td>
+<td style="text-align: right;">2007</td>
+<td style="text-align: left;">pop</td>
+<td style="text-align: right;">61083916.000</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Germany</td>
+<td style="text-align: left;">Europe</td>
+<td style="text-align: right;">2002</td>
+<td style="text-align: left;">pop</td>
+<td style="text-align: right;">82350671.000</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Germany</td>
+<td style="text-align: left;">Europe</td>
+<td style="text-align: right;">2007</td>
+<td style="text-align: left;">pop</td>
+<td style="text-align: right;">82400996.000</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>Ce tableau a le problème inverse du précédent&nbsp;: on a deux variables, <code>lifeExp</code> et <code>pop</code> qui, plutôt que d’être réparties en deux colonnes, sont réparties entre plusieurs lignes.</p>
+<p>On va donc utiliser <code><a href="https://tidyr.tidyverse.org/reference/pivot_wider.html">tidyr::pivot_wider()</a></code> pour <q>disperser</q> ces lignes dans deux colonnes différentes&nbsp;:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a>d <span class="sc">|&gt;</span></span>
+<span id="cb8-2"><a href="#cb8-2"></a>  <span class="fu">pivot_wider</span>(</span>
+<span id="cb8-3"><a href="#cb8-3"></a>    <span class="at">names_from =</span> variable,</span>
+<span id="cb8-4"><a href="#cb8-4"></a>    <span class="at">values_from =</span> value</span>
+<span id="cb8-5"><a href="#cb8-5"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 5
+  country continent  year lifeExp      pop
+  &lt;fct&gt;   &lt;fct&gt;     &lt;int&gt;   &lt;dbl&gt;    &lt;dbl&gt;
+1 Belgium Europe     2002    78.3 10311970
+2 Belgium Europe     2007    79.4 10392226
+3 France  Europe     2002    79.6 59925035
+4 France  Europe     2007    80.7 61083916
+5 Germany Europe     2002    78.7 82350671
+6 Germany Europe     2007    79.4 82400996</code></pre>
+</div>
+</div>
+<p><code><a href="https://tidyr.tidyverse.org/reference/pivot_wider.html">tidyr::pivot_wider()</a></code> prend deux arguments principaux&nbsp;:</p>
+<ul>
+<li>
+<code>names_from</code> indique la colonne contenant les noms des nouvelles variables à créer</li>
+<li>
+<code>values_from</code> indique la colonne contenant les valeurs de ces variables</li>
+</ul>
+<p>Il peut arriver que certaines variables soient absentes pour certaines observations. Dans ce cas l’argument <code>values_fill</code> permet de spécifier la valeur à utiliser pour ces données manquantes (par défaut, les valeurs manquantes sont indiquées avec <code>NA</code>).</p>
+<p>Exemple avec le tableau <code>d</code> suivant&nbsp;:</p>
+<div class="cell">
+<div class="cell-output-display">
+<table class="table table-sm table-striped small">
+<thead><tr class="header">
+<th style="text-align: left;">country</th>
+<th style="text-align: left;">continent</th>
+<th style="text-align: right;">year</th>
+<th style="text-align: left;">variable</th>
+<th style="text-align: right;">value</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Belgium</td>
+<td style="text-align: left;">Europe</td>
+<td style="text-align: right;">2002</td>
+<td style="text-align: left;">lifeExp</td>
+<td style="text-align: right;">78.320</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Belgium</td>
+<td style="text-align: left;">Europe</td>
+<td style="text-align: right;">2007</td>
+<td style="text-align: left;">lifeExp</td>
+<td style="text-align: right;">79.441</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">France</td>
+<td style="text-align: left;">Europe</td>
+<td style="text-align: right;">2002</td>
+<td style="text-align: left;">lifeExp</td>
+<td style="text-align: right;">79.590</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">France</td>
+<td style="text-align: left;">Europe</td>
+<td style="text-align: right;">2007</td>
+<td style="text-align: left;">lifeExp</td>
+<td style="text-align: right;">80.657</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Germany</td>
+<td style="text-align: left;">Europe</td>
+<td style="text-align: right;">2002</td>
+<td style="text-align: left;">lifeExp</td>
+<td style="text-align: right;">78.670</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Germany</td>
+<td style="text-align: left;">Europe</td>
+<td style="text-align: right;">2007</td>
+<td style="text-align: left;">lifeExp</td>
+<td style="text-align: right;">79.406</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Belgium</td>
+<td style="text-align: left;">Europe</td>
+<td style="text-align: right;">2002</td>
+<td style="text-align: left;">pop</td>
+<td style="text-align: right;">10311970.000</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Belgium</td>
+<td style="text-align: left;">Europe</td>
+<td style="text-align: right;">2007</td>
+<td style="text-align: left;">pop</td>
+<td style="text-align: right;">10392226.000</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">France</td>
+<td style="text-align: left;">Europe</td>
+<td style="text-align: right;">2002</td>
+<td style="text-align: left;">pop</td>
+<td style="text-align: right;">59925035.000</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">France</td>
+<td style="text-align: left;">Europe</td>
+<td style="text-align: right;">2007</td>
+<td style="text-align: left;">pop</td>
+<td style="text-align: right;">61083916.000</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Germany</td>
+<td style="text-align: left;">Europe</td>
+<td style="text-align: right;">2002</td>
+<td style="text-align: left;">pop</td>
+<td style="text-align: right;">82350671.000</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Germany</td>
+<td style="text-align: left;">Europe</td>
+<td style="text-align: right;">2007</td>
+<td style="text-align: left;">pop</td>
+<td style="text-align: right;">82400996.000</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">France</td>
+<td style="text-align: left;">Europe</td>
+<td style="text-align: right;">2002</td>
+<td style="text-align: left;">density</td>
+<td style="text-align: right;">94.000</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a>d <span class="sc">|&gt;</span> </span>
+<span id="cb10-2"><a href="#cb10-2"></a>  <span class="fu">pivot_wider</span>(</span>
+<span id="cb10-3"><a href="#cb10-3"></a>    <span class="at">names_from =</span>  variable,</span>
+<span id="cb10-4"><a href="#cb10-4"></a>    <span class="at">values_from =</span> value</span>
+<span id="cb10-5"><a href="#cb10-5"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 6
+  country continent  year lifeExp      pop density
+  &lt;chr&gt;   &lt;chr&gt;     &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;
+1 Belgium Europe     2002    78.3 10311970      NA
+2 Belgium Europe     2007    79.4 10392226      NA
+3 France  Europe     2002    79.6 59925035      94
+4 France  Europe     2007    80.7 61083916      NA
+5 Germany Europe     2002    78.7 82350671      NA
+6 Germany Europe     2007    79.4 82400996      NA</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a>d <span class="sc">|&gt;</span> </span>
+<span id="cb12-2"><a href="#cb12-2"></a>  <span class="fu">pivot_wider</span>(</span>
+<span id="cb12-3"><a href="#cb12-3"></a>    <span class="at">names_from =</span>  variable,</span>
+<span id="cb12-4"><a href="#cb12-4"></a>    <span class="at">values_from =</span> value,</span>
+<span id="cb12-5"><a href="#cb12-5"></a>    <span class="at">values_fill =</span> <span class="fu">list</span>(<span class="at">value =</span> <span class="dv">0</span>)</span>
+<span id="cb12-6"><a href="#cb12-6"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 6
+  country continent  year lifeExp      pop density
+  &lt;chr&gt;   &lt;chr&gt;     &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;
+1 Belgium Europe     2002    78.3 10311970       0
+2 Belgium Europe     2007    79.4 10392226       0
+3 France  Europe     2002    79.6 59925035      94
+4 France  Europe     2007    80.7 61083916       0
+5 Germany Europe     2002    78.7 82350671       0
+6 Germany Europe     2007    79.4 82400996       0</code></pre>
+</div>
+</div>
+</section><section id="sec-separate" class="level2" data-number="36.5"><h2 data-number="36.5" class="anchored" data-anchor-id="sec-separate">
+<span class="header-section-number">36.5</span> <code>separate()</code>&nbsp;: séparer une colonne en plusieurs colonnes</h2>
+<p>Parfois on a plusieurs informations réunies en une seule colonne et on souhaite les séparer. Soit le tableau d’exemple caricatural suivant, nommé <code>df</code>&nbsp;:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a>df <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb14-2"><a href="#cb14-2"></a>  <span class="at">eleve =</span> <span class="fu">c</span>(<span class="st">"Alex Petit"</span>, <span class="st">"Bertrand Dupont"</span>, <span class="st">"Corinne Durand"</span>),</span>
+<span id="cb14-3"><a href="#cb14-3"></a>  <span class="at">note =</span> <span class="fu">c</span>(<span class="st">"5/20"</span>, <span class="st">"6/10"</span>, <span class="st">"87/100"</span>)</span>
+<span id="cb14-4"><a href="#cb14-4"></a>)</span>
+<span id="cb14-5"><a href="#cb14-5"></a>df</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 3 × 2
+  eleve           note  
+  &lt;chr&gt;           &lt;chr&gt; 
+1 Alex Petit      5/20  
+2 Bertrand Dupont 6/10  
+3 Corinne Durand  87/100</code></pre>
+</div>
+</div>
+<p><code><a href="https://tidyr.tidyverse.org/reference/separate.html">tidyr::separate()</a></code> permet de séparer la colonne <code>note</code> en deux nouvelles colonnes <code>note</code> et <code>note_sur</code>&nbsp;:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1"></a>df <span class="sc">|&gt;</span></span>
+<span id="cb16-2"><a href="#cb16-2"></a>  <span class="fu">separate</span>(note, <span class="fu">c</span>(<span class="st">"note"</span>, <span class="st">"note_sur"</span>))</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 3 × 3
+  eleve           note  note_sur
+  &lt;chr&gt;           &lt;chr&gt; &lt;chr&gt;   
+1 Alex Petit      5     20      
+2 Bertrand Dupont 6     10      
+3 Corinne Durand  87    100     </code></pre>
+</div>
+</div>
+<p><code><a href="https://tidyr.tidyverse.org/reference/separate.html">tidyr::separate()</a></code> prend deux arguments principaux, le nom de la colonne à séparer et un vecteur indiquant les noms des nouvelles variables à créer. Par défaut <code><a href="https://tidyr.tidyverse.org/reference/separate.html">tidyr::separate()</a></code> <q>sépare</q> au niveau des caractères non-alphanumérique (espace, symbole, etc.). On peut lui indiquer explicitement le caractère sur lequel séparer avec l’argument <code>sep</code>&nbsp;:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1"></a>df <span class="sc">|&gt;</span></span>
+<span id="cb18-2"><a href="#cb18-2"></a>  tidyr<span class="sc">::</span><span class="fu">separate</span>(</span>
+<span id="cb18-3"><a href="#cb18-3"></a>    eleve,</span>
+<span id="cb18-4"><a href="#cb18-4"></a>    <span class="fu">c</span>(<span class="st">"prenom"</span>, <span class="st">"nom"</span>),</span>
+<span id="cb18-5"><a href="#cb18-5"></a>    <span class="at">sep =</span> <span class="st">" "</span></span>
+<span id="cb18-6"><a href="#cb18-6"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 3 × 3
+  prenom   nom    note  
+  &lt;chr&gt;    &lt;chr&gt;  &lt;chr&gt; 
+1 Alex     Petit  5/20  
+2 Bertrand Dupont 6/10  
+3 Corinne  Durand 87/100</code></pre>
+</div>
+</div>
+</section><section id="separate_rows-séparer-une-colonne-en-plusieurs-lignes" class="level2" data-number="36.6"><h2 data-number="36.6" class="anchored" data-anchor-id="separate_rows-séparer-une-colonne-en-plusieurs-lignes">
+<span class="header-section-number">36.6</span> separate_rows()&nbsp;: séparer une colonne en plusieurs lignes</h2>
+<p>La fonction <code><a href="https://tidyr.tidyverse.org/reference/separate_rows.html">tidyr::separate_rows()</a></code> est utile lorsque plusieurs valeurs sont contenues dans la même variable. Mais, alors que <code><a href="https://tidyr.tidyverse.org/reference/separate.html">tidyr::separate()</a></code> permet de répartir ces différentes valeurs dans plusieurs colonnes, <code><a href="https://tidyr.tidyverse.org/reference/separate_rows.html">tidyr::separate_rows()</a></code> va créé une ligne pour chaque valeur. Prenons cet exemple trivial où les différentes notes de chaque élève sont contenues dans la colonne <code>notes</code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1"></a>df <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb20-2"><a href="#cb20-2"></a>  <span class="at">eleve =</span> <span class="fu">c</span>(<span class="st">"Alex Petit"</span>, <span class="st">"Bertrand Dupont"</span>, <span class="st">"Corinne Durand"</span>),</span>
+<span id="cb20-3"><a href="#cb20-3"></a>  <span class="at">notes =</span> <span class="fu">c</span>(<span class="st">"10,15,16"</span>, <span class="st">"18,12,14"</span>, <span class="st">"16,17"</span>)</span>
+<span id="cb20-4"><a href="#cb20-4"></a>)</span>
+<span id="cb20-5"><a href="#cb20-5"></a>df</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 3 × 2
+  eleve           notes   
+  &lt;chr&gt;           &lt;chr&gt;   
+1 Alex Petit      10,15,16
+2 Bertrand Dupont 18,12,14
+3 Corinne Durand  16,17   </code></pre>
+</div>
+</div>
+<p>Appliquons <code><a href="https://tidyr.tidyverse.org/reference/separate_rows.html">tidyr::separate_rows()</a></code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1"></a>df <span class="sc">|&gt;</span> </span>
+<span id="cb22-2"><a href="#cb22-2"></a>  <span class="fu">separate_rows</span>(notes) <span class="sc">|&gt;</span> </span>
+<span id="cb22-3"><a href="#cb22-3"></a>  <span class="fu">rename</span>(<span class="at">note =</span> notes)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 8 × 2
+  eleve           note 
+  &lt;chr&gt;           &lt;chr&gt;
+1 Alex Petit      10   
+2 Alex Petit      15   
+3 Alex Petit      16   
+4 Bertrand Dupont 18   
+5 Bertrand Dupont 12   
+6 Bertrand Dupont 14   
+7 Corinne Durand  16   
+8 Corinne Durand  17   </code></pre>
+</div>
+</div>
+<p>Par défaut <code><a href="https://tidyr.tidyverse.org/reference/separate_rows.html">tidyr::separate_rows()</a></code> sépare les valeurs dès qu’elle trouve un caractère qui ne soit ni un chiffre ni une lettre, mais on peut spécifier le séparateur à l’aide de l’argument <code>sep</code> (qui accepte une chaîne de caractère ou même une expression régulière)&nbsp;:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1"></a>df <span class="sc">|&gt;</span> </span>
+<span id="cb24-2"><a href="#cb24-2"></a>  <span class="fu">separate_rows</span>(notes, <span class="at">sep =</span> <span class="st">","</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb24-3"><a href="#cb24-3"></a>  <span class="fu">rename</span>(<span class="at">note =</span> notes)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 8 × 2
+  eleve           note 
+  &lt;chr&gt;           &lt;chr&gt;
+1 Alex Petit      10   
+2 Alex Petit      15   
+3 Alex Petit      16   
+4 Bertrand Dupont 18   
+5 Bertrand Dupont 12   
+6 Bertrand Dupont 14   
+7 Corinne Durand  16   
+8 Corinne Durand  17   </code></pre>
+</div>
+</div>
+</section><section id="unite-regrouper-plusieurs-colonnes-en-une-seule" class="level2" data-number="36.7"><h2 data-number="36.7" class="anchored" data-anchor-id="unite-regrouper-plusieurs-colonnes-en-une-seule">
+<span class="header-section-number">36.7</span> <code>unite()</code>&nbsp;: regrouper plusieurs colonnes en une seule</h2>
+<p><code><a href="https://tidyr.tidyverse.org/reference/unite.html">tidyr::unite()</a></code> est l’opération inverse de <code><a href="https://tidyr.tidyverse.org/reference/separate.html">tidyr::separate()</a></code>. Elle permet de regrouper plusieurs colonnes en une seule. Imaginons qu’on obtient le tableau <code>d</code> suivant&nbsp;:</p>
+<div class="cell">
+<div class="cell-output-display">
+<table class="table table-sm table-striped small">
+<thead><tr class="header">
+<th style="text-align: left;">code_departement</th>
+<th style="text-align: left;">code_commune</th>
+<th style="text-align: left;">commune</th>
+<th style="text-align: right;">pop_tot</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">01</td>
+<td style="text-align: left;">004</td>
+<td style="text-align: left;">Ambérieu-en-Bugey</td>
+<td style="text-align: right;">14233</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">01</td>
+<td style="text-align: left;">007</td>
+<td style="text-align: left;">Ambronay</td>
+<td style="text-align: right;">2437</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">01</td>
+<td style="text-align: left;">014</td>
+<td style="text-align: left;">Arbent</td>
+<td style="text-align: right;">3440</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">01</td>
+<td style="text-align: left;">024</td>
+<td style="text-align: left;">Attignat</td>
+<td style="text-align: right;">3110</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">01</td>
+<td style="text-align: left;">025</td>
+<td style="text-align: left;">Bâgé-la-Ville</td>
+<td style="text-align: right;">3130</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">01</td>
+<td style="text-align: left;">027</td>
+<td style="text-align: left;">Balan</td>
+<td style="text-align: right;">2785</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>On souhaite reconstruire une colonne <code>code_insee</code> qui indique le code INSEE de la commune, et qui s’obtient en concaténant le code du département et celui de la commune. On peut utiliser <code><a href="https://tidyr.tidyverse.org/reference/unite.html">tidyr::unite()</a></code> pour cela on indique d’abord le nom de la nouvelle variable puis la liste des variables à concaténer&nbsp;:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1"></a>d <span class="sc">|&gt;</span></span>
+<span id="cb26-2"><a href="#cb26-2"></a>  <span class="fu">unite</span>(code_insee, code_departement, code_commune)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 3
+  code_insee commune           pop_tot
+  &lt;chr&gt;      &lt;chr&gt;               &lt;int&gt;
+1 01_004     Ambérieu-en-Bugey   14233
+2 01_007     Ambronay             2437
+3 01_014     Arbent               3440
+4 01_024     Attignat             3110
+5 01_025     Bâgé-la-Ville        3130
+6 01_027     Balan                2785</code></pre>
+</div>
+</div>
+<p>Le résultat n’est pas idéal&nbsp;: par défaut <code><a href="https://tidyr.tidyverse.org/reference/unite.html">tidyr::unite()</a></code> ajoute un caractère <code>_</code> entre les deux valeurs concaténées, alors qu’on ne veut aucun séparateur. De plus, on souhaite conserver nos deux colonnes d’origine, qui peuvent nous être utiles. On peut résoudre ces deux problèmes à l’aide des arguments <code>sep</code> et <code>remove</code>&nbsp;:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1"></a>d <span class="sc">|&gt;</span> </span>
+<span id="cb28-2"><a href="#cb28-2"></a>  <span class="fu">unite</span>(</span>
+<span id="cb28-3"><a href="#cb28-3"></a>    code_insee,</span>
+<span id="cb28-4"><a href="#cb28-4"></a>    code_departement,</span>
+<span id="cb28-5"><a href="#cb28-5"></a>    code_commune, </span>
+<span id="cb28-6"><a href="#cb28-6"></a>    <span class="at">sep =</span> <span class="st">""</span>,</span>
+<span id="cb28-7"><a href="#cb28-7"></a>    <span class="at">remove =</span> <span class="cn">FALSE</span></span>
+<span id="cb28-8"><a href="#cb28-8"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 5
+  code_insee code_departement code_commune commune           pop_tot
+  &lt;chr&gt;      &lt;chr&gt;            &lt;chr&gt;        &lt;chr&gt;               &lt;int&gt;
+1 01004      01               004          Ambérieu-en-Bugey   14233
+2 01007      01               007          Ambronay             2437
+3 01014      01               014          Arbent               3440
+4 01024      01               024          Attignat             3110
+5 01025      01               025          Bâgé-la-Ville        3130
+6 01027      01               027          Balan                2785</code></pre>
+</div>
+</div>
+</section><section id="sec-extract" class="level2" data-number="36.8"><h2 data-number="36.8" class="anchored" data-anchor-id="sec-extract">
+<span class="header-section-number">36.8</span> <code>extract()</code>&nbsp;: créer de nouvelles colonnes à partir d’une colonne de texte</h2>
+<p><code><a href="https://tidyr.tidyverse.org/reference/extract.html">tidyr::extract()</a></code> permet de créer de nouvelles colonnes à partir de sous-chaînes d’une colonne de texte existante, identifiées par des groupes dans une expression régulière.</p>
+<p>Par exemple, à partir du tableau suivant&nbsp;:</p>
+<div class="cell">
+<div class="cell-output-display">
+<table class="table table-sm table-striped small">
+<thead><tr class="header">
+<th style="text-align: left;">eleve</th>
+<th style="text-align: left;">note</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Alex Petit</td>
+<td style="text-align: left;">5/20</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Bertrand Dupont</td>
+<td style="text-align: left;">6/10</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Corinne Durand</td>
+<td style="text-align: left;">87/100</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>On peut extraire les noms et prénoms dans deux nouvelles colonnes avec&nbsp;:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1"></a>df <span class="sc">|&gt;</span></span>
+<span id="cb30-2"><a href="#cb30-2"></a>  <span class="fu">extract</span>(</span>
+<span id="cb30-3"><a href="#cb30-3"></a>    eleve,</span>
+<span id="cb30-4"><a href="#cb30-4"></a>    <span class="fu">c</span>(<span class="st">"prenom"</span>, <span class="st">"nom"</span>),</span>
+<span id="cb30-5"><a href="#cb30-5"></a>    <span class="st">"^(.*) (.*)$"</span></span>
+<span id="cb30-6"><a href="#cb30-6"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 3 × 3
+  prenom   nom    note  
+  &lt;chr&gt;    &lt;chr&gt;  &lt;chr&gt; 
+1 Alex     Petit  5/20  
+2 Bertrand Dupont 6/10  
+3 Corinne  Durand 87/100</code></pre>
+</div>
+</div>
+<p>On passe donc à <code><a href="https://tidyr.tidyverse.org/reference/extract.html">tidyr::extract()</a></code> trois arguments&nbsp;:</p>
+<ul>
+<li>la colonne d’où on doit extraire les valeurs,</li>
+<li>un vecteur avec les noms des nouvelles colonnes à créer,</li>
+<li>et une expression régulière comportant autant de groupes (identifiés par des parenthèses) que de nouvelles colonnes.</li>
+</ul>
+<p>Par défaut la colonne d’origine n’est pas conservée dans la table résultat. On peut modifier ce comportement avec l’argument <code>remove = FALSE</code>. Ainsi, le code suivant extrait les initiales du prénom et du nom mais conserve la colonne d’origine&nbsp;:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1"></a>df <span class="sc">|&gt;</span></span>
+<span id="cb32-2"><a href="#cb32-2"></a>  tidyr<span class="sc">::</span><span class="fu">extract</span>(</span>
+<span id="cb32-3"><a href="#cb32-3"></a>    eleve, </span>
+<span id="cb32-4"><a href="#cb32-4"></a>    <span class="fu">c</span>(<span class="st">"initiale_prenom"</span>, <span class="st">"initiale_nom"</span>), </span>
+<span id="cb32-5"><a href="#cb32-5"></a>    <span class="st">"^(.).* (.).*$"</span>, </span>
+<span id="cb32-6"><a href="#cb32-6"></a>    <span class="at">remove =</span> <span class="cn">FALSE</span></span>
+<span id="cb32-7"><a href="#cb32-7"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 3 × 4
+  eleve           initiale_prenom initiale_nom note  
+  &lt;chr&gt;           &lt;chr&gt;           &lt;chr&gt;        &lt;chr&gt; 
+1 Alex Petit      A               P            5/20  
+2 Bertrand Dupont B               D            6/10  
+3 Corinne Durand  C               D            87/100</code></pre>
+</div>
+</div>
+</section><section id="complete-compléter-des-combinaisons-de-variables-manquantes" class="level2" data-number="36.9"><h2 data-number="36.9" class="anchored" data-anchor-id="complete-compléter-des-combinaisons-de-variables-manquantes">
+<span class="header-section-number">36.9</span> <code>complete()</code>&nbsp;: compléter des combinaisons de variables manquantes</h2>
+<p>Imaginons qu’on ait le tableau de résultats suivants&nbsp;:</p>
+<div class="cell">
+<div class="cell-output-display">
+<table class="table table-sm table-striped small">
+<thead><tr class="header">
+<th style="text-align: left;">eleve</th>
+<th style="text-align: left;">matiere</th>
+<th style="text-align: right;">note</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Alain</td>
+<td style="text-align: left;">Maths</td>
+<td style="text-align: right;">16</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Alain</td>
+<td style="text-align: left;">Français</td>
+<td style="text-align: right;">9</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Barnabé</td>
+<td style="text-align: left;">Maths</td>
+<td style="text-align: right;">17</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Chantal</td>
+<td style="text-align: left;">Français</td>
+<td style="text-align: right;">11</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>Les élèves Barnabé et Chantal n’ont pas de notes dans toutes les matières. Supposons que c’est parce qu’ils étaient absents et que leur note est en fait un 0. Si on veut calculer les moyennes des élèves, on doit compléter ces notes manquantes.</p>
+<p>La fonction <code><a href="https://tidyr.tidyverse.org/reference/complete.html">tidyr::complete()</a></code> est prévue pour ce cas de figure&nbsp;: elle permet de compléter des combinaisons manquantes de valeurs de plusieurs colonnes.</p>
+<p>On peut l’utiliser de cette manière&nbsp;:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1"></a>df <span class="sc">|&gt;</span></span>
+<span id="cb34-2"><a href="#cb34-2"></a>  <span class="fu">complete</span>(eleve, matiere)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 3
+  eleve   matiere   note
+  &lt;chr&gt;   &lt;chr&gt;    &lt;dbl&gt;
+1 Alain   Français     9
+2 Alain   Maths       16
+3 Barnabé Français    NA
+4 Barnabé Maths       17
+5 Chantal Français    11
+6 Chantal Maths       NA</code></pre>
+</div>
+</div>
+<p>On voit que les combinaisons manquante “Barnabé - Français” et “Chantal - Maths” ont bien été ajoutées par <code><a href="https://tidyr.tidyverse.org/reference/complete.html">tidyr::complete()</a></code>.</p>
+<p>Par défaut les lignes insérées récupèrent des valeurs manquantes <code>NA</code> pour les colonnes restantes. On peut néanmoins choisir une autre valeur avec l’argument <code>fill</code>, qui prend la forme d’une liste nommée&nbsp;:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1"></a>df <span class="sc">|&gt;</span></span>
+<span id="cb36-2"><a href="#cb36-2"></a>  <span class="fu">complete</span>(</span>
+<span id="cb36-3"><a href="#cb36-3"></a>    eleve,</span>
+<span id="cb36-4"><a href="#cb36-4"></a>    matiere,</span>
+<span id="cb36-5"><a href="#cb36-5"></a>    <span class="at">fill =</span> <span class="fu">list</span>(<span class="at">note =</span> <span class="dv">0</span>)</span>
+<span id="cb36-6"><a href="#cb36-6"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 3
+  eleve   matiere   note
+  &lt;chr&gt;   &lt;chr&gt;    &lt;dbl&gt;
+1 Alain   Français     9
+2 Alain   Maths       16
+3 Barnabé Français     0
+4 Barnabé Maths       17
+5 Chantal Français    11
+6 Chantal Maths        0</code></pre>
+</div>
+</div>
+<p>Parfois on ne souhaite pas inclure toutes les colonnes dans le calcul des combinaisons de valeurs. Par exemple, supposons qu’on rajoute dans notre tableau une colonne avec les identifiants de chaque élève&nbsp;:</p>
+<div class="cell">
+<div class="cell-output-display">
+<table class="table table-sm table-striped small">
+<thead><tr class="header">
+<th style="text-align: right;">id</th>
+<th style="text-align: left;">eleve</th>
+<th style="text-align: left;">matiere</th>
+<th style="text-align: right;">note</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">1001001</td>
+<td style="text-align: left;">Alain</td>
+<td style="text-align: left;">Maths</td>
+<td style="text-align: right;">16</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">1001001</td>
+<td style="text-align: left;">Alain</td>
+<td style="text-align: left;">Français</td>
+<td style="text-align: right;">9</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">1001002</td>
+<td style="text-align: left;">Barnabé</td>
+<td style="text-align: left;">Maths</td>
+<td style="text-align: right;">17</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">1001003</td>
+<td style="text-align: left;">Chantal</td>
+<td style="text-align: left;">Français</td>
+<td style="text-align: right;">11</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>Si on applique <code><a href="https://tidyr.tidyverse.org/reference/complete.html">tidyr::complete()</a></code> comme précédemment, le résultat n’est pas bon car il génère des valeurs manquantes pour <code>id.</code></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1"></a>df <span class="sc">|&gt;</span></span>
+<span id="cb38-2"><a href="#cb38-2"></a>  <span class="fu">complete</span>(eleve, matiere)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 4
+  eleve   matiere       id  note
+  &lt;chr&gt;   &lt;chr&gt;      &lt;dbl&gt; &lt;dbl&gt;
+1 Alain   Français 1001001     9
+2 Alain   Maths    1001001    16
+3 Barnabé Français      NA    NA
+4 Barnabé Maths    1001002    17
+5 Chantal Français 1001003    11
+6 Chantal Maths         NA    NA</code></pre>
+</div>
+</div>
+<p>Et si nous ajoutons <code>id</code> dans l’appel de la fonction, nous obtenons toutes les combinaisons de <code>id</code>, <code>eleve</code> et <code>matiere</code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1"></a>df <span class="sc">|&gt;</span></span>
+<span id="cb40-2"><a href="#cb40-2"></a>  <span class="fu">complete</span>(id, eleve, matiere)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 18 × 4
+        id eleve   matiere   note
+     &lt;dbl&gt; &lt;chr&gt;   &lt;chr&gt;    &lt;dbl&gt;
+ 1 1001001 Alain   Français     9
+ 2 1001001 Alain   Maths       16
+ 3 1001001 Barnabé Français    NA
+ 4 1001001 Barnabé Maths       NA
+ 5 1001001 Chantal Français    NA
+ 6 1001001 Chantal Maths       NA
+ 7 1001002 Alain   Français    NA
+ 8 1001002 Alain   Maths       NA
+ 9 1001002 Barnabé Français    NA
+10 1001002 Barnabé Maths       17
+11 1001002 Chantal Français    NA
+12 1001002 Chantal Maths       NA
+13 1001003 Alain   Français    NA
+14 1001003 Alain   Maths       NA
+15 1001003 Barnabé Français    NA
+16 1001003 Barnabé Maths       NA
+17 1001003 Chantal Français    11
+18 1001003 Chantal Maths       NA</code></pre>
+</div>
+</div>
+<p>Dans ce cas, pour signifier à <code><a href="https://tidyr.tidyverse.org/reference/complete.html">tidyr::complete()</a></code> que <code>id</code> et <code>eleve</code> sont deux attributs d’un même individu et ne doivent pas être combinés entre eux, on doit les placer dans une fonction <code><a href="https://tidyr.tidyverse.org/reference/expand.html">tidyr::nesting()</a></code>&nbsp;:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1"></a>df <span class="sc">|&gt;</span></span>
+<span id="cb42-2"><a href="#cb42-2"></a>  <span class="fu">complete</span>(</span>
+<span id="cb42-3"><a href="#cb42-3"></a>    <span class="fu">nesting</span>(id, eleve),</span>
+<span id="cb42-4"><a href="#cb42-4"></a>    matiere</span>
+<span id="cb42-5"><a href="#cb42-5"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 4
+       id eleve   matiere   note
+    &lt;dbl&gt; &lt;chr&gt;   &lt;chr&gt;    &lt;dbl&gt;
+1 1001001 Alain   Français     9
+2 1001001 Alain   Maths       16
+3 1001002 Barnabé Français    NA
+4 1001002 Barnabé Maths       17
+5 1001003 Chantal Français    11
+6 1001003 Chantal Maths       NA</code></pre>
+</div>
+</div>
+</section><section id="ressources" class="level2" data-number="36.10"><h2 data-number="36.10" class="anchored" data-anchor-id="ressources">
+<span class="header-section-number">36.10</span> Ressources</h2>
+<p>Chaque jeu de données est différent, et le travail de remise en forme est souvent long et plus ou moins compliqué. On n’a donné ici que les exemples les plus simples, et c’est souvent en combinant différentes opérations qu’on finit par obtenir le résultat souhaité.</p>
+<p>Le livre <em>R for data science</em>, librement accessible en ligne, contient <a href="https://r4ds.hadley.nz/data-tidy.html">un chapitre complet</a> sur la remise en forme des données.</p>
+<p>L’article <a href="https://www.jstatsoft.org/article/view/v059i10">Tidy data</a>, publié en 2014 dans le <em>Journal of Statistical Software</em> (doi: <a href="https://doi.org/10.18637/jss.v059.i10">10.18637/jss.v059.i10</a>), présente de manière détaillée le concept éponyme (mais il utilise des extensions désormais obsolètes qui ont depuis été remplacées par <a href="https://dplyr.tidyverse.org">dplyr</a> et<a href="https://tidyr.tidyverse.org">tidyr</a>).</p>
+<p>Le site de l’extension est accessible à l’adresse&nbsp;: <a href="http://tidyr.tidyverse.org/" class="uri">http://tidyr.tidyverse.org/</a> et contient une liste des fonctions et les pages d’aide associées.</p>
+<p>En particulier, on pourra se référer à la <a href="https://tidyr.tidyverse.org/articles/pivot.html">vignette dédiée</a> à <code><a href="https://tidyr.tidyverse.org/reference/pivot_wider.html">tidyr::pivot_wider()</a></code> et <code><a href="https://tidyr.tidyverse.org/reference/pivot_longer.html">tidyr::pivot_longer()</a></code> pour des exemples avancés de réorganisation des données.</p>
+<p>Pour des usages avancés, il est possible avec <a href="https://tidyr.tidyverse.org">tidyr</a> de gérer des données nichées (<em>nested data</em>), c’est-à-dire des tableaux de données dans des tableaux de données. Ces fonctionnalités, réservées aux utilisateurs avancés, sont décrites dans une <a href="https://tidyr.tidyverse.org/articles/nest.html">vignette spécifique</a>.</p>
+</section><section id="fichiers-volumineux" class="level2" data-number="36.11"><h2 data-number="36.11" class="anchored" data-anchor-id="fichiers-volumineux">
+<span class="header-section-number">36.11</span> Fichiers volumineux</h2>
+<p>Si l’on a des tableaux de données particulièrement volumineux (plusieurs Go), les fonctions de <a href="https://tidyr.tidyverse.org">tidyr</a> ne sont pas les plus performantes.</p>
+<p>On aura alors intérêt à regarder du côté des fonctions <code><a href="https://rdatatable.gitlab.io/data.table/reference/melt.data.table.html">data.table::melt()</a></code> et <code><a href="https://rdatatable.gitlab.io/data.table/reference/dcast.data.table.html">data.table::dcast()</a></code> de l’extension <a href="https://r-datatable.com">data.table</a> développées pour optimiser la performance sur les grands tableaux de données.</p>
+<p>Pour plus de détails, voir la vignette dédiée : <a href="https://rdatatable.gitlab.io/data.table/articles/datatable-reshape.html" class="uri">https://rdatatable.gitlab.io/data.table/articles/datatable-reshape.html</a></p>
+</section><section id="webin-r" class="level2" data-number="36.12"><h2 data-number="36.12" class="anchored" data-anchor-id="webin-r">
+<span class="header-section-number">36.12</span> webin-R</h2>
+<p>Le package <a href="https://tidyr.tidyverse.org">tidyr</a> est évoqué sur YouTube dans le <a href="https://youtu.be/5sD4Z8bTlMM">webin-R #13</a> (<em>exemples de graphiques avancés</em>) et le le <a href="https://youtu.be/JV1Srrg09oI">webin-R #17</a> (<em>trajectoires de soins : un exemple de données longitudinales</em>).</p>
+<div class="quarto-video ratio ratio-16x9"><iframe data-external="1" src="https://www.youtube.com/embed/5sD4Z8bTlMM" title="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe></div>
+<div class="quarto-video ratio ratio-16x9"><iframe data-external="1" src="https://www.youtube.com/embed/JV1Srrg09oI" title="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe></div>
+
+
+</section></main><!-- /main --><script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const disableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'prefetch';
+    }
+  }
+  const enableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'stylesheet';
+    }
+  }
+  const manageTransitions = (selector, allowTransitions) => {
+    const els = window.document.querySelectorAll(selector);
+    for (let i=0; i < els.length; i++) {
+      const el = els[i];
+      if (allowTransitions) {
+        el.classList.remove('notransition');
+      } else {
+        el.classList.add('notransition');
+      }
+    }
+  }
+  const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+    const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+    const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+    let newTheme = '';
+    if(darkModeDefault) {
+      newTheme = isAlternate ? baseTheme : alternateTheme;
+    } else {
+      newTheme = isAlternate ? alternateTheme : baseTheme;
+    }
+    const changeGiscusTheme = () => {
+      // From: https://github.com/giscus/giscus/issues/336
+      const sendMessage = (message) => {
+        const iframe = document.querySelector('iframe.giscus-frame');
+        if (!iframe) return;
+        iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+      }
+      sendMessage({
+        setConfig: {
+          theme: newTheme
+        }
+      });
+    }
+    const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+    if (isGiscussLoaded) {
+      changeGiscusTheme();
+    }
+  }
+  const toggleColorMode = (alternate) => {
+    // Switch the stylesheets
+    const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+    manageTransitions('#quarto-margin-sidebar .nav-link', false);
+    if (alternate) {
+      enableStylesheet(alternateStylesheets);
+      for (const sheetNode of alternateStylesheets) {
+        if (sheetNode.id === "quarto-bootstrap") {
+          toggleBodyColorMode(sheetNode);
+        }
+      }
+    } else {
+      disableStylesheet(alternateStylesheets);
+      toggleBodyColorPrimary();
+    }
+    manageTransitions('#quarto-margin-sidebar .nav-link', true);
+    // Switch the toggles
+    const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+    for (let i=0; i < toggles.length; i++) {
+      const toggle = toggles[i];
+      if (toggle) {
+        if (alternate) {
+          toggle.classList.add("alternate");     
+        } else {
+          toggle.classList.remove("alternate");
+        }
+      }
+    }
+    // Hack to workaround the fact that safari doesn't
+    // properly recolor the scrollbar when toggling (#1455)
+    if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+      manageTransitions("body", false);
+      window.scrollTo(0, 1);
+      setTimeout(() => {
+        window.scrollTo(0, 0);
+        manageTransitions("body", true);
+      }, 40);  
+    }
+  }
+  const isFileUrl = () => { 
+    return window.location.protocol === 'file:';
+  }
+  const hasAlternateSentinel = () => {  
+    let styleSentinel = getColorSchemeSentinel();
+    if (styleSentinel !== null) {
+      return styleSentinel === "alternate";
+    } else {
+      return false;
+    }
+  }
+  const setStyleSentinel = (alternate) => {
+    const value = alternate ? "alternate" : "default";
+    if (!isFileUrl()) {
+      window.localStorage.setItem("quarto-color-scheme", value);
+    } else {
+      localAlternateSentinel = value;
+    }
+  }
+  const getColorSchemeSentinel = () => {
+    if (!isFileUrl()) {
+      const storageValue = window.localStorage.getItem("quarto-color-scheme");
+      return storageValue != null ? storageValue : localAlternateSentinel;
+    } else {
+      return localAlternateSentinel;
+    }
+  }
+  const darkModeDefault = false;
+  let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+  // Dark / light mode switch
+  window.quartoToggleColorScheme = () => {
+    // Read the current dark / light value 
+    let toAlternate = !hasAlternateSentinel();
+    toggleColorMode(toAlternate);
+    setStyleSentinel(toAlternate);
+    toggleGiscusIfUsed(toAlternate, darkModeDefault);
+  };
+  // Ensure there is a toggle, if there isn't float one in the top right
+  if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+    const a = window.document.createElement('a');
+    a.classList.add('top-right');
+    a.classList.add('quarto-color-scheme-toggle');
+    a.href = "";
+    a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+    const i = window.document.createElement("i");
+    i.classList.add('bi');
+    a.appendChild(i);
+    window.document.body.appendChild(a);
+  }
+  // Switch to dark mode if need be
+  if (hasAlternateSentinel()) {
+    toggleColorMode(true);
+  } else {
+    toggleColorMode(false);
+  }
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copié");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copié");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script><script src="https://giscus.app/client.js" data-repo="larmarange/guide-R" data-repo-id="R_kgDOH6-xnw" data-category="Forum" data-category-id="DIC_kwDOH6-xn84CRLQy" data-mapping="pathname" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="top" data-theme="light" data-lang="fr" crossorigin="anonymous" data-loading="lazy" async="">
+</script><input type="hidden" id="giscus-base-theme" value="light"><input type="hidden" id="giscus-alt-theme" value="dark"><nav class="page-navigation"><div class="nav-page nav-page-previous">
+      <a href="../manipulation_avancee/stringr.html" class="pagination-link" aria-label="Chaînes de texte avec `stringr`">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">35</span>&nbsp; <span class="chapter-title">Chaînes de texte avec <code>stringr</code></span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../manipulation_avancee/conditions-logiques.html" class="pagination-link" aria-label="Conditions logiques">
+        <span class="nav-page-text"><span class="chapter-number">37</span>&nbsp; <span class="chapter-title">Conditions logiques</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+<footer class="footer"><div class="nav-footer">
+    <div class="nav-footer-left">
+      <ul class="footer-items list-unstyled">
+<li class="nav-item">
+ guide-R : Guide pour l'analyse de données d'enquêtes avec R
+  </li>  
+</ul>
+</div>   
+    <div class="nav-footer-center">
+
+<div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/larmarange/guide-R/blob/main/manipulation_avancee/tidyr.qmd" class="toc-action"><i class="bi bi-github"></i>Voir la source</a></li><li><a href="https://github.com/larmarange/guide-R/issues/new" class="toc-action"><i class="bi empty"></i>Faire part d'un problème</a></li></ul></div><div class="cookie-consent-footer"><a href="#" id="open_preferences_center">Cookie Preferences</a></div></div>
+    <div class="nav-footer-right">
+      <ul class="footer-items list-unstyled">
+<li class="nav-item compact">
+    <a class="nav-link" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">
+      <i class="bi bi-badge-cc-fill" role="img">
+</i> 
+    </a>
+  </li>  
+    <li class="nav-item compact">
+    <a class="nav-link active" href="https://github.com/larmarange/guide-R/" aria-current="page">
+      <i class="bi bi-github" role="img">
+</i> 
+    </a>
+  </li>  
+    <li class="nav-item compact">
+    <a class="nav-link" href="https://www.youtube.com/c/webinR">
+      <i class="bi bi-youtube" role="img">
+</i> 
+    </a>
+  </li>  
+    <li class="nav-item">
+    <a class="nav-link" href="https://larmarange.github.io/analyse-R/">
+<p>analyse-R</p>
+</a>
+  </li>  
+    <li class="nav-item">
+    <a class="nav-link" href="https://larmarange.github.io/webin-R/">
+<p>webin-R</p>
+</a>
+  </li>  
+</ul>
+</div>
+  </div>
+</footer><script>var lightboxQuarto = GLightbox({"openEffect":"zoom","closeEffect":"zoom","selector":".lightbox","loop":false,"descPosition":"bottom"});
+window.onload = () => {
+  lightboxQuarto.on('slide_before_load', (data) => {
+    const { slideIndex, slideNode, slideConfig, player, trigger } = data;
+    const href = trigger.getAttribute('href');
+    if (href !== null) {
+      const imgEl = window.document.querySelector(`a[href="${href}"] img`);
+      if (imgEl !== null) {
+        const srcAttr = imgEl.getAttribute("src");
+        if (srcAttr && srcAttr.startsWith("data:")) {
+          slideConfig.href = srcAttr;
+        }
+      }
+    } 
+  });
+
+  lightboxQuarto.on('slide_after_load', (data) => {
+    const { slideIndex, slideNode, slideConfig, player, trigger } = data;
+    if (window.Quarto?.typesetMath) {
+      window.Quarto.typesetMath(slideNode);
+    }
+  });
+
+};
+          </script>
+
+
+<script src="../site_libs/quarto-html/zenscroll-min.js"></script>
+</body></html>
