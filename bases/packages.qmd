@@ -25,15 +25,17 @@ install.packages("gtsummary")
 
 Sous **RStudio**, on pourra également cliquer sur *Install* dans l'onglet *Packages* du quadrant inférieur droit.
 
-Alternativement, on pourra avoir recours au package `{remotes}` et à sa fonction `remotes::install_cran()` :
+Alternativement, on pourra avoir recours au package `{pak}`[^packages-1] et à sa fonction `pak::pkg_install()` :
+
+[^packages-1]: Précédemment, il y avait également le package `{remotes}`. Le package `{pak}` est cependant plus récent et offres plus d'options.
 
 ```{r}
 #| eval: false
-remotes::install_cran("gtsummary")
+pak::pkg_install()("gtsummary")
 ```
 
 ::: callout-note
-Le package `{remotes}` n'est pas disponible par défaut sous **R** et devra donc être installé classiquement avec `install.packages("remotes")`. À la différence de `install.packages()`, `remotes::install_cran()` vérifie si le package est déjà installé et, si oui, si la version installée est déjà la dernière version, avant de procéder à une installation complète si et seulement si cela est nécessaire.
+Le package `{pak}` n'est pas disponible par défaut sous **R** et devra donc être installé classiquement avec `install.packages("pak")`. À la différence de `install.packages()`, ``` pak::pkg_install``() ``` vérifie si le package est déjà installé et, si oui, si la version installée est déjà la dernière version, avant de procéder à une installation complète si et seulement si cela est nécessaire.
 :::
 
 ## Chargement
@@ -47,7 +49,7 @@ library(gtsummary)
 
 À partir de là, on peut utiliser les fonctions de l'extension, consulter leur page d'aide en ligne, accéder aux jeux de données qu'elle contient, etc.
 
-Alternativement, pour accéder à un objet ou une fonction d'un package sans avoir à le charger en mémoire, on pourra avoir recours à l'opérateur `::`. Ainsi, l'écriture `p::f()` signifie la fonction `f()` du package `p`. Cette écriture sera notamment utilisée tout au long de ce guide pour indiquer à quel package appartient telle fonction : `remotes::install_cran()` indique que la fonction `install_cran()` provient du packages `{remotes}`.
+Alternativement, pour accéder à un objet ou une fonction d'un package sans avoir à le charger en mémoire, on pourra avoir recours à l'opérateur `::`. Ainsi, l'écriture `p::f()` signifie la fonction `f()` du package `p`. Cette écriture sera notamment utilisée tout au long de ce guide pour indiquer à quel package appartient telle fonction : ``` pak::pkg_install``() ``` indique que la fonction `pkg_install()` provient du package `{pak}`.
 
 ::: callout-important
 Il est important de bien comprendre la différence entre `install.packages()` et `library()`. La première va chercher un package sur internet et l'installe en local sur le disque dur de l'ordinateur. On n'a besoin d'effectuer cette opération qu'une seule fois. La seconde lit les informations de l'extension sur le disque dur et les met à disposition de **R**. On a besoin de l'exécuter à chaque début de session ou de script.
@@ -76,7 +78,7 @@ remove.packages("gtsummary")
 
 Après une mise à jour majeure de **R**, il est souvent nécessaire de réinstaller tous les packages utilisés. De même, on peut parfois souhaiter mettre à jour uniquement les packages utilisés par un projet donné sans avoir à mettre à jour tous les autres packages présents sur son PC.
 
-Une astuce consiste à avoir recours à la fonction `renv::dependencies()` qui examine le code du projet courant pour identifier les packages utilisés, puis à passer cette liste de packages à `remotes::install_cran()` qui installera les packages manquants ou pour lesquels une mise à jour est disponible.
+Une astuce consiste à avoir recours à la fonction `renv::dependencies()` qui examine le code du projet courant pour identifier les packages utilisés, puis à passer cette liste de packages à `pak::pkg_install()` qui installera les packages manquants ou pour lesquels une mise à jour est dis
 
 Il vous suffit d'exécuter la commande ci-dessous :
 
@@ -85,7 +87,7 @@ Il vous suffit d'exécuter la commande ci-dessous :
 renv::dependencies() |> 
   purrr::pluck("Package") |>
   unique() |> 
-  remotes::install_cran()
+  pak::pkg_install(upgrade = TRUE)
 ```
 :::
 
@@ -103,11 +105,11 @@ Pour les utilisatrices et utilisateurs sous **Windows**, il faut être conscient
 Par contre, lorsque l'on installe un package depuis **GitHub**, **R** ne récupère que le code source et il est donc nécessaire de compiler localement le package. Pour cela, il est nécessaire que soit installé sur le PC un outil complémentaire appelé **RTools**. Il est téléchargeable à l'adresse <https://cran.r-project.org/bin/windows/Rtools/>.
 :::
 
-Le code source du package `{labelled}` est disponible sur **GitHub** à l'adresse <https://github.com/larmarange/labelled>. Pour installer la version de développement de `{labelled}`,on aura recours à la fonction `remotes::install_github()` à laquelle on passera la partie située à droite de `https://github.com/` dans l'URL du package, à savoir :
+Le code source du package `{labelled}` est disponible sur **GitHub** à l'adresse <https://github.com/larmarange/labelled>. Pour installer la version de développement de `{labelled}`,on aura recours à la fonction `pak::pkg_install()` à laquelle on passera la partie située à droite de `https://github.com/` dans l'URL du package, à savoir :
 
 ```{r}
 #| eval: false
-remotes::install_github("larmarange/labelled")
+pak::pkg_install("larmarange/labelled")
 ```
 
 ## Le tidyverse
@@ -131,9 +133,9 @@ Un des objectifs de ces extensions est de fournir des fonctions avec une syntaxe
 install.packages("tidyverse")
 ```
 
-Lorsque l'on charge le package `{tidyverse}` avec `library()`, cela charge également en mémoire les principaux packages du *tidyverse*[^packages-1].
+Lorsque l'on charge le package `{tidyverse}` avec `library()`, cela charge également en mémoire les principaux packages du *tidyverse*[^packages-2].
 
-[^packages-1]: Si on a besoin d'un autre package du *tidyverse* comme `{lubridate}`, il faudra donc le charger individuellement.
+[^packages-2]: Si on a besoin d'un autre package du *tidyverse* comme `{lubridate}`, il faudra donc le charger individuellement.
 
 ```{r}
 library(tidyverse)
@@ -153,11 +155,11 @@ pkgs <- renv::dependencies(path = "../") |>
   purrr::pluck("Package") |>
   unique() |> 
   sort()
-pkgs <- pkgs[pkgs != "remotes"]
+pkgs <- pkgs[pkgs != "pak"]
 cmd <- paste0(
-  "install.packages(\"remotes\")\n",
+  "install.packages(\"pak\")\n",
   paste(deparse(pkgs), collapse = "\n"),
-  " |>\nremotes::install_cran()"
+  " |>\npak::pkg_install()"
 )
 ```
 
@@ -165,4 +167,3 @@ cmd <- paste0(
 #| echo: false
 message(cmd)
 ```
-
