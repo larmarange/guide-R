@@ -820,63 +820,10 @@ Figure&nbsp;41.3: Représentation graphique du dendrogramme avec fviz_dend()
 </div>
 </div>
 <p>Pour nous aider dans l’analyse du dendrogramme, il est possible de représenter graphiquement les sauts d’inertie (i.e.&nbsp;de la hauteur des branches) au fur-et-à-mesure que l’on découpe l’arbre en un nombre de classes plus important. Nous pouvons également considérer la perte absolue d’inertie (l’écart de hauteur entre le découpage précédent et le découpage considéré) voire la perte relative (i.e.&nbsp;la perte absolue exprimée en pourcentage de la hauteur précédente). <a href="http://factominer.free.fr">FactoMineR</a> (que nous aborderons un peu plus loin) suggère par défaut la partition correspondant à la plus grande perte relative d’inertie (<em>the one with the higher relative loss of inertia</em>).</p>
-<p>Pour faciliter les choses, voici deux petites fonctions que vous pouvez recopier / adapter dans vos scripts. <code>get_inertia_from_tree()</code> calcule l’inertie à chaque niveau, ainsi que les pertes absolues et relatives. <code>plot_inertia_from_tree()</code> en propose une représentation graphique.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a>get_inertia_from_tree <span class="ot">&lt;-</span> <span class="cf">function</span>(tree, <span class="at">k_max =</span> <span class="dv">15</span>) {</span>
-<span id="cb9-2"><a href="#cb9-2"></a>  <span class="cf">if</span> (<span class="fu">inherits</span>(tree, <span class="st">"HCPC"</span>))</span>
-<span id="cb9-3"><a href="#cb9-3"></a>    tree <span class="ot">&lt;-</span> tree<span class="sc">$</span>call<span class="sc">$</span>t<span class="sc">$</span>tree</span>
-<span id="cb9-4"><a href="#cb9-4"></a>  <span class="cf">if</span> (<span class="sc">!</span><span class="fu">inherits</span>(tree, <span class="st">"hclust"</span>))</span>
-<span id="cb9-5"><a href="#cb9-5"></a>    tree <span class="ot">&lt;-</span> <span class="fu">as.hclust</span>(tree)</span>
-<span id="cb9-6"><a href="#cb9-6"></a>  inertia <span class="ot">&lt;-</span> tree<span class="sc">$</span>height <span class="sc">|&gt;</span> </span>
-<span id="cb9-7"><a href="#cb9-7"></a>    <span class="fu">sort</span>(<span class="at">decreasing =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb9-8"><a href="#cb9-8"></a>    <span class="fu">head</span>(k_max)</span>
-<span id="cb9-9"><a href="#cb9-9"></a>  prev_inertia <span class="ot">&lt;-</span> dplyr<span class="sc">::</span><span class="fu">lag</span>(inertia)</span>
-<span id="cb9-10"><a href="#cb9-10"></a>  dplyr<span class="sc">::</span><span class="fu">tibble</span>(</span>
-<span id="cb9-11"><a href="#cb9-11"></a>    <span class="at">k =</span> <span class="fu">seq_along</span>(inertia),</span>
-<span id="cb9-12"><a href="#cb9-12"></a>    <span class="at">inertia =</span> inertia,</span>
-<span id="cb9-13"><a href="#cb9-13"></a>    <span class="at">absolute_loss =</span> inertia <span class="sc">-</span> prev_inertia,</span>
-<span id="cb9-14"><a href="#cb9-14"></a>    <span class="at">relative_loss =</span> (inertia <span class="sc">-</span> prev_inertia) <span class="sc">/</span> prev_inertia</span>
-<span id="cb9-15"><a href="#cb9-15"></a>  )</span>
-<span id="cb9-16"><a href="#cb9-16"></a>}</span>
-<span id="cb9-17"><a href="#cb9-17"></a></span>
-<span id="cb9-18"><a href="#cb9-18"></a>plot_inertia_from_tree <span class="ot">&lt;-</span> <span class="cf">function</span>(tree, <span class="at">k_max =</span> <span class="dv">15</span>) {</span>
-<span id="cb9-19"><a href="#cb9-19"></a>  d <span class="ot">&lt;-</span> <span class="fu">get_inertia_from_tree</span>(tree, k_max)</span>
-<span id="cb9-20"><a href="#cb9-20"></a>  p_inertia <span class="ot">&lt;-</span> </span>
-<span id="cb9-21"><a href="#cb9-21"></a>    ggplot2<span class="sc">::</span><span class="fu">ggplot</span>(d) <span class="sc">+</span></span>
-<span id="cb9-22"><a href="#cb9-22"></a>    ggplot2<span class="sc">::</span><span class="fu">aes</span>(<span class="at">x =</span> k, <span class="at">y =</span> inertia) <span class="sc">+</span></span>
-<span id="cb9-23"><a href="#cb9-23"></a>    ggplot2<span class="sc">::</span><span class="fu">geom_step</span>() <span class="sc">+</span></span>
-<span id="cb9-24"><a href="#cb9-24"></a>    ggplot2<span class="sc">::</span><span class="fu">ylab</span>(<span class="st">"Inertia"</span>)</span>
-<span id="cb9-25"><a href="#cb9-25"></a>  p_absolute <span class="ot">&lt;-</span></span>
-<span id="cb9-26"><a href="#cb9-26"></a>    ggplot2<span class="sc">::</span><span class="fu">ggplot</span>(d) <span class="sc">+</span></span>
-<span id="cb9-27"><a href="#cb9-27"></a>    ggplot2<span class="sc">::</span><span class="fu">aes</span>(<span class="at">x =</span> k, <span class="at">y =</span> absolute_loss) <span class="sc">+</span></span>
-<span id="cb9-28"><a href="#cb9-28"></a>    ggplot2<span class="sc">::</span><span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">"identity"</span>, <span class="at">fill =</span> <span class="st">"#4477AA"</span>) <span class="sc">+</span></span>
-<span id="cb9-29"><a href="#cb9-29"></a>    ggplot2<span class="sc">::</span><span class="fu">ylab</span>(<span class="st">"Absolute loss"</span>)</span>
-<span id="cb9-30"><a href="#cb9-30"></a>  p_relative <span class="ot">&lt;-</span></span>
-<span id="cb9-31"><a href="#cb9-31"></a>    ggplot2<span class="sc">::</span><span class="fu">ggplot</span>(d) <span class="sc">+</span></span>
-<span id="cb9-32"><a href="#cb9-32"></a>    ggplot2<span class="sc">::</span><span class="fu">aes</span>(<span class="at">x =</span> k, <span class="at">y =</span> relative_loss) <span class="sc">+</span></span>
-<span id="cb9-33"><a href="#cb9-33"></a>    ggplot2<span class="sc">::</span><span class="fu">geom_line</span>(<span class="at">color =</span> <span class="st">"#AA3377"</span>) <span class="sc">+</span></span>
-<span id="cb9-34"><a href="#cb9-34"></a>    ggplot2<span class="sc">::</span><span class="fu">geom_point</span>(<span class="at">size =</span> <span class="dv">3</span>, <span class="at">color =</span> <span class="st">"#AA3377"</span>) <span class="sc">+</span></span>
-<span id="cb9-35"><a href="#cb9-35"></a>    ggplot2<span class="sc">::</span><span class="fu">scale_y_continuous</span>(<span class="at">label =</span> scales<span class="sc">::</span>percent) <span class="sc">+</span></span>
-<span id="cb9-36"><a href="#cb9-36"></a>    ggplot2<span class="sc">::</span><span class="fu">ylab</span>(<span class="st">"Relative loss"</span>)</span>
-<span id="cb9-37"><a href="#cb9-37"></a>  patchwork<span class="sc">::</span><span class="fu">wrap_plots</span>(</span>
-<span id="cb9-38"><a href="#cb9-38"></a>    p_inertia,</span>
-<span id="cb9-39"><a href="#cb9-39"></a>    p_absolute,</span>
-<span id="cb9-40"><a href="#cb9-40"></a>    p_relative,</span>
-<span id="cb9-41"><a href="#cb9-41"></a>    <span class="at">ncol =</span> <span class="dv">1</span></span>
-<span id="cb9-42"><a href="#cb9-42"></a>  ) <span class="sc">&amp;</span></span>
-<span id="cb9-43"><a href="#cb9-43"></a>    ggplot2<span class="sc">::</span><span class="fu">theme_light</span>() <span class="sc">&amp;</span></span>
-<span id="cb9-44"><a href="#cb9-44"></a>    ggplot2<span class="sc">::</span><span class="fu">xlab</span>(<span class="st">"Number of clusters"</span>) <span class="sc">&amp;</span></span>
-<span id="cb9-45"><a href="#cb9-45"></a>    ggplot2<span class="sc">::</span><span class="fu">scale_x_continuous</span>(</span>
-<span id="cb9-46"><a href="#cb9-46"></a>      <span class="at">breaks =</span> d<span class="sc">$</span>k,</span>
-<span id="cb9-47"><a href="#cb9-47"></a>      <span class="at">minor_breaks =</span> <span class="cn">NULL</span>,</span>
-<span id="cb9-48"><a href="#cb9-48"></a>      <span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">1</span>, k_max)</span>
-<span id="cb9-49"><a href="#cb9-49"></a>    )</span>
-<span id="cb9-50"><a href="#cb9-50"></a>}</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<p>Voyons ce qu’on obtient.</p>
+<p>Pour faciliter les choses, <a href="https://larmarange.github.io/guideR/">guideR</a>, le package compagnon de <em>guide-R</em>, propose deux petites fonctions&nbsp;: <code><a href="https://larmarange.github.io/guideR/reference/plot_inertia_from_tree.html">guideR::get_inertia_from_tree()</a></code> calcule l’inertie à chaque niveau, ainsi que les pertes absolues et relatives; <code><a href="https://larmarange.github.io/guideR/reference/plot_inertia_from_tree.html">guideR::plot_inertia_from_tree()</a></code> en propose une représentation graphique.</p>
 <div class="cell page-columns page-full">
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a>arbre_gower <span class="sc">|&gt;</span> </span>
-<span id="cb10-2"><a href="#cb10-2"></a>  <span class="fu">plot_inertia_from_tree</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a>arbre_gower <span class="sc">|&gt;</span> </span>
+<span id="cb9-2"><a href="#cb9-2"></a>  guideR<span class="sc">::</span><span class="fu">plot_inertia_from_tree</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display page-columns page-full">
 <div id="fig-plot_inertia_from_tree-gower" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full"><div aria-describedby="fig-plot_inertia_from_tree-gower-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -891,37 +838,37 @@ Figure&nbsp;41.4: Inertie, perte absolue et perte relative d’inertie pour diff
 <p>Dans cet exemple, nous pouvons voir qu’un découpage en deux classes maximise la perte absolue et la perte relative d’inertie. Mais, pour les besoins de l’analyse, nous pouvons souhaiter un nombre de classe un peu plus élevé (plus de classes permet une analyse plus fine, trop de classes rend l’interprétation des résultats compliqués). Un découpage en 4 classes apparaît sur ce graphique comme une bonne alternative, voir un découpage en 6 classes (une lecture du dendrogramme nous permet de voir que, dans cet exemple, un découpage en 6 classes reviendrait à couper en deux les 2 classes les plus larges du découpage en 4 classes).</p>
 <p>Pour découper notre dendrogramme et récupérer la classification, nous appliquerons la fonction <code><a href="https://rdrr.io/r/stats/cutree.html">cutree()</a></code> au dendrogramme, en indiquant le nombre de classes souhaitées<a href="#fn9" class="footnote-ref" id="fnref9" role="doc-noteref"><sup>9</sup></a>.</p>
 <div class="no-row-height column-margin column-container"><div id="fn9"><p><sup>9</sup>&nbsp;Ici, nous pouvons ajouter le résultat obtenu directement à notre tableau de données <code>hdv2003</code> dans la mesure où, depuis le début de l’analyse, l’ordre des lignes n’a jamais changé à aucune étape de l’analyse.</p></div></div><div class="cell">
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a>hdv2003<span class="sc">$</span>typo_gower_4classes <span class="ot">&lt;-</span> arbre_gower <span class="sc">|&gt;</span> </span>
-<span id="cb11-2"><a href="#cb11-2"></a>  <span class="fu">cutree</span>(<span class="dv">4</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a>hdv2003<span class="sc">$</span>typo_gower_4classes <span class="ot">&lt;-</span> arbre_gower <span class="sc">|&gt;</span> </span>
+<span id="cb10-2"><a href="#cb10-2"></a>  <span class="fu">cutree</span>(<span class="dv">4</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Nous pouvons rapidement faire un tri à plat avec <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/tbl_summary.html">gtsummary::tbl_summary()</a></code>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a><span class="fu">library</span>(gtsummary)</span>
-<span id="cb12-2"><a href="#cb12-2"></a><span class="fu">theme_gtsummary_language</span>(<span class="st">"fr"</span>, <span class="at">decimal.mark =</span> <span class="st">","</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a><span class="fu">library</span>(gtsummary)</span>
+<span id="cb11-2"><a href="#cb11-2"></a><span class="fu">theme_gtsummary_language</span>(<span class="st">"fr"</span>, <span class="at">decimal.mark =</span> <span class="st">","</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell page-columns page-full">
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a>hdv2003 <span class="sc">|&gt;</span> </span>
-<span id="cb13-2"><a href="#cb13-2"></a>  <span class="fu">tbl_summary</span>(<span class="at">include =</span> typo_gower_4classes)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a>hdv2003 <span class="sc">|&gt;</span> </span>
+<span id="cb12-2"><a href="#cb12-2"></a>  <span class="fu">tbl_summary</span>(<span class="at">include =</span> typo_gower_4classes)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div id="tbl-tbl_summary-typo_gower_4classes" class="cell quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-tbl figure page-columns page-full"><div aria-describedby="tbl-tbl_summary-typo_gower_4classes-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
-<div id="bbfbxdeolm" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#bbfbxdeolm table {
+<div id="qrircblysy" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#qrircblysy table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#bbfbxdeolm thead, #bbfbxdeolm tbody, #bbfbxdeolm tfoot, #bbfbxdeolm tr, #bbfbxdeolm td, #bbfbxdeolm th {
+#qrircblysy thead, #qrircblysy tbody, #qrircblysy tfoot, #qrircblysy tr, #qrircblysy td, #qrircblysy th {
   border-style: none;
 }
 
-#bbfbxdeolm p {
+#qrircblysy p {
   margin: 0;
   padding: 0;
 }
 
-#bbfbxdeolm .gt_table {
+#qrircblysy .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -947,12 +894,12 @@ Figure&nbsp;41.4: Inertie, perte absolue et perte relative d’inertie pour diff
   border-left-color: #D3D3D3;
 }
 
-#bbfbxdeolm .gt_caption {
+#qrircblysy .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#bbfbxdeolm .gt_title {
+#qrircblysy .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -964,7 +911,7 @@ Figure&nbsp;41.4: Inertie, perte absolue et perte relative d’inertie pour diff
   border-bottom-width: 0;
 }
 
-#bbfbxdeolm .gt_subtitle {
+#qrircblysy .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -976,7 +923,7 @@ Figure&nbsp;41.4: Inertie, perte absolue et perte relative d’inertie pour diff
   border-top-width: 0;
 }
 
-#bbfbxdeolm .gt_heading {
+#qrircblysy .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -988,13 +935,13 @@ Figure&nbsp;41.4: Inertie, perte absolue et perte relative d’inertie pour diff
   border-right-color: #D3D3D3;
 }
 
-#bbfbxdeolm .gt_bottom_border {
+#qrircblysy .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#bbfbxdeolm .gt_col_headings {
+#qrircblysy .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1009,7 +956,7 @@ Figure&nbsp;41.4: Inertie, perte absolue et perte relative d’inertie pour diff
   border-right-color: #D3D3D3;
 }
 
-#bbfbxdeolm .gt_col_heading {
+#qrircblysy .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1029,7 +976,7 @@ Figure&nbsp;41.4: Inertie, perte absolue et perte relative d’inertie pour diff
   overflow-x: hidden;
 }
 
-#bbfbxdeolm .gt_column_spanner_outer {
+#qrircblysy .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1041,15 +988,15 @@ Figure&nbsp;41.4: Inertie, perte absolue et perte relative d’inertie pour diff
   padding-right: 4px;
 }
 
-#bbfbxdeolm .gt_column_spanner_outer:first-child {
+#qrircblysy .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#bbfbxdeolm .gt_column_spanner_outer:last-child {
+#qrircblysy .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#bbfbxdeolm .gt_column_spanner {
+#qrircblysy .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -1061,11 +1008,11 @@ Figure&nbsp;41.4: Inertie, perte absolue et perte relative d’inertie pour diff
   width: 100%;
 }
 
-#bbfbxdeolm .gt_spanner_row {
+#qrircblysy .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#bbfbxdeolm .gt_group_heading {
+#qrircblysy .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1091,7 +1038,7 @@ Figure&nbsp;41.4: Inertie, perte absolue et perte relative d’inertie pour diff
   text-align: left;
 }
 
-#bbfbxdeolm .gt_empty_group_heading {
+#qrircblysy .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -1106,15 +1053,15 @@ Figure&nbsp;41.4: Inertie, perte absolue et perte relative d’inertie pour diff
   vertical-align: middle;
 }
 
-#bbfbxdeolm .gt_from_md > :first-child {
+#qrircblysy .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#bbfbxdeolm .gt_from_md > :last-child {
+#qrircblysy .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#bbfbxdeolm .gt_row {
+#qrircblysy .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1133,7 +1080,7 @@ Figure&nbsp;41.4: Inertie, perte absolue et perte relative d’inertie pour diff
   overflow-x: hidden;
 }
 
-#bbfbxdeolm .gt_stub {
+#qrircblysy .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1146,7 +1093,7 @@ Figure&nbsp;41.4: Inertie, perte absolue et perte relative d’inertie pour diff
   padding-right: 5px;
 }
 
-#bbfbxdeolm .gt_stub_row_group {
+#qrircblysy .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1160,15 +1107,15 @@ Figure&nbsp;41.4: Inertie, perte absolue et perte relative d’inertie pour diff
   vertical-align: top;
 }
 
-#bbfbxdeolm .gt_row_group_first td {
+#qrircblysy .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#bbfbxdeolm .gt_row_group_first th {
+#qrircblysy .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#bbfbxdeolm .gt_summary_row {
+#qrircblysy .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1178,16 +1125,16 @@ Figure&nbsp;41.4: Inertie, perte absolue et perte relative d’inertie pour diff
   padding-right: 5px;
 }
 
-#bbfbxdeolm .gt_first_summary_row {
+#qrircblysy .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#bbfbxdeolm .gt_first_summary_row.thick {
+#qrircblysy .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#bbfbxdeolm .gt_last_summary_row {
+#qrircblysy .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1197,7 +1144,7 @@ Figure&nbsp;41.4: Inertie, perte absolue et perte relative d’inertie pour diff
   border-bottom-color: #D3D3D3;
 }
 
-#bbfbxdeolm .gt_grand_summary_row {
+#qrircblysy .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1207,7 +1154,7 @@ Figure&nbsp;41.4: Inertie, perte absolue et perte relative d’inertie pour diff
   padding-right: 5px;
 }
 
-#bbfbxdeolm .gt_first_grand_summary_row {
+#qrircblysy .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1217,7 +1164,7 @@ Figure&nbsp;41.4: Inertie, perte absolue et perte relative d’inertie pour diff
   border-top-color: #D3D3D3;
 }
 
-#bbfbxdeolm .gt_last_grand_summary_row_top {
+#qrircblysy .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1227,11 +1174,11 @@ Figure&nbsp;41.4: Inertie, perte absolue et perte relative d’inertie pour diff
   border-bottom-color: #D3D3D3;
 }
 
-#bbfbxdeolm .gt_striped {
+#qrircblysy .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#bbfbxdeolm .gt_table_body {
+#qrircblysy .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1240,7 +1187,7 @@ Figure&nbsp;41.4: Inertie, perte absolue et perte relative d’inertie pour diff
   border-bottom-color: #D3D3D3;
 }
 
-#bbfbxdeolm .gt_footnotes {
+#qrircblysy .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1254,7 +1201,7 @@ Figure&nbsp;41.4: Inertie, perte absolue et perte relative d’inertie pour diff
   border-right-color: #D3D3D3;
 }
 
-#bbfbxdeolm .gt_footnote {
+#qrircblysy .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -1263,7 +1210,7 @@ Figure&nbsp;41.4: Inertie, perte absolue et perte relative d’inertie pour diff
   padding-right: 5px;
 }
 
-#bbfbxdeolm .gt_sourcenotes {
+#qrircblysy .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1277,7 +1224,7 @@ Figure&nbsp;41.4: Inertie, perte absolue et perte relative d’inertie pour diff
   border-right-color: #D3D3D3;
 }
 
-#bbfbxdeolm .gt_sourcenote {
+#qrircblysy .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -1285,72 +1232,72 @@ Figure&nbsp;41.4: Inertie, perte absolue et perte relative d’inertie pour diff
   padding-right: 5px;
 }
 
-#bbfbxdeolm .gt_left {
+#qrircblysy .gt_left {
   text-align: left;
 }
 
-#bbfbxdeolm .gt_center {
+#qrircblysy .gt_center {
   text-align: center;
 }
 
-#bbfbxdeolm .gt_right {
+#qrircblysy .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#bbfbxdeolm .gt_font_normal {
+#qrircblysy .gt_font_normal {
   font-weight: normal;
 }
 
-#bbfbxdeolm .gt_font_bold {
+#qrircblysy .gt_font_bold {
   font-weight: bold;
 }
 
-#bbfbxdeolm .gt_font_italic {
+#qrircblysy .gt_font_italic {
   font-style: italic;
 }
 
-#bbfbxdeolm .gt_super {
+#qrircblysy .gt_super {
   font-size: 65%;
 }
 
-#bbfbxdeolm .gt_footnote_marks {
+#qrircblysy .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#bbfbxdeolm .gt_asterisk {
+#qrircblysy .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#bbfbxdeolm .gt_indent_1 {
+#qrircblysy .gt_indent_1 {
   text-indent: 5px;
 }
 
-#bbfbxdeolm .gt_indent_2 {
+#qrircblysy .gt_indent_2 {
   text-indent: 10px;
 }
 
-#bbfbxdeolm .gt_indent_3 {
+#qrircblysy .gt_indent_3 {
   text-indent: 15px;
 }
 
-#bbfbxdeolm .gt_indent_4 {
+#qrircblysy .gt_indent_4 {
   text-indent: 20px;
 }
 
-#bbfbxdeolm .gt_indent_5 {
+#qrircblysy .gt_indent_5 {
   text-indent: 25px;
 }
 
-#bbfbxdeolm .katex-display {
+#qrircblysy .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#bbfbxdeolm div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#qrircblysy div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
@@ -1360,12 +1307,9 @@ Figure&nbsp;41.4: Inertie, perte absolue et perte relative d’inertie pour diff
 <col style="width: 50%">
 </colgroup>
 <thead><tr class="gt_col_headings header">
-<th id="<div data-qmd-base64=&quot;KipDYXJhY3TDqXJpc3RpcXVlKio=&quot;><div class='gt_from_md'><p><strong>Caractéristique</strong></p>
-</div></div>" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col"><p><strong>Caractéristique</strong></p></th>
-<th id="<div data-qmd-base64=&quot;KipOID0gMuKAiTAwMCoq&quot;><div class='gt_from_md'><p><strong>N = 2 000</strong></p>
-</div></div><span class=&quot;gt_footnote_marks&quot; style=&quot;white-space:nowrap;font-style:italic;font-weight:normal;line-height: 0;&quot;><sup>1</sup></span>" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col">
-<p><strong>N = 2 000</strong></p>
-<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height: 0;"><sup>1</sup></span>
+<th id="label" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col"><strong>Caractéristique</strong></th>
+<th id="stat_0" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col">
+<strong>N = 2 000</strong><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;"><sup>1</sup></span>
 </th>
 </tr></thead>
 <tbody class="gt_table_body">
@@ -1392,9 +1336,7 @@ Figure&nbsp;41.4: Inertie, perte absolue et perte relative d’inertie pour diff
 </tbody>
 <tfoot class="gt_footnotes"><tr class="odd">
 <td colspan="2" class="gt_footnote">
-<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height: 0;"><sup>1</sup></span>
-<p>n (%)</p>
-</td>
+<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;"><sup>1</sup></span> n (%)</td>
 </tr></tfoot>
 </table>
 </div>
@@ -1410,9 +1352,9 @@ Table&nbsp;41.1: Distribution de la typologie en 4 classes obtenues à partir de
 <span class="header-section-number">41.3.2</span> Classes obtenues à partir de l’ACM (distance du Φ²)</h3>
 <p>Pour découper l’arbre obtenu à partir de l’ACM, nous allons procéder de la même manière. D’abord, jetons un œil au dendrogramme.</p>
 <div class="cell page-columns page-full">
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a>arbre_phi2 <span class="sc">|&gt;</span> </span>
-<span id="cb14-2"><a href="#cb14-2"></a>  factoextra<span class="sc">::</span><span class="fu">fviz_dend</span>(<span class="at">show_labels =</span> <span class="cn">FALSE</span>) <span class="sc">+</span></span>
-<span id="cb14-3"><a href="#cb14-3"></a>  ggplot2<span class="sc">::</span><span class="fu">ggtitle</span>(<span class="st">"Dendrogramme (distance du Phi²)"</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a>arbre_phi2 <span class="sc">|&gt;</span> </span>
+<span id="cb13-2"><a href="#cb13-2"></a>  factoextra<span class="sc">::</span><span class="fu">fviz_dend</span>(<span class="at">show_labels =</span> <span class="cn">FALSE</span>) <span class="sc">+</span></span>
+<span id="cb13-3"><a href="#cb13-3"></a>  ggplot2<span class="sc">::</span><span class="fu">ggtitle</span>(<span class="st">"Dendrogramme (distance du Phi²)"</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display page-columns page-full">
 <div id="fig-fviz_dend-dendrogram-phi2" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full"><div aria-describedby="fig-fviz_dend-dendrogram-phi2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -1440,8 +1382,8 @@ Note
 </div>
 <p>Comme nous pouvons le voir, dès le début du dendrogramme, l’arbre se divise rapidement en 5 branches puis il y a un saut relativement marqué. Nous pouvons confirmer cela avec <code>plot_inertia_from_tree()</code>.</p>
 <div class="cell page-columns page-full">
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1"></a>arbre_phi2 <span class="sc">|&gt;</span> </span>
-<span id="cb15-2"><a href="#cb15-2"></a>  <span class="fu">plot_inertia_from_tree</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a>arbre_phi2 <span class="sc">|&gt;</span> </span>
+<span id="cb14-2"><a href="#cb14-2"></a>  guideR<span class="sc">::</span><span class="fu">plot_inertia_from_tree</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display page-columns page-full">
 <div id="fig-plot_inertia_from_tree-phi2" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full"><div aria-describedby="fig-plot_inertia_from_tree-phi2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -1455,32 +1397,32 @@ Figure&nbsp;41.6: Inertie, perte absolue et perte relative d’inertie pour diff
 </div>
 <p>Cela confirme un découpage <q>optimal</q> en 5 classes. Regardons la distribution de cette typologie.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1"></a>hdv2003<span class="sc">$</span>typo_phi2_5classes <span class="ot">&lt;-</span> arbre_phi2 <span class="sc">|&gt;</span> </span>
-<span id="cb16-2"><a href="#cb16-2"></a>  <span class="fu">cutree</span>(<span class="dv">5</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1"></a>hdv2003<span class="sc">$</span>typo_phi2_5classes <span class="ot">&lt;-</span> arbre_phi2 <span class="sc">|&gt;</span> </span>
+<span id="cb15-2"><a href="#cb15-2"></a>  <span class="fu">cutree</span>(<span class="dv">5</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell page-columns page-full">
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1"></a>hdv2003 <span class="sc">|&gt;</span> </span>
-<span id="cb17-2"><a href="#cb17-2"></a>  <span class="fu">tbl_summary</span>(<span class="at">include =</span> typo_phi2_5classes)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1"></a>hdv2003 <span class="sc">|&gt;</span> </span>
+<span id="cb16-2"><a href="#cb16-2"></a>  <span class="fu">tbl_summary</span>(<span class="at">include =</span> typo_phi2_5classes)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div id="tbl-tbl_summary-typo_phi2_5classes" class="cell quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-tbl figure page-columns page-full"><div aria-describedby="tbl-tbl_summary-typo_phi2_5classes-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
-<div id="kxiwzfgxma" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#kxiwzfgxma table {
+<div id="zxwbwcqubc" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#zxwbwcqubc table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#kxiwzfgxma thead, #kxiwzfgxma tbody, #kxiwzfgxma tfoot, #kxiwzfgxma tr, #kxiwzfgxma td, #kxiwzfgxma th {
+#zxwbwcqubc thead, #zxwbwcqubc tbody, #zxwbwcqubc tfoot, #zxwbwcqubc tr, #zxwbwcqubc td, #zxwbwcqubc th {
   border-style: none;
 }
 
-#kxiwzfgxma p {
+#zxwbwcqubc p {
   margin: 0;
   padding: 0;
 }
 
-#kxiwzfgxma .gt_table {
+#zxwbwcqubc .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -1506,12 +1448,12 @@ Figure&nbsp;41.6: Inertie, perte absolue et perte relative d’inertie pour diff
   border-left-color: #D3D3D3;
 }
 
-#kxiwzfgxma .gt_caption {
+#zxwbwcqubc .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#kxiwzfgxma .gt_title {
+#zxwbwcqubc .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -1523,7 +1465,7 @@ Figure&nbsp;41.6: Inertie, perte absolue et perte relative d’inertie pour diff
   border-bottom-width: 0;
 }
 
-#kxiwzfgxma .gt_subtitle {
+#zxwbwcqubc .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -1535,7 +1477,7 @@ Figure&nbsp;41.6: Inertie, perte absolue et perte relative d’inertie pour diff
   border-top-width: 0;
 }
 
-#kxiwzfgxma .gt_heading {
+#zxwbwcqubc .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -1547,13 +1489,13 @@ Figure&nbsp;41.6: Inertie, perte absolue et perte relative d’inertie pour diff
   border-right-color: #D3D3D3;
 }
 
-#kxiwzfgxma .gt_bottom_border {
+#zxwbwcqubc .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#kxiwzfgxma .gt_col_headings {
+#zxwbwcqubc .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1568,7 +1510,7 @@ Figure&nbsp;41.6: Inertie, perte absolue et perte relative d’inertie pour diff
   border-right-color: #D3D3D3;
 }
 
-#kxiwzfgxma .gt_col_heading {
+#zxwbwcqubc .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1588,7 +1530,7 @@ Figure&nbsp;41.6: Inertie, perte absolue et perte relative d’inertie pour diff
   overflow-x: hidden;
 }
 
-#kxiwzfgxma .gt_column_spanner_outer {
+#zxwbwcqubc .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1600,15 +1542,15 @@ Figure&nbsp;41.6: Inertie, perte absolue et perte relative d’inertie pour diff
   padding-right: 4px;
 }
 
-#kxiwzfgxma .gt_column_spanner_outer:first-child {
+#zxwbwcqubc .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#kxiwzfgxma .gt_column_spanner_outer:last-child {
+#zxwbwcqubc .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#kxiwzfgxma .gt_column_spanner {
+#zxwbwcqubc .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -1620,11 +1562,11 @@ Figure&nbsp;41.6: Inertie, perte absolue et perte relative d’inertie pour diff
   width: 100%;
 }
 
-#kxiwzfgxma .gt_spanner_row {
+#zxwbwcqubc .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#kxiwzfgxma .gt_group_heading {
+#zxwbwcqubc .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1650,7 +1592,7 @@ Figure&nbsp;41.6: Inertie, perte absolue et perte relative d’inertie pour diff
   text-align: left;
 }
 
-#kxiwzfgxma .gt_empty_group_heading {
+#zxwbwcqubc .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -1665,15 +1607,15 @@ Figure&nbsp;41.6: Inertie, perte absolue et perte relative d’inertie pour diff
   vertical-align: middle;
 }
 
-#kxiwzfgxma .gt_from_md > :first-child {
+#zxwbwcqubc .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#kxiwzfgxma .gt_from_md > :last-child {
+#zxwbwcqubc .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#kxiwzfgxma .gt_row {
+#zxwbwcqubc .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1692,7 +1634,7 @@ Figure&nbsp;41.6: Inertie, perte absolue et perte relative d’inertie pour diff
   overflow-x: hidden;
 }
 
-#kxiwzfgxma .gt_stub {
+#zxwbwcqubc .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1705,7 +1647,7 @@ Figure&nbsp;41.6: Inertie, perte absolue et perte relative d’inertie pour diff
   padding-right: 5px;
 }
 
-#kxiwzfgxma .gt_stub_row_group {
+#zxwbwcqubc .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1719,15 +1661,15 @@ Figure&nbsp;41.6: Inertie, perte absolue et perte relative d’inertie pour diff
   vertical-align: top;
 }
 
-#kxiwzfgxma .gt_row_group_first td {
+#zxwbwcqubc .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#kxiwzfgxma .gt_row_group_first th {
+#zxwbwcqubc .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#kxiwzfgxma .gt_summary_row {
+#zxwbwcqubc .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1737,16 +1679,16 @@ Figure&nbsp;41.6: Inertie, perte absolue et perte relative d’inertie pour diff
   padding-right: 5px;
 }
 
-#kxiwzfgxma .gt_first_summary_row {
+#zxwbwcqubc .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#kxiwzfgxma .gt_first_summary_row.thick {
+#zxwbwcqubc .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#kxiwzfgxma .gt_last_summary_row {
+#zxwbwcqubc .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1756,7 +1698,7 @@ Figure&nbsp;41.6: Inertie, perte absolue et perte relative d’inertie pour diff
   border-bottom-color: #D3D3D3;
 }
 
-#kxiwzfgxma .gt_grand_summary_row {
+#zxwbwcqubc .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1766,7 +1708,7 @@ Figure&nbsp;41.6: Inertie, perte absolue et perte relative d’inertie pour diff
   padding-right: 5px;
 }
 
-#kxiwzfgxma .gt_first_grand_summary_row {
+#zxwbwcqubc .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1776,7 +1718,7 @@ Figure&nbsp;41.6: Inertie, perte absolue et perte relative d’inertie pour diff
   border-top-color: #D3D3D3;
 }
 
-#kxiwzfgxma .gt_last_grand_summary_row_top {
+#zxwbwcqubc .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1786,11 +1728,11 @@ Figure&nbsp;41.6: Inertie, perte absolue et perte relative d’inertie pour diff
   border-bottom-color: #D3D3D3;
 }
 
-#kxiwzfgxma .gt_striped {
+#zxwbwcqubc .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#kxiwzfgxma .gt_table_body {
+#zxwbwcqubc .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1799,7 +1741,7 @@ Figure&nbsp;41.6: Inertie, perte absolue et perte relative d’inertie pour diff
   border-bottom-color: #D3D3D3;
 }
 
-#kxiwzfgxma .gt_footnotes {
+#zxwbwcqubc .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1813,7 +1755,7 @@ Figure&nbsp;41.6: Inertie, perte absolue et perte relative d’inertie pour diff
   border-right-color: #D3D3D3;
 }
 
-#kxiwzfgxma .gt_footnote {
+#zxwbwcqubc .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -1822,7 +1764,7 @@ Figure&nbsp;41.6: Inertie, perte absolue et perte relative d’inertie pour diff
   padding-right: 5px;
 }
 
-#kxiwzfgxma .gt_sourcenotes {
+#zxwbwcqubc .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1836,7 +1778,7 @@ Figure&nbsp;41.6: Inertie, perte absolue et perte relative d’inertie pour diff
   border-right-color: #D3D3D3;
 }
 
-#kxiwzfgxma .gt_sourcenote {
+#zxwbwcqubc .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -1844,72 +1786,72 @@ Figure&nbsp;41.6: Inertie, perte absolue et perte relative d’inertie pour diff
   padding-right: 5px;
 }
 
-#kxiwzfgxma .gt_left {
+#zxwbwcqubc .gt_left {
   text-align: left;
 }
 
-#kxiwzfgxma .gt_center {
+#zxwbwcqubc .gt_center {
   text-align: center;
 }
 
-#kxiwzfgxma .gt_right {
+#zxwbwcqubc .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#kxiwzfgxma .gt_font_normal {
+#zxwbwcqubc .gt_font_normal {
   font-weight: normal;
 }
 
-#kxiwzfgxma .gt_font_bold {
+#zxwbwcqubc .gt_font_bold {
   font-weight: bold;
 }
 
-#kxiwzfgxma .gt_font_italic {
+#zxwbwcqubc .gt_font_italic {
   font-style: italic;
 }
 
-#kxiwzfgxma .gt_super {
+#zxwbwcqubc .gt_super {
   font-size: 65%;
 }
 
-#kxiwzfgxma .gt_footnote_marks {
+#zxwbwcqubc .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#kxiwzfgxma .gt_asterisk {
+#zxwbwcqubc .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#kxiwzfgxma .gt_indent_1 {
+#zxwbwcqubc .gt_indent_1 {
   text-indent: 5px;
 }
 
-#kxiwzfgxma .gt_indent_2 {
+#zxwbwcqubc .gt_indent_2 {
   text-indent: 10px;
 }
 
-#kxiwzfgxma .gt_indent_3 {
+#zxwbwcqubc .gt_indent_3 {
   text-indent: 15px;
 }
 
-#kxiwzfgxma .gt_indent_4 {
+#zxwbwcqubc .gt_indent_4 {
   text-indent: 20px;
 }
 
-#kxiwzfgxma .gt_indent_5 {
+#zxwbwcqubc .gt_indent_5 {
   text-indent: 25px;
 }
 
-#kxiwzfgxma .katex-display {
+#zxwbwcqubc .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#kxiwzfgxma div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#zxwbwcqubc div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
@@ -1919,12 +1861,9 @@ Figure&nbsp;41.6: Inertie, perte absolue et perte relative d’inertie pour diff
 <col style="width: 50%">
 </colgroup>
 <thead><tr class="gt_col_headings header">
-<th id="<div data-qmd-base64=&quot;KipDYXJhY3TDqXJpc3RpcXVlKio=&quot;><div class='gt_from_md'><p><strong>Caractéristique</strong></p>
-</div></div>" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col"><p><strong>Caractéristique</strong></p></th>
-<th id="<div data-qmd-base64=&quot;KipOID0gMuKAiTAwMCoq&quot;><div class='gt_from_md'><p><strong>N = 2 000</strong></p>
-</div></div><span class=&quot;gt_footnote_marks&quot; style=&quot;white-space:nowrap;font-style:italic;font-weight:normal;line-height: 0;&quot;><sup>1</sup></span>" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col">
-<p><strong>N = 2 000</strong></p>
-<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height: 0;"><sup>1</sup></span>
+<th id="label" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col"><strong>Caractéristique</strong></th>
+<th id="stat_0" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col">
+<strong>N = 2 000</strong><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;"><sup>1</sup></span>
 </th>
 </tr></thead>
 <tbody class="gt_table_body">
@@ -1955,9 +1894,7 @@ Figure&nbsp;41.6: Inertie, perte absolue et perte relative d’inertie pour diff
 </tbody>
 <tfoot class="gt_footnotes"><tr class="odd">
 <td colspan="2" class="gt_footnote">
-<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height: 0;"><sup>1</sup></span>
-<p>n (%)</p>
-</td>
+<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;"><sup>1</sup></span> n (%)</td>
 </tr></tfoot>
 </table>
 </div>
@@ -1971,13 +1908,13 @@ Table&nbsp;41.2: Distribution de la typologie en 5 classes obtenues à partir de
 <p>Sur les 5 classes, deux sont très atypiques puisqu’elles ne réunissent que 0,7&nbsp;% et 2,4&nbsp;% de l’échantillon. À voir si cela est problématique pour la suite de l’analyse. Au besoin, nous pourrions envisager de fusionner les classes 4 et 5 avec la classe 2 avec laquelle elles sont plus proches selon le dendrogramme.</p>
 <p>Il est possible de visualiser la répartition de la typologie dans le plan factoriel avec <code><a href="https://rdrr.io/pkg/factoextra/man/fviz_mca.html">factoextra::fviz_mca_ind()</a></code> et en passant la typologie à <code>habillage</code>.</p>
 <div class="cell page-columns page-full">
-<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1"></a>acm_ad <span class="sc">|&gt;</span></span>
-<span id="cb18-2"><a href="#cb18-2"></a>  factoextra<span class="sc">::</span><span class="fu">fviz_mca_ind</span>(</span>
-<span id="cb18-3"><a href="#cb18-3"></a>    <span class="at">habillage =</span> hdv2003<span class="sc">$</span>typo_phi2_5classes,</span>
-<span id="cb18-4"><a href="#cb18-4"></a>    <span class="at">addEllipses =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb18-5"><a href="#cb18-5"></a>    <span class="at">geom.ind =</span> <span class="st">"point"</span>,</span>
-<span id="cb18-6"><a href="#cb18-6"></a>    <span class="at">alpha.ind =</span> <span class="fl">0.1</span></span>
-<span id="cb18-7"><a href="#cb18-7"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1"></a>acm_ad <span class="sc">|&gt;</span></span>
+<span id="cb17-2"><a href="#cb17-2"></a>  factoextra<span class="sc">::</span><span class="fu">fviz_mca_ind</span>(</span>
+<span id="cb17-3"><a href="#cb17-3"></a>    <span class="at">habillage =</span> hdv2003<span class="sc">$</span>typo_phi2_5classes,</span>
+<span id="cb17-4"><a href="#cb17-4"></a>    <span class="at">addEllipses =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb17-5"><a href="#cb17-5"></a>    <span class="at">geom.ind =</span> <span class="st">"point"</span>,</span>
+<span id="cb17-6"><a href="#cb17-6"></a>    <span class="at">alpha.ind =</span> <span class="fl">0.1</span></span>
+<span id="cb17-7"><a href="#cb17-7"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display page-columns page-full">
 <div id="fig-fviz_mca_ind-habillage-typo_phi2_5classes" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full"><div aria-describedby="fig-fviz_mca_ind-habillage-typo_phi2_5classes-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -2003,7 +1940,7 @@ Note
 <p>Il existe de multiples autres indicateurs statistiques cherchant à mesurer la <q>qualité</q> de chaque partition. Pour cela, on pourra par exemple avoir recours à la fonction <code><a href="https://rdrr.io/pkg/WeightedCluster/man/as.clustrange.html">WeightedCluster::as.clustrange()</a></code> de l’extension <a href="http://mephisto.unige.ch/weightedcluster/">WeightedCluster</a>.</p>
 <p>Pour plus d’informations, voir le <a href="https://cran.r-project.org/web/packages/WeightedCluster/vignettes/WeightedClusterFR.pdf"><em>manuel de la librairie WeightedCluster</em></a>, chapitre 7.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1"></a>WeightedCluster<span class="sc">::</span><span class="fu">as.clustrange</span>(arbre_phi2, md_phi2) <span class="sc">|&gt;</span> <span class="fu">plot</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1"></a>WeightedCluster<span class="sc">::</span><span class="fu">as.clustrange</span>(arbre_phi2, md_phi2) <span class="sc">|&gt;</span> <span class="fu">plot</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Registered S3 method overwritten by 'vegan':
   method     from      
@@ -2011,7 +1948,7 @@ Note
 </div>
 <div class="cell-output-display">
 <div>
-<figure class="figure"><p><a href="classification-ascendante-hierarchique_files/figure-html/unnamed-chunk-19-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-8"><img src="classification-ascendante-hierarchique_files/figure-html/unnamed-chunk-19-1.png" class="img-fluid figure-img" width="672"></a></p>
+<figure class="figure"><p><a href="classification-ascendante-hierarchique_files/figure-html/unnamed-chunk-18-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-8"><img src="classification-ascendante-hierarchique_files/figure-html/unnamed-chunk-18-1.png" class="img-fluid figure-img" width="672"></a></p>
 </figure>
 </div>
 </div>
@@ -2025,13 +1962,13 @@ Note
 <p>Le package <a href="http://factominer.free.fr">FactoMineR</a> permet lui aussi de réaliser une CAH à partir d’une ACM via la fonction <code><a href="https://rdrr.io/pkg/FactoMineR/man/HCPC.html">FactoMineR::HCPC()</a></code> qui réalise les différentes opérations en une seule fois.</p>
 <p><code><a href="https://rdrr.io/pkg/FactoMineR/man/HCPC.html">FactoMineR::HCPC()</a></code> réalise à la fois le calcul de la matrice des distances, du dendrogramme et le partitionnement de la population en classes. Par défaut, <code><a href="https://rdrr.io/pkg/FactoMineR/man/HCPC.html">FactoMineR::HCPC()</a></code> calcule le dendrogramme à partir du carré des distances du Φ² et avec la méthode de Ward. Si l’on ne précise rien, <code><a href="https://rdrr.io/pkg/FactoMineR/man/HCPC.html">FactoMineR::HCPC()</a></code> détermine une partition optimale selon le critère de la plus perte relative d’inertie évoqué plus haut<a href="#fn10" class="footnote-ref" id="fnref10" role="doc-noteref"><sup>10</sup></a>. La fonction prend en entrée une analyse factorielle réalisée avec <a href="http://factominer.free.fr">FactoMineR</a>. Le paramètre <code>min</code> permet d’indiquer un nombre minimum de classes.</p>
 <div class="no-row-height column-margin column-container"><div id="fn10"><p><sup>10</sup>&nbsp;Plus précisément si <code>graph = FALSE</code> ou si <code>nb.clust = -1</code>. Si <code>graph = TRUE</code> <strong>et</strong> <code>nb.clust = 0</code> (valeurs par défaut), la fonction affichera un dendrogramme interactif et l’utilisateur devra cliquer au niveau de la hauteur où il souhaite réaliser la découpe.</p></div></div><div class="cell">
-<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1"></a>acm_fm <span class="ot">&lt;-</span> FactoMineR<span class="sc">::</span><span class="fu">MCA</span>(d, <span class="at">graph =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb21-2"><a href="#cb21-2"></a>cah_fm <span class="ot">&lt;-</span> FactoMineR<span class="sc">::</span><span class="fu">HCPC</span>(acm_fm, <span class="at">graph =</span> <span class="cn">FALSE</span>, <span class="at">min =</span> <span class="dv">3</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1"></a>acm_fm <span class="ot">&lt;-</span> FactoMineR<span class="sc">::</span><span class="fu">MCA</span>(d, <span class="at">graph =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb20-2"><a href="#cb20-2"></a>cah_fm <span class="ot">&lt;-</span> FactoMineR<span class="sc">::</span><span class="fu">HCPC</span>(acm_fm, <span class="at">graph =</span> <span class="cn">FALSE</span>, <span class="at">min =</span> <span class="dv">3</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Nous pouvons directement passer le résultat de <code><a href="https://rdrr.io/pkg/FactoMineR/man/HCPC.html">FactoMineR::HCPC()</a></code> à <code><a href="https://rdrr.io/pkg/factoextra/man/fviz_dend.html">factoextra::fviz_dend()</a></code> pour visualiser le dendrogramme, qui sera d’ailleurs automatiquement colorié à partir de la partition recommandée par <code><a href="https://rdrr.io/pkg/FactoMineR/man/HCPC.html">FactoMineR::HCPC()</a></code>.</p>
 <div class="cell page-columns page-full">
-<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1"></a>cah_fm <span class="sc">|&gt;</span> </span>
-<span id="cb22-2"><a href="#cb22-2"></a>  factoextra<span class="sc">::</span><span class="fu">fviz_dend</span>(<span class="at">show_labels =</span> <span class="cn">FALSE</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1"></a>cah_fm <span class="sc">|&gt;</span> </span>
+<span id="cb21-2"><a href="#cb21-2"></a>  factoextra<span class="sc">::</span><span class="fu">fviz_dend</span>(<span class="at">show_labels =</span> <span class="cn">FALSE</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display page-columns page-full">
 <div id="fig-fviz_dend-dendrogram-cah_fm" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full"><div aria-describedby="fig-fviz_dend-dendrogram-cah_fm-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -2045,8 +1982,8 @@ Figure&nbsp;41.8: Représentation graphique du dendrogramme issu de l’ACM réa
 </div>
 <p>Nous obtenons ici un découpage en 6 classes qui correspond bien à la plus grand perte relative d’inertie comme nous pouvons le vérifier avec <code>plot_inertia_from_tree()</code> qui accepte également en entrée un objet produit par <code><a href="https://rdrr.io/pkg/FactoMineR/man/HCPC.html">FactoMineR::HCPC()</a></code>.</p>
 <div class="cell page-columns page-full">
-<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1"></a>cah_fm <span class="sc">|&gt;</span> </span>
-<span id="cb23-2"><a href="#cb23-2"></a>  <span class="fu">plot_inertia_from_tree</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1"></a>cah_fm <span class="sc">|&gt;</span> </span>
+<span id="cb22-2"><a href="#cb22-2"></a>  guideR<span class="sc">::</span><span class="fu">plot_inertia_from_tree</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display page-columns page-full">
 <div id="fig-plot_inertia_from_tree-cah_fm" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full"><div aria-describedby="fig-plot_inertia_from_tree-cah_fm-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -2062,12 +1999,12 @@ Figure&nbsp;41.9: Inertie, perte absolue et perte relative d’inertie pour diff
 <p>Pour rappel, par défaut, <code><a href="https://rdrr.io/pkg/FactoMineR/man/MCA.html">FactoMineR::MCA()</a></code> ne retient que les 5 premiers axes de l’espace factoriel. <code><a href="https://rdrr.io/pkg/FactoMineR/man/HCPC.html">FactoMineR::HCPC()</a></code> n’a donc pris en compte que ces 5 premiers axes pour calculer les distances entre les individus, considérant que les autres axes n’apportent que du «&nbsp;bruit&nbsp;» rendant la classification instable. Comme le montre <code>summary(acm_fm)</code>, nos cinq premiers axes n’expliquent que 78&nbsp;% de la variance. On considère usuellement préférable de garder un plus grande nombre d’axes afin de couvrir au moins 80 à 90&nbsp;% de la variance.</p>
 <p>De son côté, <code><a href="https://rdrr.io/pkg/ade4/man/dist.dudi.html">ade4::dist.dudi()</a></code> prends en compte l’ensemble des axes pour calculer la matrice des distances. On peut reproduire cela avec <a href="http://factominer.free.fr">FactoMineR</a> en indiquant <code>ncp = Inf</code> lors du calcul de l’ACM.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1"></a>acm_fm2 <span class="ot">&lt;-</span> FactoMineR<span class="sc">::</span><span class="fu">MCA</span>(d, <span class="at">graph =</span> <span class="cn">FALSE</span>, <span class="at">ncp =</span> <span class="cn">Inf</span>)</span>
-<span id="cb24-2"><a href="#cb24-2"></a>cah_fm2 <span class="ot">&lt;-</span> FactoMineR<span class="sc">::</span><span class="fu">HCPC</span>(acm_fm2, <span class="at">graph =</span> <span class="cn">FALSE</span>, <span class="at">min =</span> <span class="dv">3</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1"></a>acm_fm2 <span class="ot">&lt;-</span> FactoMineR<span class="sc">::</span><span class="fu">MCA</span>(d, <span class="at">graph =</span> <span class="cn">FALSE</span>, <span class="at">ncp =</span> <span class="cn">Inf</span>)</span>
+<span id="cb23-2"><a href="#cb23-2"></a>cah_fm2 <span class="ot">&lt;-</span> FactoMineR<span class="sc">::</span><span class="fu">HCPC</span>(acm_fm2, <span class="at">graph =</span> <span class="cn">FALSE</span>, <span class="at">min =</span> <span class="dv">3</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell page-columns page-full">
-<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1"></a>cah_fm2 <span class="sc">|&gt;</span> </span>
-<span id="cb25-2"><a href="#cb25-2"></a>  factoextra<span class="sc">::</span><span class="fu">fviz_dend</span>(<span class="at">show_labels =</span> <span class="cn">FALSE</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1"></a>cah_fm2 <span class="sc">|&gt;</span> </span>
+<span id="cb24-2"><a href="#cb24-2"></a>  factoextra<span class="sc">::</span><span class="fu">fviz_dend</span>(<span class="at">show_labels =</span> <span class="cn">FALSE</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display page-columns page-full">
 <div id="fig-fviz_dend-dendrogram-cah_fm2" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full"><div aria-describedby="fig-fviz_dend-dendrogram-cah_fm2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -2082,8 +2019,8 @@ Figure&nbsp;41.10: Représentation graphique du dendrogramme issu de l’ACM ré
 <p>Nous retrouvons alors le même résultat que celui obtenu avec <a href="http://pbil.univ-lyon1.fr/ADE-4/">ade4</a> et un découpage en 5 classes.</p>
 <p>À noter que <a href="http://factominer.free.fr">FactoMineR</a> propose une visualisation en 3 dimensions du dendrogramme projeté sur le plan factoriel.</p>
 <div class="cell page-columns page-full">
-<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1"></a>cah_fm2 <span class="sc">|&gt;</span> </span>
-<span id="cb26-2"><a href="#cb26-2"></a>  <span class="fu">plot</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1"></a>cah_fm2 <span class="sc">|&gt;</span> </span>
+<span id="cb25-2"><a href="#cb25-2"></a>  <span class="fu">plot</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display page-columns page-full">
 <div id="fig-plot-cah_fm2" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full"><div aria-describedby="fig-plot-cah_fm2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -2097,8 +2034,8 @@ Figure&nbsp;41.11: Représentation en 3 dimensions du dendrogramme sur le plan f
 </div>
 <p>Notons également l’option <code>choice = "tree"</code> qui propose une représentation du dendrogramme, avec des rectangles indiquant le découpage optimal et une vignette présentant l’inertie à chaque découpage.</p>
 <div class="cell page-columns page-full">
-<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1"></a>cah_fm2 <span class="sc">|&gt;</span> </span>
-<span id="cb27-2"><a href="#cb27-2"></a>  <span class="fu">plot</span>(<span class="at">choice =</span> <span class="st">"tree"</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1"></a>cah_fm2 <span class="sc">|&gt;</span> </span>
+<span id="cb26-2"><a href="#cb26-2"></a>  <span class="fu">plot</span>(<span class="at">choice =</span> <span class="st">"tree"</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display page-columns page-full">
 <div id="fig-plot-cah_fm2-tree" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full"><div aria-describedby="fig-plot-cah_fm2-tree-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -2112,45 +2049,45 @@ Figure&nbsp;41.12: Représentation du dendrogramme et de l’inertie
 </div>
 <p>Pour récupérer la classification, on pourra récupérer la colonne <code>$clust</code> du sous-objet <code>$data.clust</code> du résultat renvoyé par <code><a href="https://rdrr.io/pkg/FactoMineR/man/HCPC.html">FactoMineR::HCPC()</a></code>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1"></a>hdv2003<span class="sc">$</span>typo_cah_fm2 <span class="ot">&lt;-</span> cah_fm2<span class="sc">$</span>data.clust<span class="sc">$</span>clust</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1"></a>hdv2003<span class="sc">$</span>typo_cah_fm2 <span class="ot">&lt;-</span> cah_fm2<span class="sc">$</span>data.clust<span class="sc">$</span>clust</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Si l’on a besoin de découper le dendrogramme à un autre endroit, nous pouvons récupérer le dendrogramme via le sous-objet <code>$call$t$tree</code> puis lui appliquer <code><a href="https://rdrr.io/r/stats/cutree.html">cutree()</a></code>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1"></a>hdv2003<span class="sc">$</span>typo_alternative <span class="ot">&lt;-</span></span>
-<span id="cb29-2"><a href="#cb29-2"></a>  cah_fm2<span class="sc">$</span>call<span class="sc">$</span>t<span class="sc">$</span>tree <span class="sc">|&gt;</span></span>
-<span id="cb29-3"><a href="#cb29-3"></a>  <span class="fu">cutree</span>(<span class="dv">3</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1"></a>hdv2003<span class="sc">$</span>typo_alternative <span class="ot">&lt;-</span></span>
+<span id="cb28-2"><a href="#cb28-2"></a>  cah_fm2<span class="sc">$</span>call<span class="sc">$</span>t<span class="sc">$</span>tree <span class="sc">|&gt;</span></span>
+<span id="cb28-3"><a href="#cb28-3"></a>  <span class="fu">cutree</span>(<span class="dv">3</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section><section id="caractériser-la-typologie" class="level2 page-columns page-full" data-number="41.5"><h2 data-number="41.5" class="anchored" data-anchor-id="caractériser-la-typologie">
 <span class="header-section-number">41.5</span> Caractériser la typologie</h2>
 <p>Reste le travail le plus important (et parfois le plus difficile) qui consiste à catégoriser la typologie obtenue et le cas échéant à nommer les classes.</p>
 <p>En premier lieu, on peut croiser la typologie obtenue avec les différentes variables inclues dans l’ACM. Le plus simple est d’avoir recours à <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/tbl_summary.html">gtsummary::tbl_summary()</a></code>. Par exemple, pour la typologie obtenue avec la distance de Gower.</p>
 <div class="cell page-columns page-full">
-<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1"></a>hdv2003 <span class="sc">|&gt;</span></span>
-<span id="cb30-2"><a href="#cb30-2"></a>  <span class="fu">tbl_summary</span>(</span>
-<span id="cb30-3"><a href="#cb30-3"></a>    <span class="at">include =</span> hard.rock<span class="sc">:</span>sport,</span>
-<span id="cb30-4"><a href="#cb30-4"></a>    <span class="at">by =</span> typo_gower_4classes</span>
-<span id="cb30-5"><a href="#cb30-5"></a>  ) <span class="sc">|&gt;</span> </span>
-<span id="cb30-6"><a href="#cb30-6"></a>  <span class="fu">bold_labels</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1"></a>hdv2003 <span class="sc">|&gt;</span></span>
+<span id="cb29-2"><a href="#cb29-2"></a>  <span class="fu">tbl_summary</span>(</span>
+<span id="cb29-3"><a href="#cb29-3"></a>    <span class="at">include =</span> hard.rock<span class="sc">:</span>sport,</span>
+<span id="cb29-4"><a href="#cb29-4"></a>    <span class="at">by =</span> typo_gower_4classes</span>
+<span id="cb29-5"><a href="#cb29-5"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb29-6"><a href="#cb29-6"></a>  <span class="fu">bold_labels</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div id="tbl-tbl_summary-by-typo_gower_4classes" class="cell quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-tbl figure page-columns page-full"><div aria-describedby="tbl-tbl_summary-by-typo_gower_4classes-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
-<div id="ofxhtzejjn" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#ofxhtzejjn table {
+<div id="iobprkvcip" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#iobprkvcip table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#ofxhtzejjn thead, #ofxhtzejjn tbody, #ofxhtzejjn tfoot, #ofxhtzejjn tr, #ofxhtzejjn td, #ofxhtzejjn th {
+#iobprkvcip thead, #iobprkvcip tbody, #iobprkvcip tfoot, #iobprkvcip tr, #iobprkvcip td, #iobprkvcip th {
   border-style: none;
 }
 
-#ofxhtzejjn p {
+#iobprkvcip p {
   margin: 0;
   padding: 0;
 }
 
-#ofxhtzejjn .gt_table {
+#iobprkvcip .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -2176,12 +2113,12 @@ Figure&nbsp;41.12: Représentation du dendrogramme et de l’inertie
   border-left-color: #D3D3D3;
 }
 
-#ofxhtzejjn .gt_caption {
+#iobprkvcip .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#ofxhtzejjn .gt_title {
+#iobprkvcip .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -2193,7 +2130,7 @@ Figure&nbsp;41.12: Représentation du dendrogramme et de l’inertie
   border-bottom-width: 0;
 }
 
-#ofxhtzejjn .gt_subtitle {
+#iobprkvcip .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -2205,7 +2142,7 @@ Figure&nbsp;41.12: Représentation du dendrogramme et de l’inertie
   border-top-width: 0;
 }
 
-#ofxhtzejjn .gt_heading {
+#iobprkvcip .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -2217,13 +2154,13 @@ Figure&nbsp;41.12: Représentation du dendrogramme et de l’inertie
   border-right-color: #D3D3D3;
 }
 
-#ofxhtzejjn .gt_bottom_border {
+#iobprkvcip .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#ofxhtzejjn .gt_col_headings {
+#iobprkvcip .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -2238,7 +2175,7 @@ Figure&nbsp;41.12: Représentation du dendrogramme et de l’inertie
   border-right-color: #D3D3D3;
 }
 
-#ofxhtzejjn .gt_col_heading {
+#iobprkvcip .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2258,7 +2195,7 @@ Figure&nbsp;41.12: Représentation du dendrogramme et de l’inertie
   overflow-x: hidden;
 }
 
-#ofxhtzejjn .gt_column_spanner_outer {
+#iobprkvcip .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2270,15 +2207,15 @@ Figure&nbsp;41.12: Représentation du dendrogramme et de l’inertie
   padding-right: 4px;
 }
 
-#ofxhtzejjn .gt_column_spanner_outer:first-child {
+#iobprkvcip .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#ofxhtzejjn .gt_column_spanner_outer:last-child {
+#iobprkvcip .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#ofxhtzejjn .gt_column_spanner {
+#iobprkvcip .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -2290,11 +2227,11 @@ Figure&nbsp;41.12: Représentation du dendrogramme et de l’inertie
   width: 100%;
 }
 
-#ofxhtzejjn .gt_spanner_row {
+#iobprkvcip .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#ofxhtzejjn .gt_group_heading {
+#iobprkvcip .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2320,7 +2257,7 @@ Figure&nbsp;41.12: Représentation du dendrogramme et de l’inertie
   text-align: left;
 }
 
-#ofxhtzejjn .gt_empty_group_heading {
+#iobprkvcip .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -2335,15 +2272,15 @@ Figure&nbsp;41.12: Représentation du dendrogramme et de l’inertie
   vertical-align: middle;
 }
 
-#ofxhtzejjn .gt_from_md > :first-child {
+#iobprkvcip .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#ofxhtzejjn .gt_from_md > :last-child {
+#iobprkvcip .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#ofxhtzejjn .gt_row {
+#iobprkvcip .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2362,7 +2299,7 @@ Figure&nbsp;41.12: Représentation du dendrogramme et de l’inertie
   overflow-x: hidden;
 }
 
-#ofxhtzejjn .gt_stub {
+#iobprkvcip .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2375,7 +2312,7 @@ Figure&nbsp;41.12: Représentation du dendrogramme et de l’inertie
   padding-right: 5px;
 }
 
-#ofxhtzejjn .gt_stub_row_group {
+#iobprkvcip .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2389,15 +2326,15 @@ Figure&nbsp;41.12: Représentation du dendrogramme et de l’inertie
   vertical-align: top;
 }
 
-#ofxhtzejjn .gt_row_group_first td {
+#iobprkvcip .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#ofxhtzejjn .gt_row_group_first th {
+#iobprkvcip .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#ofxhtzejjn .gt_summary_row {
+#iobprkvcip .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -2407,16 +2344,16 @@ Figure&nbsp;41.12: Représentation du dendrogramme et de l’inertie
   padding-right: 5px;
 }
 
-#ofxhtzejjn .gt_first_summary_row {
+#iobprkvcip .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#ofxhtzejjn .gt_first_summary_row.thick {
+#iobprkvcip .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#ofxhtzejjn .gt_last_summary_row {
+#iobprkvcip .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2426,7 +2363,7 @@ Figure&nbsp;41.12: Représentation du dendrogramme et de l’inertie
   border-bottom-color: #D3D3D3;
 }
 
-#ofxhtzejjn .gt_grand_summary_row {
+#iobprkvcip .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -2436,7 +2373,7 @@ Figure&nbsp;41.12: Représentation du dendrogramme et de l’inertie
   padding-right: 5px;
 }
 
-#ofxhtzejjn .gt_first_grand_summary_row {
+#iobprkvcip .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2446,7 +2383,7 @@ Figure&nbsp;41.12: Représentation du dendrogramme et de l’inertie
   border-top-color: #D3D3D3;
 }
 
-#ofxhtzejjn .gt_last_grand_summary_row_top {
+#iobprkvcip .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2456,11 +2393,11 @@ Figure&nbsp;41.12: Représentation du dendrogramme et de l’inertie
   border-bottom-color: #D3D3D3;
 }
 
-#ofxhtzejjn .gt_striped {
+#iobprkvcip .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#ofxhtzejjn .gt_table_body {
+#iobprkvcip .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -2469,7 +2406,7 @@ Figure&nbsp;41.12: Représentation du dendrogramme et de l’inertie
   border-bottom-color: #D3D3D3;
 }
 
-#ofxhtzejjn .gt_footnotes {
+#iobprkvcip .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -2483,7 +2420,7 @@ Figure&nbsp;41.12: Représentation du dendrogramme et de l’inertie
   border-right-color: #D3D3D3;
 }
 
-#ofxhtzejjn .gt_footnote {
+#iobprkvcip .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -2492,7 +2429,7 @@ Figure&nbsp;41.12: Représentation du dendrogramme et de l’inertie
   padding-right: 5px;
 }
 
-#ofxhtzejjn .gt_sourcenotes {
+#iobprkvcip .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -2506,7 +2443,7 @@ Figure&nbsp;41.12: Représentation du dendrogramme et de l’inertie
   border-right-color: #D3D3D3;
 }
 
-#ofxhtzejjn .gt_sourcenote {
+#iobprkvcip .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -2514,72 +2451,72 @@ Figure&nbsp;41.12: Représentation du dendrogramme et de l’inertie
   padding-right: 5px;
 }
 
-#ofxhtzejjn .gt_left {
+#iobprkvcip .gt_left {
   text-align: left;
 }
 
-#ofxhtzejjn .gt_center {
+#iobprkvcip .gt_center {
   text-align: center;
 }
 
-#ofxhtzejjn .gt_right {
+#iobprkvcip .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#ofxhtzejjn .gt_font_normal {
+#iobprkvcip .gt_font_normal {
   font-weight: normal;
 }
 
-#ofxhtzejjn .gt_font_bold {
+#iobprkvcip .gt_font_bold {
   font-weight: bold;
 }
 
-#ofxhtzejjn .gt_font_italic {
+#iobprkvcip .gt_font_italic {
   font-style: italic;
 }
 
-#ofxhtzejjn .gt_super {
+#iobprkvcip .gt_super {
   font-size: 65%;
 }
 
-#ofxhtzejjn .gt_footnote_marks {
+#iobprkvcip .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#ofxhtzejjn .gt_asterisk {
+#iobprkvcip .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#ofxhtzejjn .gt_indent_1 {
+#iobprkvcip .gt_indent_1 {
   text-indent: 5px;
 }
 
-#ofxhtzejjn .gt_indent_2 {
+#iobprkvcip .gt_indent_2 {
   text-indent: 10px;
 }
 
-#ofxhtzejjn .gt_indent_3 {
+#iobprkvcip .gt_indent_3 {
   text-indent: 15px;
 }
 
-#ofxhtzejjn .gt_indent_4 {
+#iobprkvcip .gt_indent_4 {
   text-indent: 20px;
 }
 
-#ofxhtzejjn .gt_indent_5 {
+#iobprkvcip .gt_indent_5 {
   text-indent: 25px;
 }
 
-#ofxhtzejjn .katex-display {
+#iobprkvcip .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#ofxhtzejjn div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#iobprkvcip div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
@@ -2592,35 +2529,18 @@ Figure&nbsp;41.12: Représentation du dendrogramme et de l’inertie
 <col style="width: 20%">
 </colgroup>
 <thead><tr class="gt_col_headings header">
-<th id="<div data-qmd-base64=&quot;KipDYXJhY3TDqXJpc3RpcXVlKio=&quot;><div class='gt_from_md'><p><strong>Caractéristique</strong></p>
-</div></div>" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col"><p><strong>Caractéristique</strong></p></th>
-<th id="<div data-qmd-base64=&quot;KioxKiogIApOID0gODM3&quot;><div class='gt_from_md'><p><strong>1</strong><br />
-N = 837</p>
-</div></div><span class=&quot;gt_footnote_marks&quot; style=&quot;white-space:nowrap;font-style:italic;font-weight:normal;line-height: 0;&quot;><sup>1</sup></span>" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col">
-<p><strong>1</strong><br>
-N = 837</p>
-<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height: 0;"><sup>1</sup></span>
+<th id="label" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col"><strong>Caractéristique</strong></th>
+<th id="stat_1" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col">
+<strong>1</strong><br> N = 837<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;"><sup>1</sup></span>
 </th>
-<th id="<div data-qmd-base64=&quot;KioyKiogIApOID0gNjM2&quot;><div class='gt_from_md'><p><strong>2</strong><br />
-N = 636</p>
-</div></div><span class=&quot;gt_footnote_marks&quot; style=&quot;white-space:nowrap;font-style:italic;font-weight:normal;line-height: 0;&quot;><sup>1</sup></span>" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col">
-<p><strong>2</strong><br>
-N = 636</p>
-<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height: 0;"><sup>1</sup></span>
+<th id="stat_2" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col">
+<strong>2</strong><br> N = 636<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;"><sup>1</sup></span>
 </th>
-<th id="<div data-qmd-base64=&quot;KiozKiogIApOID0gMTcy&quot;><div class='gt_from_md'><p><strong>3</strong><br />
-N = 172</p>
-</div></div><span class=&quot;gt_footnote_marks&quot; style=&quot;white-space:nowrap;font-style:italic;font-weight:normal;line-height: 0;&quot;><sup>1</sup></span>" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col">
-<p><strong>3</strong><br>
-N = 172</p>
-<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height: 0;"><sup>1</sup></span>
+<th id="stat_3" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col">
+<strong>3</strong><br> N = 172<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;"><sup>1</sup></span>
 </th>
-<th id="<div data-qmd-base64=&quot;Kio0KiogIApOID0gMzU1&quot;><div class='gt_from_md'><p><strong>4</strong><br />
-N = 355</p>
-</div></div><span class=&quot;gt_footnote_marks&quot; style=&quot;white-space:nowrap;font-style:italic;font-weight:normal;line-height: 0;&quot;><sup>1</sup></span>" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col">
-<p><strong>4</strong><br>
-N = 355</p>
-<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height: 0;"><sup>1</sup></span>
+<th id="stat_4" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col">
+<strong>4</strong><br> N = 355<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;"><sup>1</sup></span>
 </th>
 </tr></thead>
 <tbody class="gt_table_body">
@@ -2774,9 +2694,7 @@ N = 355</p>
 </tbody>
 <tfoot class="gt_footnotes"><tr class="odd">
 <td colspan="5" class="gt_footnote">
-<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height: 0;"><sup>1</sup></span>
-<p>n (%)</p>
-</td>
+<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;"><sup>1</sup></span> n (%)</td>
 </tr></tfoot>
 </table>
 </div>
@@ -2789,17 +2707,17 @@ Table&nbsp;41.3: Description de la typologie en 4 classes à partir de la distan
 </div>
 <p>Pour une représentation plus visuelle, on peut également avoir recours à <code><a href="https://ggobi.github.io/ggally/reference/ggtable.html">GGally::ggtable()</a></code> de <a href="https://ggobi.github.io/ggally/">GGally</a> pour représenter les résidus du Chi² et mieux repérer les différences. La couleur bleue indique que la modalité est sur-représentée et la couleur rouge qu’elle est sous-représentée.</p>
 <div class="cell page-columns page-full">
-<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1"></a><span class="fu">library</span>(GGally)</span>
-<span id="cb31-2"><a href="#cb31-2"></a>hdv2003<span class="sc">$</span>typo_gower_4classes <span class="ot">&lt;-</span> <span class="fu">factor</span>(hdv2003<span class="sc">$</span>typo_gower_4classes)</span>
-<span id="cb31-3"><a href="#cb31-3"></a><span class="fu">ggtable</span>(</span>
-<span id="cb31-4"><a href="#cb31-4"></a>  hdv2003, </span>
-<span id="cb31-5"><a href="#cb31-5"></a>  <span class="at">columnsX =</span> <span class="st">"typo_gower_4classes"</span>, </span>
-<span id="cb31-6"><a href="#cb31-6"></a>  <span class="at">columnsY =</span> <span class="fu">names</span>(d),</span>
-<span id="cb31-7"><a href="#cb31-7"></a>  <span class="at">cells =</span> <span class="st">"col.prop"</span>,</span>
-<span id="cb31-8"><a href="#cb31-8"></a>  <span class="at">fill =</span> <span class="st">"std.resid"</span></span>
-<span id="cb31-9"><a href="#cb31-9"></a>) <span class="sc">+</span> </span>
-<span id="cb31-10"><a href="#cb31-10"></a>  <span class="fu">labs</span>(<span class="at">fill =</span> <span class="st">"Résidus standardizés du Chi²"</span>) <span class="sc">+</span></span>
-<span id="cb31-11"><a href="#cb31-11"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"bottom"</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1"></a><span class="fu">library</span>(GGally)</span>
+<span id="cb30-2"><a href="#cb30-2"></a>hdv2003<span class="sc">$</span>typo_gower_4classes <span class="ot">&lt;-</span> <span class="fu">factor</span>(hdv2003<span class="sc">$</span>typo_gower_4classes)</span>
+<span id="cb30-3"><a href="#cb30-3"></a><span class="fu">ggtable</span>(</span>
+<span id="cb30-4"><a href="#cb30-4"></a>  hdv2003, </span>
+<span id="cb30-5"><a href="#cb30-5"></a>  <span class="at">columnsX =</span> <span class="st">"typo_gower_4classes"</span>, </span>
+<span id="cb30-6"><a href="#cb30-6"></a>  <span class="at">columnsY =</span> <span class="fu">names</span>(d),</span>
+<span id="cb30-7"><a href="#cb30-7"></a>  <span class="at">cells =</span> <span class="st">"col.prop"</span>,</span>
+<span id="cb30-8"><a href="#cb30-8"></a>  <span class="at">fill =</span> <span class="st">"std.resid"</span></span>
+<span id="cb30-9"><a href="#cb30-9"></a>) <span class="sc">+</span> </span>
+<span id="cb30-10"><a href="#cb30-10"></a>  <span class="fu">labs</span>(<span class="at">fill =</span> <span class="st">"Résidus standardizés du Chi²"</span>) <span class="sc">+</span></span>
+<span id="cb30-11"><a href="#cb30-11"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"bottom"</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display page-columns page-full">
 <div id="fig-ggtable-typo_gower_4classes" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full"><div aria-describedby="fig-ggtable-typo_gower_4classes-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -2821,7 +2739,7 @@ Figure&nbsp;41.13: Distribution de la typologie en 4 classes et résidus du Chi�
 <p>Bien sûr, l’interprétation fine des catégories nécessite un peu plus d’analyse, de croiser avec la littérature et les hypothèses des questions de recherche posées, et de croiser la typologie avec d’autres variables de l’enquête.</p>
 <p>Pour la typologie réalisée à partir d’une ACM, nous pourrons procéder de la même manière. Cependant, si la CAH a été réalisée avec <code><a href="https://rdrr.io/pkg/FactoMineR/man/HCPC.html">FactoMineR::HCPC()</a></code>, l’objet retourné contient directement un sous-objet <code>$desc.var</code> donnant une description de la typologie obtenue.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1"></a>cah_fm2<span class="sc">$</span>desc.var</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1"></a>cah_fm2<span class="sc">$</span>desc.var</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 Link between the cluster variable and the categorical variables (chi-square test)
@@ -2910,7 +2828,7 @@ hard.rock=hard.rock_Non   0.0000000   0.00000   99.3 5.569208e-36 -12.523271</co
 </div>
 <p>Une représentation graphique indiquant les modalités contribuant le plus à chaque axe est même directement disponible. La couleur bleue indique que la modalité est sous-représentée dans la classe et la couleur rouge qu’elle est sur-représentée<a href="#fn11" class="footnote-ref" id="fnref11" role="doc-noteref"><sup>11</sup></a>.</p>
 <div class="no-row-height column-margin column-container"><div id="fn11"><p><sup>11</sup>&nbsp;<strong>Attention à l’interprétation&nbsp;:</strong> ce code couleur est l’inverse de celui utilisé par <code><a href="https://ggobi.github.io/ggally/reference/ggtable.html">GGally::ggtable()</a></code>.</p></div></div><div class="cell page-columns page-full">
-<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1"></a>cah_fm2<span class="sc">$</span>desc.var <span class="sc">|&gt;</span> <span class="fu">plot</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1"></a>cah_fm2<span class="sc">$</span>desc.var <span class="sc">|&gt;</span> <span class="fu">plot</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display page-columns page-full">
 <div id="fig-cah_fm2-desc.var-plot" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full"><div aria-describedby="fig-cah_fm2-desc.var-plot-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
