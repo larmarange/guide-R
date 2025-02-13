@@ -124,11 +124,7 @@ tbl
 
 L'*odds ratio* du niveau d'étude supérieur pour la modalité *satisfaction* est de 2,01, indiquant que les personnes ayant un niveau d'étude supérieur ont plus de chances d'être satisfait au travail que d'être à l'équilibre que les personnes de niveau primaire. Par contre, l'OR est de seulement 1,08 (et non significatif) pour la modalité *Insatisfait* indiquant que ces personnes n'ont ni plus ni moins de chance d'être insatisfaite que d'être à l'équilibre.
 
-On notera au passage un message d'avertissement de `{gtsummary}` sur le fait que les modèles multinomiaux n'ont pas la même structure que d'autres modèles et donc que certaines fonctionnalités ne sont pas disponibles. C'est le cas par exemple de `gtsummary::add_global_p()` pour le calcul des p-valeurs globales des variables. Pour tester l'effet globale d'une variable dans le modèle, on aura directement recours à `car::Anova()`.
-
-```{r}
-reg2 |> car::Anova()
-```
+On notera au passage un message d'avertissement de `{gtsummary}` sur le fait que les modèles multinomiaux n'ont pas la même structure que d'autres modèles.
 
 ::: callout-tip
 La fonction `gtsummary::tbl_regression()` affiche le tableau des coefficients dans un format long. Or, il est souvent plus lisible de présenter les coefficients dans un format large, avec les coefficients pour chaque modalité côte à côte.
@@ -150,9 +146,9 @@ multinom_pivot_wider <- function(x) {
       function(lvl) {
         gtsummary::modify_table_body(
           x, 
-          ~dplyr::filter(.x, .data$groupname_col %in% lvl) %>%
-            dplyr::ungroup() %>%
-            dplyr::select(-.data$groupname_col)
+          ~ dplyr::filter(.x, .data$groupname_col %in% lvl) |> 
+            dplyr::ungroup() |> 
+            dplyr::select(-dplyr::any_of("groupname_col"))
         )
       }
     )
@@ -167,6 +163,31 @@ Il ne reste plus qu'à l'appliquer au tableau généré avec `gtsummary::tbl_reg
 tbl |> multinom_pivot_wider()
 ```
 :::
+
+Pour tester l'effet globale d'une variable dans le modèle, on aura directement recours à `car::Anova()`.
+
+```{r}
+reg2 |> car::Anova()
+```
+
+Si l'on applique `gtsummary::add_global_p()` au résultat de `gtsummary::tbl_regression()`, les p-valeurs seront recopiées pour chaque série de coefficients.
+
+```{r}
+tbl |> 
+  add_global_p() |> 
+  multinom_pivot_wider()
+```
+
+Une astuce consiste à cacher toutes ces colonnes de p-valeurs, n'afficher que la dernière et changer son titre de colonne.
+
+```{r}
+tbl |> 
+  add_global_p() |> 
+  multinom_pivot_wider() |> 
+  modify_column_hide(starts_with("p.value")) |> 
+  modify_column_unhide(p.value_2) |> 
+  modify_spanning_header(p.value_2 ~ "**Likelihood-ratio test**")
+```
 
 Pour un graphique des coefficients, on ne peut appeler directement `ggstats::gcoef_model()` en raison de la structure différente du modèle. Heureusement, `{ggstats}` propose une fonction spécifique `ggstats::ggcoef_multinom()` avec trois types de visualisation.
 
