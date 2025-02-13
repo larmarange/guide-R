@@ -212,45 +212,7 @@ Comme tous les modèles GLM, le modèle de Poisson présuppose que les observati
 
 En premier lieu, nous pouvons vérifier si la distribution observée des données correspond peu ou prou à la distribution théorique de Poisson pour une moyenne correspondant à la moyenne observée.
 
-La fonction ci-dessous permet justement de comparer la distribution observée avec la distribution théorique d'un modèle.
-
-```{r}
-observed_vs_theoretical <- function(model) {
-  observed <- model.response(model.frame(model))
-  theoretical <- simulate(model, nsim = 1)
-  theoretical <- theoretical[[1]]
-  df <- dplyr::tibble(
-    status = c(
-      rep.int("observed", length(observed)),
-      rep.int("theoretical", length(theoretical))
-    ),
-    values = c(observed, theoretical)
-  )
-  if (is.numeric(observed) && any(observed != as.integer(observed))) {
-    ggplot2::ggplot(df) +
-    ggplot2::aes(x = values, fill = status) +
-    ggplot2::geom_density(
-      alpha = .5,
-      position = "identity"
-    ) +
-    ggplot2::theme_light() +
-    ggplot2::labs(fill = NULL)
-  } else {
-    ggplot2::ggplot(df) +
-    ggplot2::aes(x = values, fill = status) +
-    ggplot2::geom_bar(
-      alpha = .5,
-      position = "identity"
-    ) +
-    ggplot2::theme_light() +
-    ggplot2::theme(
-      panel.grid.major.x = ggplot2::element_blank(),
-      panel.grid.minor.x = ggplot2::element_blank()
-    ) +
-    ggplot2::labs(fill = NULL)
-  }
-}
-```
+Le package `{guideR}`, compagnon de *guide-R*, propose une fonction `guideR::observed_vs_theoretical()` qui permet justement de comparer la distribution observée avec la distribution théorique d'un modèle.
 
 Appliquons cette fonction à notre modèle de Poisson.
 
@@ -258,7 +220,7 @@ Appliquons cette fonction à notre modèle de Poisson.
 #| label: fig-observed-vs-theoritical-mod1-poisson
 #| fig-cap: Distribution observée vs distribution théorique de la descendance atteinte à 30 ans (modèle de Poisson)
 mod1_poisson |> 
-  observed_vs_theoretical()
+  guideR::observed_vs_theoretical()
 ```
 
 Les deux distributions restent assez proches même si la distribution observée est légèrement décalée vers la droite.
@@ -399,7 +361,7 @@ Nous pouvons comparer la distribution observée et la distribution théorique et
 #| label: fig-observed-vs-theoritical-mod1-nb
 #| fig-cap: Distribution observée vs distribution théorique de la descendance atteinte à 30 ans (modèle négatif binomial)
 mod1_nb |>
-  observed_vs_theoretical()
+  guideR::observed_vs_theoretical()
 mod1_nb |>
   performance::check_predictions(type = "discrete_both")
 ```
@@ -467,7 +429,7 @@ Comparons les données observées avec les données prédites.
 #| label: fig-observed-vs-theoritical-mod2-poisson
 #| fig-cap: Distribution observée vs distribution théorique du nombre de jours d'absence (modèle de Poisson)
 mod2_poisson |> 
-  observed_vs_theoretical()
+  guideR::observed_vs_theoretical()
 ```
 
 Nous voyons très clairement un décalage des deux distributions. Notre modèle de Poisson n'arrive pas à capturer la variabilité des observations. Faisons le test de surdispersion pour vérifier[^modeles-comptage-4].
@@ -500,7 +462,7 @@ mod2_nb <- MASS::glm.nb(
 #| label: fig-observed-vs-theoritical-mod2-nb
 #| fig-cap: Distribution observée vs distribution théorique du nombre de jours d'absence (modèle binomial négatif)
 mod2_nb |> 
-  observed_vs_theoretical()
+  guideR::observed_vs_theoretical()
 ```
 
 Les deux distributions sont bien plus proches maintenant. Vérifions la surdispersion.

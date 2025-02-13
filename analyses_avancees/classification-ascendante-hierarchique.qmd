@@ -219,62 +219,8 @@ arbre_gower |>
 
 Pour nous aider dans l'analyse du dendrogramme, il est possible de représenter graphiquement les sauts d'inertie (i.e. de la hauteur des branches) au fur-et-à-mesure que l'on découpe l'arbre en un nombre de classes plus important. Nous pouvons également considérer la perte absolue d'inertie (l'écart de hauteur entre le découpage précédent et le découpage considéré) voire la perte relative (i.e. la perte absolue exprimée en pourcentage de la hauteur précédente). `{FactoMineR}` (que nous aborderons un peu plus loin) suggère par défaut la partition correspondant à la plus grande perte relative d'inertie (*the one with the higher relative loss of inertia*).
 
-Pour faciliter les choses, voici deux petites fonctions que vous pouvez recopier / adapter dans vos scripts. `get_inertia_from_tree()` calcule l'inertie à chaque niveau, ainsi que les pertes absolues et relatives. `plot_inertia_from_tree()` en propose une représentation graphique.
+Pour faciliter les choses, `{guideR}`, le package compagnon de *guide-R*, propose deux petites fonctions :  `guideR::get_inertia_from_tree()` calcule l'inertie à chaque niveau, ainsi que les pertes absolues et relatives; `guideR::plot_inertia_from_tree()` en propose une représentation graphique.
 
-```{r}
-get_inertia_from_tree <- function(tree, k_max = 15) {
-  if (inherits(tree, "HCPC"))
-    tree <- tree$call$t$tree
-  if (!inherits(tree, "hclust"))
-    tree <- as.hclust(tree)
-  inertia <- tree$height |> 
-    sort(decreasing = TRUE) |> 
-    head(k_max)
-  prev_inertia <- dplyr::lag(inertia)
-  dplyr::tibble(
-    k = seq_along(inertia),
-    inertia = inertia,
-    absolute_loss = inertia - prev_inertia,
-    relative_loss = (inertia - prev_inertia) / prev_inertia
-  )
-}
-
-plot_inertia_from_tree <- function(tree, k_max = 15) {
-  d <- get_inertia_from_tree(tree, k_max)
-  p_inertia <- 
-    ggplot2::ggplot(d) +
-    ggplot2::aes(x = k, y = inertia) +
-    ggplot2::geom_step() +
-    ggplot2::ylab("Inertia")
-  p_absolute <-
-    ggplot2::ggplot(d) +
-    ggplot2::aes(x = k, y = absolute_loss) +
-    ggplot2::geom_bar(stat = "identity", fill = "#4477AA") +
-    ggplot2::ylab("Absolute loss")
-  p_relative <-
-    ggplot2::ggplot(d) +
-    ggplot2::aes(x = k, y = relative_loss) +
-    ggplot2::geom_line(color = "#AA3377") +
-    ggplot2::geom_point(size = 3, color = "#AA3377") +
-    ggplot2::scale_y_continuous(label = scales::percent) +
-    ggplot2::ylab("Relative loss")
-  patchwork::wrap_plots(
-    p_inertia,
-    p_absolute,
-    p_relative,
-    ncol = 1
-  ) &
-    ggplot2::theme_light() &
-    ggplot2::xlab("Number of clusters") &
-    ggplot2::scale_x_continuous(
-      breaks = d$k,
-      minor_breaks = NULL,
-      limits = c(1, k_max)
-    )
-}
-```
-
-Voyons ce qu'on obtient.
 
 ```{r}
 #| fig-height: 7
@@ -283,7 +229,7 @@ Voyons ce qu'on obtient.
 #| fig-cap: Inertie, perte absolue et perte relative d'inertie pour différents découpages en classes (distance de Gower)
 #| warning: false
 arbre_gower |> 
-  plot_inertia_from_tree()
+  guideR::plot_inertia_from_tree()
 ```
 
 Dans cet exemple, nous pouvons voir qu'un découpage en deux classes maximise la perte absolue et la perte relative d'inertie. Mais, pour les besoins de l'analyse, nous pouvons souhaiter un nombre de classe un peu plus élevé (plus de classes permet une analyse plus fine, trop de classes rend l'interprétation des résultats compliqués). Un découpage en 4 classes apparaît sur ce graphique comme une bonne alternative, voir un découpage en 6 classes (une lecture du dendrogramme nous permet de voir que, dans cet exemple, un découpage en 6 classes reviendrait à couper en deux les 2 classes les plus larges du découpage en 4 classes).
@@ -342,7 +288,7 @@ Comme nous pouvons le voir, dès le début du dendrogramme, l'arbre se divise ra
 #| fig-cap: Inertie, perte absolue et perte relative d'inertie pour différents découpages en classes (distance de Phi²)
 #| warning: false
 arbre_phi2 |> 
-  plot_inertia_from_tree()
+  guideR::plot_inertia_from_tree()
 ```
 
 Cela confirme un découpage <q>optimal</q> en 5 classes. Regardons la distribution de cette typologie.
@@ -423,7 +369,7 @@ Nous obtenons ici un découpage en 6 classes qui correspond bien à la plus gran
 #| fig-cap: Inertie, perte absolue et perte relative d'inertie pour différents découpages en classes à partir du résultat de HCPC()
 #| warning: false
 cah_fm |> 
-  plot_inertia_from_tree()
+  guideR::plot_inertia_from_tree()
 ```
 
 Par contre, le dendrogramme obtenu diffère de celui que nous avions eu précédemment avec `{ade4}` (cf. @fig-fviz_dend-dendrogram-phi2). Cela est dû au fait que `FactoMineR::HCPC()` procède différemment pour calculer la matrice des distances en ne prenant en compte que les axes retenus dans le cadre de l'ACM.

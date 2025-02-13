@@ -81,43 +81,35 @@ data("hdv2003", package = "questionr")
 Considérons la variable *qualif* qui indique le niveau de qualification des enquêtés. On peut voir la liste des niveaux de ce facteur, et leur ordre, avec `levels()`, ou en effectuant un tri à plat avec la fonction `questionr::freq()`.
 
 ```{r}
-hdv2003$qualif |> 
-  levels()
-hdv2003$qualif |> 
-  questionr::freq()
+hdv2003$qualif |> levels()
+hdv2003 |> guideR::proportion(qualif)
 ```
 
 Parfois, on a simplement besoin d'inverser l'ordre des facteurs, ce qui peut se faire facilement avec la fonction `forcats::fct_rev()`. Elle renvoie le facteur fourni en entrée en ayant inverser l'ordre des modalités (mais sans modifier l'ordre des valeurs dans le vecteur).
 
 ```{r}
-hdv2003$qualif |> 
-  fct_rev() |> 
-  questionr::freq()
+hdv2003 |> guideR::proportion(qualif |> fct_rev())
 ```
 
 Pour plus de contrôle, on utilisera `forcats::fct_relevel()` où l'on indique l'ordre souhaité des modalités. On peut également seulement indiquer les premières modalités, les autres seront ajoutées à la fin sans changer leur ordre.
 
 ```{r}
-hdv2003$qualif |> 
-  fct_relevel("Cadre", "Autre", "Technicien", "Employe") |> 
-  questionr::freq()
+hdv2003 |> 
+  guideR::proportion(
+    qualif |> fct_relevel("Cadre", "Autre", "Technicien", "Employe")
+  )
 ```
 
 La fonction `forcats::fct_infreq()` ordonne les modalités de celle la plus fréquente à celle la moins fréquente (nombre d'observations) :
 
 ```{r}
-hdv2003$qualif |> 
-  fct_infreq() |> 
-  questionr::freq()
+hdv2003 |> guideR::proportion(fct_infreq(qualif))
 ```
 
 Pour inverser l'ordre, on combinera `forcats::fct_infreq()` avec `forcats::fct_rev()`.
 
 ```{r}
-hdv2003$qualif |> 
-  fct_infreq() |> 
-  fct_rev() |> 
-  questionr::freq()
+hdv2003 |> guideR::proportion(qualif |> fct_infreq() |> fct_rev())
 ```
 
 Dans certains cas, on souhaite créer un facteur dont les modalités sont triées selon leur ordre d\'apparition dans le jeu de données. Pour cela, on aura recours à `forcats::fct_inorder()`.
@@ -154,20 +146,17 @@ Une démonstration en vidéo de cet *add-in* est disponible dans le webin-R #05 
 Pour modifier le nom des modalités, on pourra avoir recours à `forcats::fct_recode()` avec une syntaxe de la forme `"nouveau nom" = "ancien nom"`.
 
 ```{r}
-hdv2003$sexe |> 
-  questionr::freq()
+hdv2003 |> guideR::proportion(sexe)
 hdv2003$sexe <- 
   hdv2003$sexe |> 
   fct_recode(f = "Femme", m = "Homme")
-hdv2003$sexe |> 
-  questionr::freq()
+hdv2003 |> guideR::proportion(sexe)
 ```
 
 On peut également fusionner des modalités ensemble en leur attribuant le même nom.
 
 ```{r}
-hdv2003$nivetud |> 
-  questionr::freq()
+hdv2003 |> guideR::proportion(nivetud)
 hdv2003$instruction <- 
   hdv2003$nivetud |> 
   fct_recode(
@@ -180,8 +169,7 @@ hdv2003$instruction <-
     "technique/professionnel" = "Enseignement technique ou professionnel long",
     "supérieur" = "Enseignement superieur y compris technique superieur"
   )
-hdv2003$instruction |> 
-  questionr::freq()
+hdv2003 |> guideR::proportion(instruction)
 ```
 
 ::: callout-tip
@@ -231,8 +219,7 @@ Pour transformer les valeurs manquantes (`NA`) en une modalité explicite, on po
 hdv2003$instruction <-
   hdv2003$instruction |> 
   fct_na_value_to_level(level = "(manquant)")
-hdv2003$instruction |> 
-  questionr::freq()
+hdv2003 |> guideR::proportion(instruction)
 ```
 
 Plusieurs fonctions permettent de regrouper plusieurs modalités dans une modalité *autres*.
@@ -240,27 +227,29 @@ Plusieurs fonctions permettent de regrouper plusieurs modalités dans une modali
 Par exemple, avec `forcats::fct_other()`, on pourra indiquer les modalités à garder.
 
 ```{r}
-hdv2003$qualif |> 
-  questionr::freq()
-hdv2003$qualif |> 
-  fct_other(keep = c("Technicien", "Cadre", "Employe")) |> 
-  questionr::freq()
+hdv2003 |> guideR::proportion(qualif)
+hdv2003 |> 
+  guideR::proportion(
+    qualif |> fct_other(keep = c("Technicien", "Cadre", "Employe"))
+  )
 ```
 
 La fonction `forcats::fct_lump_n()` permets de ne conserver que les modalités les plus fréquentes et de regrouper les autres dans une modalité *autres*.
 
 ```{r}
-hdv2003$qualif |> 
-  fct_lump_n(n = 4, other_level = "Autres") |> 
-  questionr::freq()
+hdv2003 |> 
+  guideR::proportion(
+    qualif |> fct_lump_n(n = 4, other_level = "Autres")
+  )
 ```
 
 Et `forcats::fct_lump_min()` celles qui ont un minimum d'observations.
 
 ```{r}
-hdv2003$qualif |> 
-  fct_lump_min(min = 200, other_level = "Autres") |> 
-  questionr::freq()
+hdv2003 |> 
+  guideR::proportion(
+    qualif |> fct_lump_min(min = 200, other_level = "Autres")
+  )
 ```
 
 Il peut arriver qu'une des modalités d'un facteur ne soit pas représentée dans les données.
@@ -304,7 +293,7 @@ Prenons tout de suite un exemple et tentons de découper la variable *age* en ci
 hdv2003 <-
   hdv2003 |> 
   mutate(groupe_ages = cut(age, 5))
-hdv2003$groupe_ages |> questionr::freq()
+hdv2003 |> guideR::proportion(groupe_ages)
 ```
 
 Par défaut **R** nous a bien créé cinq classes d'amplitudes égales. La première classe va de 17,9 à 33,8 ans (en fait de 17 à 32), etc.
@@ -315,7 +304,7 @@ Les frontières de classe seraient plus présentables si elles utilisaient des n
 hdv2003 <-
   hdv2003 |> 
   mutate(groupe_ages = cut(age, c(18, 20, 40, 60, 80, 97)))
-hdv2003$groupe_ages |> questionr::freq()
+hdv2003 |> guideR::proportion(groupe_ages)
 ```
 
 Les symboles dans les noms attribués aux classes ont leur importance : `(` signifie que la frontière de la classe est exclue, tandis que `[` signifie qu'elle est incluse. Ainsi, `(20,40]` signifie « strictement supérieur à 20 et inférieur ou égal à 40 ».
@@ -330,7 +319,7 @@ hdv2003 <-
     c(18, 20, 40, 60, 80, 97),
     include.lowest = TRUE
   ))
-hdv2003$groupe_ages |> questionr::freq()
+hdv2003 |> guideR::proportion(groupe_ages)
 ```
 
 On peut également modifier le sens des intervalles avec l'option `right=FALSE` :
@@ -344,7 +333,7 @@ hdv2003 <-
     include.lowest = TRUE,
     right = FALSE
   ))
-hdv2003$groupe_ages |> questionr::freq()
+hdv2003 |> guideR::proportion(groupe_ages)
 ```
 
 ::: callout-tip

@@ -98,32 +98,12 @@ mod_quasi2 <- step(mod_quasi)
 ::: callout-warning
 ## Sélection pas à pas et valeurs manquantes
 
-Nous avons abordé dans le chapitre sur la sélection de modèle pas à pas la problématique des valeurs manquantes lors d'une sélection pas à pas descendante par minimisation de l'AIC (cf. @sec-step-avec-na). La même approche peut être appliquée avec des données pondérées. Cependant, la fonction `step_with_na()` que nous avons présenté n'est pas compatible avec les modèles `survey::svyglm()` puisqu'ils prennent en entrée un argument `design` et non `data`.
+Nous avons abordé dans le chapitre sur la sélection de modèle pas à pas la problématique des valeurs manquantes lors d'une sélection pas à pas descendante par minimisation de l'AIC (cf. @sec-step-avec-na). La même approche peut être appliquée avec des données pondérées, à l'aide de la fonction `guideR::step_with_na()`, compatible avec les modèles `survey::svyglm()`. Il faudra néanmoins, dans ce cas là, qu'on lui passe l'objet `{survey}` ayant servi au calcul du modèle via l'e paramètre'argument `design`.
 
-On pourra essayer la variante `step_with_na_survey()` ci-dessous qui nécessite qu'on lui passe également l'objet `{survey}` ayant servi au calcul du modèle.
-
-```{r}
-step_with_na_survey <- function(model, design, ...) {
-  # list of variables
-  variables <- broom.helpers::model_list_variables(
-    model,
-    only_variable = TRUE
-  )
-  # design with no na
-  design_no_na <- design |> 
-    srvyr::drop_na(dplyr::any_of(variables))
-  # refit the model without NAs
-  model_no_na <- update(model, data = design_no_na)  
-  # apply step()
-  model_simplified <- step(model_no_na, ...)
-  # recompute simplified model using full data
-  update(model, formula = terms(model_simplified))
-}
-```
 
 ```{r}
 #| eval: false
-mod2_binomial <- step_with_na_survey(mod_binomial, dp)
+mod_quasi2 <- guideR::step_with_na(mod_quasi, design = dp)
 ```
 :::
 

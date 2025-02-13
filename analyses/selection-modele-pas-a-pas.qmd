@@ -315,18 +315,13 @@ mod_na_reduit2 <- glm(
 **Attention :** `mod_na_reduit` et `mod_na_reduit2` ne sont pas identiques puisque le second a été calculé sur un plus grand nombre d'observations, ce qui change très légèrement les valeurs des coefficients.
 
 ::: callout-tip
-Pour automatiser l'ensemble de ce processus, on peut copier/coller le code de la fonction générique suivante[^selection-modele-pas-a-pas-1] :
+Pour automatiser ce processus, `{guideR}`, le package compagnon de *guide-R*, propose une fonction `guideR::step_with_na()`.
+
+L'argument `full_data` peut-être utile lorsque le jeu de données n'est pas disponible dans l'environnement parent, par exemple lorsque l'on imbrique des calculs avec `lapply()` ou `purrr:map()`. On pourra lors passer manuellement le jeu de données complet à la fonction.
 
 ```{r}
-#| file: step_with_na.R
-```
-
-Elle réalise l'ensemble des opérations décrites plus haut en profitant de la flexibilité offerte par la fonction `update()`. La fonction `terms()` permet de récupérer l'équation du modèle. La fonction `model.frame()` permet de récupérer le jeu de données utilisé par un modèle (et dans lequel les lignes incomplètes ont été supprimées), mais cela ne marchera que si c'est un modèle simple (chaque terme du modèle est une variable directe du tableau de données et non une variable calculée). Sinon, on peut appeler `step_with_na()` en lui passant en plus le tableau de données original. Cela permet d'avoir recours à la fonction `get_all_vars()` qui permet d'extraire d'un tableau de données toutes les variables nécessaires au calcul d'un modèle.
-
-**Attention :** il s'agit d'une fonction expérimentale et elle n'est peut-être pas compatible avec tous les types de modèles. Elle a été testée avec les modèles `lm()`, `glm()` et `nnet::multinom()`.
-
-```{r}
-mod_na_reduit_direct <- step_with_na(mod_na, trace = 0)
+mod_na_reduit_direct <- mod_na |> 
+  guideR::step_with_na(trace = 0)
 ```
 
 Le résultat obtenu est strictement identique.
@@ -335,5 +330,3 @@ Le résultat obtenu est strictement identique.
 anova(mod_na_reduit2, mod_na_reduit_direct)
 ```
 :::
-
-[^selection-modele-pas-a-pas-1]: L'argument `full_data` peut-être utile lorsque le jeu de données n'est pas disponible dans l'environnement parent, par exemple lorsque l'on imbrique des calculs avec `lapply()` ou `purrr:map()`. On pourra lors passer manuellement le jeu de données complet à la fonction.

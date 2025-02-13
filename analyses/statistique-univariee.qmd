@@ -130,7 +130,7 @@ ggplot(hdv2003) +
   ggtitle("Occupation des personnes enquêtées")
 ```
 
-::: {.content-visible when-format="html"}
+:::: {.content-visible when-format="html"}
 Le [diaporama ci-dessous](ressources/flipbook-geom_bar-univarie.html) vous permet de visualiser chaque étape du code.
 
 ::: {.column-page-right .ratio .ratio-16x9}
@@ -138,7 +138,7 @@ Le [diaporama ci-dessous](ressources/flipbook-geom_bar-univarie.html) vous perme
 
 </iframe>
 :::
-:::
+::::
 
 ::: {.content-visible unless-format="html"}
 Pour visualiser chaque étape du code, vous pouvez consulter le diaporama suivant : <https://larmarange.github.io/guide-R/analyses/ressources/flipbook-geom_bar-univarie.html>
@@ -698,17 +698,44 @@ tbl
 
 Comme on le voit, il s'agit du tableau brut des effectifs, sans les valeurs manquantes, et pas vraiment lisible dans la console de **R**.
 
-Pour calculer les proportions, on appliquera `prop.table()` sur la table des effectifs bruts.
+Pour calculer les proportions, on appliquera `proportions()` (au pluriel) sur la table des effectifs bruts.
 
 ```{r}
-prop.table(tbl)
+proportions(tbl)
 ```
 
-Pour la réalisation rapide d'un tri à plat, on pourra donc préférer la fonction `questionr::freq()` qui affiche également le nombre de valeurs manquantes et les pourcentages, en un seul appel.
+Pour la réalisation rapide d'un tri à plat, on pourra aussi utiliser la fonction `questionr::freq()` qui affiche également le nombre de valeurs manquantes et les pourcentages, en un seul appel.
 
 ```{r}
-hdv2003$trav.imp |> 
-  questionr::freq(total = TRUE)
+questionr::freq(hdv2003$trav.imp)
+```
+
+Ceci dit, si l'on préfère une approche à la `{dplyr}`, on pourra se reposer sur `dplyr::count()` qui permet de compter le nombre d'observations.
+
+```{r}
+hdv2003 |> 
+  dplyr::count(trav.imp)
+```
+
+À partir de là, il est possible de calculer à la suite les proportions en utilisant `proportions()` (au pluriel) au sein d'un `dplyr::mutate()`.
+
+```{r}
+hdv2003 |> 
+  dplyr::count(trav.imp) |> 
+  dplyr::mutate(prop = proportions(n))
+```
+
+Ou encore plus simplement, on pourra avoir recours à `{guideR}`, le package compagnon de *guide-R* et qui propose une fonction `proportion()` (sans s, comme le verbe anglais *to proportion*).
+
+```{r}
+library(guideR)
+hdv2003 |> proportion(trav.imp)
+```
+
+Notez que, par défaut, les proportions sont multipliées par 100 pour afficher des pourcentages. Ceci est modifiable avec `.scale`. L'argument `.na.rm` permet quant à lui de retirer les valeurs manquantes du calcul.
+
+```{r}
+hdv2003 |> proportion(trav.imp, .scale = 1, .na.rm = TRUE)
 ```
 
 ## Intervalles de confiance
@@ -802,29 +829,13 @@ Par défaut, `prop.test()` produit un intervalle de confiance bilatéral en util
 ::: callout-tip
 Comme on le voit, il n'est pas aisé, avec les fonctions de **R base** de calculer les intervalles de confiance pour toutes les modalités d'une variable catégorielle.
 
-On pourra éventuellement avoir recours à la petite fonction suivante qui réalise le tri à plat d'une variable catégorielle, calcule les proportions et leurs intervalles de confiance.
+On pourra, dès lors, profiter de la fonction `guideR::proportion()` qui peut facilement calculer les intervalles de confiances. Il suffit de lui préciser `.conf.int = TRUE`.
 
 ```{r}
-prop_ci <- function(x, conf.level = .95, correct = TRUE) {
-  tbl <- as.data.frame(table(x), responseName = "n")
-  tbl$N <- sum(tbl$n)
-  tbl$prop <- tbl$n / tbl$N
-  tbl$conf.low <- NA_real_
-  tbl$conf.high <- NA_real_
-  for (i in 1:nrow(tbl)) {
-    test <- prop.test(
-      x = tbl$n[i],
-      n = tbl$N[i],
-      conf.level = conf.level,
-      correct = correct
-    )
-    tbl$conf.low[i] <- test$conf.int[1]
-    tbl$conf.high[i] <- test$conf.int[2]
-  }
-  tbl
-}
-prop_ci(hdv2003$trav.imp)
+hdv2003 |> proportion(trav.imp, .conf.int = TRUE)
+hdv2003 |> proportion(trav.imp, .conf.int = TRUE, .scale = 1)
 ```
+
 :::
 
 ## webin-R

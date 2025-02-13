@@ -184,14 +184,11 @@ d |>
   )
 ```
 
-On peut, notamment dans des analyses longitudinales, avoir besoin de repérer chaque changement d'une certaine valeur. Dans le chapitre sur les conditions logiques, nous avions proposé une fonction `is_different()` permettant de comparer deux valeurs tout en tenant compte des valeurs manquantes (voir @sec-comparaison-valeurs-manquantes). Nous proposons ici une fonction `cumdifferent()` permettant de compter les changements de valeurs (et donc d'identifier les lignes continues ayant les mêmes valeurs). Cela est particulièrement utile dans le cadre d'analyses longitudinales.
+On peut, notamment dans des analyses longitudinales, avoir besoin de repérer chaque changement d'une certaine valeur. Dans le chapitre sur les conditions logiques, nous avions proposé une fonction `is_different()` permettant de comparer deux valeurs tout en tenant compte des valeurs manquantes (voir @sec-comparaison-valeurs-manquantes). Nous proposons ici une fonction `cumdifferent()` permettant de compter les changements de valeurs (et donc d'identifier les lignes continues ayant les mêmes valeurs). Cela est particulièrement utile dans le cadre d'analyses longitudinales. Cette fonction est également disponible dans `{guideR}`, le package compagnon de *guide-R* (voir `guideR::cumdifferent()`).
 
 ```{r}
-is_different <- function(x, y) {
-  (x != y & !is.na(x) & !is.na(y)) | xor(is.na(x), is.na(y))
-}
 cumdifferent <- function(x) {
-  cumsum(is_different(x, lag(x)))
+  cumsum(guideR::is_different(x, dplyr::lag(x)))
 }
 ```
 
@@ -204,15 +201,14 @@ d
 
 Dans la cas présent, cela permet d'identifier des sous-groupes, i.e. des lignes contiguës ayant le même groupe : **1** est le sous-groupe de tête du groupe **a**, **2** le sous-groupe **b** et **3** le deuxième sous-groupe issu de **a**.
 
-Une variante est la fonction `num_cycle()` ci-après[^fonctions-a-fenetre-1]. On doit lui passer une condition / vecteur logique en entrée. Il numérote uniquement les <q>sous-groupes</q> remplissant la condition et renvoie `NA` sinon.
+Une variante est la fonction `num_cycle()` ci-après. On doit lui passer une condition / vecteur logique en entrée. Il numérote uniquement les <q>sous-groupes</q> remplissant la condition et renvoie `NA` sinon. Elle est également disponible dans `{guideR}` (cf. `guideR::num_cycle()`).
 
-[^fonctions-a-fenetre-1]: Ne pas oublier de copier également la fonction `is_different()`.
 
 ```{r}
 num_cycle <- function(x) {
   if (!is.logical(x))
     stop("'x' should be logical.")
-  res <- cumsum(x & is_different(x, lag(x)))
+  res <- cumsum(x & guideR::is_different(x, dplyr::lag(x)))
   res[!x] <- NA
   res
 }
