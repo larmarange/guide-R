@@ -53,15 +53,13 @@ Dans d'autres enquêtes, les poids sont générés de telle manière que la somm
 On pourra éventuellement présenter séparément le nombre d'observations (i.e. les effectifs non pondérés) et les proportions pondérées. `gtsummary::tbl_svysummary()` fournit justement à la fois ces données pondérées et non pondérées. Il est vrai que cela nécessite quand même quelques manipulations. Pour les cellules, on précisera le type d'effectifs à afficher avec l'argument `statistic`. Pour personnaliser l'affiche du nombre de valeurs manquantes, cela doit se faire à un niveau plus global via `gtsummary::set_gtsummary_theme()`. Enfin, on passera par `gtsummary::modify_header()` pour personnaliser les en-têtes de colonne.
 
 ```{r}
-set_gtsummary_theme(
-  list("tbl_summary-str:missing_stat" = "{N_miss_unweighted} obs.")
-)
 dp |> 
   tbl_svysummary(
     by = milieu,
     include = c(educ, travail),
     statistic = all_categorical() ~ "{p}% ({n_unweighted} obs.)",
-    digits = all_categorical() ~ c(1, 0)
+    digits = all_categorical() ~ c(1, 0),
+    missing_stat = "{N_miss_unweighted} obs."
   ) |> 
   modify_header(
     all_stat_cols() ~ "**{level}** ({n_unweighted} obs.)"
@@ -72,15 +70,10 @@ dp |>
 Il faut noter qu'une modification du thème impactera tous les tableaux suivants, jusqu'à ce que le thème soit à nouveau modifié ou bien que l'on fasse appel à `gtsummary::reset_gtsummary_theme()`.
 
 ```{r}
-#| eval: false
-#| include: false
-# On peut forcer l'utilisation des effectifs non pondérés aux différents endroits via une personnalisation du thème, pour éviter d'avoir à le faire tableau par tableau.
-# BUG pour header, cf. https://github.com/ddsjoberg/gtsummary/issues/1452
+# On peut forcer l'utilisation des effectifs non pondérés à certains endroits via une personnalisation du thème, pour éviter d'avoir à le faire tableau par tableau.
 list(
-  "tbl_summary-str:header-noby" = "{N_unweighted} obs.",
-  "tbl_summary-str:header-withby" = "**{level}** ({n_unweighted} obs.)",
-  "tbl_summary-str:missing_stat" = "{N_miss_unweighted} obs.",
-  "tbl_summary-str:categorical_stat" = "{p}% ({n_unweighted} obs.)"
+  "tbl_svysummary-str:header-noby" = "{N_unweighted} obs.",
+  "tbl_svysummary-str:header-withby" = "**{level}** ({n_unweighted} obs.)"
 ) |> 
   set_gtsummary_theme()
 
@@ -88,6 +81,9 @@ dp |>
   tbl_svysummary(
     by = milieu,
     include = c(educ, travail),
+    missing_stat = "{N_miss_unweighted} obs.",
+    statistic = all_categorical() ~ "{p}% ({n_unweighted} obs.)",
+    digits = all_categorical() ~ c(1, 0)
 ) |> 
   add_overall(last = TRUE) |> 
   bold_labels()
