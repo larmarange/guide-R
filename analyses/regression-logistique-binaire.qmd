@@ -178,7 +178,9 @@ d <-
 
 ## Statistiques descriptives
 
-Avant toute analyse multivariable, il est toujours bon de procéder à une analyse descriptive bivariée simple, tout simplement avec `gtsummary::tbl_summary()`. Ajoutons quelques tests de comparaison avec `gtsummary::add_p()`. Petite astuce : `gtsummary::modify_spanning_header()` permet de rajouter un en-tête sur plusieurs colonnes.
+Avant toute analyse multivariable, il est toujours bon de procéder à une analyse descriptive bivariée simple, tout simplement avec `gtsummary::tbl_summary()`. Dans le cas présent, il est préférable d'afficher les pourcentages en ligne qui permettent ainsi de comparer de suite la proportion de personnes faisant du sport entre les différentes catégories.
+
+Ajoutons quelques tests de comparaison avec `gtsummary::add_p()`. Petite astuce : `gtsummary::modify_spanning_header()` permet de rajouter un en-tête sur plusieurs colonnes.
 
 ```{r}
 #| message: false
@@ -192,7 +194,8 @@ theme_gtsummary_language("fr", decimal.mark = ",", big.mark = " ")
 d |> 
   tbl_summary(
     by = sport,
-    include = c(sexe, groupe_ages, etudes, relig, heures.tv)
+    include = c(sexe, groupe_ages, etudes, relig, heures.tv),
+    percent = "row"
   ) |>
   add_overall(last = TRUE) |> 
   add_p() |> 
@@ -201,6 +204,24 @@ d |>
     all_stat_cols(stat_0 = FALSE) ~ "**Pratique un sport ?**"
   )
 ```
+
+::: callout-tip
+## Comparer visuellement une proportion entre sous-groupes
+
+Depuis sa version 0.2.0, `{guideR}`, le package compagnon de *guide-R*, propose une fonction `guideR::plot_proportions()` qui permet de comparer facilement les proportions selon plusieurs sous-groupes, en affichant également les intervalles de confiance et les p-valeurs (test de Fisher par défaut).
+
+```{r}
+#| fig-height: 6
+#| fig-width: 6
+d |> 
+  guideR::plot_proportions(
+    sport == "Oui",
+    by = c(sexe, groupe_ages, etudes, relig),
+    fill = "lightblue",
+    flip = TRUE
+  )
+```
+:::
 
 ## Calcul de la régression logistique binaire
 
