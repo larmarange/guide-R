@@ -198,6 +198,25 @@ Le [diaporama ci-dessous](ressources/flipbook-geom_bar-dodge.html) vous permet d
 Pour visualiser chaque étape du code, vous pouvez consulter le diaporama suivant : <https://larmarange.github.io/guide-R/analyses/ressources/flipbook-geom_bar-dodge.html>
 :::
 
+::: callout-tip
+## Diagramme alluvial
+
+Une représentation alternative du croisement de deux variables est à d'avoir recours à un diagramme alluvial[^statistique-bivariee-1]. Ce type de graphique est particulièrement adapté pour des données temporelles, par exemple du type <q>avant / après</q>. Il peut également être étendu à un plus grand nombre d'étapes. Ci-dessous, un exemple reposants sur le package `{ggalluvial}`.
+
+```{r}
+library(ggalluvial)
+ggplot(trial) +
+  aes(axis1 = grade, axis2 = stage) +
+  geom_flow(mapping = aes(fill = grade)) +
+  geom_stratum() +
+  geom_text(stat = "stratum", aes(label = after_stat(stratum))) +
+  scale_x_discrete(limits = c("Grade", " T Stage")) +
+  theme_minimal()
+```
+:::
+
+[^statistique-bivariee-1]: Un graphique alluvial est une variation d'un graphique de Sankey. Usuellement, un graphique de Sankey espace verticalement les différents statuts d'une même étape, tandis qu'il n'y a pas d'espace vertical dans un diagramme alluvial. Le package `{ggsankey}` propose une implémentation à la fois des diagrammes de Sankey des diagrammes alluviaux. Ce package n'est cependant pas disponible sur **CRAN** et doit être installé manuellement depuis GitHub. Pour un diagramme de Sankey, on pourra également avoir recours à `ggforce::geom_parallel_sets()` du package `{ggforce}`. Cette fonction nécessite une réorganisation des données dans un format long au préalable.
+
 ### Représentations graphiques (variable binaire)
 
 Pour croiser une proportion simple (variable binaire), on pourra avoir recours à la fonction `guideR::plot_proportions()` fournie par `{guideR}`, le package compagnon de *guide-R*. Pour cela, on indiquera une condition définissant la proportion à représenter et, éventuellement, une liste de variables de croisement. Cette fonction a l'avantage de représenter également les intervalles de confiance à 95% ainsi que des tests de comparaison (voir ci-après). Pour plus d'information sur les différentes options disponibles, voir l'[aide de la fonction](https://larmarange.github.io/guideR/reference/plot_proportions.html).
@@ -554,9 +573,9 @@ trial |>
   add_p()
 ```
 
-Par défaut, pour les **variables continues**, un test de Kruskal-Wallis calculé avec la fonction `stats::kruskal.test()` est utilisé lorsqu'il y a trois groupes ou plus, et un test de Wilcoxon-Mann-Whitney calculé avec `stats::wilcox.test()` (test de comparaison des rangs) lorsqu'il n'y a que deux groupes. Au sens strict, il ne s'agit pas de tests de comparaison des médianes mais de tests sur la somme des rangs[^statistique-bivariee-1]. En pratique, ces tests sont appropriés lorsque l'on présente les médianes et les intervalles inter-quartiles.
+Par défaut, pour les **variables continues**, un test de Kruskal-Wallis calculé avec la fonction `stats::kruskal.test()` est utilisé lorsqu'il y a trois groupes ou plus, et un test de Wilcoxon-Mann-Whitney calculé avec `stats::wilcox.test()` (test de comparaison des rangs) lorsqu'il n'y a que deux groupes. Au sens strict, il ne s'agit pas de tests de comparaison des médianes mais de tests sur la somme des rangs[^statistique-bivariee-2]. En pratique, ces tests sont appropriés lorsque l'on présente les médianes et les intervalles inter-quartiles.
 
-[^statistique-bivariee-1]: Si l'on a besoin spécifiquement d'un test de comparaison des médianes, il existe le **test de Brown-Mood** disponible dans le package `{coin}` avec la fonction `coin::median_test()`. Attention, il ne faut pas confondre ce test avec le **test de dispersion de Mood** implémenté dans la fonction `stats::mood.test()`.
+[^statistique-bivariee-2]: Si l'on a besoin spécifiquement d'un test de comparaison des médianes, il existe le **test de Brown-Mood** disponible dans le package `{coin}` avec la fonction `coin::median_test()`. Attention, il ne faut pas confondre ce test avec le **test de dispersion de Mood** implémenté dans la fonction `stats::mood.test()`.
 
 Si l'on affiche des moyennes, il serait plus juste d'utiliser un test *t de Student* (test de comparaison des moyennes) calculé avec `stats::t.test()`, valable seulement si l'on compare deux moyennes. Pour tester si trois moyennes ou plus sont égales, on aura plutôt recours à `stats::oneway.test()`.
 

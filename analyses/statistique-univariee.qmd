@@ -144,6 +144,38 @@ Le [diaporama ci-dessous](ressources/flipbook-geom_bar-univarie.html) vous perme
 Pour visualiser chaque étape du code, vous pouvez consulter le diaporama suivant : <https://larmarange.github.io/guide-R/analyses/ressources/flipbook-geom_bar-univarie.html>
 :::
 
+::: callout-tip
+## Représentation graphique de plusieurs variables catégorielles
+
+Pour représenter plusieurs variables catégorielles en un seul graphique, on pourra éventuellement profiter de la géométrie `ggalluvial::geom_stratum()` du package `{ggalluvial}`.
+
+Cette géométrie est un peu particulière. On indiquera les différentes variables à représenter avec les esthétiques `axis1`, `axis2`, etc. On utilisera l'argument `limits` de `ggplot2::scale_x_discrete()` pour personnaliser l'axe des x.
+
+```{r}
+library(ggalluvial)
+ggplot(hdv2003) +
+  aes(axis1 = sexe, axis2 = occup, axis3 = sport) +
+  geom_stratum(
+    width = .9,
+    mapping = aes(fill = factor(after_stat(x))),
+    show.legend = FALSE
+  ) +
+  geom_text(
+    stat = "stratum", 
+    mapping = aes(label = after_stat(stratum))
+  ) +
+  scale_x_discrete(
+    limits = c(
+      "Sexe",
+      "Occupation",
+      "Pratique un sport"
+    )
+  ) +
+  khroma::scale_fill_bright() +
+  theme_minimal()
+```
+:::
+
 ## Tableaux et tris à plat {#sec-tri-a-plat}
 
 Le package `{gtsummary}` constitue l'une des boites à outils de l'analyste quantitativiste, car il permet de réaliser très facilement des tableaux quasiment publiables en l'état. En matière de statistique univariées, la fonction clé est `gtsummary::tbl_summary()`.
@@ -835,7 +867,6 @@ On pourra, dès lors, profiter de la fonction `guideR::proportion()` qui peut fa
 hdv2003 |> proportion(trav.imp, .conf.int = TRUE)
 hdv2003 |> proportion(trav.imp, .conf.int = TRUE, .scale = 1)
 ```
-
 :::
 
 ## webin-R
