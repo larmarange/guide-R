@@ -556,7 +556,7 @@ hdv2003 |>
   )
 ```
 
-Au lieu d'un nombre de décimales, on peut indiquer plutôt une fonction à appliquer pour mettre en forme le résultat. Par exemple, `{gtsummary}` fournit les fonctions suivantes : `gtsummary::style_number()` pour les nombres de manière générale, `gtsummary::style_percent()` pour les pourcentages (les valeurs sont multipliées par 100, mais le symbole % n'est pas ajouté), `gtsummary::style_pvalue()` pour les p-valeurs, `gtsummary::style_sigfig()` qui n'affiche, par défaut, que deux chiffres significatifs, ou encore `gtsummary::style_ratio()` qui est une variante de ``` gtsummary::``style_sigfig() ```{data-pkg="\"gtsummary"} pour les ratios (comme les *odds ratios*) que l'on compare à 1.
+Au lieu d'un nombre de décimales, on peut indiquer plutôt une fonction à appliquer pour mettre en forme le résultat. Par exemple, `{gtsummary}` fournit les fonctions suivantes : `gtsummary::style_number()` pour les nombres de manière générale, `gtsummary::style_percent()` pour les pourcentages (les valeurs sont multipliées par 100, mais le symbole % n'est pas ajouté), `gtsummary::style_pvalue()` pour les p-valeurs, `gtsummary::style_sigfig()` qui n'affiche, par défaut, que deux chiffres significatifs, ou encore `gtsummary::style_ratio()` qui est une variante de `gtsummary::style_sigfig()`{data-pkg="\"gtsummary"} pour les ratios (comme les *odds ratios*) que l'on compare à 1.
 
 Il faut bien noter que ce qui est attendu par `digits`, c'est une fonction et non le résultat d'une fonction. On indiquera donc le nom de la fonction sans parenthèse, comme dans l'exemple ci-dessous (même si pas forcément pertinent ;-)).
 
@@ -571,7 +571,7 @@ hdv2003 |>
   )
 ```
 
-Comme `digits` s'attend à recevoir une fonction (et non le résultat) d'une fonction, on ne peut pas passer directement des arguments aux fonctions `style_*()` de `{gtsummary}`. Pour cela il faut créer une fonction à la levée :
+Comme `digits` s'attend à recevoir une fonction (et non le résultat) d'une fonction, on ne peut pas passer directement des arguments aux fonctions `style_*()` de `{gtsummary}`. Pour cela, on aura recours à leurs équivalents `label_style_*()` qui ne mettent directement un nombre en forme, mais renvoient une fonction de mise en forme.
 
 ```{r}
 #| label: tbl-digits-3
@@ -580,37 +580,11 @@ trial |>
   tbl_summary(
     include = marker,
     statistic = ~ "{mean} pour 100",
-    digits = ~ function(x){style_percent(x, digits = 1)}
+    digits = ~ label_style_percent(digits = 1)
   )
 ```
 
-Depuis **R 4.1**, il existe une syntaxe raccourcie équivalente, avec le symbole `\` à la place de `function`.
-
-```{r}
-#| label: tbl-digits-4
-#| tbl-cap: passer une fonction personnalisée à digits (syntaxe 2)
-trial |>
-  tbl_summary(
-    include = marker,
-    statistic = ~ "{mean} pour 100",
-    digits = ~ \(x){style_percent(x, digits = 1)}
-  )
-```
-
-Une syntaxe alternative consiste à avoir recours à la fonction `purrr::partial()` qui permet d'appeler <q>partiellement</q> une fonction et de renvoyer une nouvelle fonction.
-
-```{r}
-#| label: tbl-digits-5
-#| tbl-cap: passer une fonction personnalisée à digits (syntaxe 3)
-trial |>
-  tbl_summary(
-    include = marker,
-    statistic = ~ "{mean} pour 100",
-    digits = ~ purrr::partial(style_percent, digits = 1)
-  )
-```
-
-À noter dans l'exemple précédent que les fonctions `style_*()` de `{gtsummary}` tiennent compte du thème défini (ici la virgule comme séparateur de décimale).
+À noter dans l'exemple précédent que les fonctions `style_*()` et `label_style_*()` de `{gtsummary}` tiennent compte du thème défini (ici la virgule comme séparateur de décimale).
 
 Pour une mise en forme plus avancée des nombres, il faut se tourner vers l'extension `{scales}` et ses diverses fonctions de mise en forme comme `scales::label_number()` ou `scales::label_percent()`.
 
@@ -811,7 +785,7 @@ hdv2003 |>
   add_ci(
     statistic = ~ "entre {conf.low} et {conf.high}",
     conf.level = .9,
-    style_fun = ~ purrr::partial(style_number, digits = 1)
+    style_fun = ~ label_style_number(digits = 1)
   )
 ```
 

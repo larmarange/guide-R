@@ -172,14 +172,19 @@ Véritable couteau-suisse du statisticien, le package `{gtsummary}` sera largeme
 
 Ce package utilise par défaut ses propres fonctions de formatage mais, au besoin, il sera toujours possible de lui transmettre des fonctions de formatage créées avec `{scales}`.
 
-### `style_number()`
+Comme avec les fonctions de `{scales}`, les fonctions de formatage de `{gtsummary}` existent sous deux variantes[^formater-nombre-1] : les fonctions de formatage directes, de la forme `style_*()`, et les fonctions renvoyant une fonction de formatage, de la forme `label_style_*()`.
 
-Fonction de base, `gtsummary::style_number()` accepte les paramètres `big.mark` (séparateur de milliers), `decimal.mark` (séparateur de décimales) et `scale` (facteur d'échelle). Le nombre de décimales se précisera quant à lui avec `digits` où l'on indiquera le nombre de décimales souhaité.
+[^formater-nombre-1]: Depuis la version 2.0.0 de `{gtsummary}`. Pensez, au besoin, à mettre vos packages à jour.
+
+### `label_style_number()`
+
+Fonction de base, `gtsummary::label_style_number()` accepte les paramètres `big.mark` (séparateur de milliers), `decimal.mark` (séparateur de décimales) et `scale` (facteur d'échelle). Le nombre de décimales se précisera quant à lui avec `digits` où l'on indiquera le nombre de décimales souhaité.
 
 ```{r}
 library(gtsummary)
 x <- c(0.123, 0.9, 1.1234, 12.345, -0.123, -0.9, -1.1234, -132.345)
 style_number(x, digits = 1)
+label_style_number(digits = 1)(x)
 ```
 
 ::: callout-tip
@@ -189,56 +194,51 @@ Il est important de noter que cela n'a aucun effet sur les fonctions de formatag
 :::
 
 ::: callout-caution
-`gtsummary::style_number()` est directement une fonction de formatage (comme `scales::number()`) et non une fonction qui génère une fonction de formatage (comme `scales::label::number()`).
-
-Pour créer une fonction de formatage personnalisée, on pourra avoir recours à `purrr::partial()` qui permet d'appeler <q>partiellement</q> une fonction et qui renvoie une nouvelle fonction avec des paramètres par défaut personnalisés.
-
-```{r}
-fr <- style_number |>
-  purrr::partial(decimal.mark = ",", digits = 1)
-fr(x)
-```
+`gtsummary::style_number()` est directement une fonction de formatage (comme `scales::number()`) tandis que `gtsummary::label_style_number()` une fonction qui génère une fonction de formatage (comme `scales::label_number()`).
 :::
 
-### `style_sigfig()`
+### `label_style_sigfig()`
 
-Variante de `gtsummary::style_number()`, `gstummary::style_sigfig()` arrondi les valeurs transmises pour n'afficher qu'un nombre choisi de chiffres significatifs. Le nombre de décimales peut ainsi varier.
+Variante de `gtsummary::label_style_number()`, `gstummary::label_style_sigfig()` arrondi les valeurs transmises pour n'afficher qu'un nombre choisi de chiffres significatifs. Le nombre de décimales peut ainsi varier.
 
 ```{r}
 style_sigfig(x)
 style_sigfig(x, digits = 3)
+label_style_sigfig(digits = 3)(x)
 ```
 
-### `style_percent()`
+### `label_style_percent()`
 
-La fonction `gtsummary::style_percent()` a un fonctionnement un peu différent de celui de `scales::label_percent()`. Par défaut, le symbole `%` n'est pas affiché (mais paramétrable avec `symbol = TRUE`. Par défaut, une décimale est affichée pour les valeurs inférieures à 10% et aucune pour celles supérieures à 10%. Un symbole `<` est ajouté devant les valeurs strictement positives inférieures à 0,1%.
+La fonction `gtsummary::label_style_percent()` a un fonctionnement un peu différent de celui de `scales::label_percent()`. Par défaut, le symbole `%` n'est pas affiché (mais paramétrable avec `suffix = "%"`. Par défaut, une décimale est affichée pour les valeurs inférieures à 10% et aucune pour celles supérieures à 10%. Un symbole `<` est ajouté devant les valeurs strictement positives inférieures à 0,1%.
 
 ```{r}
 v <- c(0, 0.0001, 0.005, 0.01, 0.10, 0.45356, 0.99, 1.45)
 label_percent(accuracy = .1)(v)
 style_percent(v)
-style_percent(v, symbol = TRUE)
+style_percent(v, suffix = "%")
 style_percent(v, digits = 1)
+label_style_percent()(v)
 ```
 
-### `style_pvalue()`
+### `label_style_pvalue()`
 
-La fonction `gtsummary::style_pvalue()` est similaire à `scales::label_pvalue()` mais adapte le nombre de décimales affichées,
+La fonction `gtsummary::label_style_pvalue()` est similaire à `scales::label_pvalue()` mais adapte le nombre de décimales affichées,
 
 ```{r}
 p <- c(0.000001, 0.023, 0.098, 0.60, 0.9998)
 label_pvalue()(p)
 style_pvalue(p)
-style_pvalue(p, prepend_p = TRUE)
+label_style_pvalue(prepend_p = TRUE)(p)
 ```
 
-### `style_ratio()`
+### `label_style_ratio()`
 
-Enfin, `gtsummary::style_ratio()` est adaptée à l'affichage de ratios.
+Enfin, `gtsummary::label_style_ratio()` est adaptée à l'affichage de ratios.
 
 ```{r}
 r <- c(0.123, 0.9, 1.1234, 12.345, 101.234, -0.123, -0.9, -1.1234, -12.345, -101.234)
 style_ratio(r)
+label_style_ratio()(r)
 ```
 
 ## Bonus : `ggstats::signif_stars()`
@@ -253,10 +253,9 @@ ggstats::signif_stars(p, one = .15, point = NULL)
 
 ## Bonus : `guideR::leading_zeros()`
 
-La fonction `guideR::leading_zeros()` de `{guideR}` permet d'afficher d'ajouter des 0 en début de nombre poru que chaque valeur soit affichée avec le même nombre de chiffres.
+La fonction `guideR::leading_zeros()` de `{guideR}` permet d'afficher d'ajouter des 0 en début de nombre pour que chaque valeur soit affichée avec le même nombre de chiffres.
 
 ```{r}
 c(1, 23, 456, 1027) |> guideR::leading_zeros()
 c(0, 6, 12, 18) |> guideR::leading_zeros(prefix = "M")
 ```
-
