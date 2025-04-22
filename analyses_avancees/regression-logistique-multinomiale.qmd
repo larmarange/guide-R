@@ -14,6 +14,14 @@ data("hdv2003", package = "questionr")
 d <- hdv2003
 ```
 
+```{r}
+#| include: false
+# requis pour add_global_p()
+# ajouté ici de manière cachée pour être listée dans la 
+# liste des packages requis
+library(cardx)
+```
+
 Nous allons considérer comme variable d'intérêt la variable *trav.satisf*, à savoir la satisfaction ou l'insatisfaction au travail.
 
 ```{r}
@@ -106,7 +114,7 @@ reg2 <- reg |> step(trace = 0)
 
 Une des particularités de la régression logistique multinomiale est qu'elle produit une série de coefficients pour chaque modalité de la variable d'intérêt (sauf la modalité de référence). Ici, nous aurons donc une série de coefficients pour celles et ceux qui sont satisfaits au travail (comparés à la modalité <q>Équilibre</q>) et une série de coefficients pour celles et ceux qui sont insatisfaits (comparés aux aussi à la modalité <q>Équilibre</q>).
 
-La fonction `gtsummary::tbl_regression()` peut gérer ce type de modèles, et va afficher les deux séries de coefficients l'une au-dessus de l'autre. Nous allons indiquer `exponentiate = TRUE` car, comme pour la régression logistique binaire, l'exponentielle des coefficients peut s'interpréter comme des *odds ratios*.
+La fonction `gtsummary::tbl_regression()` peut gérer ce type de modèles, et va afficher les deux séries de coefficients l'une au-dessus de l'autre. Nous allons indiquer `exponentiate = TRUE` car, comme pour la régression logistique binaire, l'exponentielle des coefficients peut s'interpréter comme des *odds ratios*. Dans le cas présent, le tableau retourné est un tableau <q>groupé</q>, c'est-à-dire que sa structure est légèrement différente, avec les coefficients groupés par niveau de la variable à expliquer. De fait, les fonctions comme `gtsummary::bold_labels()` ne fonctionneront pas forcément et il n'y pas de fonction native pour la mise en forme des étiquettes des groupes. On pourra alors avoir recours à la fonction `guideR::style_grouped_tbl()` de `{guideR}`, le package compagnon de *guide-R*. **Attention :** le tableau sera converti au format `gt` afin de mettre en forme les étiquettes des groupes. On appellera donc `guideR::style_grouped_tbl()` en tout dernier. En cas de conversion dans un autre format (*data frame*, `flextable`, ...), on évitera donc cette fonction.
 
 ```{r}
 #| message: false
@@ -119,7 +127,7 @@ theme_gtsummary_language("fr", decimal.mark = ",")
 #| tbl-cap: Tableau des odds ratio de la régression logistique multinomiale
 tbl <- reg2 |> 
   tbl_regression(exponentiate = TRUE)
-tbl
+tbl |> guideR::style_grouped_tbl()
 ```
 
 L'*odds ratio* du niveau d'étude supérieur pour la modalité *satisfaction* est de 2,01, indiquant que les personnes ayant un niveau d'étude supérieur ont plus de chances d'être satisfait au travail que d'être à l'équilibre que les personnes de niveau primaire. Par contre, l'OR est de seulement 1,08 (et non significatif) pour la modalité *Insatisfait* indiquant que ces personnes n'ont ni plus ni moins de chance d'être insatisfaite que d'être à l'équilibre.
@@ -129,40 +137,16 @@ On notera au passage un message d'avertissement de `{gtsummary}` sur le fait que
 ::: callout-tip
 La fonction `gtsummary::tbl_regression()` affiche le tableau des coefficients dans un format long. Or, il est souvent plus lisible de présenter les coefficients dans un format large, avec les coefficients pour chaque modalité côte à côte.
 
-Cela n'est pas possible nativement avec `{gtsummary}` mais on pourra éventuellement utiliser la fonction `multinom_pivot_wider()` proposée sur [GitHub Gist](https://gist.github.com/ddsjoberg/a55afa74ac58e1f895862fcabab62406). Voici son code à recopier dans son script.
+Cela n'est pas possible nativement avec `{gtsummary}` mais on pourra éventuellement utiliser la fonction `guideR::grouped_tbl_pivot_wider()`[^regression-logistique-multinomiale-2] fournie par `{guideR}`, le package compagnon de *guide-R*.
 
 ```{r}
-multinom_pivot_wider <- function(x) {
-  # check inputs match expectatations
-  if (!inherits(x, "tbl_regression") || !inherits(x$inputs$x, "multinom")) {
-    stop("`x=` must be class 'tbl_regression' summary of a `nnet::multinom()` model.")
-  }
-  
-  # create tibble of results
-  df <- tibble::tibble(outcome_level = unique(x$table_body$groupname_col))
-  df$tbl <- 
-    purrr::map(
-      df$outcome_level,
-      function(lvl) {
-        gtsummary::modify_table_body(
-          x, 
-          ~ dplyr::filter(.x, .data$groupname_col %in% lvl) |> 
-            dplyr::ungroup() |> 
-            dplyr::select(-dplyr::any_of("groupname_col"))
-        )
-      }
-    )
-  
-  tbl_merge(df$tbl, tab_spanner = paste0("**", df$outcome_level, "**"))
-}
-```
-
-Il ne reste plus qu'à l'appliquer au tableau généré avec `gtsummary::tbl_regression()`. Attention : cette fonction n'est compatible qu'avec les modèles `nnet::multinom()`.
-
-```{r}
-tbl |> multinom_pivot_wider()
+tbl |> 
+  guideR::grouped_tbl_pivot_wider() |> 
+  bold_labels()
 ```
 :::
+
+[^regression-logistique-multinomiale-2]: Il s'agit d'une adaptation de la fonction `multinom_pivot_wider()` proposée sur [GitHub Gist](https://gist.github.com/ddsjoberg/a55afa74ac58e1f895862fcabab62406).
 
 Pour tester l'effet globale d'une variable dans le modèle, on aura directement recours à `car::Anova()`.
 
@@ -175,23 +159,20 @@ Si l'on applique `gtsummary::add_global_p()` au résultat de `gtsummary::tbl_reg
 ```{r}
 tbl |> 
   add_global_p() |> 
-  multinom_pivot_wider()
+  guideR::style_grouped_tbl()
 ```
 
-Une astuce consiste à cacher toutes ces colonnes de p-valeurs, n'afficher que la dernière et changer son titre de colonne.
+Une astuce consiste à cacher toutes ces colonnes de p-valeurs, n'afficher que la dernière et changer son titre de colonne. Pour cela, on pourra profiter de la fonction `guideR::multinom_add_global_p_pivot_wider()`.
 
 ```{r}
 tbl |> 
-  add_global_p() |> 
-  multinom_pivot_wider() |> 
-  modify_column_hide(starts_with("p.value")) |> 
-  modify_column_unhide(p.value_2) |> 
-  modify_spanning_header(p.value_2 ~ "**Likelihood-ratio test**")
+  guideR::multinom_add_global_p_pivot_wider() |> 
+  bold_labels()
 ```
 
-Pour un graphique des coefficients, on peut appeler directement `ggstats::gcoef_model()` ou encore `ggstats::coef_table()`[^regression-logistique-multinomiale-2]. De plus, `{ggstats}` propose également les variantes `ggstats::gcoef_dodged()` et `ggstats::ggcoef_faceted()`.
+Pour un graphique des coefficients, on peut appeler directement `ggstats::gcoef_model()` ou encore `ggstats::coef_table()`[^regression-logistique-multinomiale-3]. De plus, `{ggstats}` propose également les variantes `ggstats::gcoef_dodged()` et `ggstats::ggcoef_faceted()`.
 
-[^regression-logistique-multinomiale-2]: Attention : pour que cela fonctionne avec un modèle multinomial, il est nécessaire d'utiliser la version 0.9.0 (ou une version plus récente) de `{ggstats}`.
+[^regression-logistique-multinomiale-3]: Attention : pour que cela fonctionne avec un modèle multinomial, il est nécessaire d'utiliser la version 0.9.0 (ou une version plus récente) de `{ggstats}`.
 
 ```{r}
 #| label: fig-ggcoef_multinom-model
