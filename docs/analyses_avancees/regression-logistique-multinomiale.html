@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="fr" xml:lang="fr"><head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.6.40">
+<meta name="generator" content="quarto-1.7.27">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 <title>43&nbsp; Régression logistique multinomiale – guide-R</title>
 <style>
@@ -18,8 +18,9 @@ ul.task-list li input[type="checkbox"] {
   vertical-align: middle;
 }
 /* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -30,7 +31,7 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
   { counter-reset: source-line 0; }
@@ -65,17 +66,20 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../ressources/favicon.png" rel="icon" type="image/png">
 <script src="../site_libs/cookie-consent/cookie-consent.js"></script>
 <link href="../site_libs/cookie-consent/cookie-consent.css" rel="stylesheet">
-<script src="../site_libs/quarto-html/quarto.js"></script>
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
 <script src="../site_libs/quarto-html/popper.min.js"></script>
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-549806ee2085284f45b00abea8c6df48.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-8ea72dc5fed832574809a9c94082fbbb.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-985aa47af68dae11cd4d235c71fb941e.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-6c49c5477b92c77c9eb341f9299c235f.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-985aa47af68dae11cd4d235c71fb941e.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-02c02be2a1e8a80657104ea8a7178dd6.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../site_libs/bootstrap/bootstrap-dark-c10e24113c915aae4fbc7390daee5a0d.min.css" rel="prefetch" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../site_libs/bootstrap/bootstrap-1706ad55a43eb6182cc66969adfb4558.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-e07f40149b440be50f716415da65e4f4.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../site_libs/bootstrap/bootstrap-1706ad55a43eb6182cc66969adfb4558.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <script src="../site_libs/quarto-contrib/glightbox/glightbox.min.js"></script>
 <link href="../site_libs/quarto-contrib/glightbox/glightbox.min.css" rel="stylesheet">
 <link href="../site_libs/quarto-contrib/glightbox/lightbox.css" rel="stylesheet"><script id="quarto-search-options" type="application/json">{
@@ -127,7 +131,167 @@ cookieconsent.run({
 </script><style>html{ scroll-behavior: smooth; }</style>
 <link rel="stylesheet" href="../styles.css">
 </head>
-<body class="nav-sidebar floating slimcontent">
+<body class="nav-sidebar floating slimcontent quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    window.setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      window.setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    window.hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(darkModeDefault) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const darkModeDefault = false;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !window.hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+    };
+    // Switch to dark mode if need be
+    if (window.hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top"><nav class="quarto-secondary-nav"><div class="container-fluid d-flex">
@@ -677,44 +841,41 @@ trying - trav.imp </code></pre>
 </section><section id="affichage-des-résultats-du-modèle" class="level2 page-columns page-full" data-number="43.3"><h2 data-number="43.3" class="anchored" data-anchor-id="affichage-des-résultats-du-modèle">
 <span class="header-section-number">43.3</span> Affichage des résultats du modèle</h2>
 <p>Une des particularités de la régression logistique multinomiale est qu’elle produit une série de coefficients pour chaque modalité de la variable d’intérêt (sauf la modalité de référence). Ici, nous aurons donc une série de coefficients pour celles et ceux qui sont satisfaits au travail (comparés à la modalité <q>Équilibre</q>) et une série de coefficients pour celles et ceux qui sont insatisfaits (comparés aux aussi à la modalité <q>Équilibre</q>).</p>
-<p>La fonction <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/tbl_regression.html">gtsummary::tbl_regression()</a></code> peut gérer ce type de modèles, et va afficher les deux séries de coefficients l’une au-dessus de l’autre. Nous allons indiquer <code>exponentiate = TRUE</code> car, comme pour la régression logistique binaire, l’exponentielle des coefficients peut s’interpréter comme des <em>odds ratios</em>.</p>
+<p>La fonction <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/tbl_regression.html">gtsummary::tbl_regression()</a></code> peut gérer ce type de modèles, et va afficher les deux séries de coefficients l’une au-dessus de l’autre. Nous allons indiquer <code>exponentiate = TRUE</code> car, comme pour la régression logistique binaire, l’exponentielle des coefficients peut s’interpréter comme des <em>odds ratios</em>. Dans le cas présent, le tableau retourné est un tableau <q>groupé</q>, c’est-à-dire que sa structure est légèrement différente, avec les coefficients groupés par niveau de la variable à expliquer. De fait, les fonctions comme <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/bold_italicize_labels_levels.html">gtsummary::bold_labels()</a></code> ne fonctionneront pas forcément et il n’y pas de fonction native pour la mise en forme des étiquettes des groupes. On pourra alors avoir recours à la fonction <code><a href="https://larmarange.github.io/guideR/reference/grouped_tbl_pivot_wider.html">guideR::style_grouped_tbl()</a></code> de <a href="https://larmarange.github.io/guideR/">guideR</a>, le package compagnon de <em>guide-R</em>. <strong>Attention :</strong> le tableau sera converti au format <code>gt</code> afin de mettre en forme les étiquettes des groupes. On appellera donc <code><a href="https://larmarange.github.io/guideR/reference/grouped_tbl_pivot_wider.html">guideR::style_grouped_tbl()</a></code> en tout dernier. En cas de conversion dans un autre format (<em>data frame</em>, <code>flextable</code>, …), on évitera donc cette fonction.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a><span class="fu">library</span>(gtsummary)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: le package 'gtsummary' a été compilé avec la version R 4.4.3</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a><span class="fu">theme_gtsummary_language</span>(<span class="st">"fr"</span>, <span class="at">decimal.mark =</span> <span class="st">","</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a><span class="fu">library</span>(gtsummary)</span>
+<span id="cb11-2"><a href="#cb11-2"></a><span class="fu">theme_gtsummary_language</span>(<span class="st">"fr"</span>, <span class="at">decimal.mark =</span> <span class="st">","</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell page-columns page-full">
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a>tbl <span class="ot">&lt;-</span> reg2 <span class="sc">|&gt;</span> </span>
-<span id="cb14-2"><a href="#cb14-2"></a>  <span class="fu">tbl_regression</span>(<span class="at">exponentiate =</span> <span class="cn">TRUE</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a>tbl <span class="ot">&lt;-</span> reg2 <span class="sc">|&gt;</span> </span>
+<span id="cb12-2"><a href="#cb12-2"></a>  <span class="fu">tbl_regression</span>(<span class="at">exponentiate =</span> <span class="cn">TRUE</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>ℹ Multinomial models have a different underlying structure than the models
   gtsummary was designed for.
 • Functions designed to work with `tbl_regression()` objects may yield
   unexpected results.</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1"></a>tbl</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a>tbl <span class="sc">|&gt;</span> guideR<span class="sc">::</span><span class="fu">style_grouped_tbl</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div id="tbl-tbl_regression-multinom" class="cell quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-tbl figure page-columns page-full"><div aria-describedby="tbl-tbl_regression-multinom-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
-<div id="gwmxhufetj" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#gwmxhufetj table {
+<div id="fuwmhjyrad" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#fuwmhjyrad table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#gwmxhufetj thead, #gwmxhufetj tbody, #gwmxhufetj tfoot, #gwmxhufetj tr, #gwmxhufetj td, #gwmxhufetj th {
+#fuwmhjyrad thead, #fuwmhjyrad tbody, #fuwmhjyrad tfoot, #fuwmhjyrad tr, #fuwmhjyrad td, #fuwmhjyrad th {
   border-style: none;
 }
 
-#gwmxhufetj p {
+#fuwmhjyrad p {
   margin: 0;
   padding: 0;
 }
 
-#gwmxhufetj .gt_table {
+#fuwmhjyrad .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -740,12 +901,12 @@ trying - trav.imp </code></pre>
   border-left-color: #D3D3D3;
 }
 
-#gwmxhufetj .gt_caption {
+#fuwmhjyrad .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#gwmxhufetj .gt_title {
+#fuwmhjyrad .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -757,7 +918,7 @@ trying - trav.imp </code></pre>
   border-bottom-width: 0;
 }
 
-#gwmxhufetj .gt_subtitle {
+#fuwmhjyrad .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -769,7 +930,7 @@ trying - trav.imp </code></pre>
   border-top-width: 0;
 }
 
-#gwmxhufetj .gt_heading {
+#fuwmhjyrad .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -781,13 +942,13 @@ trying - trav.imp </code></pre>
   border-right-color: #D3D3D3;
 }
 
-#gwmxhufetj .gt_bottom_border {
+#fuwmhjyrad .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#gwmxhufetj .gt_col_headings {
+#fuwmhjyrad .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -802,7 +963,7 @@ trying - trav.imp </code></pre>
   border-right-color: #D3D3D3;
 }
 
-#gwmxhufetj .gt_col_heading {
+#fuwmhjyrad .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -822,7 +983,7 @@ trying - trav.imp </code></pre>
   overflow-x: hidden;
 }
 
-#gwmxhufetj .gt_column_spanner_outer {
+#fuwmhjyrad .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -834,15 +995,15 @@ trying - trav.imp </code></pre>
   padding-right: 4px;
 }
 
-#gwmxhufetj .gt_column_spanner_outer:first-child {
+#fuwmhjyrad .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#gwmxhufetj .gt_column_spanner_outer:last-child {
+#fuwmhjyrad .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#gwmxhufetj .gt_column_spanner {
+#fuwmhjyrad .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -854,11 +1015,11 @@ trying - trav.imp </code></pre>
   width: 100%;
 }
 
-#gwmxhufetj .gt_spanner_row {
+#fuwmhjyrad .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#gwmxhufetj .gt_group_heading {
+#fuwmhjyrad .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -866,8 +1027,8 @@ trying - trav.imp </code></pre>
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
-  font-weight: initial;
-  text-transform: inherit;
+  font-weight: bold;
+  text-transform: uppercase;
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -884,12 +1045,12 @@ trying - trav.imp </code></pre>
   text-align: left;
 }
 
-#gwmxhufetj .gt_empty_group_heading {
+#fuwmhjyrad .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
-  font-weight: initial;
+  font-weight: bold;
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -899,15 +1060,15 @@ trying - trav.imp </code></pre>
   vertical-align: middle;
 }
 
-#gwmxhufetj .gt_from_md > :first-child {
+#fuwmhjyrad .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#gwmxhufetj .gt_from_md > :last-child {
+#fuwmhjyrad .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#gwmxhufetj .gt_row {
+#fuwmhjyrad .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -926,7 +1087,7 @@ trying - trav.imp </code></pre>
   overflow-x: hidden;
 }
 
-#gwmxhufetj .gt_stub {
+#fuwmhjyrad .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -939,7 +1100,7 @@ trying - trav.imp </code></pre>
   padding-right: 5px;
 }
 
-#gwmxhufetj .gt_stub_row_group {
+#fuwmhjyrad .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -953,15 +1114,15 @@ trying - trav.imp </code></pre>
   vertical-align: top;
 }
 
-#gwmxhufetj .gt_row_group_first td {
+#fuwmhjyrad .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#gwmxhufetj .gt_row_group_first th {
+#fuwmhjyrad .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#gwmxhufetj .gt_summary_row {
+#fuwmhjyrad .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -971,16 +1132,16 @@ trying - trav.imp </code></pre>
   padding-right: 5px;
 }
 
-#gwmxhufetj .gt_first_summary_row {
+#fuwmhjyrad .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#gwmxhufetj .gt_first_summary_row.thick {
+#fuwmhjyrad .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#gwmxhufetj .gt_last_summary_row {
+#fuwmhjyrad .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -990,7 +1151,7 @@ trying - trav.imp </code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#gwmxhufetj .gt_grand_summary_row {
+#fuwmhjyrad .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1000,7 +1161,7 @@ trying - trav.imp </code></pre>
   padding-right: 5px;
 }
 
-#gwmxhufetj .gt_first_grand_summary_row {
+#fuwmhjyrad .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1010,7 +1171,7 @@ trying - trav.imp </code></pre>
   border-top-color: #D3D3D3;
 }
 
-#gwmxhufetj .gt_last_grand_summary_row_top {
+#fuwmhjyrad .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1020,11 +1181,11 @@ trying - trav.imp </code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#gwmxhufetj .gt_striped {
+#fuwmhjyrad .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#gwmxhufetj .gt_table_body {
+#fuwmhjyrad .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1033,7 +1194,7 @@ trying - trav.imp </code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#gwmxhufetj .gt_footnotes {
+#fuwmhjyrad .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1047,7 +1208,7 @@ trying - trav.imp </code></pre>
   border-right-color: #D3D3D3;
 }
 
-#gwmxhufetj .gt_footnote {
+#fuwmhjyrad .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -1056,7 +1217,7 @@ trying - trav.imp </code></pre>
   padding-right: 5px;
 }
 
-#gwmxhufetj .gt_sourcenotes {
+#fuwmhjyrad .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1070,7 +1231,7 @@ trying - trav.imp </code></pre>
   border-right-color: #D3D3D3;
 }
 
-#gwmxhufetj .gt_sourcenote {
+#fuwmhjyrad .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -1078,72 +1239,72 @@ trying - trav.imp </code></pre>
   padding-right: 5px;
 }
 
-#gwmxhufetj .gt_left {
+#fuwmhjyrad .gt_left {
   text-align: left;
 }
 
-#gwmxhufetj .gt_center {
+#fuwmhjyrad .gt_center {
   text-align: center;
 }
 
-#gwmxhufetj .gt_right {
+#fuwmhjyrad .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#gwmxhufetj .gt_font_normal {
+#fuwmhjyrad .gt_font_normal {
   font-weight: normal;
 }
 
-#gwmxhufetj .gt_font_bold {
+#fuwmhjyrad .gt_font_bold {
   font-weight: bold;
 }
 
-#gwmxhufetj .gt_font_italic {
+#fuwmhjyrad .gt_font_italic {
   font-style: italic;
 }
 
-#gwmxhufetj .gt_super {
+#fuwmhjyrad .gt_super {
   font-size: 65%;
 }
 
-#gwmxhufetj .gt_footnote_marks {
+#fuwmhjyrad .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#gwmxhufetj .gt_asterisk {
+#fuwmhjyrad .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#gwmxhufetj .gt_indent_1 {
+#fuwmhjyrad .gt_indent_1 {
   text-indent: 5px;
 }
 
-#gwmxhufetj .gt_indent_2 {
+#fuwmhjyrad .gt_indent_2 {
   text-indent: 10px;
 }
 
-#gwmxhufetj .gt_indent_3 {
+#fuwmhjyrad .gt_indent_3 {
   text-indent: 15px;
 }
 
-#gwmxhufetj .gt_indent_4 {
+#fuwmhjyrad .gt_indent_4 {
   text-indent: 20px;
 }
 
-#gwmxhufetj .gt_indent_5 {
+#fuwmhjyrad .gt_indent_5 {
   text-indent: 25px;
 }
 
-#gwmxhufetj .katex-display {
+#fuwmhjyrad .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#gwmxhufetj div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#fuwmhjyrad div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
@@ -1165,67 +1326,67 @@ trying - trav.imp </code></pre>
 <td colspan="4" id="Satisfaction" class="gt_group_heading" data-quarto-table-cell-role="th" scope="colgroup">Satisfaction</td>
 </tr>
 <tr class="gt_row_group_first even">
-<td class="gt_row gt_left" headers="Satisfaction  label">Niveau d'études</td>
+<td class="gt_row gt_left" headers="Satisfaction  label" style="font-style: italic">&nbsp;&nbsp;&nbsp;&nbsp;Niveau d'études</td>
 <td class="gt_row gt_center" headers="Satisfaction  estimate"><br></td>
 <td class="gt_row gt_center" headers="Satisfaction  conf.low"><br></td>
 <td class="gt_row gt_center" headers="Satisfaction  p.value"><br></td>
 </tr>
 <tr class="odd">
-<td class="gt_row gt_left" headers="Satisfaction  label">&nbsp;&nbsp;&nbsp;&nbsp;Primaire</td>
+<td class="gt_row gt_left" headers="Satisfaction  label">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Primaire</td>
 <td class="gt_row gt_center" headers="Satisfaction  estimate">—</td>
 <td class="gt_row gt_center" headers="Satisfaction  conf.low">—</td>
 <td class="gt_row gt_center" headers="Satisfaction  p.value"><br></td>
 </tr>
 <tr class="even">
-<td class="gt_row gt_left" headers="Satisfaction  label">&nbsp;&nbsp;&nbsp;&nbsp;Secondaire</td>
+<td class="gt_row gt_left" headers="Satisfaction  label">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Secondaire</td>
 <td class="gt_row gt_center" headers="Satisfaction  estimate">1,05</td>
 <td class="gt_row gt_center" headers="Satisfaction  conf.low">0,63 – 1,76</td>
 <td class="gt_row gt_center" headers="Satisfaction  p.value">0,9</td>
 </tr>
 <tr class="odd">
-<td class="gt_row gt_left" headers="Satisfaction  label">&nbsp;&nbsp;&nbsp;&nbsp;Technique / Professionnel</td>
+<td class="gt_row gt_left" headers="Satisfaction  label">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Technique / Professionnel</td>
 <td class="gt_row gt_center" headers="Satisfaction  estimate">1,08</td>
 <td class="gt_row gt_center" headers="Satisfaction  conf.low">0,67 – 1,73</td>
 <td class="gt_row gt_center" headers="Satisfaction  p.value">0,7</td>
 </tr>
 <tr class="even">
-<td class="gt_row gt_left" headers="Satisfaction  label">&nbsp;&nbsp;&nbsp;&nbsp;Supérieur</td>
+<td class="gt_row gt_left" headers="Satisfaction  label">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Supérieur</td>
 <td class="gt_row gt_center" headers="Satisfaction  estimate">2,01</td>
 <td class="gt_row gt_center" headers="Satisfaction  conf.low">1,24 – 3,27</td>
 <td class="gt_row gt_center" headers="Satisfaction  p.value">0,005</td>
 </tr>
 <tr class="odd">
-<td class="gt_row gt_left" headers="Satisfaction  label">&nbsp;&nbsp;&nbsp;&nbsp;Non documenté</td>
+<td class="gt_row gt_left" headers="Satisfaction  label">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Non documenté</td>
 <td class="gt_row gt_center" headers="Satisfaction  estimate">0,58</td>
 <td class="gt_row gt_center" headers="Satisfaction  conf.low">0,18 – 1,86</td>
 <td class="gt_row gt_center" headers="Satisfaction  p.value">0,4</td>
 </tr>
 <tr class="even">
-<td class="gt_row gt_left" headers="Satisfaction  label">Importance accordée au travail</td>
+<td class="gt_row gt_left" headers="Satisfaction  label" style="font-style: italic">&nbsp;&nbsp;&nbsp;&nbsp;Importance accordée au travail</td>
 <td class="gt_row gt_center" headers="Satisfaction  estimate"><br></td>
 <td class="gt_row gt_center" headers="Satisfaction  conf.low"><br></td>
 <td class="gt_row gt_center" headers="Satisfaction  p.value"><br></td>
 </tr>
 <tr class="odd">
-<td class="gt_row gt_left" headers="Satisfaction  label">&nbsp;&nbsp;&nbsp;&nbsp;Le plus</td>
+<td class="gt_row gt_left" headers="Satisfaction  label">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Le plus</td>
 <td class="gt_row gt_center" headers="Satisfaction  estimate">—</td>
 <td class="gt_row gt_center" headers="Satisfaction  conf.low">—</td>
 <td class="gt_row gt_center" headers="Satisfaction  p.value"><br></td>
 </tr>
 <tr class="even">
-<td class="gt_row gt_left" headers="Satisfaction  label">&nbsp;&nbsp;&nbsp;&nbsp;Aussi</td>
+<td class="gt_row gt_left" headers="Satisfaction  label">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Aussi</td>
 <td class="gt_row gt_center" headers="Satisfaction  estimate">1,29</td>
 <td class="gt_row gt_center" headers="Satisfaction  conf.low">0,56 – 2,98</td>
 <td class="gt_row gt_center" headers="Satisfaction  p.value">0,5</td>
 </tr>
 <tr class="odd">
-<td class="gt_row gt_left" headers="Satisfaction  label">&nbsp;&nbsp;&nbsp;&nbsp;Moins</td>
+<td class="gt_row gt_left" headers="Satisfaction  label">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Moins</td>
 <td class="gt_row gt_center" headers="Satisfaction  estimate">0,84</td>
 <td class="gt_row gt_center" headers="Satisfaction  conf.low">0,37 – 1,88</td>
 <td class="gt_row gt_center" headers="Satisfaction  p.value">0,7</td>
 </tr>
 <tr class="even">
-<td class="gt_row gt_left" headers="Satisfaction  label">&nbsp;&nbsp;&nbsp;&nbsp;Peu</td>
+<td class="gt_row gt_left" headers="Satisfaction  label">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Peu</td>
 <td class="gt_row gt_center" headers="Satisfaction  estimate">0,55</td>
 <td class="gt_row gt_center" headers="Satisfaction  conf.low">0,18 – 1,64</td>
 <td class="gt_row gt_center" headers="Satisfaction  p.value">0,3</td>
@@ -1234,67 +1395,67 @@ trying - trav.imp </code></pre>
 <td colspan="4" id="Insatisfaction" class="gt_group_heading" data-quarto-table-cell-role="th" scope="colgroup">Insatisfaction</td>
 </tr>
 <tr class="gt_row_group_first even">
-<td class="gt_row gt_left" headers="Insatisfaction  label">Niveau d'études</td>
+<td class="gt_row gt_left" headers="Insatisfaction  label" style="font-style: italic">&nbsp;&nbsp;&nbsp;&nbsp;Niveau d'études</td>
 <td class="gt_row gt_center" headers="Insatisfaction  estimate"><br></td>
 <td class="gt_row gt_center" headers="Insatisfaction  conf.low"><br></td>
 <td class="gt_row gt_center" headers="Insatisfaction  p.value"><br></td>
 </tr>
 <tr class="odd">
-<td class="gt_row gt_left" headers="Insatisfaction  label">&nbsp;&nbsp;&nbsp;&nbsp;Primaire</td>
+<td class="gt_row gt_left" headers="Insatisfaction  label">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Primaire</td>
 <td class="gt_row gt_center" headers="Insatisfaction  estimate">—</td>
 <td class="gt_row gt_center" headers="Insatisfaction  conf.low">—</td>
 <td class="gt_row gt_center" headers="Insatisfaction  p.value"><br></td>
 </tr>
 <tr class="even">
-<td class="gt_row gt_left" headers="Insatisfaction  label">&nbsp;&nbsp;&nbsp;&nbsp;Secondaire</td>
+<td class="gt_row gt_left" headers="Insatisfaction  label">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Secondaire</td>
 <td class="gt_row gt_center" headers="Insatisfaction  estimate">0,91</td>
 <td class="gt_row gt_center" headers="Insatisfaction  conf.low">0,41 – 1,99</td>
 <td class="gt_row gt_center" headers="Insatisfaction  p.value">0,8</td>
 </tr>
 <tr class="odd">
-<td class="gt_row gt_left" headers="Insatisfaction  label">&nbsp;&nbsp;&nbsp;&nbsp;Technique / Professionnel</td>
+<td class="gt_row gt_left" headers="Insatisfaction  label">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Technique / Professionnel</td>
 <td class="gt_row gt_center" headers="Insatisfaction  estimate">1,09</td>
 <td class="gt_row gt_center" headers="Insatisfaction  conf.low">0,54 – 2,19</td>
 <td class="gt_row gt_center" headers="Insatisfaction  p.value">0,8</td>
 </tr>
 <tr class="even">
-<td class="gt_row gt_left" headers="Insatisfaction  label">&nbsp;&nbsp;&nbsp;&nbsp;Supérieur</td>
+<td class="gt_row gt_left" headers="Insatisfaction  label">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Supérieur</td>
 <td class="gt_row gt_center" headers="Insatisfaction  estimate">1,08</td>
 <td class="gt_row gt_center" headers="Insatisfaction  conf.low">0,51 – 2,29</td>
 <td class="gt_row gt_center" headers="Insatisfaction  p.value">0,8</td>
 </tr>
 <tr class="odd">
-<td class="gt_row gt_left" headers="Insatisfaction  label">&nbsp;&nbsp;&nbsp;&nbsp;Non documenté</td>
+<td class="gt_row gt_left" headers="Insatisfaction  label">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Non documenté</td>
 <td class="gt_row gt_center" headers="Insatisfaction  estimate">0,96</td>
 <td class="gt_row gt_center" headers="Insatisfaction  conf.low">0,18 – 4,97</td>
 <td class="gt_row gt_center" headers="Insatisfaction  p.value">&gt;0,9</td>
 </tr>
 <tr class="even">
-<td class="gt_row gt_left" headers="Insatisfaction  label">Importance accordée au travail</td>
+<td class="gt_row gt_left" headers="Insatisfaction  label" style="font-style: italic">&nbsp;&nbsp;&nbsp;&nbsp;Importance accordée au travail</td>
 <td class="gt_row gt_center" headers="Insatisfaction  estimate"><br></td>
 <td class="gt_row gt_center" headers="Insatisfaction  conf.low"><br></td>
 <td class="gt_row gt_center" headers="Insatisfaction  p.value"><br></td>
 </tr>
 <tr class="odd">
-<td class="gt_row gt_left" headers="Insatisfaction  label">&nbsp;&nbsp;&nbsp;&nbsp;Le plus</td>
+<td class="gt_row gt_left" headers="Insatisfaction  label">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Le plus</td>
 <td class="gt_row gt_center" headers="Insatisfaction  estimate">—</td>
 <td class="gt_row gt_center" headers="Insatisfaction  conf.low">—</td>
 <td class="gt_row gt_center" headers="Insatisfaction  p.value"><br></td>
 </tr>
 <tr class="even">
-<td class="gt_row gt_left" headers="Insatisfaction  label">&nbsp;&nbsp;&nbsp;&nbsp;Aussi</td>
+<td class="gt_row gt_left" headers="Insatisfaction  label">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Aussi</td>
 <td class="gt_row gt_center" headers="Insatisfaction  estimate">0,80</td>
 <td class="gt_row gt_center" headers="Insatisfaction  conf.low">0,24 – 2,69</td>
 <td class="gt_row gt_center" headers="Insatisfaction  p.value">0,7</td>
 </tr>
 <tr class="odd">
-<td class="gt_row gt_left" headers="Insatisfaction  label">&nbsp;&nbsp;&nbsp;&nbsp;Moins</td>
+<td class="gt_row gt_left" headers="Insatisfaction  label">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Moins</td>
 <td class="gt_row gt_center" headers="Insatisfaction  estimate">0,59</td>
 <td class="gt_row gt_center" headers="Insatisfaction  conf.low">0,18 – 1,88</td>
 <td class="gt_row gt_center" headers="Insatisfaction  p.value">0,4</td>
 </tr>
 <tr class="even">
-<td class="gt_row gt_left" headers="Insatisfaction  label">&nbsp;&nbsp;&nbsp;&nbsp;Peu</td>
+<td class="gt_row gt_left" headers="Insatisfaction  label">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Peu</td>
 <td class="gt_row gt_center" headers="Insatisfaction  estimate">3,82</td>
 <td class="gt_row gt_center" headers="Insatisfaction  conf.low">1,05 – 13,9</td>
 <td class="gt_row gt_center" headers="Insatisfaction  p.value">0,042</td>
@@ -1325,53 +1486,29 @@ Astuce
 </div>
 <div class="callout-body-container callout-body">
 <p>La fonction <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/tbl_regression.html">gtsummary::tbl_regression()</a></code> affiche le tableau des coefficients dans un format long. Or, il est souvent plus lisible de présenter les coefficients dans un format large, avec les coefficients pour chaque modalité côte à côte.</p>
-<p>Cela n’est pas possible nativement avec <a href="https://github.com/ddsjoberg/gtsummary">gtsummary</a> mais on pourra éventuellement utiliser la fonction <code>multinom_pivot_wider()</code> proposée sur <a href="https://gist.github.com/ddsjoberg/a55afa74ac58e1f895862fcabab62406">GitHub Gist</a>. Voici son code à recopier dans son script.</p>
+<p>Cela n’est pas possible nativement avec <a href="https://github.com/ddsjoberg/gtsummary">gtsummary</a> mais on pourra éventuellement utiliser la fonction <code><a href="https://larmarange.github.io/guideR/reference/grouped_tbl_pivot_wider.html">guideR::grouped_tbl_pivot_wider()</a></code><a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a> fournie par <a href="https://larmarange.github.io/guideR/">guideR</a>, le package compagnon de <em>guide-R</em>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1"></a>multinom_pivot_wider <span class="ot">&lt;-</span> <span class="cf">function</span>(x) {</span>
-<span id="cb17-2"><a href="#cb17-2"></a>  <span class="co"># check inputs match expectatations</span></span>
-<span id="cb17-3"><a href="#cb17-3"></a>  <span class="cf">if</span> (<span class="sc">!</span><span class="fu">inherits</span>(x, <span class="st">"tbl_regression"</span>) <span class="sc">||</span> <span class="sc">!</span><span class="fu">inherits</span>(x<span class="sc">$</span>inputs<span class="sc">$</span>x, <span class="st">"multinom"</span>)) {</span>
-<span id="cb17-4"><a href="#cb17-4"></a>    <span class="fu">stop</span>(<span class="st">"`x=` must be class 'tbl_regression' summary of a `nnet::multinom()` model."</span>)</span>
-<span id="cb17-5"><a href="#cb17-5"></a>  }</span>
-<span id="cb17-6"><a href="#cb17-6"></a>  </span>
-<span id="cb17-7"><a href="#cb17-7"></a>  <span class="co"># create tibble of results</span></span>
-<span id="cb17-8"><a href="#cb17-8"></a>  df <span class="ot">&lt;-</span> tibble<span class="sc">::</span><span class="fu">tibble</span>(<span class="at">outcome_level =</span> <span class="fu">unique</span>(x<span class="sc">$</span>table_body<span class="sc">$</span>groupname_col))</span>
-<span id="cb17-9"><a href="#cb17-9"></a>  df<span class="sc">$</span>tbl <span class="ot">&lt;-</span> </span>
-<span id="cb17-10"><a href="#cb17-10"></a>    purrr<span class="sc">::</span><span class="fu">map</span>(</span>
-<span id="cb17-11"><a href="#cb17-11"></a>      df<span class="sc">$</span>outcome_level,</span>
-<span id="cb17-12"><a href="#cb17-12"></a>      <span class="cf">function</span>(lvl) {</span>
-<span id="cb17-13"><a href="#cb17-13"></a>        gtsummary<span class="sc">::</span><span class="fu">modify_table_body</span>(</span>
-<span id="cb17-14"><a href="#cb17-14"></a>          x, </span>
-<span id="cb17-15"><a href="#cb17-15"></a>          <span class="sc">~</span> dplyr<span class="sc">::</span><span class="fu">filter</span>(.x, .data<span class="sc">$</span>groupname_col <span class="sc">%in%</span> lvl) <span class="sc">|&gt;</span> </span>
-<span id="cb17-16"><a href="#cb17-16"></a>            dplyr<span class="sc">::</span><span class="fu">ungroup</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb17-17"><a href="#cb17-17"></a>            dplyr<span class="sc">::</span><span class="fu">select</span>(<span class="sc">-</span>dplyr<span class="sc">::</span><span class="fu">any_of</span>(<span class="st">"groupname_col"</span>))</span>
-<span id="cb17-18"><a href="#cb17-18"></a>        )</span>
-<span id="cb17-19"><a href="#cb17-19"></a>      }</span>
-<span id="cb17-20"><a href="#cb17-20"></a>    )</span>
-<span id="cb17-21"><a href="#cb17-21"></a>  </span>
-<span id="cb17-22"><a href="#cb17-22"></a>  <span class="fu">tbl_merge</span>(df<span class="sc">$</span>tbl, <span class="at">tab_spanner =</span> <span class="fu">paste0</span>(<span class="st">"**"</span>, df<span class="sc">$</span>outcome_level, <span class="st">"**"</span>))</span>
-<span id="cb17-23"><a href="#cb17-23"></a>}</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<p>Il ne reste plus qu’à l’appliquer au tableau généré avec <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/tbl_regression.html">gtsummary::tbl_regression()</a></code>. Attention&nbsp;: cette fonction n’est compatible qu’avec les modèles <code><a href="https://rdrr.io/pkg/nnet/man/multinom.html">nnet::multinom()</a></code>.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1"></a>tbl <span class="sc">|&gt;</span> <span class="fu">multinom_pivot_wider</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1"></a>tbl <span class="sc">|&gt;</span> </span>
+<span id="cb15-2"><a href="#cb15-2"></a>  guideR<span class="sc">::</span><span class="fu">grouped_tbl_pivot_wider</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb15-3"><a href="#cb15-3"></a>  <span class="fu">bold_labels</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<div id="tufyxekxir" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#tufyxekxir table {
+<div id="mwdvlruosh" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#mwdvlruosh table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#tufyxekxir thead, #tufyxekxir tbody, #tufyxekxir tfoot, #tufyxekxir tr, #tufyxekxir td, #tufyxekxir th {
+#mwdvlruosh thead, #mwdvlruosh tbody, #mwdvlruosh tfoot, #mwdvlruosh tr, #mwdvlruosh td, #mwdvlruosh th {
   border-style: none;
 }
 
-#tufyxekxir p {
+#mwdvlruosh p {
   margin: 0;
   padding: 0;
 }
 
-#tufyxekxir .gt_table {
+#mwdvlruosh .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -1397,12 +1534,12 @@ Astuce
   border-left-color: #D3D3D3;
 }
 
-#tufyxekxir .gt_caption {
+#mwdvlruosh .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#tufyxekxir .gt_title {
+#mwdvlruosh .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -1414,7 +1551,7 @@ Astuce
   border-bottom-width: 0;
 }
 
-#tufyxekxir .gt_subtitle {
+#mwdvlruosh .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -1426,7 +1563,7 @@ Astuce
   border-top-width: 0;
 }
 
-#tufyxekxir .gt_heading {
+#mwdvlruosh .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -1438,13 +1575,13 @@ Astuce
   border-right-color: #D3D3D3;
 }
 
-#tufyxekxir .gt_bottom_border {
+#mwdvlruosh .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#tufyxekxir .gt_col_headings {
+#mwdvlruosh .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1459,7 +1596,7 @@ Astuce
   border-right-color: #D3D3D3;
 }
 
-#tufyxekxir .gt_col_heading {
+#mwdvlruosh .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1479,7 +1616,7 @@ Astuce
   overflow-x: hidden;
 }
 
-#tufyxekxir .gt_column_spanner_outer {
+#mwdvlruosh .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1491,15 +1628,15 @@ Astuce
   padding-right: 4px;
 }
 
-#tufyxekxir .gt_column_spanner_outer:first-child {
+#mwdvlruosh .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#tufyxekxir .gt_column_spanner_outer:last-child {
+#mwdvlruosh .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#tufyxekxir .gt_column_spanner {
+#mwdvlruosh .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -1511,11 +1648,11 @@ Astuce
   width: 100%;
 }
 
-#tufyxekxir .gt_spanner_row {
+#mwdvlruosh .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#tufyxekxir .gt_group_heading {
+#mwdvlruosh .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1541,7 +1678,7 @@ Astuce
   text-align: left;
 }
 
-#tufyxekxir .gt_empty_group_heading {
+#mwdvlruosh .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -1556,15 +1693,15 @@ Astuce
   vertical-align: middle;
 }
 
-#tufyxekxir .gt_from_md > :first-child {
+#mwdvlruosh .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#tufyxekxir .gt_from_md > :last-child {
+#mwdvlruosh .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#tufyxekxir .gt_row {
+#mwdvlruosh .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1583,7 +1720,7 @@ Astuce
   overflow-x: hidden;
 }
 
-#tufyxekxir .gt_stub {
+#mwdvlruosh .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1596,7 +1733,7 @@ Astuce
   padding-right: 5px;
 }
 
-#tufyxekxir .gt_stub_row_group {
+#mwdvlruosh .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1610,15 +1747,15 @@ Astuce
   vertical-align: top;
 }
 
-#tufyxekxir .gt_row_group_first td {
+#mwdvlruosh .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#tufyxekxir .gt_row_group_first th {
+#mwdvlruosh .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#tufyxekxir .gt_summary_row {
+#mwdvlruosh .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1628,16 +1765,16 @@ Astuce
   padding-right: 5px;
 }
 
-#tufyxekxir .gt_first_summary_row {
+#mwdvlruosh .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#tufyxekxir .gt_first_summary_row.thick {
+#mwdvlruosh .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#tufyxekxir .gt_last_summary_row {
+#mwdvlruosh .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1647,7 +1784,7 @@ Astuce
   border-bottom-color: #D3D3D3;
 }
 
-#tufyxekxir .gt_grand_summary_row {
+#mwdvlruosh .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1657,7 +1794,7 @@ Astuce
   padding-right: 5px;
 }
 
-#tufyxekxir .gt_first_grand_summary_row {
+#mwdvlruosh .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1667,7 +1804,7 @@ Astuce
   border-top-color: #D3D3D3;
 }
 
-#tufyxekxir .gt_last_grand_summary_row_top {
+#mwdvlruosh .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1677,11 +1814,11 @@ Astuce
   border-bottom-color: #D3D3D3;
 }
 
-#tufyxekxir .gt_striped {
+#mwdvlruosh .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#tufyxekxir .gt_table_body {
+#mwdvlruosh .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1690,7 +1827,7 @@ Astuce
   border-bottom-color: #D3D3D3;
 }
 
-#tufyxekxir .gt_footnotes {
+#mwdvlruosh .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1704,7 +1841,7 @@ Astuce
   border-right-color: #D3D3D3;
 }
 
-#tufyxekxir .gt_footnote {
+#mwdvlruosh .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -1713,7 +1850,7 @@ Astuce
   padding-right: 5px;
 }
 
-#tufyxekxir .gt_sourcenotes {
+#mwdvlruosh .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1727,7 +1864,7 @@ Astuce
   border-right-color: #D3D3D3;
 }
 
-#tufyxekxir .gt_sourcenote {
+#mwdvlruosh .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -1735,72 +1872,72 @@ Astuce
   padding-right: 5px;
 }
 
-#tufyxekxir .gt_left {
+#mwdvlruosh .gt_left {
   text-align: left;
 }
 
-#tufyxekxir .gt_center {
+#mwdvlruosh .gt_center {
   text-align: center;
 }
 
-#tufyxekxir .gt_right {
+#mwdvlruosh .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#tufyxekxir .gt_font_normal {
+#mwdvlruosh .gt_font_normal {
   font-weight: normal;
 }
 
-#tufyxekxir .gt_font_bold {
+#mwdvlruosh .gt_font_bold {
   font-weight: bold;
 }
 
-#tufyxekxir .gt_font_italic {
+#mwdvlruosh .gt_font_italic {
   font-style: italic;
 }
 
-#tufyxekxir .gt_super {
+#mwdvlruosh .gt_super {
   font-size: 65%;
 }
 
-#tufyxekxir .gt_footnote_marks {
+#mwdvlruosh .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#tufyxekxir .gt_asterisk {
+#mwdvlruosh .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#tufyxekxir .gt_indent_1 {
+#mwdvlruosh .gt_indent_1 {
   text-indent: 5px;
 }
 
-#tufyxekxir .gt_indent_2 {
+#mwdvlruosh .gt_indent_2 {
   text-indent: 10px;
 }
 
-#tufyxekxir .gt_indent_3 {
+#mwdvlruosh .gt_indent_3 {
   text-indent: 15px;
 }
 
-#tufyxekxir .gt_indent_4 {
+#mwdvlruosh .gt_indent_4 {
   text-indent: 20px;
 }
 
-#tufyxekxir .gt_indent_5 {
+#mwdvlruosh .gt_indent_5 {
   text-indent: 25px;
 }
 
-#tufyxekxir .katex-display {
+#mwdvlruosh .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#tufyxekxir div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#mwdvlruosh div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
@@ -1835,7 +1972,7 @@ Astuce
 </thead>
 <tbody class="gt_table_body">
 <tr class="odd">
-<td class="gt_row gt_left" headers="label">Niveau d'études</td>
+<td class="gt_row gt_left" headers="label" style="font-weight: bold">Niveau d'études</td>
 <td class="gt_row gt_center" headers="estimate_1"><br></td>
 <td class="gt_row gt_center" headers="conf.low_1"><br></td>
 <td class="gt_row gt_center" headers="p.value_1"><br></td>
@@ -1889,7 +2026,7 @@ Astuce
 <td class="gt_row gt_center" headers="p.value_2">&gt;0,9</td>
 </tr>
 <tr class="odd">
-<td class="gt_row gt_left" headers="label">Importance accordée au travail</td>
+<td class="gt_row gt_left" headers="label" style="font-weight: bold">Importance accordée au travail</td>
 <td class="gt_row gt_center" headers="estimate_1"><br></td>
 <td class="gt_row gt_center" headers="conf.low_1"><br></td>
 <td class="gt_row gt_center" headers="p.value_1"><br></td>
@@ -1943,9 +2080,9 @@ Astuce
 </div>
 </div>
 </div>
-<p>Pour tester l’effet globale d’une variable dans le modèle, on aura directement recours à <code><a href="https://rdrr.io/pkg/car/man/Anova.html">car::Anova()</a></code>.</p>
+<div class="no-row-height column-margin column-container"><div id="fn2"><p><sup>2</sup>&nbsp;Il s’agit d’une adaptation de la fonction <code>multinom_pivot_wider()</code> proposée sur <a href="https://gist.github.com/ddsjoberg/a55afa74ac58e1f895862fcabab62406">GitHub Gist</a>.</p></div></div><p>Pour tester l’effet globale d’une variable dans le modèle, on aura directement recours à <code><a href="https://rdrr.io/pkg/car/man/Anova.html">car::Anova()</a></code>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1"></a>reg2 <span class="sc">|&gt;</span> car<span class="sc">::</span><span class="fu">Anova</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1"></a>reg2 <span class="sc">|&gt;</span> car<span class="sc">::</span><span class="fu">Anova</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Analysis of Deviance Table (Type II tests)
 
@@ -1959,27 +2096,27 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 </div>
 <p>Si l’on applique <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/add_global_p.html">gtsummary::add_global_p()</a></code> au résultat de <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/tbl_regression.html">gtsummary::tbl_regression()</a></code>, les p-valeurs seront recopiées pour chaque série de coefficients.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1"></a>tbl <span class="sc">|&gt;</span> </span>
-<span id="cb21-2"><a href="#cb21-2"></a>  <span class="fu">add_global_p</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb21-3"><a href="#cb21-3"></a>  <span class="fu">multinom_pivot_wider</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1"></a>tbl <span class="sc">|&gt;</span> </span>
+<span id="cb18-2"><a href="#cb18-2"></a>  <span class="fu">add_global_p</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb18-3"><a href="#cb18-3"></a>  guideR<span class="sc">::</span><span class="fu">style_grouped_tbl</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<div id="ivfqkbufdv" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#ivfqkbufdv table {
+<div id="eccbfzoaih" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#eccbfzoaih table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#ivfqkbufdv thead, #ivfqkbufdv tbody, #ivfqkbufdv tfoot, #ivfqkbufdv tr, #ivfqkbufdv td, #ivfqkbufdv th {
+#eccbfzoaih thead, #eccbfzoaih tbody, #eccbfzoaih tfoot, #eccbfzoaih tr, #eccbfzoaih td, #eccbfzoaih th {
   border-style: none;
 }
 
-#ivfqkbufdv p {
+#eccbfzoaih p {
   margin: 0;
   padding: 0;
 }
 
-#ivfqkbufdv .gt_table {
+#eccbfzoaih .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -2005,12 +2142,12 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
   border-left-color: #D3D3D3;
 }
 
-#ivfqkbufdv .gt_caption {
+#eccbfzoaih .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#ivfqkbufdv .gt_title {
+#eccbfzoaih .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -2022,7 +2159,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
   border-bottom-width: 0;
 }
 
-#ivfqkbufdv .gt_subtitle {
+#eccbfzoaih .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -2034,7 +2171,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
   border-top-width: 0;
 }
 
-#ivfqkbufdv .gt_heading {
+#eccbfzoaih .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -2046,13 +2183,13 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#ivfqkbufdv .gt_bottom_border {
+#eccbfzoaih .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#ivfqkbufdv .gt_col_headings {
+#eccbfzoaih .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -2067,7 +2204,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#ivfqkbufdv .gt_col_heading {
+#eccbfzoaih .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2087,7 +2224,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
   overflow-x: hidden;
 }
 
-#ivfqkbufdv .gt_column_spanner_outer {
+#eccbfzoaih .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2099,15 +2236,15 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
   padding-right: 4px;
 }
 
-#ivfqkbufdv .gt_column_spanner_outer:first-child {
+#eccbfzoaih .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#ivfqkbufdv .gt_column_spanner_outer:last-child {
+#eccbfzoaih .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#ivfqkbufdv .gt_column_spanner {
+#eccbfzoaih .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -2119,11 +2256,11 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
   width: 100%;
 }
 
-#ivfqkbufdv .gt_spanner_row {
+#eccbfzoaih .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#ivfqkbufdv .gt_group_heading {
+#eccbfzoaih .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2131,8 +2268,8 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
-  font-weight: initial;
-  text-transform: inherit;
+  font-weight: bold;
+  text-transform: uppercase;
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -2149,12 +2286,12 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
   text-align: left;
 }
 
-#ivfqkbufdv .gt_empty_group_heading {
+#eccbfzoaih .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
-  font-weight: initial;
+  font-weight: bold;
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -2164,15 +2301,15 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
   vertical-align: middle;
 }
 
-#ivfqkbufdv .gt_from_md > :first-child {
+#eccbfzoaih .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#ivfqkbufdv .gt_from_md > :last-child {
+#eccbfzoaih .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#ivfqkbufdv .gt_row {
+#eccbfzoaih .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2191,7 +2328,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
   overflow-x: hidden;
 }
 
-#ivfqkbufdv .gt_stub {
+#eccbfzoaih .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2204,7 +2341,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
   padding-right: 5px;
 }
 
-#ivfqkbufdv .gt_stub_row_group {
+#eccbfzoaih .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2218,15 +2355,15 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
   vertical-align: top;
 }
 
-#ivfqkbufdv .gt_row_group_first td {
+#eccbfzoaih .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#ivfqkbufdv .gt_row_group_first th {
+#eccbfzoaih .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#ivfqkbufdv .gt_summary_row {
+#eccbfzoaih .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -2236,16 +2373,16 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
   padding-right: 5px;
 }
 
-#ivfqkbufdv .gt_first_summary_row {
+#eccbfzoaih .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#ivfqkbufdv .gt_first_summary_row.thick {
+#eccbfzoaih .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#ivfqkbufdv .gt_last_summary_row {
+#eccbfzoaih .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2255,7 +2392,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#ivfqkbufdv .gt_grand_summary_row {
+#eccbfzoaih .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -2265,7 +2402,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
   padding-right: 5px;
 }
 
-#ivfqkbufdv .gt_first_grand_summary_row {
+#eccbfzoaih .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2275,7 +2412,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
   border-top-color: #D3D3D3;
 }
 
-#ivfqkbufdv .gt_last_grand_summary_row_top {
+#eccbfzoaih .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2285,11 +2422,11 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#ivfqkbufdv .gt_striped {
+#eccbfzoaih .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#ivfqkbufdv .gt_table_body {
+#eccbfzoaih .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -2298,7 +2435,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#ivfqkbufdv .gt_footnotes {
+#eccbfzoaih .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -2312,7 +2449,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#ivfqkbufdv .gt_footnote {
+#eccbfzoaih .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -2321,7 +2458,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
   padding-right: 5px;
 }
 
-#ivfqkbufdv .gt_sourcenotes {
+#eccbfzoaih .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -2335,7 +2472,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#ivfqkbufdv .gt_sourcenote {
+#eccbfzoaih .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -2343,238 +2480,258 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
   padding-right: 5px;
 }
 
-#ivfqkbufdv .gt_left {
+#eccbfzoaih .gt_left {
   text-align: left;
 }
 
-#ivfqkbufdv .gt_center {
+#eccbfzoaih .gt_center {
   text-align: center;
 }
 
-#ivfqkbufdv .gt_right {
+#eccbfzoaih .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#ivfqkbufdv .gt_font_normal {
+#eccbfzoaih .gt_font_normal {
   font-weight: normal;
 }
 
-#ivfqkbufdv .gt_font_bold {
+#eccbfzoaih .gt_font_bold {
   font-weight: bold;
 }
 
-#ivfqkbufdv .gt_font_italic {
+#eccbfzoaih .gt_font_italic {
   font-style: italic;
 }
 
-#ivfqkbufdv .gt_super {
+#eccbfzoaih .gt_super {
   font-size: 65%;
 }
 
-#ivfqkbufdv .gt_footnote_marks {
+#eccbfzoaih .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#ivfqkbufdv .gt_asterisk {
+#eccbfzoaih .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#ivfqkbufdv .gt_indent_1 {
+#eccbfzoaih .gt_indent_1 {
   text-indent: 5px;
 }
 
-#ivfqkbufdv .gt_indent_2 {
+#eccbfzoaih .gt_indent_2 {
   text-indent: 10px;
 }
 
-#ivfqkbufdv .gt_indent_3 {
+#eccbfzoaih .gt_indent_3 {
   text-indent: 15px;
 }
 
-#ivfqkbufdv .gt_indent_4 {
+#eccbfzoaih .gt_indent_4 {
   text-indent: 20px;
 }
 
-#ivfqkbufdv .gt_indent_5 {
+#eccbfzoaih .gt_indent_5 {
   text-indent: 25px;
 }
 
-#ivfqkbufdv .katex-display {
+#eccbfzoaih .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#ivfqkbufdv div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#eccbfzoaih div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
 <table class="gt_table table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
 <colgroup>
-<col style="width: 14%">
-<col style="width: 14%">
-<col style="width: 14%">
-<col style="width: 14%">
-<col style="width: 14%">
-<col style="width: 14%">
-<col style="width: 14%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
 </colgroup>
-<thead>
-<tr class="gt_col_headings gt_spanner_row header">
-<th rowspan="2" id="label" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col"><strong>Caractéristique</strong></th>
-<th colspan="3" id="level 1; estimate_1" class="gt_center gt_columns_top_border gt_column_spanner_outer" data-quarto-table-cell-role="th" scope="colgroup"><div class="gt_column_spanner">
-<strong>Satisfaction</strong>
-</div></th>
-<th colspan="3" id="level 1; estimate_2" class="gt_center gt_columns_top_border gt_column_spanner_outer" data-quarto-table-cell-role="th" scope="colgroup"><div class="gt_column_spanner">
-<strong>Insatisfaction</strong>
-</div></th>
-</tr>
-<tr class="gt_col_headings even">
-<th id="estimate_1" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col"><strong>OR</strong></th>
-<th id="conf.low_1" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col"><strong>95% IC</strong></th>
-<th id="p.value_1" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col"><strong>p-valeur</strong></th>
-<th id="estimate_2" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col"><strong>OR</strong></th>
-<th id="conf.low_2" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col"><strong>95% IC</strong></th>
-<th id="p.value_2" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col"><strong>p-valeur</strong></th>
-</tr>
-</thead>
+<thead><tr class="gt_col_headings header">
+<th id="label" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col"><strong>Caractéristique</strong></th>
+<th id="estimate" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col"><strong>OR</strong></th>
+<th id="conf.low" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col"><strong>95% IC</strong></th>
+<th id="p.value" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col"><strong>p-valeur</strong></th>
+</tr></thead>
 <tbody class="gt_table_body">
+<tr class="gt_group_heading_row odd">
+<td colspan="4" id="Satisfaction" class="gt_group_heading" data-quarto-table-cell-role="th" scope="colgroup">Satisfaction</td>
+</tr>
+<tr class="gt_row_group_first even">
+<td class="gt_row gt_left" headers="Satisfaction  label" style="font-style: italic">&nbsp;&nbsp;&nbsp;&nbsp;Niveau d'études</td>
+<td class="gt_row gt_center" headers="Satisfaction  estimate"><br></td>
+<td class="gt_row gt_center" headers="Satisfaction  conf.low"><br></td>
+<td class="gt_row gt_center" headers="Satisfaction  p.value">0,002</td>
+</tr>
 <tr class="odd">
-<td class="gt_row gt_left" headers="label">Niveau d'études</td>
-<td class="gt_row gt_center" headers="estimate_1"><br></td>
-<td class="gt_row gt_center" headers="conf.low_1"><br></td>
-<td class="gt_row gt_center" headers="p.value_1">0,002</td>
-<td class="gt_row gt_center" headers="estimate_2"><br></td>
-<td class="gt_row gt_center" headers="conf.low_2"><br></td>
-<td class="gt_row gt_center" headers="p.value_2">0,002</td>
+<td class="gt_row gt_left" headers="Satisfaction  label">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Primaire</td>
+<td class="gt_row gt_center" headers="Satisfaction  estimate">—</td>
+<td class="gt_row gt_center" headers="Satisfaction  conf.low">—</td>
+<td class="gt_row gt_center" headers="Satisfaction  p.value"><br></td>
 </tr>
 <tr class="even">
-<td class="gt_row gt_left" headers="label">&nbsp;&nbsp;&nbsp;&nbsp;Primaire</td>
-<td class="gt_row gt_center" headers="estimate_1">—</td>
-<td class="gt_row gt_center" headers="conf.low_1">—</td>
-<td class="gt_row gt_center" headers="p.value_1"><br></td>
-<td class="gt_row gt_center" headers="estimate_2">—</td>
-<td class="gt_row gt_center" headers="conf.low_2">—</td>
-<td class="gt_row gt_center" headers="p.value_2"><br></td>
+<td class="gt_row gt_left" headers="Satisfaction  label">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Secondaire</td>
+<td class="gt_row gt_center" headers="Satisfaction  estimate">1,05</td>
+<td class="gt_row gt_center" headers="Satisfaction  conf.low">0,63 – 1,76</td>
+<td class="gt_row gt_center" headers="Satisfaction  p.value"><br></td>
 </tr>
 <tr class="odd">
-<td class="gt_row gt_left" headers="label">&nbsp;&nbsp;&nbsp;&nbsp;Secondaire</td>
-<td class="gt_row gt_center" headers="estimate_1">1,05</td>
-<td class="gt_row gt_center" headers="conf.low_1">0,63 – 1,76</td>
-<td class="gt_row gt_center" headers="p.value_1"><br></td>
-<td class="gt_row gt_center" headers="estimate_2">0,91</td>
-<td class="gt_row gt_center" headers="conf.low_2">0,41 – 1,99</td>
-<td class="gt_row gt_center" headers="p.value_2"><br></td>
+<td class="gt_row gt_left" headers="Satisfaction  label">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Technique / Professionnel</td>
+<td class="gt_row gt_center" headers="Satisfaction  estimate">1,08</td>
+<td class="gt_row gt_center" headers="Satisfaction  conf.low">0,67 – 1,73</td>
+<td class="gt_row gt_center" headers="Satisfaction  p.value"><br></td>
 </tr>
 <tr class="even">
-<td class="gt_row gt_left" headers="label">&nbsp;&nbsp;&nbsp;&nbsp;Technique / Professionnel</td>
-<td class="gt_row gt_center" headers="estimate_1">1,08</td>
-<td class="gt_row gt_center" headers="conf.low_1">0,67 – 1,73</td>
-<td class="gt_row gt_center" headers="p.value_1"><br></td>
-<td class="gt_row gt_center" headers="estimate_2">1,09</td>
-<td class="gt_row gt_center" headers="conf.low_2">0,54 – 2,19</td>
-<td class="gt_row gt_center" headers="p.value_2"><br></td>
+<td class="gt_row gt_left" headers="Satisfaction  label">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Supérieur</td>
+<td class="gt_row gt_center" headers="Satisfaction  estimate">2,01</td>
+<td class="gt_row gt_center" headers="Satisfaction  conf.low">1,24 – 3,27</td>
+<td class="gt_row gt_center" headers="Satisfaction  p.value"><br></td>
 </tr>
 <tr class="odd">
-<td class="gt_row gt_left" headers="label">&nbsp;&nbsp;&nbsp;&nbsp;Supérieur</td>
-<td class="gt_row gt_center" headers="estimate_1">2,01</td>
-<td class="gt_row gt_center" headers="conf.low_1">1,24 – 3,27</td>
-<td class="gt_row gt_center" headers="p.value_1"><br></td>
-<td class="gt_row gt_center" headers="estimate_2">1,08</td>
-<td class="gt_row gt_center" headers="conf.low_2">0,51 – 2,29</td>
-<td class="gt_row gt_center" headers="p.value_2"><br></td>
+<td class="gt_row gt_left" headers="Satisfaction  label">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Non documenté</td>
+<td class="gt_row gt_center" headers="Satisfaction  estimate">0,58</td>
+<td class="gt_row gt_center" headers="Satisfaction  conf.low">0,18 – 1,86</td>
+<td class="gt_row gt_center" headers="Satisfaction  p.value"><br></td>
 </tr>
 <tr class="even">
-<td class="gt_row gt_left" headers="label">&nbsp;&nbsp;&nbsp;&nbsp;Non documenté</td>
-<td class="gt_row gt_center" headers="estimate_1">0,58</td>
-<td class="gt_row gt_center" headers="conf.low_1">0,18 – 1,86</td>
-<td class="gt_row gt_center" headers="p.value_1"><br></td>
-<td class="gt_row gt_center" headers="estimate_2">0,96</td>
-<td class="gt_row gt_center" headers="conf.low_2">0,18 – 4,97</td>
-<td class="gt_row gt_center" headers="p.value_2"><br></td>
+<td class="gt_row gt_left" headers="Satisfaction  label" style="font-style: italic">&nbsp;&nbsp;&nbsp;&nbsp;Importance accordée au travail</td>
+<td class="gt_row gt_center" headers="Satisfaction  estimate"><br></td>
+<td class="gt_row gt_center" headers="Satisfaction  conf.low"><br></td>
+<td class="gt_row gt_center" headers="Satisfaction  p.value">&lt;0,001</td>
 </tr>
 <tr class="odd">
-<td class="gt_row gt_left" headers="label">Importance accordée au travail</td>
-<td class="gt_row gt_center" headers="estimate_1"><br></td>
-<td class="gt_row gt_center" headers="conf.low_1"><br></td>
-<td class="gt_row gt_center" headers="p.value_1">&lt;0,001</td>
-<td class="gt_row gt_center" headers="estimate_2"><br></td>
-<td class="gt_row gt_center" headers="conf.low_2"><br></td>
-<td class="gt_row gt_center" headers="p.value_2">&lt;0,001</td>
+<td class="gt_row gt_left" headers="Satisfaction  label">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Le plus</td>
+<td class="gt_row gt_center" headers="Satisfaction  estimate">—</td>
+<td class="gt_row gt_center" headers="Satisfaction  conf.low">—</td>
+<td class="gt_row gt_center" headers="Satisfaction  p.value"><br></td>
 </tr>
 <tr class="even">
-<td class="gt_row gt_left" headers="label">&nbsp;&nbsp;&nbsp;&nbsp;Le plus</td>
-<td class="gt_row gt_center" headers="estimate_1">—</td>
-<td class="gt_row gt_center" headers="conf.low_1">—</td>
-<td class="gt_row gt_center" headers="p.value_1"><br></td>
-<td class="gt_row gt_center" headers="estimate_2">—</td>
-<td class="gt_row gt_center" headers="conf.low_2">—</td>
-<td class="gt_row gt_center" headers="p.value_2"><br></td>
+<td class="gt_row gt_left" headers="Satisfaction  label">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Aussi</td>
+<td class="gt_row gt_center" headers="Satisfaction  estimate">1,29</td>
+<td class="gt_row gt_center" headers="Satisfaction  conf.low">0,56 – 2,98</td>
+<td class="gt_row gt_center" headers="Satisfaction  p.value"><br></td>
 </tr>
 <tr class="odd">
-<td class="gt_row gt_left" headers="label">&nbsp;&nbsp;&nbsp;&nbsp;Aussi</td>
-<td class="gt_row gt_center" headers="estimate_1">1,29</td>
-<td class="gt_row gt_center" headers="conf.low_1">0,56 – 2,98</td>
-<td class="gt_row gt_center" headers="p.value_1"><br></td>
-<td class="gt_row gt_center" headers="estimate_2">0,80</td>
-<td class="gt_row gt_center" headers="conf.low_2">0,24 – 2,69</td>
-<td class="gt_row gt_center" headers="p.value_2"><br></td>
+<td class="gt_row gt_left" headers="Satisfaction  label">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Moins</td>
+<td class="gt_row gt_center" headers="Satisfaction  estimate">0,84</td>
+<td class="gt_row gt_center" headers="Satisfaction  conf.low">0,37 – 1,88</td>
+<td class="gt_row gt_center" headers="Satisfaction  p.value"><br></td>
 </tr>
 <tr class="even">
-<td class="gt_row gt_left" headers="label">&nbsp;&nbsp;&nbsp;&nbsp;Moins</td>
-<td class="gt_row gt_center" headers="estimate_1">0,84</td>
-<td class="gt_row gt_center" headers="conf.low_1">0,37 – 1,88</td>
-<td class="gt_row gt_center" headers="p.value_1"><br></td>
-<td class="gt_row gt_center" headers="estimate_2">0,59</td>
-<td class="gt_row gt_center" headers="conf.low_2">0,18 – 1,88</td>
-<td class="gt_row gt_center" headers="p.value_2"><br></td>
+<td class="gt_row gt_left" headers="Satisfaction  label">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Peu</td>
+<td class="gt_row gt_center" headers="Satisfaction  estimate">0,55</td>
+<td class="gt_row gt_center" headers="Satisfaction  conf.low">0,18 – 1,64</td>
+<td class="gt_row gt_center" headers="Satisfaction  p.value"><br></td>
+</tr>
+<tr class="gt_group_heading_row odd">
+<td colspan="4" id="Insatisfaction" class="gt_group_heading" data-quarto-table-cell-role="th" scope="colgroup">Insatisfaction</td>
+</tr>
+<tr class="gt_row_group_first even">
+<td class="gt_row gt_left" headers="Insatisfaction  label" style="font-style: italic">&nbsp;&nbsp;&nbsp;&nbsp;Niveau d'études</td>
+<td class="gt_row gt_center" headers="Insatisfaction  estimate"><br></td>
+<td class="gt_row gt_center" headers="Insatisfaction  conf.low"><br></td>
+<td class="gt_row gt_center" headers="Insatisfaction  p.value">0,002</td>
 </tr>
 <tr class="odd">
-<td class="gt_row gt_left" headers="label">&nbsp;&nbsp;&nbsp;&nbsp;Peu</td>
-<td class="gt_row gt_center" headers="estimate_1">0,55</td>
-<td class="gt_row gt_center" headers="conf.low_1">0,18 – 1,64</td>
-<td class="gt_row gt_center" headers="p.value_1"><br></td>
-<td class="gt_row gt_center" headers="estimate_2">3,82</td>
-<td class="gt_row gt_center" headers="conf.low_2">1,05 – 13,9</td>
-<td class="gt_row gt_center" headers="p.value_2"><br></td>
+<td class="gt_row gt_left" headers="Insatisfaction  label">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Primaire</td>
+<td class="gt_row gt_center" headers="Insatisfaction  estimate">—</td>
+<td class="gt_row gt_center" headers="Insatisfaction  conf.low">—</td>
+<td class="gt_row gt_center" headers="Insatisfaction  p.value"><br></td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="Insatisfaction  label">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Secondaire</td>
+<td class="gt_row gt_center" headers="Insatisfaction  estimate">0,91</td>
+<td class="gt_row gt_center" headers="Insatisfaction  conf.low">0,41 – 1,99</td>
+<td class="gt_row gt_center" headers="Insatisfaction  p.value"><br></td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="Insatisfaction  label">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Technique / Professionnel</td>
+<td class="gt_row gt_center" headers="Insatisfaction  estimate">1,09</td>
+<td class="gt_row gt_center" headers="Insatisfaction  conf.low">0,54 – 2,19</td>
+<td class="gt_row gt_center" headers="Insatisfaction  p.value"><br></td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="Insatisfaction  label">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Supérieur</td>
+<td class="gt_row gt_center" headers="Insatisfaction  estimate">1,08</td>
+<td class="gt_row gt_center" headers="Insatisfaction  conf.low">0,51 – 2,29</td>
+<td class="gt_row gt_center" headers="Insatisfaction  p.value"><br></td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="Insatisfaction  label">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Non documenté</td>
+<td class="gt_row gt_center" headers="Insatisfaction  estimate">0,96</td>
+<td class="gt_row gt_center" headers="Insatisfaction  conf.low">0,18 – 4,97</td>
+<td class="gt_row gt_center" headers="Insatisfaction  p.value"><br></td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="Insatisfaction  label" style="font-style: italic">&nbsp;&nbsp;&nbsp;&nbsp;Importance accordée au travail</td>
+<td class="gt_row gt_center" headers="Insatisfaction  estimate"><br></td>
+<td class="gt_row gt_center" headers="Insatisfaction  conf.low"><br></td>
+<td class="gt_row gt_center" headers="Insatisfaction  p.value">&lt;0,001</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="Insatisfaction  label">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Le plus</td>
+<td class="gt_row gt_center" headers="Insatisfaction  estimate">—</td>
+<td class="gt_row gt_center" headers="Insatisfaction  conf.low">—</td>
+<td class="gt_row gt_center" headers="Insatisfaction  p.value"><br></td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="Insatisfaction  label">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Aussi</td>
+<td class="gt_row gt_center" headers="Insatisfaction  estimate">0,80</td>
+<td class="gt_row gt_center" headers="Insatisfaction  conf.low">0,24 – 2,69</td>
+<td class="gt_row gt_center" headers="Insatisfaction  p.value"><br></td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="Insatisfaction  label">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Moins</td>
+<td class="gt_row gt_center" headers="Insatisfaction  estimate">0,59</td>
+<td class="gt_row gt_center" headers="Insatisfaction  conf.low">0,18 – 1,88</td>
+<td class="gt_row gt_center" headers="Insatisfaction  p.value"><br></td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="Insatisfaction  label">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Peu</td>
+<td class="gt_row gt_center" headers="Insatisfaction  estimate">3,82</td>
+<td class="gt_row gt_center" headers="Insatisfaction  conf.low">1,05 – 13,9</td>
+<td class="gt_row gt_center" headers="Insatisfaction  p.value"><br></td>
 </tr>
 </tbody>
 <tfoot class="gt_sourcenotes"><tr class="odd">
-<td colspan="7" class="gt_sourcenote">Abréviations: IC = intervalle de confiance, OR = rapport de cotes</td>
+<td colspan="4" class="gt_sourcenote">Abréviations: IC = intervalle de confiance, OR = rapport de cotes</td>
 </tr></tfoot>
 </table>
 </div>
 </div>
 </div>
-<p>Une astuce consiste à cacher toutes ces colonnes de p-valeurs, n’afficher que la dernière et changer son titre de colonne.</p>
+<p>Une astuce consiste à cacher toutes ces colonnes de p-valeurs, n’afficher que la dernière et changer son titre de colonne. Pour cela, on pourra profiter de la fonction <code><a href="https://larmarange.github.io/guideR/reference/grouped_tbl_pivot_wider.html">guideR::multinom_add_global_p_pivot_wider()</a></code>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1"></a>tbl <span class="sc">|&gt;</span> </span>
-<span id="cb22-2"><a href="#cb22-2"></a>  <span class="fu">add_global_p</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb22-3"><a href="#cb22-3"></a>  <span class="fu">multinom_pivot_wider</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb22-4"><a href="#cb22-4"></a>  <span class="fu">modify_column_hide</span>(<span class="fu">starts_with</span>(<span class="st">"p.value"</span>)) <span class="sc">|&gt;</span> </span>
-<span id="cb22-5"><a href="#cb22-5"></a>  <span class="fu">modify_column_unhide</span>(p.value_2) <span class="sc">|&gt;</span> </span>
-<span id="cb22-6"><a href="#cb22-6"></a>  <span class="fu">modify_spanning_header</span>(p.value_2 <span class="sc">~</span> <span class="st">"**Likelihood-ratio test**"</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1"></a>tbl <span class="sc">|&gt;</span> </span>
+<span id="cb19-2"><a href="#cb19-2"></a>  guideR<span class="sc">::</span><span class="fu">multinom_add_global_p_pivot_wider</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb19-3"><a href="#cb19-3"></a>  <span class="fu">bold_labels</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<div id="achwhhnngy" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#achwhhnngy table {
+<div id="yietzwcpzo" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#yietzwcpzo table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#achwhhnngy thead, #achwhhnngy tbody, #achwhhnngy tfoot, #achwhhnngy tr, #achwhhnngy td, #achwhhnngy th {
+#yietzwcpzo thead, #yietzwcpzo tbody, #yietzwcpzo tfoot, #yietzwcpzo tr, #yietzwcpzo td, #yietzwcpzo th {
   border-style: none;
 }
 
-#achwhhnngy p {
+#yietzwcpzo p {
   margin: 0;
   padding: 0;
 }
 
-#achwhhnngy .gt_table {
+#yietzwcpzo .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -2600,12 +2757,12 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
   border-left-color: #D3D3D3;
 }
 
-#achwhhnngy .gt_caption {
+#yietzwcpzo .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#achwhhnngy .gt_title {
+#yietzwcpzo .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -2617,7 +2774,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
   border-bottom-width: 0;
 }
 
-#achwhhnngy .gt_subtitle {
+#yietzwcpzo .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -2629,7 +2786,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
   border-top-width: 0;
 }
 
-#achwhhnngy .gt_heading {
+#yietzwcpzo .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -2641,13 +2798,13 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#achwhhnngy .gt_bottom_border {
+#yietzwcpzo .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#achwhhnngy .gt_col_headings {
+#yietzwcpzo .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -2662,7 +2819,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#achwhhnngy .gt_col_heading {
+#yietzwcpzo .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2682,7 +2839,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
   overflow-x: hidden;
 }
 
-#achwhhnngy .gt_column_spanner_outer {
+#yietzwcpzo .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2694,15 +2851,15 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
   padding-right: 4px;
 }
 
-#achwhhnngy .gt_column_spanner_outer:first-child {
+#yietzwcpzo .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#achwhhnngy .gt_column_spanner_outer:last-child {
+#yietzwcpzo .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#achwhhnngy .gt_column_spanner {
+#yietzwcpzo .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -2714,11 +2871,11 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
   width: 100%;
 }
 
-#achwhhnngy .gt_spanner_row {
+#yietzwcpzo .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#achwhhnngy .gt_group_heading {
+#yietzwcpzo .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2744,7 +2901,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
   text-align: left;
 }
 
-#achwhhnngy .gt_empty_group_heading {
+#yietzwcpzo .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -2759,15 +2916,15 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
   vertical-align: middle;
 }
 
-#achwhhnngy .gt_from_md > :first-child {
+#yietzwcpzo .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#achwhhnngy .gt_from_md > :last-child {
+#yietzwcpzo .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#achwhhnngy .gt_row {
+#yietzwcpzo .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2786,7 +2943,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
   overflow-x: hidden;
 }
 
-#achwhhnngy .gt_stub {
+#yietzwcpzo .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2799,7 +2956,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
   padding-right: 5px;
 }
 
-#achwhhnngy .gt_stub_row_group {
+#yietzwcpzo .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2813,15 +2970,15 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
   vertical-align: top;
 }
 
-#achwhhnngy .gt_row_group_first td {
+#yietzwcpzo .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#achwhhnngy .gt_row_group_first th {
+#yietzwcpzo .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#achwhhnngy .gt_summary_row {
+#yietzwcpzo .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -2831,16 +2988,16 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
   padding-right: 5px;
 }
 
-#achwhhnngy .gt_first_summary_row {
+#yietzwcpzo .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#achwhhnngy .gt_first_summary_row.thick {
+#yietzwcpzo .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#achwhhnngy .gt_last_summary_row {
+#yietzwcpzo .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2850,7 +3007,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#achwhhnngy .gt_grand_summary_row {
+#yietzwcpzo .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -2860,7 +3017,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
   padding-right: 5px;
 }
 
-#achwhhnngy .gt_first_grand_summary_row {
+#yietzwcpzo .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2870,7 +3027,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
   border-top-color: #D3D3D3;
 }
 
-#achwhhnngy .gt_last_grand_summary_row_top {
+#yietzwcpzo .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2880,11 +3037,11 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#achwhhnngy .gt_striped {
+#yietzwcpzo .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#achwhhnngy .gt_table_body {
+#yietzwcpzo .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -2893,7 +3050,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#achwhhnngy .gt_footnotes {
+#yietzwcpzo .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -2907,7 +3064,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#achwhhnngy .gt_footnote {
+#yietzwcpzo .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -2916,7 +3073,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
   padding-right: 5px;
 }
 
-#achwhhnngy .gt_sourcenotes {
+#yietzwcpzo .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -2930,7 +3087,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#achwhhnngy .gt_sourcenote {
+#yietzwcpzo .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -2938,72 +3095,72 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
   padding-right: 5px;
 }
 
-#achwhhnngy .gt_left {
+#yietzwcpzo .gt_left {
   text-align: left;
 }
 
-#achwhhnngy .gt_center {
+#yietzwcpzo .gt_center {
   text-align: center;
 }
 
-#achwhhnngy .gt_right {
+#yietzwcpzo .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#achwhhnngy .gt_font_normal {
+#yietzwcpzo .gt_font_normal {
   font-weight: normal;
 }
 
-#achwhhnngy .gt_font_bold {
+#yietzwcpzo .gt_font_bold {
   font-weight: bold;
 }
 
-#achwhhnngy .gt_font_italic {
+#yietzwcpzo .gt_font_italic {
   font-style: italic;
 }
 
-#achwhhnngy .gt_super {
+#yietzwcpzo .gt_super {
   font-size: 65%;
 }
 
-#achwhhnngy .gt_footnote_marks {
+#yietzwcpzo .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#achwhhnngy .gt_asterisk {
+#yietzwcpzo .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#achwhhnngy .gt_indent_1 {
+#yietzwcpzo .gt_indent_1 {
   text-indent: 5px;
 }
 
-#achwhhnngy .gt_indent_2 {
+#yietzwcpzo .gt_indent_2 {
   text-indent: 10px;
 }
 
-#achwhhnngy .gt_indent_3 {
+#yietzwcpzo .gt_indent_3 {
   text-indent: 15px;
 }
 
-#achwhhnngy .gt_indent_4 {
+#yietzwcpzo .gt_indent_4 {
   text-indent: 20px;
 }
 
-#achwhhnngy .gt_indent_5 {
+#yietzwcpzo .gt_indent_5 {
   text-indent: 25px;
 }
 
-#achwhhnngy .katex-display {
+#yietzwcpzo .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#achwhhnngy div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#yietzwcpzo div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
@@ -3039,7 +3196,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 </thead>
 <tbody class="gt_table_body">
 <tr class="odd">
-<td class="gt_row gt_left" headers="label">Niveau d'études</td>
+<td class="gt_row gt_left" headers="label" style="font-weight: bold">Niveau d'études</td>
 <td class="gt_row gt_center" headers="estimate_1"><br></td>
 <td class="gt_row gt_center" headers="conf.low_1"><br></td>
 <td class="gt_row gt_center" headers="estimate_2"><br></td>
@@ -3087,7 +3244,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <td class="gt_row gt_center" headers="p.value_2"><br></td>
 </tr>
 <tr class="odd">
-<td class="gt_row gt_left" headers="label">Importance accordée au travail</td>
+<td class="gt_row gt_left" headers="label" style="font-weight: bold">Importance accordée au travail</td>
 <td class="gt_row gt_center" headers="estimate_1"><br></td>
 <td class="gt_row gt_center" headers="conf.low_1"><br></td>
 <td class="gt_row gt_center" headers="estimate_2"><br></td>
@@ -3134,10 +3291,10 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 </div>
 </div>
 </div>
-<p>Pour un graphique des coefficients, on peut appeler directement <code>ggstats::gcoef_model()</code> ou encore <code>ggstats::coef_table()</code><a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a>. De plus, <a href="https://larmarange.github.io/ggstats/">ggstats</a> propose également les variantes <code>ggstats::gcoef_dodged()</code> et <code><a href="https://larmarange.github.io/ggstats/reference/ggcoef_model.html">ggstats::ggcoef_faceted()</a></code>.</p>
-<div class="no-row-height column-margin column-container"><div id="fn2"><p><sup>2</sup>&nbsp;Attention&nbsp;: pour que cela fonctionne avec un modèle multinomial, il est nécessaire d’utiliser la version 0.9.0 (ou une version plus récente) de <a href="https://larmarange.github.io/ggstats/">ggstats</a>.</p></div></div><div class="cell page-columns page-full">
-<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1"></a>reg2 <span class="sc">|&gt;</span> </span>
-<span id="cb23-2"><a href="#cb23-2"></a>  ggstats<span class="sc">::</span><span class="fu">ggcoef_model</span>(<span class="at">exponentiate =</span> <span class="cn">TRUE</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Pour un graphique des coefficients, on peut appeler directement <code>ggstats::gcoef_model()</code> ou encore <code>ggstats::coef_table()</code><a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a>. De plus, <a href="https://larmarange.github.io/ggstats/">ggstats</a> propose également les variantes <code>ggstats::gcoef_dodged()</code> et <code><a href="https://larmarange.github.io/ggstats/reference/ggcoef_model.html">ggstats::ggcoef_faceted()</a></code>.</p>
+<div class="no-row-height column-margin column-container"><div id="fn3"><p><sup>3</sup>&nbsp;Attention&nbsp;: pour que cela fonctionne avec un modèle multinomial, il est nécessaire d’utiliser la version 0.9.0 (ou une version plus récente) de <a href="https://larmarange.github.io/ggstats/">ggstats</a>.</p></div></div><div class="cell page-columns page-full">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1"></a>reg2 <span class="sc">|&gt;</span> </span>
+<span id="cb20-2"><a href="#cb20-2"></a>  ggstats<span class="sc">::</span><span class="fu">ggcoef_model</span>(<span class="at">exponentiate =</span> <span class="cn">TRUE</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display page-columns page-full">
 <div id="fig-ggcoef_multinom-model" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full"><div aria-describedby="fig-ggcoef_multinom-model-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -3150,8 +3307,8 @@ Figure&nbsp;43.1: Graphique des coefficients du modèle multinomial
 </div>
 </div>
 <div class="cell page-columns page-full">
-<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1"></a>reg2 <span class="sc">|&gt;</span> </span>
-<span id="cb24-2"><a href="#cb24-2"></a>  ggstats<span class="sc">::</span><span class="fu">ggcoef_table</span>(<span class="at">exponentiate =</span> <span class="cn">TRUE</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1"></a>reg2 <span class="sc">|&gt;</span> </span>
+<span id="cb21-2"><a href="#cb21-2"></a>  ggstats<span class="sc">::</span><span class="fu">ggcoef_table</span>(<span class="at">exponentiate =</span> <span class="cn">TRUE</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display page-columns page-full">
 <div id="fig-ggcoef_multinom-table" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full"><div aria-describedby="fig-ggcoef_multinom-table-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -3164,8 +3321,8 @@ Figure&nbsp;43.2: Graphique des coefficients du modèle multinomial (type “tab
 </div>
 </div>
 <div class="cell page-columns page-full">
-<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1"></a>reg2 <span class="sc">|&gt;</span> </span>
-<span id="cb25-2"><a href="#cb25-2"></a>  ggstats<span class="sc">::</span><span class="fu">ggcoef_dodged</span>(<span class="at">exponentiate =</span> <span class="cn">TRUE</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1"></a>reg2 <span class="sc">|&gt;</span> </span>
+<span id="cb22-2"><a href="#cb22-2"></a>  ggstats<span class="sc">::</span><span class="fu">ggcoef_dodged</span>(<span class="at">exponentiate =</span> <span class="cn">TRUE</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display page-columns page-full">
 <div id="fig-ggcoef_multinom-dodged" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full"><div aria-describedby="fig-ggcoef_multinom-dodged-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -3178,8 +3335,8 @@ Figure&nbsp;43.3: Graphique des coefficients du modèle multinomial (type “dod
 </div>
 </div>
 <div class="cell page-columns page-full">
-<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1"></a>reg2 <span class="sc">|&gt;</span> </span>
-<span id="cb26-2"><a href="#cb26-2"></a>  ggstats<span class="sc">::</span><span class="fu">ggcoef_faceted</span>(<span class="at">exponentiate =</span> <span class="cn">TRUE</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1"></a>reg2 <span class="sc">|&gt;</span> </span>
+<span id="cb23-2"><a href="#cb23-2"></a>  ggstats<span class="sc">::</span><span class="fu">ggcoef_faceted</span>(<span class="at">exponentiate =</span> <span class="cn">TRUE</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display page-columns page-full">
 <div id="fig-ggcoef_multinom-faceted" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full"><div aria-describedby="fig-ggcoef_multinom-faceted-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -3193,11 +3350,11 @@ Figure&nbsp;43.4: Graphique des coefficients du modèle multinomial (type “fac
 </div>
 <p>Pour faciliter l’interprétation, on pourra représenter les prédictions marginales du modèle (cf. <a href="../analyses/estimations-marginales.html" class="quarto-xref"><span>Chapitre 24</span></a>) avec <code><a href="https://larmarange.github.io/broom.helpers/reference/tidy_marginal_predictions.html">broom.helpers::plot_marginal_predictions()</a></code>.</p>
 <div class="cell page-columns page-full">
-<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1"></a>reg2 <span class="sc">|&gt;</span> </span>
-<span id="cb27-2"><a href="#cb27-2"></a>  broom.helpers<span class="sc">::</span><span class="fu">plot_marginal_predictions</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb27-3"><a href="#cb27-3"></a>  patchwork<span class="sc">::</span><span class="fu">wrap_plots</span>(<span class="at">ncol =</span> <span class="dv">1</span>) <span class="sc">&amp;</span></span>
-<span id="cb27-4"><a href="#cb27-4"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">labels =</span> scales<span class="sc">::</span>percent, <span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>, .<span class="dv">8</span>)) <span class="sc">&amp;</span></span>
-<span id="cb27-5"><a href="#cb27-5"></a>  <span class="fu">coord_flip</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1"></a>reg2 <span class="sc">|&gt;</span> </span>
+<span id="cb24-2"><a href="#cb24-2"></a>  broom.helpers<span class="sc">::</span><span class="fu">plot_marginal_predictions</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb24-3"><a href="#cb24-3"></a>  patchwork<span class="sc">::</span><span class="fu">wrap_plots</span>(<span class="at">ncol =</span> <span class="dv">1</span>) <span class="sc">&amp;</span></span>
+<span id="cb24-4"><a href="#cb24-4"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">labels =</span> scales<span class="sc">::</span>percent, <span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>, .<span class="dv">8</span>)) <span class="sc">&amp;</span></span>
+<span id="cb24-5"><a href="#cb24-5"></a>  <span class="fu">coord_flip</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display page-columns page-full">
 <div id="fig-plot_marginal_predictions-multinom" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full"><div aria-describedby="fig-plot_marginal_predictions-multinom-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -3222,7 +3379,7 @@ Astuce
 <p>Dans certaines situations, il peut être plus simple de réaliser plusieurs modèles logistiques binaires séparés plutôt qu’une régression multinomiale. Si la variable à expliquer a trois niveaux (A, B et C), on pourra réaliser un modèle binaire B vs A, et un modèle binaire C vs A. Cette approche est appelée <q>approximation de Begg et Gray</q>. On trouvera, en anglais, plus d’explications et des références bibliographiques sur <a href="https://stackoverflow.com/a/23795087/7943547">StackOverflow</a>.</p>
 </div>
 </div>
-</section><section id="données-pondérées" class="level2" data-number="43.4"><h2 data-number="43.4" class="anchored" data-anchor-id="données-pondérées">
+</section><section id="données-pondérées" class="level2 page-columns page-full" data-number="43.4"><h2 data-number="43.4" class="anchored" data-anchor-id="données-pondérées">
 <span class="header-section-number">43.4</span> Données pondérées</h2>
 <p>L’extension <a href="http://r-survey.r-forge.r-project.org/survey/">survey</a> (cf. <a href="../donnees_ponderees/plan-echantillonnage.html" class="quarto-xref"><span>Chapitre 28</span></a>) ne fournit pas de fonction adaptée aux régressions multinomiales. Cependant, il est possible d’en réaliser une en ayant recours à des poids de réplication, comme suggéré par Thomas Lumley dans son ouvrage <em>Complex Surveys: A Guide to Analysis Using R</em>. Thomas Lumley est par ailleurs l’auteur de l’extension <a href="http://r-survey.r-forge.r-project.org/survey/">survey</a>.</p>
 <section id="avec-svrepmiscsvymultinom" class="level3" data-number="43.4.1"><h3 data-number="43.4.1" class="anchored" data-anchor-id="avec-svrepmiscsvymultinom">
@@ -3230,155 +3387,155 @@ Astuce
 </h3>
 <p>L’extension <a href="https://github.com/carlganz/svrepmisc">svrepmisc</a> disponible sur <a href="https://github.com/carlganz/svrepmisc">GitHub</a> fournit quelques fonctions facilitant l’utilisation des poids de réplication avec <a href="http://r-survey.r-forge.r-project.org/survey/">survey</a>. Pour l’installer, on utilisera le code ci-dessous&nbsp;:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1"></a>pak<span class="sc">::</span><span class="fu">pkg_install</span>(<span class="st">"carlganz/svrepmisc"</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1"></a>pak<span class="sc">::</span><span class="fu">pkg_install</span>(<span class="st">"carlganz/svrepmisc"</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>En premier lieu, il faut définir le design de notre tableau de données puis calculer des poids de réplication.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1"></a><span class="fu">library</span>(survey)</span>
-<span id="cb29-2"><a href="#cb29-2"></a><span class="fu">library</span>(srvyr)</span>
-<span id="cb29-3"><a href="#cb29-3"></a>dw_rep <span class="ot">&lt;-</span> d <span class="sc">|&gt;</span></span>
-<span id="cb29-4"><a href="#cb29-4"></a>  <span class="fu">as_survey</span>(<span class="at">weights =</span> poids) <span class="sc">|&gt;</span> </span>
-<span id="cb29-5"><a href="#cb29-5"></a>  <span class="fu">as_survey_rep</span>(<span class="at">type =</span> <span class="st">"bootstrap"</span>, <span class="at">replicates =</span> <span class="dv">25</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1"></a><span class="fu">library</span>(survey)</span>
+<span id="cb26-2"><a href="#cb26-2"></a><span class="fu">library</span>(srvyr)</span>
+<span id="cb26-3"><a href="#cb26-3"></a>dw_rep <span class="ot">&lt;-</span> d <span class="sc">|&gt;</span></span>
+<span id="cb26-4"><a href="#cb26-4"></a>  <span class="fu">as_survey</span>(<span class="at">weights =</span> poids) <span class="sc">|&gt;</span> </span>
+<span id="cb26-5"><a href="#cb26-5"></a>  <span class="fu">as_survey_rep</span>(<span class="at">type =</span> <span class="st">"bootstrap"</span>, <span class="at">replicates =</span> <span class="dv">25</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Il faut prévoir un nombre de <code>replicates</code> suffisant pour calculer ultérieurement les intervalles de confiance des coefficients. Plus ce nombre est élevé, plus précise sera l’estimation de la variance et donc des valeurs p et des intervalles de confiance. Cependant, plus ce nombre est élevé, plus le temps de calcul sera important. Pour gagner en temps de calcul, nous avons ici pris une valeur de 25, mais l’usage est de considérer au moins 1000 réplications.</p>
 <p><a href="https://github.com/carlganz/svrepmisc">svrepmisc</a> fournit une fonction <code><a href="https://rdrr.io/pkg/svrepmisc/man/svymultinom.html">svrepmisc::svymultinom()</a></code> pour le calcul d’une régression multinomiale avec des poids de réplication.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1"></a><span class="fu">library</span>(svrepmisc)</span>
-<span id="cb30-2"><a href="#cb30-2"></a>regm <span class="ot">&lt;-</span> <span class="fu">svymultinom</span>(</span>
-<span id="cb30-3"><a href="#cb30-3"></a>  trav.satisf <span class="sc">~</span> sexe <span class="sc">+</span> etudes <span class="sc">+</span> trav.imp,</span>
-<span id="cb30-4"><a href="#cb30-4"></a>  <span class="at">design =</span> dw_rep</span>
-<span id="cb30-5"><a href="#cb30-5"></a>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1"></a><span class="fu">library</span>(svrepmisc)</span>
+<span id="cb27-2"><a href="#cb27-2"></a>regm <span class="ot">&lt;-</span> <span class="fu">svymultinom</span>(</span>
+<span id="cb27-3"><a href="#cb27-3"></a>  trav.satisf <span class="sc">~</span> sexe <span class="sc">+</span> etudes <span class="sc">+</span> trav.imp,</span>
+<span id="cb27-4"><a href="#cb27-4"></a>  <span class="at">design =</span> dw_rep</span>
+<span id="cb27-5"><a href="#cb27-5"></a>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p><a href="https://github.com/carlganz/svrepmisc">svrepmisc</a> fournit également des méthodes <code>svrepmisc::confint()</code> et <code>svrepmisc::tidy()</code>. Nous pouvons donc calculer et afficher les <em>odds ratio</em> et leur intervalle de confiance.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1"></a>regm</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1"></a>regm</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>                                               Coefficient        SE t value
-Satisfaction.(Intercept)                         -0.116149  0.486558 -0.2387
-Insatisfaction.(Intercept)                       -1.547056  1.255758 -1.2320
-Satisfaction.sexeHomme                           -0.041405  0.187532 -0.2208
-Insatisfaction.sexeHomme                          0.221849  0.306712  0.7233
-Satisfaction.etudesSecondaire                     0.115722  0.311841  0.3711
-Insatisfaction.etudesSecondaire                   0.418476  0.711644  0.5880
-Satisfaction.etudesTechnique / Professionnel      0.220702  0.261500  0.8440
-Insatisfaction.etudesTechnique / Professionnel    0.529317  0.579145  0.9140
-Satisfaction.etudesSupérieur                      0.905852  0.278590  3.2516
-Insatisfaction.etudesSupérieur                    0.584499  0.606061  0.9644
-Satisfaction.etudesNon documenté                 -0.323293  0.725020 -0.4459
-Insatisfaction.etudesNon documenté                0.646168  5.833628  0.1108
-Satisfaction.trav.impAussi                       -0.027506  0.447074 -0.0615
-Insatisfaction.trav.impAussi                     -0.375642  1.065326 -0.3526
-Satisfaction.trav.impMoins                       -0.220703  0.409182 -0.5394
-Insatisfaction.trav.impMoins                     -0.694337  0.990282 -0.7012
-Satisfaction.trav.impPeu                         -0.069034  0.549608 -0.1256
-Insatisfaction.trav.impPeu                        1.584747  1.140763  1.3892
+Satisfaction.(Intercept)                         -0.116149  0.586601 -0.1980
+Insatisfaction.(Intercept)                       -1.547056  2.663680 -0.5808
+Satisfaction.sexeHomme                           -0.041405  0.167107 -0.2478
+Insatisfaction.sexeHomme                          0.221849  0.280504  0.7909
+Satisfaction.etudesSecondaire                     0.115722  0.361761  0.3199
+Insatisfaction.etudesSecondaire                   0.418476  0.430662  0.9717
+Satisfaction.etudesTechnique / Professionnel      0.220702  0.284703  0.7752
+Insatisfaction.etudesTechnique / Professionnel    0.529317  0.451425  1.1725
+Satisfaction.etudesSupérieur                      0.905852  0.279232  3.2441
+Insatisfaction.etudesSupérieur                    0.584499  0.440591  1.3266
+Satisfaction.etudesNon documenté                 -0.323293  0.823426 -0.3926
+Insatisfaction.etudesNon documenté                0.646168  6.477027  0.0998
+Satisfaction.trav.impAussi                       -0.027506  0.537541 -0.0512
+Insatisfaction.trav.impAussi                     -0.375642  2.666129 -0.1409
+Satisfaction.trav.impMoins                       -0.220703  0.556930 -0.3963
+Insatisfaction.trav.impMoins                     -0.694337  2.734109 -0.2540
+Satisfaction.trav.impPeu                         -0.069034  0.816580 -0.0845
+Insatisfaction.trav.impPeu                        1.584747  2.626238  0.6034
                                                Pr(&gt;|t|)  
-Satisfaction.(Intercept)                        0.81816  
-Insatisfaction.(Intercept)                      0.25773  
-Satisfaction.sexeHomme                          0.83156  
-Insatisfaction.sexeHomme                        0.49294  
-Satisfaction.etudesSecondaire                   0.72154  
-Insatisfaction.etudesSecondaire                 0.57498  
-Satisfaction.etudesTechnique / Professionnel    0.42658  
-Insatisfaction.etudesTechnique / Professionnel  0.39113  
-Satisfaction.etudesSupérieur                    0.01403 *
-Insatisfaction.etudesSupérieur                  0.36696  
-Satisfaction.etudesNon documenté                0.66913  
-Insatisfaction.etudesNon documenté              0.91491  
-Satisfaction.trav.impAussi                      0.95266  
-Insatisfaction.trav.impAussi                    0.73476  
-Satisfaction.trav.impMoins                      0.60635  
-Insatisfaction.trav.impMoins                    0.50584  
-Satisfaction.trav.impPeu                        0.90357  
-Insatisfaction.trav.impPeu                      0.20736  
+Satisfaction.(Intercept)                        0.84867  
+Insatisfaction.(Intercept)                      0.57959  
+Satisfaction.sexeHomme                          0.81142  
+Insatisfaction.sexeHomme                        0.45496  
+Satisfaction.etudesSecondaire                   0.75839  
+Insatisfaction.etudesSecondaire                 0.36357  
+Satisfaction.etudesTechnique / Professionnel    0.46360  
+Insatisfaction.etudesTechnique / Professionnel  0.27933  
+Satisfaction.etudesSupérieur                    0.01417 *
+Insatisfaction.etudesSupérieur                  0.22627  
+Satisfaction.etudesNon documenté                0.70628  
+Insatisfaction.etudesNon documenté              0.92333  
+Satisfaction.trav.impAussi                      0.96062  
+Insatisfaction.trav.impAussi                    0.89192  
+Satisfaction.trav.impMoins                      0.70370  
+Insatisfaction.trav.impMoins                    0.80683  
+Satisfaction.trav.impPeu                        0.93499  
+Insatisfaction.trav.impPeu                      0.56526  
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1"></a>regm <span class="sc">|&gt;</span> <span class="fu">confint</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1"></a>regm <span class="sc">|&gt;</span> <span class="fu">confint</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>                                                     2.5 %     97.5 %
-Satisfaction.(Intercept)                        -1.2666759  1.0343774
-Insatisfaction.(Intercept)                      -4.5164533  1.4223405
-Satisfaction.sexeHomme                          -0.4848486  0.4020378
-Insatisfaction.sexeHomme                        -0.5034090  0.9471069
-Satisfaction.etudesSecondaire                   -0.6216634  0.8531082
-Insatisfaction.etudesSecondaire                 -1.2642932  2.1012460
-Satisfaction.etudesTechnique / Professionnel    -0.3976476  0.8390524
-Insatisfaction.etudesTechnique / Professionnel  -0.8401430  1.8987779
-Satisfaction.etudesSupérieur                     0.2470908  1.5646133
-Insatisfaction.etudesSupérieur                  -0.8486062  2.0176050
-Satisfaction.etudesNon documenté                -2.0376933  1.3911065
-Insatisfaction.etudesNon documenté             -13.1481714 14.4405069
-Satisfaction.trav.impAussi                      -1.0846686  1.0296564
-Insatisfaction.trav.impAussi                    -2.8947373  2.1434537
-Satisfaction.trav.impMoins                      -1.1882662  0.7468593
-Insatisfaction.trav.impMoins                    -3.0359825  1.6473086
-Satisfaction.trav.impPeu                        -1.3686504  1.2305817
-Insatisfaction.trav.impPeu                      -1.1127279  4.2822222</code></pre>
+Satisfaction.(Intercept)                        -1.5032402  1.2709417
+Insatisfaction.(Intercept)                      -7.8456579  4.7515451
+Satisfaction.sexeHomme                          -0.4365498  0.3537389
+Insatisfaction.sexeHomme                        -0.4414376  0.8851355
+Satisfaction.etudesSecondaire                   -0.7397067  0.9711515
+Insatisfaction.etudesSecondaire                 -0.5998781  1.4368308
+Satisfaction.etudesTechnique / Professionnel    -0.4525138  0.8939186
+Insatisfaction.etudesTechnique / Professionnel  -0.5381338  1.5967687
+Satisfaction.etudesSupérieur                     0.2455728  1.5661313
+Insatisfaction.etudesSupérieur                  -0.4573318  1.6263305
+Satisfaction.etudesNon documenté                -2.2703858  1.6237990
+Insatisfaction.etudesNon documenté             -14.6695666 15.9619021
+Satisfaction.trav.impAussi                      -1.2985878  1.2435755
+Insatisfaction.trav.impAussi                    -6.6800359  5.9287522
+Satisfaction.trav.impMoins                      -1.5376346  1.0962277
+Insatisfaction.trav.impMoins                    -7.1594784  5.7708045
+Satisfaction.trav.impPeu                        -1.9999383  1.8618696
+Insatisfaction.trav.impPeu                      -4.6253178  7.7948122</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1"></a>regm <span class="sc">|&gt;</span></span>
-<span id="cb35-2"><a href="#cb35-2"></a>  broom<span class="sc">::</span><span class="fu">tidy</span>(<span class="at">exponentiate =</span> <span class="cn">TRUE</span>, <span class="at">conf.int =</span> <span class="cn">TRUE</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1"></a>regm <span class="sc">|&gt;</span></span>
+<span id="cb32-2"><a href="#cb32-2"></a>  broom<span class="sc">::</span><span class="fu">tidy</span>(<span class="at">exponentiate =</span> <span class="cn">TRUE</span>, <span class="at">conf.int =</span> <span class="cn">TRUE</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>                                             term  estimate std.error
-1                      Insatisfaction.(Intercept) 0.2128737 1.2557584
-2              Insatisfaction.etudesNon documenté 1.9082140 5.8336284
-3                 Insatisfaction.etudesSecondaire 1.5196444 0.7116435
-4                  Insatisfaction.etudesSupérieur 1.7940926 0.6060606
-5  Insatisfaction.etudesTechnique / Professionnel 1.6977731 0.5791451
-6                        Insatisfaction.sexeHomme 1.2483828 0.3067117
-7                    Insatisfaction.trav.impAussi 0.6868483 1.0653259
-8                    Insatisfaction.trav.impMoins 0.4994055 0.9902823
-9                      Insatisfaction.trav.impPeu 4.8780580 1.1407627
-10                       Satisfaction.(Intercept) 0.8903423 0.4865579
-11               Satisfaction.etudesNon documenté 0.7237615 0.7250200
-12                  Satisfaction.etudesSecondaire 1.1226842 0.3118406
-13                   Satisfaction.etudesSupérieur 2.4740390 0.2785902
-14   Satisfaction.etudesTechnique / Professionnel 1.2469523 0.2615003
-15                         Satisfaction.sexeHomme 0.9594401 0.1875322
-16                     Satisfaction.trav.impAussi 0.9728687 0.4470742
-17                     Satisfaction.trav.impMoins 0.8019545 0.4091825
-18                       Satisfaction.trav.impPeu 0.9332946 0.5496078
-     statistic    p.value     conf.low    conf.high
-1  -1.23196974 0.25773460 1.092771e-02 4.146815e+00
-2   0.11076601 0.91491086 1.949044e-06 1.868239e+06
-3   0.58804210 0.57497662 2.824388e-01 8.176351e+00
-4   0.96442396 0.36696032 4.280111e-01 7.520292e+00
-5   0.91396347 0.39112972 4.316488e-01 6.677729e+00
-6   0.72331416 0.49294224 6.044665e-01 2.578240e+00
-7  -0.35260742 0.73476104 5.531355e-02 8.528843e+00
-8  -0.70115051 0.50584201 4.802745e-02 5.192985e+00
-9   1.38919974 0.20735997 3.286612e-01 7.240115e+01
-10 -0.23871617 0.81816366 2.817667e-01 2.813354e+00
-11 -0.44590962 0.66912837 1.303290e-01 4.019295e+00
-12  0.37109479 0.72154332 5.370504e-01 2.346930e+00
-13  3.25155708 0.01402706 1.280295e+00 4.780826e+00
-14  0.84398531 0.42657601 6.718988e-01 2.314173e+00
-15 -0.22079098 0.83155697 6.157904e-01 1.494868e+00
-16 -0.06152475 0.95266113 3.380138e-01 2.800103e+00
-17 -0.53937659 0.60634943 3.047492e-01 2.110362e+00
-18 -0.12560658 0.90357475 2.544501e-01 3.423220e+00</code></pre>
+1                      Insatisfaction.(Intercept) 0.2128737 2.6636797
+2              Insatisfaction.etudesNon documenté 1.9082140 6.4770267
+3                 Insatisfaction.etudesSecondaire 1.5196444 0.4306623
+4                  Insatisfaction.etudesSupérieur 1.7940926 0.4405906
+5  Insatisfaction.etudesTechnique / Professionnel 1.6977731 0.4514253
+6                        Insatisfaction.sexeHomme 1.2483828 0.2805040
+7                    Insatisfaction.trav.impAussi 0.6868483 2.6661293
+8                    Insatisfaction.trav.impMoins 0.4994055 2.7341094
+9                      Insatisfaction.trav.impPeu 4.8780580 2.6262376
+10                       Satisfaction.(Intercept) 0.8903423 0.5866010
+11               Satisfaction.etudesNon documenté 0.7237615 0.8234257
+12                  Satisfaction.etudesSecondaire 1.1226842 0.3617611
+13                   Satisfaction.etudesSupérieur 2.4740390 0.2792322
+14   Satisfaction.etudesTechnique / Professionnel 1.2469523 0.2847032
+15                         Satisfaction.sexeHomme 0.9594401 0.1671066
+16                     Satisfaction.trav.impAussi 0.9728687 0.5375407
+17                     Satisfaction.trav.impMoins 0.8019545 0.5569304
+18                       Satisfaction.trav.impPeu 0.9332946 0.8165796
+     statistic   p.value     conf.low    conf.high
+1  -0.58079672 0.5795875 3.914480e-04 1.157630e+02
+2   0.09976302 0.9233295 4.256848e-07 8.553936e+06
+3   0.97170429 0.3635690 5.488786e-01 4.207341e+00
+4   1.32662705 0.2262724 6.329703e-01 5.085180e+00
+5   1.17254710 0.2793310 5.838368e-01 4.937053e+00
+6   0.79089398 0.4549627 6.431112e-01 2.423313e+00
+7  -0.14089407 0.8919224 1.255733e-03 3.756855e+02
+8  -0.25395361 0.8068294 7.774600e-04 3.207957e+02
+9   0.60342873 0.5652557 9.800540e-03 2.427973e+03
+10 -0.19800382 0.8486695 2.224083e-01 3.564207e+00
+11 -0.39262000 0.7062815 1.032723e-01 5.072323e+00
+12  0.31988627 0.7583907 4.772539e-01 2.640984e+00
+13  3.24408142 0.0141728 1.278353e+00 4.788089e+00
+14  0.77520166 0.4635984 6.360273e-01 2.444691e+00
+15 -0.24777846 0.8114169 6.462623e-01 1.424383e+00
+16 -0.05117032 0.9606194 2.729169e-01 3.467991e+00
+17 -0.39628549 0.7036967 2.148888e-01 2.992855e+00
+18 -0.08454088 0.9349935 1.353436e-01 6.435758e+00</code></pre>
 </div>
 </div>
 <p>Par contre, le support de <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/tbl_regression.html">gtsummary::tbl_regression()</a></code> et <code><a href="https://larmarange.github.io/ggstats/reference/ggcoef_model.html">ggstats::ggcoef_model()</a></code> est plus limité. Vous pourrez afficher un tableau basique des résultats et un graphiques des coefficients, mais sans les enrichissements usuels (identification des variables, étiquettes propres, identification des niveaux, etc.).</p>
-</section><section id="avec-svyvgamsvy_glm" class="level3" data-number="43.4.2"><h3 data-number="43.4.2" class="anchored" data-anchor-id="avec-svyvgamsvy_glm">
+</section><section id="avec-svyvgamsvy_glm" class="level3 page-columns page-full" data-number="43.4.2"><h3 data-number="43.4.2" class="anchored" data-anchor-id="avec-svyvgamsvy_glm">
 <span class="header-section-number">43.4.2</span> avec <code>svyVGAM::svy_glm()</code>
 </h3>
 <p>Une alternative possible pour le calcul de la régression logistique multinomiale avec des données pondérées est <code><a href="https://rdrr.io/pkg/svyVGAM/man/svy_vglm.html">svyVGAM::svy_vglm()</a></code> avec <code>family = VGAM::multinomial</code>.</p>
 <p>Nous allons commencer par définir le plan d’échantillonnage.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1"></a><span class="fu">library</span>(survey)</span>
-<span id="cb37-2"><a href="#cb37-2"></a><span class="fu">library</span>(srvyr)</span>
-<span id="cb37-3"><a href="#cb37-3"></a>dw <span class="ot">&lt;-</span> d <span class="sc">|&gt;</span></span>
-<span id="cb37-4"><a href="#cb37-4"></a>  <span class="fu">as_survey</span>(<span class="at">weights =</span> poids)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1"></a><span class="fu">library</span>(survey)</span>
+<span id="cb34-2"><a href="#cb34-2"></a><span class="fu">library</span>(srvyr)</span>
+<span id="cb34-3"><a href="#cb34-3"></a>dw <span class="ot">&lt;-</span> d <span class="sc">|&gt;</span></span>
+<span id="cb34-4"><a href="#cb34-4"></a>  <span class="fu">as_survey</span>(<span class="at">weights =</span> poids)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Puis, on appelle <code><a href="https://rdrr.io/pkg/svyVGAM/man/svy_vglm.html">svyVGAM::svy_vglm()</a></code> en précisant <code>family = VGAM::multinomial</code>. Par défaut, <code><a href="https://rdrr.io/pkg/VGAM/man/multinomial.html">VGAM::multinomial()</a></code> utilise la dernière modalité de la variable d’intérêt comme modalité de référence. Cela est modifiable avec <code>refLevel</code>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1"></a>regm2 <span class="ot">&lt;-</span> svyVGAM<span class="sc">::</span><span class="fu">svy_vglm</span>(</span>
-<span id="cb38-2"><a href="#cb38-2"></a>  trav.satisf <span class="sc">~</span> sexe <span class="sc">+</span> etudes <span class="sc">+</span> trav.imp,</span>
-<span id="cb38-3"><a href="#cb38-3"></a>  <span class="at">family =</span> VGAM<span class="sc">::</span><span class="fu">multinomial</span>(<span class="at">refLevel =</span> <span class="st">"Equilibre"</span>),</span>
-<span id="cb38-4"><a href="#cb38-4"></a>  <span class="at">design =</span> dw</span>
-<span id="cb38-5"><a href="#cb38-5"></a>)</span>
-<span id="cb38-6"><a href="#cb38-6"></a>regm2 <span class="sc">|&gt;</span> <span class="fu">summary</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1"></a>regm2 <span class="ot">&lt;-</span> svyVGAM<span class="sc">::</span><span class="fu">svy_vglm</span>(</span>
+<span id="cb35-2"><a href="#cb35-2"></a>  trav.satisf <span class="sc">~</span> sexe <span class="sc">+</span> etudes <span class="sc">+</span> trav.imp,</span>
+<span id="cb35-3"><a href="#cb35-3"></a>  <span class="at">family =</span> VGAM<span class="sc">::</span><span class="fu">multinomial</span>(<span class="at">refLevel =</span> <span class="st">"Equilibre"</span>),</span>
+<span id="cb35-4"><a href="#cb35-4"></a>  <span class="at">design =</span> dw</span>
+<span id="cb35-5"><a href="#cb35-5"></a>)</span>
+<span id="cb35-6"><a href="#cb35-6"></a>regm2 <span class="sc">|&gt;</span> <span class="fu">summary</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>svy_vglm.survey.design(trav.satisf ~ sexe + etudes + trav.imp, 
     family = VGAM::multinomial(refLevel = "Equilibre"), design = dw)
@@ -3414,48 +3571,92 @@ trav.impPeu:1                     -0.069004  0.706959 -0.0976 0.922244
 trav.impPeu:2                      1.585521  0.866529  1.8297 0.067289</code></pre>
 </div>
 </div>
-<p>Là encore, le support de <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/tbl_regression.html">gtsummary::tbl_regression()</a></code> et <code><a href="https://larmarange.github.io/ggstats/reference/ggcoef_model.html">ggstats::ggcoef_model()</a></code> sera limité (seulement des résultats bruts). Pour calculer les <em>odds ratios</em> avec leurs intervalles de confiance, on pourra avoir recours à <code><a href="https://larmarange.github.io/broom.helpers/reference/tidy_parameters.html">broom.helpers::tidy_parameters()</a></code>.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1"></a>regm2 <span class="sc">|&gt;</span> broom.helpers<span class="sc">::</span><span class="fu">tidy_parameters</span>(<span class="at">exponentiate =</span> <span class="cn">TRUE</span>) </span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Là encore, le support de <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/tbl_regression.html">gtsummary::tbl_regression()</a></code> sera limité<a href="#fn4" class="footnote-ref" id="fnref4" role="doc-noteref"><sup>4</sup></a>. Pour calculer les <em>odds ratios</em> avec leurs intervalles de confiance, on pourra avoir recours à <code><a href="https://larmarange.github.io/broom.helpers/reference/tidy_svy_vglm.html">broom.helpers::tidy_svy_vglm()</a></code>, dédié justement à ce type de modèles<a href="#fn5" class="footnote-ref" id="fnref5" role="doc-noteref"><sup>5</sup></a>.</p>
+<div class="no-row-height column-margin column-container"><div id="fn4"><p><sup>4</sup>&nbsp;Du moins, avec la version stable actuelle de <a href="https://github.com/ddsjoberg/gtsummary">gtsummary</a> (la version 2.2.0). Par contre, le support est intégré à la version de développement et sera donc disponible dans la prochaine version stable.</p></div><div id="fn5"><p><sup>5</sup>&nbsp;Cette fonction a été introduite dans la version 1.21.0 de <a href="https://larmarange.github.io/broom.helpers/">broom.helpers</a>. Pensez à éventuellement mettre à jour le package.</p></div></div><div class="cell">
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1"></a>regm2 <span class="sc">|&gt;</span> </span>
+<span id="cb37-2"><a href="#cb37-2"></a>  broom.helpers<span class="sc">::</span><span class="fu">tidy_svy_vglm</span>(<span class="at">exponentiate =</span> <span class="cn">TRUE</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>                                term  estimate std.error conf.level   conf.low
-1                      (Intercept):1 0.8903708 0.4925908       0.95 0.30105802
-2                      (Intercept):2 0.2127382 0.1864002       0.95 0.03819678
-3                        sexeHomme:1 0.9594340 0.1643997       0.95 0.68574259
-4                        sexeHomme:2 1.2484837 0.3404228       0.95 0.73162172
-5                 etudesSecondaire:1 1.1226456 0.3837540       0.95 0.57448201
-6                 etudesSecondaire:2 1.5190753 0.8555505       0.95 0.50370762
-7  etudesTechnique / Professionnel:1 1.2469025 0.3866926       0.95 0.67897791
-8  etudesTechnique / Professionnel:2 1.6972676 0.8504673       0.95 0.63566751
-9                  etudesSupérieur:1 2.4739057 0.7780767       0.95 1.33557655
-10                 etudesSupérieur:2 1.7937708 0.9428657       0.95 0.64024629
-11             etudesNon documenté:1 0.7237778 0.4795111       0.95 0.19754885
-12             etudesNon documenté:2 1.9082659 1.7932841       0.95 0.30250055
-13                   trav.impAussi:1 0.9728582 0.4977496       0.95 0.35689786
-14                   trav.impAussi:2 0.6873710 0.5672279       0.95 0.13638549
-15                   trav.impMoins:1 0.8019528 0.3969271       0.95 0.30398071
-16                   trav.impMoins:2 0.4997879 0.3958473       0.95 0.10582985
-17                     trav.impPeu:1 0.9333229 0.6598208       0.95 0.23348961
-18                     trav.impPeu:2 4.8818349 4.2302506       0.95 0.89328990
-   conf.high   statistic df.error     p.value
-1   2.633247 -0.20988509      Inf 0.833757356
-2   1.184853 -1.76637893      Inf 0.077332298
-3   1.342360 -0.24167835      Inf 0.809029407
-4   2.130488  0.81391637      Inf 0.415692863
-5   2.193860  0.33843739      Inf 0.735033605
-6   4.581209  0.74236198      Inf 0.457868051
-7   2.289862  0.71153296      Inf 0.476754032
-8   4.531799  1.05575832      Inf 0.291078645
-9   4.582448  2.87999791      Inf 0.003976778
-10  5.025587  1.11164951      Inf 0.266288875
-11  2.651771 -0.48794745      Inf 0.625587062
-12 12.037925  0.68762767      Inf 0.491687277
-13  2.651888 -0.05378223      Inf 0.957108667
-14  3.464290 -0.45428375      Inf 0.649624613
-15  2.115688 -0.44591425      Inf 0.655659186
-16  2.360279 -0.87568771      Inf 0.381199829
-17  3.730751 -0.09760692      Inf 0.922244427
-18 26.679258  1.82973852      Inf 0.067289048</code></pre>
+<pre><code>                       original_term                            term group
+1                      (Intercept):1                     (Intercept)     1
+2                      (Intercept):2                     (Intercept)     2
+3                        sexeHomme:1                       sexeHomme     1
+4                        sexeHomme:2                       sexeHomme     2
+5                 etudesSecondaire:1                etudesSecondaire     1
+6                 etudesSecondaire:2                etudesSecondaire     2
+7  etudesTechnique / Professionnel:1 etudesTechnique / Professionnel     1
+8  etudesTechnique / Professionnel:2 etudesTechnique / Professionnel     2
+9                  etudesSupérieur:1                 etudesSupérieur     1
+10                 etudesSupérieur:2                 etudesSupérieur     2
+11             etudesNon documenté:1             etudesNon documenté     1
+12             etudesNon documenté:2             etudesNon documenté     2
+13                   trav.impAussi:1                   trav.impAussi     1
+14                   trav.impAussi:2                   trav.impAussi     2
+15                   trav.impMoins:1                   trav.impMoins     1
+16                   trav.impMoins:2                   trav.impMoins     2
+17                     trav.impPeu:1                     trav.impPeu     1
+18                     trav.impPeu:2                     trav.impPeu     2
+    estimate std.error conf.level   conf.low conf.high   statistic df.error
+1  0.8903708 0.4925908       0.95 0.30105802  2.633247 -0.20988509      Inf
+2  0.2127382 0.1864002       0.95 0.03819678  1.184853 -1.76637893      Inf
+3  0.9594340 0.1643997       0.95 0.68574259  1.342360 -0.24167835      Inf
+4  1.2484837 0.3404228       0.95 0.73162172  2.130488  0.81391637      Inf
+5  1.1226456 0.3837540       0.95 0.57448201  2.193860  0.33843739      Inf
+6  1.5190753 0.8555505       0.95 0.50370762  4.581209  0.74236198      Inf
+7  1.2469025 0.3866926       0.95 0.67897791  2.289862  0.71153296      Inf
+8  1.6972676 0.8504673       0.95 0.63566751  4.531799  1.05575832      Inf
+9  2.4739057 0.7780767       0.95 1.33557655  4.582448  2.87999791      Inf
+10 1.7937708 0.9428657       0.95 0.64024629  5.025587  1.11164951      Inf
+11 0.7237778 0.4795111       0.95 0.19754885  2.651771 -0.48794745      Inf
+12 1.9082659 1.7932841       0.95 0.30250055 12.037925  0.68762767      Inf
+13 0.9728582 0.4977496       0.95 0.35689786  2.651888 -0.05378223      Inf
+14 0.6873710 0.5672279       0.95 0.13638549  3.464290 -0.45428375      Inf
+15 0.8019528 0.3969271       0.95 0.30398071  2.115688 -0.44591425      Inf
+16 0.4997879 0.3958473       0.95 0.10582985  2.360279 -0.87568771      Inf
+17 0.9333229 0.6598208       0.95 0.23348961  3.730751 -0.09760692      Inf
+18 4.8818349 4.2302506       0.95 0.89328990 26.679258  1.82973852      Inf
+       p.value          component        y.level
+1  0.833757356 log(mu[,2]/mu[,1])   Satisfaction
+2  0.077332298 log(mu[,3]/mu[,1]) Insatisfaction
+3  0.809029407 log(mu[,2]/mu[,1])   Satisfaction
+4  0.415692863 log(mu[,3]/mu[,1]) Insatisfaction
+5  0.735033605 log(mu[,2]/mu[,1])   Satisfaction
+6  0.457868051 log(mu[,3]/mu[,1]) Insatisfaction
+7  0.476754032 log(mu[,2]/mu[,1])   Satisfaction
+8  0.291078645 log(mu[,3]/mu[,1]) Insatisfaction
+9  0.003976778 log(mu[,2]/mu[,1])   Satisfaction
+10 0.266288875 log(mu[,3]/mu[,1]) Insatisfaction
+11 0.625587062 log(mu[,2]/mu[,1])   Satisfaction
+12 0.491687277 log(mu[,3]/mu[,1]) Insatisfaction
+13 0.957108667 log(mu[,2]/mu[,1])   Satisfaction
+14 0.649624613 log(mu[,3]/mu[,1]) Insatisfaction
+15 0.655659186 log(mu[,2]/mu[,1])   Satisfaction
+16 0.381199829 log(mu[,3]/mu[,1]) Insatisfaction
+17 0.922244427 log(mu[,2]/mu[,1])   Satisfaction
+18 0.067289048 log(mu[,3]/mu[,1]) Insatisfaction</code></pre>
+</div>
+</div>
+<p>Par contre, les dernières versions de <a href="https://larmarange.github.io/ggstats/">ggstats</a> sont compatibles avec ce type de modèle. On pourra donc utiliser les fonctions <code>ggcoef_*()</code>.</p>
+<div class="cell page-columns page-full">
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1"></a>regm2 <span class="sc">|&gt;</span> </span>
+<span id="cb39-2"><a href="#cb39-2"></a>  ggstats<span class="sc">::</span><span class="fu">ggcoef_faceted</span>(<span class="at">exponentiate =</span> <span class="cn">TRUE</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>ℹ &lt;svy_vglm&gt; model detected.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>✔ `tidy_svy_vglm()` used instead.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>ℹ Add `tidy_fun = broom.helpers::tidy_svy_vglm` to quiet these messages.</code></pre>
+</div>
+<div class="cell-output-display page-columns page-full">
+<div id="fig-ggcoef_faceted-svy_vglm" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="quarto-float quarto-float-fig figure page-columns page-full"><div aria-describedby="fig-ggcoef_faceted-svy_vglm-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="regression-logistique-multinomiale_files/figure-html/fig-ggcoef_faceted-svy_vglm-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-6" title="Figure&nbsp;43.6: Graphique des coefficients du modèle multinomial calculé avec svy_vglm()(type “faceted”)"><img src="regression-logistique-multinomiale_files/figure-html/fig-ggcoef_faceted-svy_vglm-1.png" class="img-fluid figure-img" width="672"></a>
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig margin-caption" id="fig-ggcoef_faceted-svy_vglm-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;43.6: Graphique des coefficients du modèle multinomial calculé avec <code>svy_vglm()</code>(type “faceted”)
+</figcaption></figure>
+</div>
 </div>
 </div>
 </section></section><section id="webin-r" class="level2" data-number="43.5"><h2 data-number="43.5" class="anchored" data-anchor-id="webin-r">
@@ -3465,380 +3666,255 @@ trav.impPeu:2                      1.585521  0.866529  1.8297 0.067289</code></p
 
 
 </section></main><!-- /main --><script id="quarto-html-after-body" type="application/javascript">
-window.document.addEventListener("DOMContentLoaded", function (event) {
-  const toggleBodyColorMode = (bsSheetEl) => {
-    const mode = bsSheetEl.getAttribute("data-mode");
-    const bodyEl = window.document.querySelector("body");
-    if (mode === "dark") {
-      bodyEl.classList.add("quarto-dark");
-      bodyEl.classList.remove("quarto-light");
-    } else {
-      bodyEl.classList.add("quarto-light");
-      bodyEl.classList.remove("quarto-dark");
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
     }
-  }
-  const toggleBodyColorPrimary = () => {
-    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
-    if (bsSheetEl) {
-      toggleBodyColorMode(bsSheetEl);
-    }
-  }
-  toggleBodyColorPrimary();  
-  const disableStylesheet = (stylesheets) => {
-    for (let i=0; i < stylesheets.length; i++) {
-      const stylesheet = stylesheets[i];
-      stylesheet.rel = 'prefetch';
-    }
-  }
-  const enableStylesheet = (stylesheets) => {
-    for (let i=0; i < stylesheets.length; i++) {
-      const stylesheet = stylesheets[i];
-      stylesheet.rel = 'stylesheet';
-    }
-  }
-  const manageTransitions = (selector, allowTransitions) => {
-    const els = window.document.querySelectorAll(selector);
-    for (let i=0; i < els.length; i++) {
-      const el = els[i];
-      if (allowTransitions) {
-        el.classList.remove('notransition');
-      } else {
-        el.classList.add('notransition');
+    window.setColorSchemeToggle(window.hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
       }
+      return false;
     }
-  }
-  const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
-    const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
-    const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
-    let newTheme = '';
-    if(darkModeDefault) {
-      newTheme = isAlternate ? baseTheme : alternateTheme;
-    } else {
-      newTheme = isAlternate ? alternateTheme : baseTheme;
-    }
-    const changeGiscusTheme = () => {
-      // From: https://github.com/giscus/giscus/issues/336
-      const sendMessage = (message) => {
-        const iframe = document.querySelector('iframe.giscus-frame');
-        if (!iframe) return;
-        iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copié");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copié");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
       }
-      sendMessage({
-        setConfig: {
-          theme: newTheme
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
+        }
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
         }
       });
     }
-    const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
-    if (isGiscussLoaded) {
-      changeGiscusTheme();
-    }
-  }
-  const toggleColorMode = (alternate) => {
-    // Switch the stylesheets
-    const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
-    manageTransitions('#quarto-margin-sidebar .nav-link', false);
-    if (alternate) {
-      enableStylesheet(alternateStylesheets);
-      for (const sheetNode of alternateStylesheets) {
-        if (sheetNode.id === "quarto-bootstrap") {
-          toggleBodyColorMode(sheetNode);
-        }
-      }
-    } else {
-      disableStylesheet(alternateStylesheets);
-      toggleBodyColorPrimary();
-    }
-    manageTransitions('#quarto-margin-sidebar .nav-link', true);
-    // Switch the toggles
-    const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
-    for (let i=0; i < toggles.length; i++) {
-      const toggle = toggles[i];
-      if (toggle) {
-        if (alternate) {
-          toggle.classList.add("alternate");     
-        } else {
-          toggle.classList.remove("alternate");
-        }
-      }
-    }
-    // Hack to workaround the fact that safari doesn't
-    // properly recolor the scrollbar when toggling (#1455)
-    if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
-      manageTransitions("body", false);
-      window.scrollTo(0, 1);
-      setTimeout(() => {
-        window.scrollTo(0, 0);
-        manageTransitions("body", true);
-      }, 40);  
-    }
-  }
-  const isFileUrl = () => { 
-    return window.location.protocol === 'file:';
-  }
-  const hasAlternateSentinel = () => {  
-    let styleSentinel = getColorSchemeSentinel();
-    if (styleSentinel !== null) {
-      return styleSentinel === "alternate";
-    } else {
-      return false;
-    }
-  }
-  const setStyleSentinel = (alternate) => {
-    const value = alternate ? "alternate" : "default";
-    if (!isFileUrl()) {
-      window.localStorage.setItem("quarto-color-scheme", value);
-    } else {
-      localAlternateSentinel = value;
-    }
-  }
-  const getColorSchemeSentinel = () => {
-    if (!isFileUrl()) {
-      const storageValue = window.localStorage.getItem("quarto-color-scheme");
-      return storageValue != null ? storageValue : localAlternateSentinel;
-    } else {
-      return localAlternateSentinel;
-    }
-  }
-  const darkModeDefault = false;
-  let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
-  // Dark / light mode switch
-  window.quartoToggleColorScheme = () => {
-    // Read the current dark / light value 
-    let toAlternate = !hasAlternateSentinel();
-    toggleColorMode(toAlternate);
-    setStyleSentinel(toAlternate);
-    toggleGiscusIfUsed(toAlternate, darkModeDefault);
-  };
-  // Ensure there is a toggle, if there isn't float one in the top right
-  if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
-    const a = window.document.createElement('a');
-    a.classList.add('top-right');
-    a.classList.add('quarto-color-scheme-toggle');
-    a.href = "";
-    a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
-    const i = window.document.createElement("i");
-    i.classList.add('bi');
-    a.appendChild(i);
-    window.document.body.appendChild(a);
-  }
-  // Switch to dark mode if need be
-  if (hasAlternateSentinel()) {
-    toggleColorMode(true);
-  } else {
-    toggleColorMode(false);
-  }
-  const icon = "";
-  const anchorJS = new window.AnchorJS();
-  anchorJS.options = {
-    placement: 'right',
-    icon: icon
-  };
-  anchorJS.add('.anchored');
-  const isCodeAnnotation = (el) => {
-    for (const clz of el.classList) {
-      if (clz.startsWith('code-annotation-')) {                     
-        return true;
-      }
-    }
-    return false;
-  }
-  const onCopySuccess = function(e) {
-    // button target
-    const button = e.trigger;
-    // don't keep focus
-    button.blur();
-    // flash "checked"
-    button.classList.add('code-copy-button-checked');
-    var currentTitle = button.getAttribute("title");
-    button.setAttribute("title", "Copié");
-    let tooltip;
-    if (window.bootstrap) {
-      button.setAttribute("data-bs-toggle", "tooltip");
-      button.setAttribute("data-bs-placement", "left");
-      button.setAttribute("data-bs-title", "Copié");
-      tooltip = new bootstrap.Tooltip(button, 
-        { trigger: "manual", 
-          customClass: "code-copy-button-tooltip",
-          offset: [0, -8]});
-      tooltip.show();    
-    }
-    setTimeout(function() {
-      if (tooltip) {
-        tooltip.hide();
-        button.removeAttribute("data-bs-title");
-        button.removeAttribute("data-bs-toggle");
-        button.removeAttribute("data-bs-placement");
-      }
-      button.setAttribute("title", currentTitle);
-      button.classList.remove('code-copy-button-checked');
-    }, 1000);
-    // clear code selection
-    e.clearSelection();
-  }
-  const getTextToCopy = function(trigger) {
-      const codeEl = trigger.previousElementSibling.cloneNode(true);
-      for (const childEl of codeEl.children) {
-        if (isCodeAnnotation(childEl)) {
-          childEl.remove();
-        }
-      }
-      return codeEl.innerText;
-  }
-  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
-    text: getTextToCopy
-  });
-  clipboard.on('success', onCopySuccess);
-  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
-    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
-      text: getTextToCopy,
-      container: window.document.getElementById('quarto-embedded-source-code-modal')
-    });
-    clipboardModal.on('success', onCopySuccess);
-  }
-    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
-    var mailtoRegex = new RegExp(/^mailto:/);
-      var filterRegex = new RegExp('/' + window.location.host + '/');
-    var isInternal = (href) => {
-        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
-    }
-    // Inspect non-navigation links and adorn them if external
- 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
-    for (var i=0; i<links.length; i++) {
-      const link = links[i];
-      if (!isInternal(link.href)) {
-        // undo the damage that might have been done by quarto-nav.js in the case of
-        // links that we want to consider external
-        if (link.dataset.originalHref !== undefined) {
-          link.href = link.dataset.originalHref;
-        }
-      }
-    }
-  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
-    const config = {
-      allowHTML: true,
-      maxWidth: 500,
-      delay: 100,
-      arrow: false,
-      appendTo: function(el) {
-          return el.parentElement;
-      },
-      interactive: true,
-      interactiveBorder: 10,
-      theme: 'quarto',
-      placement: 'bottom-start',
-    };
-    if (contentFn) {
-      config.content = contentFn;
-    }
-    if (onTriggerFn) {
-      config.onTrigger = onTriggerFn;
-    }
-    if (onUntriggerFn) {
-      config.onUntrigger = onUntriggerFn;
-    }
-    window.tippy(el, config); 
-  }
-  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
-  for (var i=0; i<noterefs.length; i++) {
-    const ref = noterefs[i];
-    tippyHover(ref, function() {
-      // use id or data attribute instead here
-      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
-      try { href = new URL(href).hash; } catch {}
-      const id = href.replace(/^#\/?/, "");
-      const note = window.document.getElementById(id);
-      if (note) {
-        return note.innerHTML;
-      } else {
-        return "";
-      }
-    });
-  }
-  const xrefs = window.document.querySelectorAll('a.quarto-xref');
-  const processXRef = (id, note) => {
-    // Strip column container classes
-    const stripColumnClz = (el) => {
-      el.classList.remove("page-full", "page-columns");
-      if (el.children) {
-        for (const child of el.children) {
-          stripColumnClz(child);
-        }
-      }
-    }
-    stripColumnClz(note)
-    if (id === null || id.startsWith('sec-')) {
-      // Special case sections, only their first couple elements
-      const container = document.createElement("div");
-      if (note.children && note.children.length > 2) {
-        container.appendChild(note.children[0].cloneNode(true));
-        for (let i = 1; i < note.children.length; i++) {
-          const child = note.children[i];
-          if (child.tagName === "P" && child.innerText === "") {
-            continue;
-          } else {
-            container.appendChild(child.cloneNode(true));
-            break;
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
           }
         }
-        if (window.Quarto?.typesetMath) {
-          window.Quarto.typesetMath(container);
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
         }
-        return container.innerHTML
       } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
         if (window.Quarto?.typesetMath) {
           window.Quarto.typesetMath(note);
         }
-        return note.innerHTML;
-      }
-    } else {
-      // Remove any anchor links if they are present
-      const anchorLink = note.querySelector('a.anchorjs-link');
-      if (anchorLink) {
-        anchorLink.remove();
-      }
-      if (window.Quarto?.typesetMath) {
-        window.Quarto.typesetMath(note);
-      }
-      if (note.classList.contains("callout")) {
-        return note.outerHTML;
-      } else {
-        return note.innerHTML;
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
       }
     }
-  }
-  for (var i=0; i<xrefs.length; i++) {
-    const xref = xrefs[i];
-    tippyHover(xref, undefined, function(instance) {
-      instance.disable();
-      let url = xref.getAttribute('href');
-      let hash = undefined; 
-      if (url.startsWith('#')) {
-        hash = url;
-      } else {
-        try { hash = new URL(url).hash; } catch {}
-      }
-      if (hash) {
-        const id = hash.replace(/^#\/?/, "");
-        const note = window.document.getElementById(id);
-        if (note !== null) {
-          try {
-            const html = processXRef(id, note.cloneNode(true));
-            instance.setContent(html);
-          } finally {
-            instance.enable();
-            instance.show();
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
           }
         } else {
-          // See if we can fetch this
-          fetch(url.split('#')[0])
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
           .then(res => res.text())
           .then(html => {
             const parser = new DOMParser();
             const htmlDoc = parser.parseFromString(html, "text/html");
-            const note = htmlDoc.getElementById(id);
+            const note = htmlDoc.querySelector('main.content');
             if (note !== null) {
-              const html = processXRef(id, note);
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
               instance.setContent(html);
             } 
           }).finally(() => {
@@ -3846,185 +3922,161 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
             instance.show();
           });
         }
-      } else {
-        // See if we can fetch a full url (with no hash to target)
-        // This is a special case and we should probably do some content thinning / targeting
-        fetch(url)
-        .then(res => res.text())
-        .then(html => {
-          const parser = new DOMParser();
-          const htmlDoc = parser.parseFromString(html, "text/html");
-          const note = htmlDoc.querySelector('main.content');
-          if (note !== null) {
-            // This should only happen for chapter cross references
-            // (since there is no id in the URL)
-            // remove the first header
-            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
-              note.children[0].remove();
-            }
-            const html = processXRef(null, note);
-            instance.setContent(html);
-          } 
-        }).finally(() => {
-          instance.enable();
-          instance.show();
-        });
-      }
-    }, function(instance) {
-    });
-  }
-      let selectedAnnoteEl;
-      const selectorForAnnotation = ( cell, annotation) => {
-        let cellAttr = 'data-code-cell="' + cell + '"';
-        let lineAttr = 'data-code-annotation="' +  annotation + '"';
-        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
-        return selector;
-      }
-      const selectCodeLines = (annoteEl) => {
-        const doc = window.document;
-        const targetCell = annoteEl.getAttribute("data-target-cell");
-        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
-        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
-        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
-        const lineIds = lines.map((line) => {
-          return targetCell + "-" + line;
-        })
-        let top = null;
-        let height = null;
-        let parent = null;
-        if (lineIds.length > 0) {
-            //compute the position of the single el (top and bottom and make a div)
-            const el = window.document.getElementById(lineIds[0]);
-            top = el.offsetTop;
-            height = el.offsetHeight;
-            parent = el.parentElement.parentElement;
-          if (lineIds.length > 1) {
-            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
-            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
-            height = bottom - top;
-          }
-          if (top !== null && height !== null && parent !== null) {
-            // cook up a div (if necessary) and position it 
-            let div = window.document.getElementById("code-annotation-line-highlight");
-            if (div === null) {
-              div = window.document.createElement("div");
-              div.setAttribute("id", "code-annotation-line-highlight");
-              div.style.position = 'absolute';
-              parent.appendChild(div);
-            }
-            div.style.top = top - 2 + "px";
-            div.style.height = height + 4 + "px";
-            div.style.left = 0;
-            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
-            if (gutterDiv === null) {
-              gutterDiv = window.document.createElement("div");
-              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
-              gutterDiv.style.position = 'absolute';
-              const codeCell = window.document.getElementById(targetCell);
-              const gutter = codeCell.querySelector('.code-annotation-gutter');
-              gutter.appendChild(gutterDiv);
-            }
-            gutterDiv.style.top = top - 2 + "px";
-            gutterDiv.style.height = height + 4 + "px";
-          }
-          selectedAnnoteEl = annoteEl;
-        }
-      };
-      const unselectCodeLines = () => {
-        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
-        elementsIds.forEach((elId) => {
-          const div = window.document.getElementById(elId);
-          if (div) {
-            div.remove();
-          }
-        });
-        selectedAnnoteEl = undefined;
-      };
-        // Handle positioning of the toggle
-    window.addEventListener(
-      "resize",
-      throttle(() => {
-        elRect = undefined;
-        if (selectedAnnoteEl) {
-          selectCodeLines(selectedAnnoteEl);
-        }
-      }, 10)
-    );
-    function throttle(fn, ms) {
-    let throttle = false;
-    let timer;
-      return (...args) => {
-        if(!throttle) { // first call gets through
-            fn.apply(this, args);
-            throttle = true;
-        } else { // all the others get throttled
-            if(timer) clearTimeout(timer); // cancel #2
-            timer = setTimeout(() => {
-              fn.apply(this, args);
-              timer = throttle = false;
-            }, ms);
-        }
-      };
-    }
-      // Attach click handler to the DT
-      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
-      for (const annoteDlNode of annoteDls) {
-        annoteDlNode.addEventListener('click', (event) => {
-          const clickedEl = event.target;
-          if (clickedEl !== selectedAnnoteEl) {
-            unselectCodeLines();
-            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
-            if (activeEl) {
-              activeEl.classList.remove('code-annotation-active');
-            }
-            selectCodeLines(clickedEl);
-            clickedEl.classList.add('code-annotation-active');
-          } else {
-            // Unselect the line
-            unselectCodeLines();
-            clickedEl.classList.remove('code-annotation-active');
-          }
-        });
-      }
-  const findCites = (el) => {
-    const parentEl = el.parentElement;
-    if (parentEl) {
-      const cites = parentEl.dataset.cites;
-      if (cites) {
-        return {
-          el,
-          cites: cites.split(' ')
-        };
-      } else {
-        return findCites(el.parentElement)
-      }
-    } else {
-      return undefined;
-    }
-  };
-  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
-  for (var i=0; i<bibliorefs.length; i++) {
-    const ref = bibliorefs[i];
-    const citeInfo = findCites(ref);
-    if (citeInfo) {
-      tippyHover(citeInfo.el, function() {
-        var popup = window.document.createElement('div');
-        citeInfo.cites.forEach(function(cite) {
-          var citeDiv = window.document.createElement('div');
-          citeDiv.classList.add('hanging-indent');
-          citeDiv.classList.add('csl-entry');
-          var biblioDiv = window.document.getElementById('ref-' + cite);
-          if (biblioDiv) {
-            citeDiv.innerHTML = biblioDiv.innerHTML;
-          }
-          popup.appendChild(citeDiv);
-        });
-        return popup.innerHTML;
+      }, function(instance) {
       });
     }
-  }
-});
-</script><script src="https://giscus.app/client.js" data-repo="larmarange/guide-R" data-repo-id="R_kgDOH6-xnw" data-category="Forum" data-category-id="DIC_kwDOH6-xn84CRLQy" data-mapping="pathname" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="top" data-theme="light" data-lang="fr" crossorigin="anonymous" data-loading="lazy" async="">
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script><script src="https://giscus.app/client.js" data-repo="larmarange/guide-R" data-repo-id="R_kgDOH6-xnw" data-category="Forum" data-category-id="DIC_kwDOH6-xn84CRLQy" data-mapping="pathname" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="top" data-theme="light" data-lang="fr" crossorigin="anonymous" data-loading="lazy" async="">
 </script><input type="hidden" id="giscus-base-theme" value="light"><input type="hidden" id="giscus-alt-theme" value="dark"><nav class="page-navigation"><div class="nav-page nav-page-previous">
       <a href="../analyses_avancees/analyse-survie.html" class="pagination-link" aria-label="Analyse de survie">
         <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">42</span>&nbsp; <span class="chapter-title">Analyse de survie</span></span>
