@@ -300,10 +300,24 @@ regm2 <- svyVGAM::svy_vglm(
 regm2 |> summary()
 ```
 
-Là encore, le support de `gtsummary::tbl_regression()` et `ggstats::ggcoef_model()` sera limité (seulement des résultats bruts). Pour calculer les *odds ratios* avec leurs intervalles de confiance, on pourra avoir recours à `broom.helpers::tidy_parameters()`.
+Là encore, le support de `gtsummary::tbl_regression()` sera limité[^regression-logistique-multinomiale-4]. Pour calculer les *odds ratios* avec leurs intervalles de confiance, on pourra avoir recours à `broom.helpers::tidy_svy_vglm()`, dédié justement à ce type de modèles[^regression-logistique-multinomiale-5].
+
+[^regression-logistique-multinomiale-4]: Du moins, avec la version stable actuelle de `{gtsummary}` (la version 2.2.0). Par contre, le support est intégré à la version de développement et sera donc disponible dans la prochaine version stable.
+
+[^regression-logistique-multinomiale-5]: Cette fonction a été introduite dans la version 1.21.0 de `{broom.helpers}`. Pensez à éventuellement mettre à jour le package.
 
 ```{r}
-regm2 |> broom.helpers::tidy_parameters(exponentiate = TRUE) 
+regm2 |> 
+  broom.helpers::tidy_svy_vglm(exponentiate = TRUE)
+```
+
+Par contre, les dernières versions de `{ggstats}` sont compatibles avec ce type de modèle. On pourra donc utiliser les fonctions `ggcoef_*()`.
+
+```{r}
+#| label: fig-ggcoef_faceted-svy_vglm
+#| fig-cap: Graphique des coefficients du modèle multinomial calculé avec `svy_vglm()`(type "faceted")
+regm2 |> 
+  ggstats::ggcoef_faceted(exponentiate = TRUE)
 ```
 
 ## webin-R
