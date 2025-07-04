@@ -118,6 +118,22 @@ mod_zip |>
   )
 ```
 
+Pour les résultats sous forme de tableau, nous pouvons avoir recours à `gtsummary::tbl_regression()`[^modeles-zero-inflated-2] et à l'utilitaire `guideR::grouped_tbl_pivot_wider()`[^modeles-zero-inflated-3].
+
+[^modeles-zero-inflated-2]: À partir de la version 2.3.0.
+
+[^modeles-zero-inflated-3]: Voir la section @sec-affichage-tableau-regression-multinomiale dans le chapitre sur la régression logistique multinomiale.
+
+```{r}
+#| label: tbl-tbl_regression-mod_zip
+#| tbl-cap: Coefficients du modèle de Poisson *zero-inflated*
+library(gtsummary)
+mod_zip |> 
+  tbl_regression(exponentiate = TRUE) |> 
+  guideR::grouped_tbl_pivot_wider() |> 
+  bold_labels()
+```
+
 Nous obtenons deux séries de coefficients : une série *conditional* correspondant au modèle de Poisson et une série *zero_inflated* correspondant au modèle logistique binaire. Nous avons représenter les exponentiels des coefficients, qui s'interprètent donc comme des *risk ratio* pour le modèle de Poisson et des *odds ratio* pour le modèle logistique.
 
 Les variables ayant un effet significatif ne sont pas les mêmes pour les deux composantes du modèle. Il est d'ailleurs possible d'utiliser des variables différentes pour chaque composante, en écrivant d'abord l'équation du modèle de Poisson, puis celle du modèle logistique et en les séparant avec le symbole `|`. D'ailleurs, la syntaxe `ofp ~ gender + privins + health + numchron` est équivalente à `ofp ~ gender + privins + health + numchron | gender + privins + health + numchron`. Dans la littérature, on trouve fréquemment des modèles de Poisson *zero-inflated* simplifiés où seul un *intercept* est utilisé pour la composante logistique binaire.
@@ -178,7 +194,6 @@ Comparons les coefficients de la composante <q>comptage</q> du modèle négatif 
 ```{r}
 #| label: tbl-comparaison-nb-zinb
 #| tbl-cap: Coefficients du modèle négatif binomial et de la composante comptage du modèle négatif binomial zero-inflated
-library(gtsummary)
 tbl_nb <- mod_nb |> 
   tbl_regression(exponentiate = TRUE)
 tbl_zinb <- mod_zinb |> 
@@ -244,32 +259,48 @@ mod_hurdle_nb |>
   )
 ```
 
-Nous pouvons également produire un tableau avec `gtsummary::tbl_regression()`. L'astuce consiste à générer un tableau pour chaque composante du modèle puis à les fusionner.
+Nous pouvons également produire un tableau avec `gtsummary::tbl_regression()`[^modeles-zero-inflated-4].
+
+[^modeles-zero-inflated-4]: À condition d'utiliser une version récente (2.3.0 minimum) de `{gtsummary}`.
 
 ```{r}
 #| label: tbl-tbl_regression-mod_hurdle_nb
 #| fig-cap: Coefficients des deux composantes du modèle hurdle
-tbl_log <- mod_hurdle_nb |> 
+tbl_hurdle_nb <-
+  mod_hurdle_nb |> 
   tbl_regression(
     tidy_fun = broom.helpers::tidy_zeroinfl,
-    component = "zero_inflated",
     exponentiate = TRUE
-  )
-tbl_nb <- mod_hurdle_nb |> 
-  tbl_regression(
-    tidy_fun = broom.helpers::tidy_zeroinfl,
-    component = "conditional",
-    exponentiate = TRUE
-  )
-list(tbl_log, tbl_nb) |> 
-  tbl_merge(
-    c(
-      "**OR (régression logistique)**",
-      "**RR (négatif binomial)**"
-    )
   ) |> 
+  guideR::grouped_tbl_pivot_wider() |> 
   bold_labels()
+tbl_hurdle_nb
 ```
+
+::: callout-tip
+On peut améliorer le tableau en personnalisant les intitulés de colonne.
+
+Pour se faciliter les choses, on peut utiliser `gtsummary::show_header_names()` pour connaître les intitulés internes des différentes colonnes.
+
+```{r}
+tbl_hurdle_nb |> 
+  show_header_names()
+```
+
+Il devient alors plus facile d'utiliser `gtsummary::modify_spanning_header()` ou encore `gtsummary::modify_header()`.
+
+```{r}
+tbl_hurdle_nb |> 
+  modify_spanning_header(
+    ends_with("_1") ~ "**Composante comptage**",
+    ends_with("_2") ~ "**Composante *zero-inflated***"
+  ) |> 
+  modify_header(
+    estimate_1 ~ "**RR**",
+    estimate_2 ~ "**OR**"
+  )
+```
+:::
 
 Avec un tel modèle, on cherche à répondre à deux questions :
 
