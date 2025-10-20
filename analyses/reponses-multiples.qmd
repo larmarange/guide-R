@@ -1,0 +1,246 @@
+# Questions à réponses multiples {#sec-reponses-multiples}
+
+Dans certaines enquêtes, il est fréquent que certaines questions à choix multiples autorisent plusieurs réponses possibles. Ces questions ne peuvent être analysées de la même manière que les questions à réponse unique et nécessitent quelques ajustements.
+
+La manière la plus simple de coder une question à réponse multiple est de coder chaque réponse sous la forme d'une variable binaire (oui/non).
+
+## Données de l'exemple
+
+Prenons un exemple avec les données de l'enquête *Histoire de vie 2003*. L'une des questions portait sur les loisirs et était formulée ainsi : <q>En dehors du cadre scolaire ou professionnel, au cours des 12 derniers mois, avez-vous pratiqué alors que vous n'y étiez pas obligé(e), les activités suivantes ?</q>. Les enquêtés pouvaient sélectionner plusieurs options possibles.
+
+```{r}
+#| message: false
+library(tidyverse)
+library(labelled)
+data("hdv2003", package = "questionr")
+d <- hdv2003 |> 
+  set_variable_labels(
+    hard.rock = "Écouter du hard rock",
+    lecture.bd = "Lire des bandes dessinées",
+    peche.chasse = "Aller à la pêche ou à la chasse",
+    cuisine = "Faire la cuisine",
+    bricol = "Bricoler",
+    cinema = "Aller au cinéma",
+    sport = "Pratiquer un sport"
+  )
+d |> 
+  select(hard.rock:sport) |> 
+  look_for()
+```
+
+Comme nous pouvons le voir, dans notre jeu de données, chaque réponse est codée sous la forme d'un facteur avec deux valeurs possibles : `"Oui"` et `"Non".`
+
+## Considérer chaque réponse indépendamment
+
+Une première approche consiste à considérer chaque réponse indépendamment, en tant que variable binaire. On va ainsi calculer la proportion de répondants déclarant faire la cuisine ou faire du sport.
+
+Pour alléger le tableau, nous allons déclarer chaque variable comme étant dichotomiques (*dichotomous*) afin de n'afficher que la proportion de *Oui*. Pour cela, avec `gtsummary::tbl_summary()`, nous allons utiliser l'argument `type` pour indiquer le type des variables et `value` pour indiquer la valeur correspondant à une réponse positive.
+
+```{r}
+library(gtsummary)
+theme_gtsummary_language("fr", decimal.mark = ",")
+```
+
+```{r}
+#| label: tbl-reponses-multiples-simple
+#| tbl-cap: Proportion de participants pratiquant certains loisirs
+d |> 
+  tbl_summary(
+    include = hard.rock:sport,
+    value = everything() ~ "Oui",
+    type = everything() ~ "dichotomous",
+    statistic = all_categorical() ~ "{p}% ({n})",
+    digits = all_categorical() ~ c(p = 1, n = 0)
+  )
+```
+
+Pour une représentation graphique, le plus simple reste un graphique en barres. Pour se faciliter la vie, on pourra profiter de la fonction `guideR::plot_multiple_answers()` du package `guideR`, le compagnon de *guide-R*.
+
+```{r}
+#| label: fig-plot-reponses-multiples
+#| fig-cap: Proportion de participants pratiquant certains loisirs
+library(guideR)
+d |> 
+  plot_multiple_answers(
+    hard.rock:sport,
+    value = "Oui",
+    sort = "descending",
+    fill = "#4477AA",
+    flip = TRUE
+  )
+```
+
+Il est possible de comparer assez facilement les réponses selon une autre variable catégorielle, par exemple le sexe des répondants.
+
+```{r}
+#| label: fig-plot-reponses-multiples-sexe
+#| fig-cap: Proportion de participants pratiquant certains loisirs selon leur sexe
+library(guideR)
+d |> 
+  plot_multiple_answers(
+    hard.rock:sport,
+    value = "Oui",
+    by = sexe,
+    sort = "descending",
+    mapping = aes(fill = sexe),
+    show.legend = FALSE,
+    flip = TRUE
+  ) +
+  khroma::scale_fill_bright()
+```
+
+Une représentation alternative consiste à utiliser des barres <q>décalées</q> (*dodged bars*). Pour cela, nous allons utiliser `guideR::plot_multiple_answers_dodge()`.
+
+```{r}
+#| label: fig-plot-reponses-multiples-dodge
+#| fig-cap: Proportion de participants pratiquant certains loisirs selon leur sexe (*dodge*)
+d |> 
+  plot_multiple_answers_dodge(
+    hard.rock:sport,
+    value = "Oui",
+    by = sexe,
+    sort = "ascending",
+    flip = TRUE
+  ) +
+  khroma::scale_fill_bright()
+```
+
+Pour un tableau, il suffit d'utiliser l'argument `by` de `gtsummary::tbl_summary()`. Il est également possible de calculer des p-valeurs avec `gtsummary::add_p()`.
+
+```{r}
+#| label: tbl-reponses-multiples-by
+#| tbl-cap: Proportion de participants pratiquant certains loisirs selon le sexe
+d |> 
+  tbl_summary(
+    include = hard.rock:sport,
+    by = sexe,
+    value = everything() ~ "Oui",
+    type = everything() ~ "dichotomous",
+    statistic = all_categorical() ~ "{p}% ({n})",
+    digits = all_categorical() ~ c(p = 1, n = 0)
+  ) |> 
+  add_overall(last = TRUE) |> 
+  add_p() |> 
+  bold_p()
+```
+
+## Combiner les différentes réponses
+
+Une autre approche consiste à combiner entre elles les différentes réponses et de calculer la proportion de chaque combinaison.
+
+Pour une version graphique avec `guideR::plot_multiple_answers()`, il suffit juste de préciser `combine_answers = TRUE`. **Attention :** le nombre de combinaisons peut vite devenir très important. Ici, pour alléger la figure, nous nous limiterons à quatre activités uniquement. Il est possible là encore d'ajouter une variable de croisement. Pour faciliter la lecture, quand `flip = FALSE`, les réponses sont représentées sous la forme d'une matrice garce au package `{ggupset}`.
+
+```{r}
+#| label: fig-plot-reponses-multiples-combine
+#| fig-cap: Proportion de participants pratiquant certains loisirs
+d |> 
+  plot_multiple_answers(
+    cuisine:sport,
+    value = "Oui",
+    combine_answers = TRUE,
+    fill = "#4477AA",
+    sort = "degrees"
+  )
+d |> 
+  plot_multiple_answers_dodge(
+    cuisine:sport,
+    value = "Oui",
+    by = sexe,
+    combine_answers = TRUE,
+    sort = "degrees",
+    show_labels = FALSE
+  ) +
+  khroma::scale_fill_bright()
+```
+
+Pour un tableau, on utilisera `guideR::combine_answers()` pour créer une nouvelle variable combinant les différentes réponses. Cette variable pourra ensuite être utilisée avec `gtsummary::tbl_summary()`. À noter, lorsqu'aucune réponse n'a été choisie, `guideR::combine_answers()` renvoie une chaîne de caractère vide. Nous allons donc recoder en `"Aucun"`.
+
+```{r}
+d <-
+  d |> 
+  combine_answers(
+    cuisine:sport,
+    value = "Oui",
+    into = "loisirs",
+    sep = ", "
+  ) |> 
+  mutate(
+    loisirs = loisirs |>
+      recode_if(loisirs == "", "Aucun")
+  ) |> 
+  set_variable_labels(
+    loisirs = "Loisirs (12 derniers mois)"
+  )
+```
+
+```{r}
+#| label: tbl-reponses-multiples-combinees
+#| tbl-cap: Proportion de participants pratiquant certains loisirs selon le sexe
+d |> 
+  tbl_summary(
+    include = loisirs,
+    by = sexe,
+    statistic = all_categorical() ~ "{p}% ({n})",
+    digits = all_categorical() ~ c(p = 1, n = 0),
+    sort = all_categorical() ~ "frequency"
+  ) |> 
+  add_overall(last = TRUE) |> 
+  add_p() |> 
+  bold_labels()
+```
+
+::: callout-note
+Lorsque l'on ne fournit pas d'option `sep` à `guideR::combine_answers()`, la fonction créé une colonne de type liste. C'est un format un peu particulier, mais cela permet quelques manipulations avancées, comme le calcul du nombre de réponses positives.
+
+```{r}
+d <-
+  d |> 
+  combine_answers(
+    cuisine:sport,
+    value = "Oui",
+    into = "liste_loisirs"
+  ) |> 
+  mutate(
+    nb_loisirs = purrr::map(liste_loisirs, length) |> unlist()
+  )
+d |> 
+  select(liste_loisirs, nb_loisirs) |> 
+  glimpse()
+```
+:::
+
+## Point sur les valeurs manquantes
+
+Comme pour toute analyse, il est indispensable de bien vérifier en amont la présence de valeurs manquantes, par exemple avec `questionr::freq.na()`.
+
+```{r}
+hdv2003 |>
+  select(hard.rock:sport) |>
+  questionr::freq.na()
+```
+
+Dans notre exemple, cela n'est pas un enjeu.
+
+En cas de présence de valeurs manquantes, il faut vérifier si elles sont cohérentes. En effet, si les données sont propres et la saisie cohérente, normalement une même observation devrait être manquante pour chaque sous-réponse ou pour aucune.
+
+Selon les cas, on peut être amené à recoder certaines valeurs manquantes comme une réponse négative, ou bien exclure toute observation dont au moins une réponse est manquante.
+
+Pour le second cas, on pourra, en amont de `gtsummary::tbl_summary()`, avoir recours à `tidyr::drop_na()` qui permet d'exclure toute observation incomplète. Par exemple :
+
+```{r}
+#| eval: false
+hdv2003 |> 
+  drop_na(hard.rock:sport) |> 
+  tbl_summary(...)
+```
+
+Avec `guideR::plot_multiple_answers()`, il suffit d'utiliser l'option `drop_na = TRUE`.
+
+```{r}
+#| eval: false
+hdv2003 |> 
+  plot_multiple_answers(
+    hard.rock:sport,
+    drop_na = TRUE
+  )
+```
