@@ -27,6 +27,7 @@ theme_gtsummary_language(
   decimal.mark = ",", 
   big.mark = ""
 )
+guideR::theme_gtsummary_bold_labels()
 ```
 
 Pour réaliser un tableau croisé, il nous suffit d'appeler `gtsummary::tbl_svysummary()` de la même manière que l'on aurait procédé avec `gtsummary::tbl_summary()`. En arrière plan, `gtsummary::tbl_svysummary()` appellera les différentes fonctions statistiques de `{survey}` : la pondération ainsi que les spécificités du plan d'échantillonnage seront donc correctement prises en compte.
@@ -39,8 +40,7 @@ dp |>
     by = milieu,
     include = c(age, educ, travail)
   ) |> 
-  add_overall(last = TRUE) |> 
-  bold_labels()
+  add_overall(last = TRUE)
 ```
 
 ::: callout-important
@@ -63,29 +63,17 @@ dp |>
   ) |> 
   modify_header(
     all_stat_cols() ~ "**{level}** ({n_unweighted} obs.)"
-  ) |> 
-  bold_labels()
+  )
 ```
+
+De manière plus simple, on pourra utiliser le thème `guideR::theme_gtsummary_unweighted_n()` fourni par `{guideR}`, la package compagnon de *guide-R*. Cette fonction est plus complète et actualisera également la colonne total ou la présentation du nombre d'observations manquantes.
+
+*Nota Bene :* cette fonction à également une option `mean_sd = TRUE` si, dans le même temps, on souhaite forcer l'affichage de la moyenne et de l'écart-type au lieu de la médiane et l'intervalle inter-quartile pour les variables continues.
 
 Il faut noter qu'une modification du thème impactera tous les tableaux suivants, jusqu'à ce que le thème soit à nouveau modifié ou bien que l'on fasse appel à `gtsummary::reset_gtsummary_theme()`.
 
 ```{r}
-# On peut forcer l'utilisation des effectifs non pondérés à certains endroits via une personnalisation du thème, pour éviter d'avoir à le faire tableau par tableau.
-# NB : tbl_svysummary-str:missing_stat n'est actuellement disponible que dans la version de développement de gtsummary. cf. https://github.com/ddsjoberg/gtsummary/issues/2176
-list(
-  "tbl_svysummary-str:header-noby" = "{N_unweighted} obs.",
-  "tbl_svysummary-str:header-withby" = "**{level}** ({n_unweighted} obs.)",
-  #"tbl_svysummary-str:missing_stat" = "{N_miss_unweighted} obs.",
-  "tbl_svysummary-arg:statistic" = list(
-    all_continuous() ~ "{median} ({p25} - {p75})",
-    all_categorical() ~ "{p}% ({n_unweighted} obs.)"
-  ), 
-  "tbl_svysummary-arg:digits" = list(
-    all_continuous() ~ 1,
-    all_categorical() ~ c(p = 1, n_unweighted = 0)
-  )
-) |> 
-  set_gtsummary_theme()
+guideR::theme_gtsummary_unweighted_n()
 
 dp |> 
   tbl_svysummary(
@@ -146,7 +134,6 @@ Mais il est plus simple ici d'utiliser la fonction `guideR::proportion()`, compa
 dp |> guideR::proportion(region)
 ```
 
-
 Les fonctions `questionr::rprop()` et `questionr::cprop()` peuvent être utilisées pour calculer les pourcentages en ligne ou en colonne.
 
 ```{r}
@@ -159,7 +146,6 @@ Là encore, on pourra utiliser alternativement `guideR::proportion()`.
 ```{r}
 dp |> guideR::proportion(milieu, .by = educ)
 ```
-
 
 Le principe de la fonction `survey::svyby()` est similaire à celui de `tapply()` (cf. @sec-tapply). Elle permet de calculer des statistiques selon plusieurs sous-groupes définis par un facteur.
 
@@ -181,8 +167,7 @@ dp |>
     include = c(age, region),
     statistic = all_continuous() ~ "{mean} ({sd})"
   ) |> 
-  add_ci() |> 
-  bold_labels()
+  add_ci()
 ```
 
 De même, on peut aisément effectuer des tests de comparaison avec `gtsummary::add_p()`. Là aussi, les tests utilisés sont des adaptations des tests classiques avec différentes corrections pour tenir compte à la fois de la pondération et du plan d'échantillonnage.
@@ -254,7 +239,6 @@ dp |> guideR::proportion(educ, .conf.int = TRUE)
 dp |> guideR::proportion(educ, .conf.int = TRUE, .scale = 1)
 dp |> guideR::proportion(educ, .by = milieu, .conf.int = TRUE)
 ```
-
 
 ## Impact du plan d'échantillonnage
 

@@ -6,13 +6,21 @@
 
 Pour regarder le lien entre deux variables catégorielles, l'approche la plus fréquente consiste à réaliser un *tableau croisé*, ce qui s'obtient très facilement avec l'argument `by` de la fonction `gtsummary::tbl_summary()` que nous avons déjà abordée dans le chapitre sur la statistique univariée (cf. @sec-tri-a-plat).
 
+Commençons par appeler `{gtsummary}` et à définir un thème par défaut.
+
+```{r}
+library(gtsummary)
+theme_gtsummary_language("fr", decimal.mark = ',')
+guideR::theme_gtsummary_bold_labels()
+guideR::theme_gtsummary_prop_n()
+```
+
 Prenons pour exemple le jeu de données `gtsummary::trial` et croisons les variables *stage* et *grade*. On indique à `by` la variable à représenter en colonnes et à `include` celle à représenter en lignes.
 
 ```{r}
 #| label: tbl-by
 #| tbl-cap: un tableau croisé avec des pourcentages en colonne
-library(gtsummary)
-theme_gtsummary_language("fr", decimal.mark = ',')
+
 trial |> 
   tbl_summary(
     include = stage,
@@ -320,8 +328,12 @@ trial |>
 
 ::: callout-note
 Formellement, le test de Fisher suppose que les marges du tableau (totaux lignes et colonnes) sont fixées, puisqu'il repose sur une loi hypergéométrique, et donc celui-ci se prête plus au cas des situations expérimentales (plans d'expérience, essais cliniques) qu'au cas des données tirées d'études observationnelles.
+:::
 
-En pratique, le test du Chi² étant assez robuste quant aux déviations par rapport aux hypothèses d'applications du test (effectifs théoriques supérieurs ou égaux à 5), le test de Fisher présente en général peu d'intérêt dans le cas de l'analyse des tableaux de contingence.
+::: callout-tip
+Historiquement, le test de Fisher a été conçu uniquement pour des tableaux 2 × 2 (deux lignes et deux colonnes). Il a par la suite été étendu au cas général. Ceci étant dit, pour certains tableaux assez grand, le calcul exact peut être compliqué. Auquel cas, il est préférable d'utiliser une simulation de Monte Carlo pour le calcul des p-valeurs. Cela se fait en indiquant `simulate.p.value = TRUE` quand on appelle la fonction `fisher.test()`.
+
+Quand on travaille avec `{gtsumary}`, le plus facile est d'utiliser le thème `guideR::theme_gtsummary_fisher_simulate_p()` fourni par `{guideR}` et qui applique alors automatiquement le test de Fisher avec simulation de Monte Carlo pour toutes les variables catégorielles lorsque l'on fait appel à `add_p()`.
 :::
 
 ### Comparaison de deux proportions
