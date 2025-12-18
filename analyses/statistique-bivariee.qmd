@@ -50,7 +50,7 @@ trial |>
 Choisissez bien votre type de pourcentages (en lignes ou en colonnes). Si d'un point de vue purement statistique, ils permettent tous deux de décrire la relation entre les deux variables, ils ne correspondent au même *story telling*. Tout dépend donc du message que vous souhaitez faire passer, de l'histoire que vous souhaitez raconter.
 :::
 
-`gtsummary::tbl_summary()` est bien adaptée dans le cadre d'une analyse de facteurs afin de représenter un *outcome* donné avec `by` et une liste de facteurs avec `include`.
+`gtsummary::tbl_summary()` est bien adaptée dans le cadre d'une analyse de facteurs afin de représenter un *outcome* indiqué avec `by` et une liste de facteurs avec `include`.
 
 Lorsque l'on ne croise que deux variables et que l'on souhaite un affichage un peu plus <q>traditionnel</q> d'un tableau croisé, on peut utiliser `gtsummary::tbl_cross()` à laquelle on transmettra une et une seule variable à `row` et une et une seule variable à `col`. Pour afficher des pourcentages, il faudra indiquer le type de pourcentages voulus avec `percent`.
 
@@ -225,12 +225,41 @@ ggplot(trial) +
 
 [^statistique-bivariee-1]: Un graphique alluvial est une variation d'un graphique de Sankey. Usuellement, un graphique de Sankey espace verticalement les différents statuts d'une même étape, tandis qu'il n'y a pas d'espace vertical dans un diagramme alluvial. Le package `{ggsankey}` propose une implémentation à la fois des diagrammes de Sankey des diagrammes alluviaux. Ce package n'est cependant pas disponible sur **CRAN** et doit être installé manuellement depuis GitHub. Pour un diagramme de Sankey, on pourra également avoir recours à `ggforce::geom_parallel_sets()` du package `{ggforce}`. Cette fonction nécessite une réorganisation des données dans un format long au préalable.
 
-### Représentations graphiques (variable binaire)
+### Représentations graphiques avec guideR
 
-Pour croiser une proportion simple (variable binaire), on pourra avoir recours à la fonction `guideR::plot_proportions()` fournie par `{guideR}`, le package compagnon de *guide-R*. Pour cela, on indiquera une condition définissant la proportion à représenter et, éventuellement, une liste de variables de croisement. Cette fonction a l'avantage de représenter également les intervalles de confiance à 95% ainsi que des tests de comparaison (voir ci-après). Pour plus d'information sur les différentes options disponibles, voir l'[aide de la fonction](https://larmarange.github.io/guideR/reference/plot_proportions.html).
+Le package `{guideR}`, le compagnon de *guide-R*, fournit plusieurs fonctions graphiques pour rapidement comparer une variable selon un ou plusieurs sous-groupe.
+
+Pour une **variable catégorielle**, on aura recours à la fonction `guideR::plot_categorical()`. Sa syntaxe suit les usages du *tidyverse*. On lui passe un jeu de données, puis on indique l'`outcome` et enfin une liste de variables de croisement avec `by`.
 
 ```{r}
 library(guideR)
+trial |> 
+  plot_categorical(
+    grade,
+    by = c(stage, trt, marker)
+  )
+```
+
+Il s'agit d'un graphique en barres cumulées. La distribution générale est calculée globalement pour l'ensemble de l'échantillon puis pour chacune des modalités des variables transmises à `by`. Comme on peut le voir ici, si l'on passe une variable continue à `by` (ici la variable *marker*), celle-ci est transformée en variable catégorielle à la volée en utilisant les quartiles. La fonction affiche aussi par défaut la p-valeur d'un test de comparaison (ici un test exact de Fisher). Les tests de comparaison seront vu un peu plus loin dans ce chapitre. Notons également que la fonction prend en compte les étiquettes de variables pour améliorer l'affichage.
+
+Les barres verticales ne sont pas toujours très lisibles avec des noms de modalité longs. On pourra inverser l'axe des X et celui des Y avec `flip = TRUE`. L'option `minimal = TRUE` permet d'alléger visuellement le graphique. On peut personnaliser l'étiquette de la catégorie *Overall* avec `overall_label`. L'option `drop_na_by` permet d'exclure les valeurs manquantes pour les variables définies via `by`. Enfin, l'option `pvalues_test` permet de modifier le type de test statistique (dans l'exemple suivant on utilise le test du Chi²).
+
+```{r}
+trial |> 
+  plot_categorical(
+    grade,
+    by = c(stage, trt, marker),
+    flip = TRUE,
+    minimal = TRUE,
+    overall_label = "Ensemble",
+    drop_na_by = TRUE,
+    pvalues_test = "chisq"
+  )
+```
+
+Pour croiser une **proportion simple** (variable binaire), on pourra avoir recours à la fonction `guideR::plot_proportions()`. Pour cela, on indiquera une condition définissant la proportion à représenter et, éventuellement, une liste de variables de croisement. Cette fonction a l'avantage de représenter également les intervalles de confiance à 95% ainsi que des tests de comparaison (voir ci-après). Pour plus d'information sur les différentes options disponibles, voir l'[aide de la fonction](#0).
+
+```{r}
 trial |> 
   plot_proportions(
     death == 1,
@@ -365,11 +394,12 @@ trial |>
   add_difference()
 ```
 
-**Attention :** si l'on passe une variable catégorielle à trois modalités ou plus, c'est la différence des moyennes standardisées (globale pour la variable) qui sera calculée et non la différence des proportions dans chaque groupe.
+**Attention :** si l'on passe une variable catégorielle à trois modalités ou plus, c'est la différence des moyennes standardisées (globale pour la variable) qui sera calculée et non la différence des proportions dans chaque groupe. À noter : l'extension `{smd}` car `{gtsummary}` utilise en interne la fonction `smd::smd()` pour ce calcul
 
 ```{r}
 #| label: tbl-add_difference-2
 #| tbl-cap: différence moyenne standardisée
+library(smd)
 trial |> 
   tbl_summary(
     by = trt,
@@ -440,7 +470,7 @@ trial |>
   add_overall(last = TRUE)
 ```
 
-### Représentations graphiques
+### Représentations graphiques (cas général)
 
 La moyenne ou la médiane sont des indicateurs centraux et ne suffisent pas à rendre compte des différences de distribution d'une variable continue entre plusieurs sous-groupes.
 
@@ -549,6 +579,40 @@ ggplot(hdv2003) +
 ```
 :::
 
+### Représentations graphiques avec guideR
+
+Similaire à `guideR::plot_categorical()`, le package `{guideR}` propose également une fonction `guideR::plot_continuous()` permettant de comparer une variable continue par sous-groupe à l'aide de boîtes à moustache.
+
+```{r}
+trial |> 
+  plot_continuous(age, by = c(grade, stage, trt))
+```
+
+Comme précédemment, un test de comparaison est réalisé : ici le test de Kruskal-Wallis qui sera présenté plus loin dans ce chapitre. Plusieurs options sont disponibles pour personnaliser le graphique.
+
+```{r}
+trial |> 
+  plot_continuous(
+    age,
+    by = c(grade, stage, trt),
+    flip = TRUE,
+    minimal = TRUE,
+    mapping = ggplot2::aes(fill = by)
+  ) +
+  guideR::scale_fill_safe() +
+  ggplot2::theme(legend.position = "none")
+```
+
+Pour représenter alternativement des moyennes, avec leur intervalle de confiance et un test de comparaison de moyennes, on utilisera `guideR::plot_means()`.
+
+```{r}
+trial |> 
+  plot_means(
+    age,
+    by = c(grade, stage, trt)
+  )
+```
+
 ### Calcul manuel {#sec-tapply}
 
 Le plus simple pour calculer des indicateurs par sous-groupe est d'avoir recours à `dplyr::summarise()` avec `dplyr::group_by()`.
@@ -562,6 +626,15 @@ trial |>
     age_moy = mean(age, na.rm = TRUE),
     age_med = median(age, na.rm = TRUE)
   )
+```
+
+On peut aussi utiliser directement les fonctions `guideR::mean_sd()` ou `guidesR::median_iqr()`.
+
+```{r}
+trial |> 
+  mean_sd(age, .by = grade, .conf.int = TRUE)
+trial |> 
+  median_iqr(age, .by = grade)
 ```
 
 En base **R**, on peut avoir recours à `tapply()`. On lui indique d'abord le vecteur sur lequel on souhaite réaliser le calcul, puis un facteur qui indiquera les sous-groupes, puis une fonction qui sera appliquée à chaque sous-groupe et enfin, optionnellement, des arguments additionnels qui seront transmis à cette fonction.
@@ -585,7 +658,7 @@ trial |>
   add_p()
 ```
 
-Par défaut, pour les **variables continues**, un test de Kruskal-Wallis calculé avec la fonction `stats::kruskal.test()` est utilisé lorsqu'il y a trois groupes ou plus, et un test de Wilcoxon-Mann-Whitney calculé avec `stats::wilcox.test()` (test de comparaison des rangs) lorsqu'il n'y a que deux groupes. Au sens strict, il ne s'agit pas de tests de comparaison des médianes mais de tests sur la somme des rangs[^statistique-bivariee-2]. En pratique, ces tests sont appropriés lorsque l'on présente les médianes et les intervalles inter-quartiles.
+Par défaut, pour les **variables continues**, un test de Kruskal-Wallis, calculé avec la fonction `stats::kruskal.test()`, est utilisé lorsqu'il y a trois groupes ou plus, et un test de Wilcoxon-Mann-Whitney, calculé avec `stats::wilcox.test()` (test de comparaison des rangs), lorsqu'il n'y a que deux groupes. Au sens strict, il ne s'agit pas de tests de comparaison des médianes mais de tests sur la somme des rangs[^statistique-bivariee-2]. En pratique, ces tests sont appropriés lorsque l'on présente les médianes et les intervalles inter-quartiles.
 
 [^statistique-bivariee-2]: Si l'on a besoin spécifiquement d'un test de comparaison des médianes, il existe le **test de Brown-Mood** disponible dans le package `{coin}` avec la fonction `coin::median_test()`. Attention, il ne faut pas confondre ce test avec le **test de dispersion de Mood** implémenté dans la fonction `stats::mood.test()`.
 

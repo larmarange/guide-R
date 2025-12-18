@@ -64,11 +64,13 @@ scale_fill_gradientn(values = RColorBrewer::brewer.pal(6, "Set1"))
 
 ### Palettes de Paul Tol {#sec-palettes-paul-tol}
 
-Le physicien Paul Tol a développé plusieurs palettes de couleurs adaptées aux personnes souffrant de déficit de perception des couleurs (daltonisme). À titre personnel, il s'agit des palettes de couleurs que j'utilise le plus fréquemment.
+Le physicien Paul Tol a développé plusieurs palettes de couleurs adaptées aux personnes souffrant de déficit de perception des couleurs (daltonisme). Ses palettes sont aussi pensées pour fonctionner à la fois sur écran et imprimées sur paper ou pour conserver suffisamment de contrastes lors d'un passage en niveaux de gris. À titre personnel, il s'agit des palettes de couleurs que j'utilise le plus fréquemment.
 
 Le détail de ses travaux est présenté sur <https://personal.sron.nl/~pault/>.
 
 Le package `{khroma}` implémente ces palettes de couleurs proposées par Paul Tol afin de pouvoir les utilisées directement dans **R** et avec `{ggplot}`.
+
+Les palettes *bright* et *muted* sont adaptées pour des variables catégorielles.
 
 ```{r}
 library(khroma)
@@ -83,11 +85,45 @@ ggplot(mpg) +
 plot_scheme(colour("muted")(9), colours = TRUE)
 ```
 
+Les palettes séquentielles comme *iridescent* sont, quant à elles, adaptées pour des variables continues.
+
 ```{r}
-plot_scheme(colour("PRGn")(9), colours = TRUE, size = 0.9)
+plot_scheme(colour("iridescent")(9), colours = TRUE, size = 0.9)
+```
+
+Les palettes divergentes telles que *nightfall* sont, quant à elles, plus adaptées à une variable continue ayant un point central (par exemple des températures négatives et positives).
+
+```{r}
+plot_scheme(colour("nightfall")(9), colours = TRUE, size = 0.9)
+```
+
+Il existe une palette *arc-en-ciel* couvrant un large spectre de couleurs, mais que l'on évitera pour une variable continue, car il est préférable d'avoir soit une palette séquentielle monochromatique ou, selon le cas, une palette divergente bichromatique.
+
+```{r}
+plot_scheme(colour("discreterainbow")(12), colours = TRUE, size = 0.9)
 ```
 
 Pour la liste complète des palettes disponibles, voir <https://packages.tesselle.org/khroma/articles/tol.html>.
+
+### La palette <q>safe</q> de `{guideR}`
+
+Au quotidien, où il est fréquent d'avoir à représenter une variable catégorielle, la palette *bright* de Paul Tol est bien adaptée. Cependant, sa grosse limite est de ne comporter que 7 couleurs, dont un gris usuellement réservé aux valeurs manquantes.
+
+C'est pourquoi `{guideR}` propose une palette `guideR::safe_pal()` avec une stratégie s'adaptant au nombre de couleurs requises :
+
+-   entre 1 et 6 couleurs : utilisation de la palette *bright* (sans le gris) ;
+
+-   entre 7 et 9 couleurs : utilisation de la palette *muted ;*
+
+-   pour 10 couleurs ou plus : utilisation de la palette *rainbow* avec un réordonancement aléatoire des couleurs puis conserver le rendu qualitatif.
+
+Pour utiliser ces palettes avec `{ggplot2}`, on pourra utiliser `guideR::scale_colour_safe()` ou `guideR::scale_fill_safe()`.
+
+```{r}
+scales::show_col(safe_pal()(6))
+scales::show_col(safe_pal()(9))
+scales::show_col(safe_pal()(16))
+```
 
 ### Interface unifiée avec `{paletteer}`
 

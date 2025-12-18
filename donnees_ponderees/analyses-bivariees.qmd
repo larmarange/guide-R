@@ -184,6 +184,27 @@ dp |>
   bold_labels()
 ```
 
+::: callout-tip
+Il faut noter que ni `{survey}` ni `{gtsummary}` ne fournissent nativement un test de comparaison de moyennes entre 3 groupes et plus (pour 2 groupes, il existe `survey::svyttest()`). `{guideR}` permet d'y remédier via une fonction `guideR::svyoneway()`. Ce test est directement disponible avec `{gtsummary}` en utilisant le theme `guideR::theme_gtsummary_unweighted_n(mean_sd = TRUE)`.
+:::
+
+## Calcul manuel avec `{guideR}`
+
+Dans les chapitres sur la statistique univariée (cf. @sec-statistique-univariee) et la statistique bivariée (cf. @sec-statistique-bivariee), nous avions introduit les fonctions `guideR::mean_sd()`, `guideR::meadian_iqr()` et `guideR::proportion()`, fonctions fournies par `{guideR}`, le package compagnon de *guide-R*.
+
+Or, ces trois fonctions sont également compatibles avec les objets `survey` et peuvent donc être utilisées de la même manière.
+
+```{r}
+dp |> 
+  mean_sd(age, .by = region, .conf.int = TRUE)
+dp |> 
+  median_iqr(age, .by = region)
+dp |> 
+  proportion(educ, .conf.int = TRUE)
+dp |> 
+  proportion(educ, .by = region)
+```
+
 ## Calcul manuel avec `{srvyr}`
 
 On peut avoir besoin de calculer des moyennes et/ou des proportions par sous-groupe, avec leurs intervalles de confiance, de manière manuelle, par exemple en amont d'un graphique à représenter avec `{ggplot2}`. Dans ce cas de figure, les fonctions natives de `{survey}` ne sont pas toujours très facile d'emploi et l'on pourra avantageusement recourir à `{srvyr}` pour bénéficier d'une syntaxe à la `{dplyr}`.
@@ -193,7 +214,7 @@ Par exemple, pour calculer l'âge moyen des femmes par région, on combinera `sr
 ```{r}
 dp |> 
   group_by(region) |> 
-  summarise(moy = survey_mean())
+  summarise(moy = survey_mean(age))
 ```
 
 Par défaut, cela renvoie les moyennes et les erreurs standards. Pour les intervalles de confiance, on précisera simplement `vartype = "ci"`.
@@ -201,7 +222,7 @@ Par défaut, cela renvoie les moyennes et les erreurs standards. Pour les interv
 ```{r}
 dp |> 
   group_by(region) |> 
-  summarise(moy = survey_mean(vartype = "ci"))
+  summarise(moy = survey_mean(age, vartype = "ci"))
 ```
 
 Pour des proportions, on aura recours à `srvyr::survey_prop()`. Par exemple, pour un tri à plat du niveau d'éducation :
@@ -212,7 +233,7 @@ dp |>
   summarise(prop = survey_prop())
 ```
 
-Là encore, on peut passer l'option `vartpe = "ci"` pour obtenir les intervalles de confiance[^analyses-bivariees-3].
+Là encore, on peut passer l'option `vartype = "ci"` pour obtenir les intervalles de confiance[^analyses-bivariees-3].
 
 [^analyses-bivariees-3]: Par défaut, les intervalles de confiance sont calculés avec `survey::svymean()` et peuvent générer des valeurs inférieures à 0 ou supérieures à 1. Pour un calcul plus précis reposant sur `survey::svyciprop()`, on précisera `proportion = TRUE`. Plusieurs méthodes existent pour ce calcul, voir l'aide de `survey::svyciprop()`.
 
@@ -221,7 +242,7 @@ Si l'on passe plusieurs variables dans le `group_by()`, les proportions sont cal
 ```{r}
 dp |> 
   group_by(milieu, educ) |> 
-  summarise(prop = survey_prop(vartype = "ci", proportion = TRUE))
+  summarise(prop = survey_prop(vartype = "ci"))
 ```
 
 Si l'on souhaite les pourcentages que représentent chaque combinaison au sein de l'ensemble de l'échantillon (i.e. que la somme de toutes les proportions soit de 100%), on aura recours à `srvyr::interact()`.
@@ -229,15 +250,7 @@ Si l'on souhaite les pourcentages que représentent chaque combinaison au sein d
 ```{r}
 dp |> 
   group_by(interact(milieu, educ)) |> 
-  summarise(prop = survey_prop(vartype = "ci", proportion = TRUE))
-```
-
-On peut utiliser, alternativement, la fonction `guideR::proportion()`, qui utilise de manière sous-jacente les fonctions de `{srvyr}`, mais dont la syntaxe est plus simple.
-
-```{r}
-dp |> guideR::proportion(educ, .conf.int = TRUE)
-dp |> guideR::proportion(educ, .conf.int = TRUE, .scale = 1)
-dp |> guideR::proportion(educ, .by = milieu, .conf.int = TRUE)
+  summarise(prop = survey_prop(vartype = "ci"))
 ```
 
 ## Impact du plan d'échantillonnage

@@ -42,15 +42,23 @@ ggplot(iris) +
     colour = "black", 
     binwidth = 1
   ) +
-  xlab("Longeur du pétale") +
+  xlab("Longeur pétale") +
   ylab("Effectifs")
 ```
+
+À noter, les dernières versions de `{ggplot2}` prennent en compte les étiquettes de variables (voir @sec-etiquettes-variables).
 
 On peut alternativement indiquer un nombre de classes avec `bins`.
 
 ```{r}
 #| label: fig-histogramme-10-classes
 #| fig-cap: un histogramme en 10 classes
+iris <-
+  iris |> 
+  labelled::set_variable_labels(
+    Petal.Length = "Longueur du pétale"
+  )
+
 ggplot(iris) +
   aes(x = Petal.Length) +
   geom_histogram(bins = 10, colour = "black")
@@ -87,11 +95,9 @@ ggplot(hdv2003) +
 Là encore, `{ggplot2}` a calculé de lui-même le nombre d'observations de chaque modalité, en utilisant cette fois la statistique `ggplot2::stat_count()`.
 :::
 
-Si l'on souhaite représenter des pourcentages plutôt que des effectifs, le plus simple est d'avoir recours à la statistique `ggstats::stat_prop()` du package `{ggstats}`[^statistique-univariee-2]. Pour appeler cette statistique, on utilisera simplement `stat = "prop"` dans les géométries concernées.
+Si l'on souhaite représenter des pourcentages plutôt que des effectifs, le plus simple est d'avoir recours à la statistique `ggstats::stat_prop()` du package `{ggstats}`. Pour appeler cette statistique, on utilisera simplement `stat = "prop"` dans les géométries concernées.
 
-[^statistique-univariee-2]: Cette statistique est également disponible via le package `{GGally}`.
-
-Cette statistique, qui sera également bien utile pour des graphiques plus complexes, nécessite qu'on lui indique une esthétique **by** pour dans quels sous-groupes calculés des proportions. Ici, nous avons un seul groupe considéré et nous souhaitons des pourcentages du total. On indiquera simplement `by = 1`.
+Cette statistique, qui sera également bien utile pour des graphiques plus complexes, nécessite qu'on lui indique une esthétique **by** pour indiquer dans quels sous-groupes calculer des proportions. Ici, nous avons un seul groupe considéré et nous souhaitons des pourcentages du total. On indiquera simplement `by = 1`.
 
 Pour formater l'axe vertical avec des pourcentages, on pourra avoir recours à la fonction `scales::label_percent()` que l'on appellera via `ggplot2::scale_y_continuous()`.
 
@@ -116,8 +122,10 @@ ggplot(hdv2003) +
   geom_bar(stat = "prop", 
            fill = "#4477AA", colour = "black") +
   geom_text(
-    aes(label = after_stat(prop) |> 
-          scales::percent(accuracy = .1)),
+    aes(
+      label = after_stat(prop) |> 
+          scales::percent(accuracy = .1)
+    ),
     stat = "prop",
     nudge_y = .02
   ) +
@@ -178,7 +186,7 @@ ggplot(hdv2003) +
 
 ## Tableaux et tris à plat {#sec-tri-a-plat}
 
-Le package `{gtsummary}` constitue l'une des boites à outils de l'analyste quantitativiste, car il permet de réaliser très facilement des tableaux quasiment publiables en l'état. En matière de statistique univariées, la fonction clé est `gtsummary::tbl_summary()`.
+Le package `{gtsummary}` constitue l'une des boites à outils de l'analyste quantitative, car il permet de réaliser très facilement des tableaux quasiment publiables en l'état. En matière de statistiques univariées, la fonction clé est `gtsummary::tbl_summary()`.
 
 Commençons avec un premier exemple rapide. On part d'un tableau de données et on indique, avec l'argument `include`, les variables à afficher dans le tableau statistique (si on n'indique rien, toutes les variables du tableau de données sont considérées). Il faut noter que l'argument `include` de `gtsummary::tbl_summary()` utilise la même syntaxe dite <q>*tidy select*</q> que `dplyr::select()` (cf. @sec-dplyr-select). On peut indiquer tout autant des variables catégorielles que des variables continues.
 
@@ -226,7 +234,7 @@ theme_gtsummary_language(
 
 Ce thème sera appliqué à tous les tableaux ultérieurs.
 
-Le package `{guideR}`, le compagnon de *guide-R*, propose également quelques thèmes complémentaires. Notamment, `guideR::theme_gtsummary_prop_n()` permet d'afficher d'abord les proportions, en forcant le nombre de décimales à 1, suivi des effectifs entre parenthèses. Le thème `guideR::theme_gtsummary_bold_labels()` applique quant à lui du gras à tous les noms de variable.
+Le package `{guideR}`, le compagnon de *guide-R*, propose également quelques thèmes complémentaires. Notamment, `guideR::theme_gtsummary_prop_n()` permet d'afficher d'abord les proportions, en forçant le nombre de décimales à 1, suivi des effectifs entre parenthèses. Le thème `guideR::theme_gtsummary_bold_labels()` applique quant à lui du gras à tous les noms de variable.
 
 ```{r}
 guideR::theme_gtsummary_prop_n()
@@ -272,7 +280,9 @@ Par exemple, pour modifier l'étiquette associée à une certaine variable, on p
 ```{r}
 #| eval: false
 trial |> 
-  tbl_summary(label = age ~ "Âge")
+  tbl_summary(
+    label = age ~ "Âge"
+  )
 ```
 
 Lorsque l'on souhaite passer plusieurs options pour plusieurs variables différentes, on utilisera une `list()`.
@@ -280,7 +290,12 @@ Lorsque l'on souhaite passer plusieurs options pour plusieurs variables différe
 ```{r}
 #| eval: false
 trial |> 
-  tbl_summary(label = list(age ~ "Âge", trt ~ "Traitement"))
+  tbl_summary(
+    label = list(
+      age ~ "Âge",
+      trt ~ "Traitement"
+    )
+  )
 ```
 
 `{gtsummary}` est très flexible sur la manière d'indiquer la ou les variables concernées. Il peut s'agir du nom de la variable, d'une chaîne de caractères contenant le nom de la variable, ou d'un vecteur contenant le nom de la variable. Les syntaxes ci-dessous sont ainsi équivalentes.
@@ -301,9 +316,13 @@ Pour appliquer le même changement à plusieurs variables, plusieurs syntaxes so
 ```{r}
 #| eval: false
 trial |> 
-  tbl_summary(label = c("age", "trt") ~ "Une même étiquette")
+  tbl_summary(
+    label = c("age", "trt") ~ "Une même étiquette"
+  )
 trial |> 
-  tbl_summary(label = c(age, trt) ~ "Une même étiquette")
+  tbl_summary(
+    label = c(age, trt) ~ "Une même étiquette"
+  )
 ```
 
 Il est également possible d'utiliser la syntaxe `{tidyselect}` et les sélecteurs de `{tidyselect}` comme `tidyselect::everything()`, `tidyselect::starts_with()`, `tidyselect::contains()` ou `tidyselect::all_of()`. Ces différents sélecteurs peuvent être combinés au sein d'un `c()`.
@@ -328,7 +347,7 @@ trial |>
   )
 ```
 
-Bien sûr, il est possible d'utiliser les sélecteurs propres à `{gtsummary}`.
+En plus, il est possible d'utiliser les sélecteurs propres à `{gtsummary}`.
 
 ```{r}
 #| eval: false
@@ -351,7 +370,9 @@ Enfin, si l'on ne précise rien à gauche du `~`, ce sera considéré comme équ
 ```{r}
 #| eval: false
 trial |> 
-  tbl_summary(label = ~ "Une même étiquette")
+  tbl_summary(
+    label = ~ "Une même étiquette"
+  )
 trial |> 
   tbl_summary(
     label = everything() ~ "Une même étiquette"
@@ -412,6 +433,16 @@ Par défaut, les variables continues sont représentées avec leur médiane et l
 Si l'on souhaite afficher à la place la moyenne et l'écart-type, il faut indiquer le changement manuellement à chaque tableau avec le paramètre `statistic`. Cependant, `{gtsummary}` fournit un thème `gtsummary::theme_gtsummary_mean_sd()` qui permet de faire ce changement de manière systématique pour tous les tableaux suivants.
 
 À noter, `gtsummary::theme_gtsummary_mean_sd()` n'est pas compatibles avec `guideR::theme_gtsummary_prop_n()`. Si l'on veut combiner les deux options, on optera alors la version `guideR::theme_gtsummary_prop_n(mean_sd = TRUE)`.
+
+Cela présente par ailleurs d'autres avantages que nous verrons plus loin, car `guideR::theme_gtsummary_prop_n()` met également à jour les intervalles de confiance renvoyés par `gtsummary::add_ci()` et les tests par défaut utilisés par `gtsummary::add_p()`.
+
+```{r}
+guideR::theme_gtsummary_prop_n(mean_sd = TRUE)
+hdv2003 |>
+  tbl_summary(
+    include = heures.tv
+  )
+```
 :::
 
 Pour une **variable catégorielle**, les statistiques possibles sont `{n}` le nombre d'observations, `{N}` le nombre total d'observations, et `{p}` le pourcentage correspondant. Utilisez `gtsummary::all_categorical()` pour sélectionner toutes les variables catégorielles.
@@ -566,7 +597,22 @@ hdv2003 |>
     include = c(age, occup),
     digits = list(
       all_continuous() ~ 1,
-      all_categorical() ~ c(0, 1)
+      all_categorical() ~ c(1, 0)
+    )
+  )
+```
+
+On peut aussi nommer les statistiques concernées dans l'argument `digits`. Cela est même recommandé pour éviter toute confusion.
+
+```{r}
+#| label: tbl-digits-2
+#| tbl-cap: personnalisation du nombre de décimales
+hdv2003 |>
+  tbl_summary(
+    include = c(age, occup),
+    digits = list(
+      all_continuous() ~ c(sd = 1, mean = 2),
+      all_categorical() ~ c(n = 0, p = 1)
     )
   )
 ```
@@ -576,20 +622,23 @@ Au lieu d'un nombre de décimales, on peut indiquer plutôt une fonction à appl
 Il faut bien noter que ce qui est attendu par `digits`, c'est une fonction et non le résultat d'une fonction. On indiquera donc le nom de la fonction sans parenthèse, comme dans l'exemple ci-dessous (même si pas forcément pertinent ;-)).
 
 ```{r}
-#| label: tbl-digits-2
+#| label: tbl-digits-3
 #| tbl-cap: personnalisation de la mise en forme des nombres
 hdv2003 |>
   tbl_summary(
     include = age,
     digits = 
-      all_continuous() ~ c(style_percent, style_sigfig, style_ratio)
+      all_continuous() ~ c(
+        mean = style_percent,
+        sd = style_sigfig
+      )
   )
 ```
 
-Comme `digits` s'attend à recevoir une fonction (et non le résultat) d'une fonction, on ne peut pas passer directement des arguments aux fonctions `style_*()` de `{gtsummary}`. Pour cela, on aura recours à leurs équivalents `label_style_*()` qui ne mettent directement un nombre en forme, mais renvoient une fonction de mise en forme.
+Comme `digits` s'attend à recevoir une fonction (et non le résultat) d'une fonction, on ne peut pas passer directement des arguments aux fonctions `style_*()` de `{gtsummary}`. Pour cela, on aura recours à leurs équivalents `label_style_*()` qui ne mettent pas directement un nombre en forme, mais renvoient une fonction de mise en forme.
 
 ```{r}
-#| label: tbl-digits-3
+#| label: tbl-digits-4
 #| tbl-cap: passer une fonction personnalisée à digits (syntaxe 1)
 trial |>
   tbl_summary(
@@ -606,7 +655,7 @@ Pour une mise en forme plus avancée des nombres, il faut se tourner vers l'exte
 **ATTENTION :** les fonctions de `{scales}` n'héritent pas des paramètres du thème `{gtsummary}` actif. Il faut donc personnaliser le séparateur de décimal dans l'appel à la fonction.
 
 ```{r}
-#| label: tbl-digits-6
+#| label: tbl-digits-5
 #| tbl-cap: passer une fonction personnalisée à digits (syntaxe 4)
 trial |>
   tbl_summary(
@@ -706,6 +755,21 @@ La fonction `summary()` renvoie la plupart de ces indicateurs en une seule fois,
 hdv2003$heures.tv |> summary()
 ```
 
+Le package `{guideR}` fournit deux fonctions bien pratiques dans ce contexte : `guideR::mean_sd()` et `guideR::median_iqr()`. Ces deux fonctions s'appliquent sur un tableau de données et suivent une syntaxe similaire aux fonctions du *tidyverse*. Elles renvoient par ailleurs les résultats sous forme d'un tableau de données qui peut, par la suite, être facilement réutilisés pour d'autres calculs ou des graphiques.
+
+La fonction `guideR::mean_sd()` renvoie tout simplement la moyenne et l'écart-type (*standard deviation* ou *sd* en anglais), ainsi que le nombre d'observations valides (*n*) et de manquants (*missing*).
+
+```{r}
+library(guideR)
+hdv2003 |> mean_sd(heures.tv)
+```
+
+La fonction `guideR::median_iqr()` renvoie, quant à elle, la médiane, le minimum, le premier quartile (q1), le troisième quartile (q3), le maximum et l'intervalle interquartile (*interquartile range* ou *iqr* en anglais) soit la différence entre q3 et q1. Là encore sont renvoyés le nombre d'observations valides et de manquants.
+
+```{r}
+hdv2003 |> median_iqr(heures.tv)
+```
+
 ### Variable catégorielle {#sec-table-univariee}
 
 Les fonctions de base pour le calcul d'un tri à plat sont les fonctions `table()` et `xtabs()`. Leur syntaxe est quelque peu différente. On passe un vecteur entier à `table()` alors que la syntaxe de `xtabs()` se rapproche de celle d'un modèle linéaire : on décrit le tableau attendu à l'aide d'une formule et on indique le tableau de données. Les deux fonctions renvoient le même résultat.
@@ -772,30 +836,33 @@ Il faut donc :
 
 -   soit afficher la moyenne dans `gtsummary::tbl_summary()` à l'aide du paramètre `statistic` ;
 -   soit calculer les intervalles de confiance d'une médiane (méthode `"wilcox.text"`) via le paramètre `method` de `gtsummary::add_ci()`.
+
+**ENCORE PLUS SIMPLE**
+
+Utiliser `guideR::theme_gtsummary_prop_n()`. En effet, si on l'appelle avec ses options par défaut, cela affiche la médiane et l'IQR pour les variables continues et définie `"wilcox.test"` comme méthode par défaut pour les intervalles de confiance des variables continues. Si on l'appelle avec l'option `mean_sd = TRUE`, alors c'est la moyenne qui est affichée et la méthode `"t.test"` est appliquée pour les intervalles de confiance.
 :::
 
 ```{r}
 #| label: tbl-add_ci
-#| tbl-cap: ajouter les intervalles de confiance
+#| tbl-cap: Ajouter les intervalles de confiance
+theme_gtsummary_prop_n(mean_sd = FALSE)
 hdv2003 |>
   tbl_summary(
     include = c(age, heures.tv, trav.imp),
-    statistic = age ~ "{mean} ({sd})"
   ) |> 
-  add_ci(
-    method = heures.tv ~ "wilcox.test"
-  )
+  add_ci()
 ```
 
 L'argument `statistic` permet de personnaliser la présentation de l'intervalle ; `conf.level` de changer le niveau de confiance et `style_fun` de modifier la mise en forme des nombres de l'intervalle.
 
 ```{r}
 #| label: tbl-add_ci-2
-#| tbl-cap: des intervalles de confiance personnalisés
+#| tbl-cap: Des intervalles de confiance personnalisés
+guideR::theme_gtsummary_prop_n(mean_sd = TRUE)
+
 hdv2003 |>
   tbl_summary(
-    include = c(age, heures.tv),
-    statistic = ~ "{mean}"
+    include = c(age, heures.tv)
   ) |> 
   add_ci(
     statistic = ~ "entre {conf.low} et {conf.high}",
@@ -824,7 +891,15 @@ Si l'on a besoin d'accéder spécifiquement à l'intervalle de confiance calcul�
 hdv2003$age |> t.test() |> purrr::pluck("conf.int")
 ```
 
-Pour celui d'une **médiane**, on utilisera `wilcox.test()` en précisant `conf.int = TRUE`.
+::: callout-tip
+Plus simplement, on pourra avoir recours à `guideR::mean_sd()` avec l'option `.conf.int = TRUE`.
+
+```{r}
+hdv2003 |> mean_sd(age, .conf.int = TRUE)
+```
+:::
+
+Pour l'intervalle de confiance d'une **médiane**, on utilisera `wilcox.test()` en précisant `conf.int = TRUE`.
 
 ```{r}
 hdv2003$age |> wilcox.test(conf.int = TRUE)
@@ -833,11 +908,17 @@ hdv2003$age |>
   purrr::pluck("conf.int")
 ```
 
+::: callout-caution
+Au sens strict, `stats::wilcox.test()` ne renvoie pas l'intervalle de confiance de la médiane, mais de la pseudo-médiane, ce qui dans certains cas peut différer sensiblement de la médiane.
+
+En pratique, il est rare que l'on calcule l'interface de confiance d'une médiane.
+:::
+
 Pour une **proportion**, on utilisera `prop.test()` en lui transmettant le nombre de succès et le nombre d'observations, qu'il faudra donc avoir calculé au préalable. On peut également passer une table à deux entrées avec le nombre de succès puis le nombre d'échecs.
 
-Ainsi, pour obtenir l'intervalle de confiance de la proportion des enquêtés qui considèrent leur travail comme *peu important*, en tenant compte des valeurs manquantes, le plus simple est d'effectuer le code suivant[^statistique-univariee-3] :
+Ainsi, pour obtenir l'intervalle de confiance de la proportion des enquêtés qui considèrent leur travail comme *peu important*, en tenant compte des valeurs manquantes, le plus simple est d'effectuer le code suivant[^statistique-univariee-2] :
 
-[^statistique-univariee-3]: Notez l'utilisation de `rev()` pour inverser le tableau créé avec `xtabs()` afin que le nombre de succès (`TRUE`) soit indiqués avant le nombre d'échecs (`FALSE`).
+[^statistique-univariee-2]: Notez l'utilisation de `rev()` pour inverser le tableau créé avec `xtabs()` afin que le nombre de succès (`TRUE`) soit indiqués avant le nombre d'échecs (`FALSE`).
 
 ```{r}
 xtabs(~ I(hdv2003$trav.imp == "Peu important"), data = hdv2003) |> 

@@ -1,6 +1,8 @@
 # Graphiques pondérés {#sec-graphiques-ponderes}
 
-Le package `{ggplot2}` n'est compatible directement avec les objets `{survey}`. Cependant, il accepte une esthétique *weight* qui permet de définir une variable de pondération.
+## avec `{ggplot2}`
+
+Le package `{ggplot2}` n'est compatible directement avec les objets `survey`. Cependant, il accepte une esthétique *weight* qui permet de définir une variable de pondération.
 
 ::: callout-warning
 **ATTENTION :** les graphiques obtenus ne sont corrects qu'à la condition que seuls les poids soient nécessaires pour les construire, ce qui est le cas d'un nuage de points ou d'un diagramme en barres.
@@ -26,11 +28,12 @@ ggplot(d) +
   geom_bar(position = "fill")
 ```
 
-Si l'on a déjà créé un objet `{survey}`, on peut obtenir les poids des observations avec la fonction `weights()`. Les données sont quant à elle accessibles via le sous-élément nommé *variables*.
+Si l'on a déjà créé un objet `survey`, on peut obtenir les poids des observations avec la fonction `weights()`. Les données sont quant à elle accessibles via le sous-élément nommé *variables*.
 
 ```{r}
 library(srvyr)
 dp <- femmes |> 
+  labelled::user_na_to_na() |>
   labelled::unlabelled() |> 
   as_survey_design(weights = poids)
 ```
@@ -42,6 +45,8 @@ ggplot(dp$variables) +
   aes(x = region, fill = test, weight = weights(dp)) +
   geom_bar(position = "fill")
 ```
+
+## avec `ggstats::ggsurvey()`
 
 Pour se faciliter les choses, on peut avoir directement recours à la fonction `ggstats::ggsurvey()`, que l'on utilisera à la place de `ggplot2::ggplot()`, et qui fait exactement la même chose que dans notre exemple précédent : on lui passe un objet de type `{survey}` et la fonction en extrait le sous-élément *variables* pour le passer à `ggplot2::ggplot()` et les poids qui sont automatiquement associés à l'esthétique *weight*.
 
@@ -55,4 +60,47 @@ Ainsi, le code de notre graphique précédent s'écrit tout simplement[^graphiqu
 ggstats::ggsurvey(dp) +
   aes(x = region, fill = test) +
   geom_bar(position = "fill")
+```
+
+## avec les fonctions graphiques de `{guideR}`
+
+Dans le chapitre sur la statistique bivariée (cf. @sec-statistique-bivariee), nous avons introduit plusieurs fonctions graphiques proposées par `{guideR}`, le package compagnon de *guide-R* : `guideR::plot_categorical()`, `guideR::plot_continuous()`, `guideR::plot_means()` et `guideR::plot_proportions()`. Or ces fonctions sont toutes compatibles avec les objets `survey` (y compris pour le calcul des intervalles de confiance et des tests de comparaison).
+
+```{r}
+library(guideR)
+dp |> 
+  plot_continuous(age, by = c(region, educ))
+dp |> 
+  plot_means(nb_enf_ideal, by = c(region, milieu, educ))
+dp |> 
+  plot_categorical(
+    educ,
+    by = c(region, milieu),
+    flip = TRUE
+  )
+dp |> 
+  plot_proportions(
+    test == "oui",
+    by = c(region, educ, milieu),
+    show_overall = TRUE,
+    fill = "lightblue"
+  )
+```
+
+De même, les fonctions `guideR::plot_multiple_answers()` et `guideR::plot_multiple_answers_dodge()`, présentées dans le chapitre sur les questions à réponses multiples (cf. @sec-reponses-multiples), sont elles aussi compatibles avec les objets `survey`.
+
+```{r}
+dp |> 
+  plot_multiple_answers(
+    answers = c(journal, radio, tv),
+    value = "oui",
+    combine_answers = TRUE,
+    fill = "lightblue"
+  )
+dp |> 
+  plot_multiple_answers_dodge(
+    answers = c(journal, radio, tv),
+    value = "oui",
+    by = educ
+  )
 ```
