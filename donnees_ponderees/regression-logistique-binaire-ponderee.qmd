@@ -100,7 +100,6 @@ mod_quasi2 <- step(mod_quasi)
 
 Nous avons abordé dans le chapitre sur la sélection de modèle pas à pas la problématique des valeurs manquantes lors d'une sélection pas à pas descendante par minimisation de l'AIC (cf. @sec-step-avec-na). La même approche peut être appliquée avec des données pondérées, à l'aide de la fonction `guideR::step_with_na()`, compatible avec les modèles `survey::svyglm()`. Il faudra néanmoins, dans ce cas là, qu'on lui passe l'objet `{survey}` ayant servi au calcul du modèle via l'e paramètre'argument `design`.
 
-
 ```{r}
 #| eval: false
 mod_quasi2 <- guideR::step_with_na(mod_quasi, design = dp)
@@ -138,16 +137,35 @@ mod_quasi2 |>
 
 ## Prédictions marginales
 
-Pour visualiser les prédictions marginales moyennes du modèle (cf. @sec-predictions-marginales), nous pouvons utiliser `broom.helpers::plot_marginal_predictions()`.
+Pour visualiser les prédictions marginales moyennes du modèle (cf. @sec-predictions-marginales), nous pouvons utiliser `broom.helpers::plot_marginal_predictions()`. Il est préférable ici de transmettre également les poids d'échantillonnage pour le calcul de des prédictions marginales moyennes. Pour cela, nous pouvons récupérer les poids du modèle avec `weights(mod_quasi2)` puis les passer via l'argument `wts`.
 
 ```{r}
 #| label: fig-predictions-marginales-moyennes-regression-ponderee
 #| fig-cap: Prédictions marginales moyennes du modèle pondéré
 mod_quasi2 |> 
-  broom.helpers::plot_marginal_predictions(type = "response") |> 
+  broom.helpers::plot_marginal_predictions(
+    type = "response",
+    wts = weights(mod_quasi2)
+  ) |> 
   patchwork::wrap_plots() &
   scale_y_continuous(
     limits = c(0, .8),
     labels = scales::label_percent()
   )
+```
+
+Et sous forme de tableau :
+
+```{r}
+#| label: tbl-predictions-marginales-moyennes-regression-ponderee
+#| tbl-cap: Prédictions marginales moyennes du modèle pondéré
+mod_quasi2 |> 
+  tbl_regression(
+    tidy_fun = broom.helpers::tidy_marginal_predictions,
+    type = "response",
+    estimate_fun = scales::label_percent(accuracy = 0.1),
+    wts = weights(mod_quasi2)
+  ) |> 
+  bold_labels() |> 
+  modify_column_hide("p.value")
 ```
