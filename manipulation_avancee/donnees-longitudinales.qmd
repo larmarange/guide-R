@@ -1,0 +1,300 @@
+# Données longitudinales {#sec-donnees-longitudinales}
+
+Les données longitudinales permettent de suivre les individus au cours du temps. Leur collecte peut être *prospective*, dans le cadre d'une cohorte ou d'un observatoire de populations, ou *rétrospective* (par exemple dans le cadre d'enquêtes biographiques transversales).
+
+Une des complexités des enquêtes longitudinales porte sur le fait que l'unité statistique n'est pas seulement l'individu. Une seconde unité statistique, le temps, est également à prendre en compte. Il convient d'être vigilant sur l'éventuel pas de temps utilisé pour la collecte (dates exactes, mois, années...) ainsi que sur l'horloge / le calendrier utilisé, définis en fonction d'un évènement origine : âge de l'individu (et donc durée depuis la naissance), durée depuis le diagnostic (par exemple dans une cohorte clinique), durée en union (donc depuis la mise en union)...
+
+Il est également essentiel de bien distinguer les *évènements* qui ont lieu à un point dans le temps et le *statut* ou l'*état* d'un individu, qui a lieu sur une période de temps. Un évènement peut modifier le statut d'un individu. Par exemples, les mariages et les divorces sont des évènements modifiant le statut matrimonial.
+
+## Différents formats de données
+
+Pour représenter l'évolution d'une ou plusieurs variables au cours du temps, plusieurs formats peuvent être utilisés.
+
+On parle de format **large** lorsque le jeu de données contient une seule ligne par individu, les évolutions d'une dimension au cours du temps étant codées avec une variable par pas de temps. Par exemple, dans le cadre d'une enquête sur les unions, le statut matrimonial pourrait être codés avec une variable pour coder la situation matrimonial à chaque âge : *smat20* pour le statut matrimonial à 20 ans, *smat21* à 21 ans, *smat22* à 22 ans, etc.
+
+Ce format est couramment utilisé par les producteurs de données dans les grandes enquêtes, car il permet de stocker l'information dans une seule grande table de données, avec les autres variables du questionnaire. C'est également le format de données attendues par certains package, par exemple `{TraMineR}` dans le cadre d'une analyse de séquences (cf. @sec-analyse-sequences).
+
+Il présente néanmoins plusieurs inconvénients. Comme indiqué dans le chapitre sur les tibbles (cf. @sec-tidy-data), les données ne sont pas au format *tidy*, notamment car une même information (ici le statut matrimonial) est stockées dans plusieurs colonnes et car une seconde information (ici l'âge) est stockée dans l'intitulé des variables et non dans une variable en tant que telle. Le format large n'est pas très adapté pour du recodage ou encore pour le calcul d'indicateurs (par exemple l'âge au premier mariage). Ce n'est pas non plus un format adapté pour la production de graphiques avec `{ggplot2}`, de tableaux avec `{gtsummary}` ou la réalisation de modèles à observations répétées.
+
+Pour une représentation *tydy* des données, on optera pour un format **long** : chaque correspondra à un individu et à un pas de temps donné. Nous aurons donc une ligne pour le statut matrimonial à 20 ans, une ligne pour celui à 21 ans, etc. Dans un telle table de données, où l'unité statistique est la personne-temps, il aura donc une variable pour stocker la dimension temporelle et une autre pour le statut de l'individu. Un tel format est particulièrement adapté pour facilement représenter simultanément plusieurs dimensions de l'individu, mais également pour considérer différentes horloges. Nous verrons quelques exemples plus loin.
+
+Enfin, les données peuvent également être représentés dans un format **périodique**. Alors que dans un format long chaque ligne représente un pas de temps et a, de fait, la même durée, dans un format périodique chaque ligne représente une période de temps où les autres variables sont identiques. Il est donc nécessaire dans ce cas de disposer deux deux variables temporelles : l'une indiquant le début et la seconde la fin de la période considérée. Ce type de format est notamment attendu par `{survival}` pour la réalisation d'une analyse de survie (cf. @sec-analyse-survie) avec prise en compte de facteurs variant dans le temps.
+
+## Passage d'un format à l'autre
+
+Prenons un exemple concret pour illustrer notre propos et voir comment passer d'un format à un autre.
+
+Le package `{seqhandbook}` fournit un jeu de données `seqhandbook::seqmsa` correspondant aux trajectoires matrimoniales, parentales et résidentielles entre 14 et 35 ans de 500 personnes interrogées dans le cadre de l'enquête *Biographies et entourage* de l'Ined en 2001.
+
+```{r}
+dlarge <- seqhandbook::seqmsa
+```
+
+Jetons un œil aux données.
+
+```{r}
+library(tidyverse)
+dlarge |> glimpse()
+```
+
+Ce jeu de données comporte 66 variables :
+
+-   les variables *slog14* à *slog35* correspondent au statut résidentiel à chaque âge ;
+-   les variables *smat14* à *smat35* au statut matrimonial ;
+-   les variables *nenf14* à *nenf35* au nombre d'enfants.
+
+Chaque variable est ici codée sous forme numérique.
+
+On peut noter l'absence d'identifiant individu. Commençons donc pas en créer un.
+
+```{r}
+dlarge <-
+  dlarge |> 
+  mutate(id_ind = row_number())
+```
+
+Pour passer à un format long, nous allons utiliser `tidyr::pivot_longer()` que nous avons déjà évoquée dans le chapitre consacré à `{tidyr}` (cf. @sec-tidyr). Nous allons devoir traiter chaque dimension séparément avant de les fusionner avec `dplyr::full_join()`.
+
+```{r}
+slog <-
+  dlarge |> 
+  select(id_ind, starts_with("slog")) |>  
+  pivot_longer(
+    cols = starts_with("slog"),
+    values_to = "slog",
+    names_to = "age",
+    names_prefix = "slog"
+  )
+
+smat <-
+  dlarge |> 
+  select(id_ind, starts_with("smat")) |>  
+  pivot_longer(
+    cols = starts_with("smat"),
+    values_to = "smat",
+    names_to = "age",
+    names_prefix = "smat"
+  )
+
+nenf <-
+  dlarge |> 
+  select(id_ind, starts_with("nenf")) |>  
+  pivot_longer(
+    cols = starts_with("nenf"),
+    values_to = "nenf",
+    names_to = "age",
+    names_prefix = "nenf"
+  )
+
+dlong <-
+  slog |> 
+  full_join(smat, by = c("id_ind", "age")) |> 
+  full_join(nenf, by = c("id_ind", "age")) |> 
+  mutate(age = as.integer(age))
+```
+
+Il est maintenant aisé de documenter nos données avec `{labelled}`. Nous allons utiliser `labelled::set_value_labels()` pour définir des étiquettes de valeurs puis `labelled::unlabelled()` pour convertir les trois variables de statut en facteurs (cf. @sec-etiquettes-valeurs).
+
+```{r}
+library(labelled)
+dlong <-
+  dlong |> 
+  set_variable_labels(
+    age = "Âge",
+    slog = "Statut résidentiel",
+    smat = "Statut matrimonial",
+    nenf = "Statut parental"
+  ) |> 
+  set_value_labels(
+    slog = c(
+      "non indépendant" = 0,
+      "logement indépendant" = 1
+    ),
+    smat = c(
+      "jamais en union" = 1,
+      "union cohabitante" = 2,
+      "marié·e" = 3,
+      "séparé·e" = 4
+    ),
+    nenf = c(
+      "sans enfant" = 0,
+      "1 enfant" = 1,
+      "2 enfants" = 2,
+      "3 enfants ou +" = 3
+    )
+  ) |> 
+  unlabelled()
+```
+
+Voyons maintenant à quoi ressemble notre fichier long :
+
+```{r}
+dlong
+```
+
+Le passage d'un format long à un format périodique est souvent un peu plus complexe, car cela nécessite d'identifier les successions de lignes identiques puis de les regrouper en retenant l'âge du début et l'âge de la fin de la période. Dans ce cadre, les fonctions `guideR::cumdifferent()` et `guideR::num_cycle()` que nous avons abordé dans le chapitre sur les fonctions à fenêtre peuvent être utiles (cf. @sec-fonctions-cumulatives). Heureusement, `{guideR}`, le package compagnon de *guide-R*, propose une fonction `guideR::long_to_periods()` justement dédiée à la conversion d'un format long à un format périodique.
+
+La première chose est de bien définir les variables à prendre en compte pour l'identification des périodes. En effet, cela impactera sur le nombre de périodes obtenues. Si l'on se contente d'indiquer un identifiant individuel et une variable temporelle, alors le résultat n'inclura qu'une période par individu en renverra le premier âge et le dernier âge connu.
+
+```{r}
+library(guideR)
+dlong |> 
+  long_to_periods(
+    id = id_ind,
+    start = age
+  )
+```
+
+Si je passe la variable *slog* au paramètre `by`, alors une nouvelle période sera créée à chaque fois que le statut résidentiel change.
+
+```{r}
+dlong |> 
+  long_to_periods(
+    id = id_ind,
+    start = age,
+    by = slog
+  )
+```
+
+Nous pouvons ainsi voir que l'individu n'avait pas de logement indépendant de l'âge de 14 à 26 ans puis a eu un logement indépendant de 26 à 35 ans.
+
+Si l'on passe plusieurs variables à `by`, alors une nouvelle période sera créée à chaque changement d'une de ces variables.
+
+```{r}
+dlong |> 
+  long_to_periods(
+    id = id_ind,
+    start = age,
+    by = c(slog, smat, nenf)
+  )
+```
+
+Pour repasser d'un format long à un format large, on aura recours à `tidyr::pivot_wider()` et pour le passage d'un format périodique à un format long à `guideR::periods_to_long()`.
+
+## Exemples de visualisation et de manipulation
+
+Pour visualiser rapidement les trajectoires individuelles, `{guideR}` propose une fonction `guideR::plot_trajectories()` qui part d'une table de données au format long. On parle de *tapis de séquences*. Par exemple, pour les trajectoires résidentielles selon l'âge.
+
+```{r}
+dlong |> 
+  plot_trajectories(
+    id = id_ind,
+    time = age,
+    fill = slog
+  )
+```
+
+Chaque ligne repésente un individu et sa trajectoire individuelle selon la ligne de temps (ici l'âge).
+
+Nous pouvons nous demander s'il y a un lien entre l'entrée en union et le statut résidentiel.
+
+Première étape, calculons, pour chaque individu, l'âge de première entrée en union. Il s'agit donc du plus petit âge ou le statut matrimonial est différent de <q>jamais en union</q>. Cela est relativement facile avec un format long et les verbes de `{dplyr}`.
+
+```{r}
+age_1u <-
+  dlong |> 
+  filter(smat != "jamais en union") |> 
+  group_by(id_ind) |> 
+  summarise(age_1u = min(age)) |> 
+  set_variable_labels(
+    age_1u = "Âge à la première union"
+  )
+age_1u
+```
+
+Ajoutons cette variable au fichier long et trions notre graphique précédent selon cette variable.
+
+```{r}
+dlong <-
+  dlong |> 
+  left_join(age_1u, by = "id_ind")
+```
+
+```{r}
+dlong |> 
+  plot_trajectories(
+    id = id_ind,
+    time = age,
+    fill = slog,
+    sort_by = age_1u
+  )
+```
+
+Ici, les individus avec le plus petit âge à la première union sont représentés en bas du graphique. On voit une diagonale se dessiner et les individus les plus bas dans le graphique obtiennent également un logement indépendant plus tôt.
+
+Il faut noter que certains individus n'ont pas vécu d'union avant 35 ans. Ces derniers n'apparaissent dans l'objet `age_1u` que nous avons créé plus tôt. Dès lors, après fusion, la variable *age_1u* a pour valeur `NA` pour ces derniers. Nous pourrions essayer d'isoler ces <q>célibataires de longue durée</q>. Créons une variable dédiée.
+
+```{r}
+dlong <-
+  dlong |> 
+  mutate(
+    celib = if_else(
+      is.na(age_1u),
+      "célibataire jusqu'à 35 ans",
+      "a connu au moins une union"
+    ) |> 
+      as.factor()
+  )
+```
+
+Vérifions cette variable en dessinant les trajectoires matrimoniales par sous-groupe grâce à l'argument `by`.
+
+```{r}
+dlong |> 
+  plot_trajectories(
+    id = id_ind,
+    time = age,
+    fill = smat,
+    sort_by = age_1u,
+    by = celib
+  )
+```
+
+Refaisons notre graphique des trajectoirs résidentielle.
+
+```{r}
+dlong |> 
+  plot_trajectories(
+    id = id_ind,
+    time = age,
+    fill = slog,
+    sort_by = age_1u,
+    by = celib
+  )
+```
+
+Nos <q>célibataires</q> sont ici mieux isolés. En croisant les deux figures, il semble que pour celles et ceux qui se sont mis en union assez jeune, cela doit probablement correspondre au moment où ils ont eu un logement indépendant. Par contre, dans le haut du graphique, il y a plus d'hétérogénéité et l'accession à un logement indépenant semble moins corrélé à la mise en union.
+
+Pour poursuivre notre travail exploratoire, essayons de changer d'horloge et regardons comment évolue nos trajectoires si nous les centrons sur le moment de la mise en union. Calculons la durée (avant/après) par rapport à la première mise en union. Bien entendu, nos <q>célibataires</q> seront exclus de l'analyse puisqu'ils n'ont pax d'âge de première mise en union.
+
+```{r}
+dlong <-
+  dlong |> 
+  mutate(
+    duree_1u = age - age_1u
+  ) |> 
+  set_variable_labels(
+    duree_1u = "Années avant/après la première mise en union"
+  )
+```
+
+Il n'y a plus qu'à redessiner nos trajectoires en changeant d'horloge.
+
+```{r}
+dlong |> 
+  filter(celib == "a connu au moins une union") |> 
+  plot_trajectories(
+    id = id_ind,
+    time = duree_1u,
+    fill = slog,
+    sort_by = age_1u,
+  )
+```
+
+Il apparaît ici assez clairement que l'accès à un logement indépendant coïncide très souvent, dans notre échantillon, avec le moment de la première mise en union.
+
+## Pour aller plus loin
+
+Nous l'avons vu, le format long est à privilégier en phase exploratoire car il facilite la création de nouvelles variables et les recodages. Il permet d'effectuer facilement et rapidement des premières analyses exploratoires.
+
+Dans un second temps, et selon sa problématique et ses questions de recherche, on pourra se tourner vers des techniques d'analyses plus poussées, telles que l'analyse de survie (cf. @sec-analyse-survie), l'analyse de séquences (cf. @sec-analyse-sequences), les modèles à classe latente ou encore les modèles à observations répétées. Selon les cas, il sera toujours possible de transformer ses données dans un format large ou périodique, selon les besoins.
