@@ -1,5 +1,425 @@
 # Analyse de séquences {#sec-analyse-sequences}
 
+Dans ce chapitre, nous ferons une rapide introduction pratique à l'analyse de séquences, en mobilisant différents outils et fonctions déjà évoquées sur *guide-R*. Pour une présentation plus avancée et un cadrage théorique, on se référera à l'ouvrage de Nicolas Robette, [*L’analyse statistique des trajectoires*](https://books.openedition.org/ined/16670), édité en 2021 par l'Ined dans la collection *Méthodes et savoirs* et disponible en ligne en accès freemium (\<<https://books.openedition.org/ined/16670>\>). D'autres ressources utiles sont indiquées en fin de chapitre.
+
+De manière générale et simplifiée, l'analyse de séquences considère la trajectoire d'un individu comme une succession d'états[^analyse-sequences-1] selon un pas de temps déterminé. Par exemple, le statut matrimonial d'un individu mesuré année après année pendant 15 ans pourrait être représenté comme la séquence `C-C-C-RC-RC-M-M-M-M-M-D-D-D-M-M` qui peut se lire ainsi : célibataire (C) pendant trois ans, puis en relation cohabitante (RC) pendant deux ans, marié (M) pendant cinq ans, divorcé (D) pendant trois ans et enfin remarié pendant deux ans.
+
+[^analyse-sequences-1]: Il est également possible de considérer des séquences composées d'une succession d'évènements. Pour plus d'information, voir les références bibliographiques mentionnées en fin de chapitre.
+
+Pour ce type d'analyse, il est donc essentiel de bien réfléchir en amont aux différents **états** possibles, au **pas de temps** considéré (ici l'année) et à l'**horloge** utilisée (par exemple l'âge, ou encore le temps depuis la fin des études).
+
+L'objectif principal d'une l'analyse de séquences est d'identifier les séquences similaires afin de créer une typologie des différentes trajectoires. Pour cela, on calculera une distance entre les séquences, ce qui permettra de réaliser une classification automatisé (comme une classification ascendante hiérarchique, cf. @sec-classification-ascendante-hierarchique). La typologie obtenue pourra ensuite faire l'objet d'une analyse statistique plus classique (comme une régression logistique multinomiale, cf. @sec-regression-logistique-multinomiale).
+
+Le package de référence pour l'analyse de séquence est `{TraMineR}`.
+
+## Présentation des données de l'exemple
+
+Nous allons utiliser le jeu de données `seqhandbook::trajact` fourni par le package `{seqhandbook}` et décrivant le statut professionnel entre 14 et 50 ans de 500 personnes interrogées dans le cadre de l'enquête *Biographies et entourage* réalisée par l'Ined en 2021.
+
+```{r}
+library(seqhandbook)
+library(tidyverse)
+trajact |> glimpse()
+```
+
+Comme nous pouvons le voir, les données sont ici organisées selon un format large : nous avons 500 lignes, correspondant aux 500 personnes enquêtées, et 37 variables, chacune indiquant le statut professionnel à un âge donné.
+
+Le format large est celui le plus souvent utilisé pour l'analyse de séquences et celui que vous retrouverez dans les différents exemples et tutoriels des références listées en fin de chapitre. Cependant, comme nous l'avons évoqué dans le chapitre sur les données longitudinales (cf. @sec-donnees-longitudinales), ce format n'est pas pratique si l'on a encore du travail préliminaire (comme des recodages) à effectuer. Ici, nous allons transformer les données dans un format long et nous présenterons plus loin comment créer un objet séquences à partir d'un format long. Nous allons aussi en profiter pour créer un identifiant individu et documenter les variables. Pour cet identifiant, nous allons le préfixer avec `"IND_"` pour facilement vérifier qu'il est bien conservé tout au long du processus et allons utiliser `guideR::leading_zeros()` pour que tous les identifiants aient le même nombre de chiffres (i.e. *IND_001* au lieu de *IND_1*).
+
+```{r}
+library(labelled)
+
+trajact <-
+  trajact |> 
+  mutate(
+    id_ind = paste0(
+      "IND_",
+      guideR::leading_zeros(row_number())
+    )
+  )
+
+d <-
+  trajact |> 
+  pivot_longer(
+    cols = starts_with("sact"),
+    names_to = "age",
+    names_prefix = "sact",
+    values_to = "statut_pro"
+  ) |> 
+  mutate(age = as.integer(age)) |> 
+  set_variable_labels(
+    id_ind = "Identifiant individu",
+    age = "Âge",
+    statut_pro = "Statut professionnel"
+  ) |> 
+  set_value_labels(
+    statut_pro = c(
+      "études" = 1,
+      "emploi temps plein" = 2,
+      "emploi temps partiel" = 3,
+      "petits boulots" = 4,
+      "inactivité" = 5,
+      "service militaire" = 6
+    )
+  )
+```
+
+Notez ici que le statut professionnel est codé de manière numérique. Nous avons donc ajouté des étiquettes de valeurs (cf. @sec-etiquettes-valeurs). Notre variable *statut_pro* est donc pour le moment au format numérique labellisé.
+
+```{r}
+d |> look_for(details = TRUE) |> to_gt()
+```
+
+Pour jeter un œil rapide aux trajectoires individuelles, on pourra utiliser la fonction `guideR::plot_trajectories()` fournie par `{guideR}`, le package compagnon de *guide-R*. À noter, pour cette fonction (comme à chaque fois que l'on fait un graphique ou un tableau), le statut professionnel doit être codé sous forme de facteur. Nous allons donc faire la conversion à la volée avec `labelled::unlabelled()`.
+
+```{r}
+library(guideR)
+d |> 
+  unlabelled() |> 
+  plot_trajectories(
+    id = id_ind,
+    time = age,
+    fill = statut_pro
+  )
+```
+
+## Création d'un objet séquences
+
+Pour la suite des analyses avec `{TraMineR}`, nous allons devoir créer un objet STS (*STate Sequence*) qui correspond à une séquence d'états. Cela se fait à l'aide de la fonction `TraMineR::seqdef()`. Cependant, il y a un tout petit peu de travail en amont.
+
+En premier lieu, nous devons définir un **alphabet** qui correspond aux différents états considérés. Il peut s'agir de nombres ou bien de lettres. Nous pouvons garder par exemple les codes 1 à 6 actuellement utilisés dans nos données.
+
+C'est optionnel, mais il peut être utile de définir des **noms courts** de quelques lettres qui serviront de moyen mnémotechnique et qui seront utilisés par `{TraMineR}` en différents endroits. C'est toujours utile. Alternativement, nous pouvons modifier nos données d'un vecteur numérique labellisé en un vecteur textuel labellisé.
+
+Toujours optionnel, nous pouvons définir des **étiquettes** ou noms longs qui seront utilisées dans différentes sorties graphiques. Ici, nous allons prendre les étiquettes que nous avons défini précédemment avec `labelled::set_value_labels()`. Pour cela, nous utiliser la fonction `labelled::get_value_labels()`. Cependant, il faut se rappeler que le retour de cette fonction est un vecteur des valeurs nommé avec les étiquettes. On appliquera donc la fonction `names()` pour récupérer les étiquettes.
+
+L'argument `cname` permet de donner une étiquette courte pour les pas de temps, étiquettes réutilisées dans les sorties graphiques. Ici, nous utiliserons directement `14:50` pour simplement afficher l'âge des individus.
+
+Enfin, toujours optionnel, on peut également passer un vecteur de couleurs qui seront utilisées par les différentes sorties graphiques. Ici, nous allons utiliser la palette de couleurs `guideR::safe_pal()` (voir le chapitre sur les couleurs, cf. @sec-couleurs).
+
+```{r}
+noms_courts <- c("Et", "TPl", "TPa", "PB", "In", "SM")
+etiquettes <- d$statut_pro |> get_value_labels() |> names()
+palette <- guideR::safe_pal()(6)
+
+# alternative aux noms courts
+d <- d |> 
+  mutate(
+    statut_pro2 = case_when(
+      statut_pro == 1 ~ "Et",
+      statut_pro == 2 ~ "TPl",
+      statut_pro == 3 ~ "TPa",
+      statut_pro == 4 ~ "PB",
+      statut_pro == 5 ~ "In",
+      statut_pro == 6 ~ "SM"
+    )
+  ) |> 
+  set_value_labels(
+    statut_pro2 = c(
+      "études" = "Et",
+      "emploi temps plein" = "TPl",
+      "emploi temps partiel" = "TPa",
+      "petits boulots" = "PB",
+      "inactivité" = "In",
+      "service militaire" = "SM"
+    )
+  ) |> 
+  set_variable_labels(
+    statut_pro2 = "Statut professionnel"
+  )
+d |> look_for("statut_pro2") |> to_gt()
+```
+
+Dans de nombreux tutoriels, dont [celui de Nicolas Robette](https://nicolas-robette.github.io/seqhandbook/articles/Tutoriel.html) associé à son ouvrage, la création d'un objet séquence est réalisée à partir d'un format large, qui est le format attendu par défaut par `TraMineR::seqdef()`. Dans cette situation, on passera à la fonction uniquement les colonnes concernées avec les options à considérer. On peut éventuellement définir l'identifiant des individus avec le paramètre `id`. Cela est **fortement conseillé** car cela permettra, en bout de chaîne, de correctement réidentifier les individus.
+
+```{r}
+seq <-
+  seqdef(
+    data = trajact |> select(-id_ind),
+    id = trajact$id_ind,
+    labels = etiquettes,
+    states = noms_courts,
+    cpal = palette,
+    cname = 14:50
+  )
+```
+
+Si, comme nous, nous avons nos données dans un format long, nous pouvons aisément les transformer au format STS attendu par `TraMineR::seqdef()` grâce à la fonction `TraMineR::seqformat()`. En effet, notre format long est une variante du format SPELL qui est le nom utilisé par `{TraMineR}` d'un format périodique ou chaque ligne est définie par une variable indiquant le début de la période et une variable indiquant la fin de la période. Il nous suffit en effet d'indiquer la variable *age* comme correspondant à la fois au début et à la fin de chaque période. Ici, nous allons utiliser notre nouvelle variable *statut_pro2*, ce qui nous permet de ne plus avoir besoin de noms courts.
+
+```{r}
+seq <-
+  d |> 
+  seqformat(
+    from = "SPELL",
+    to = "STS",
+    id = "id_ind",
+    begin = "age",
+    end = "age",
+    status = "statut_pro2",
+    process = FALSE
+  ) |> 
+  seqdef(
+    labels = etiquettes,
+    cpal = palette,
+    cname = 14:50
+  )
+```
+
+::: callout-tip
+Cette étape peut être facilitée grâce à la fonction `guideR::long_to_seq()` qui réalise directement la transformation précédente. De plus, si le statut est stocké sous forme de vecteur labellisé, la fonction extrait automatiquement les étiquettes. Enfin, elle utilise `guideR::safe_pal()` comme palette de couleur par défaut.
+
+```{r}
+library(guideR)
+seq <-
+  d |> 
+  long_to_seq(
+    id = id_ind,
+    time = age,
+    outcome = statut_pro2
+  )
+```
+:::
+
+::: callout-note
+Si l'on travaille avec des données pondérées, il est possible de passer à `TraMineR::seqdef()` (ou `guideR::long_to_seq()`) un vecteur de poids individuels avec l'argument `weights`. Afin d'éviter toute erreur si vous travaillez avec des données au format long, il est conseillé de trier en amont son fichier long selon l'identifiant individu. Le vecteur de poids sera lui aussi trié selon l'identifiant, afin d'éviter toute mauvaise association au moment de la création du fichier de séquences.
+:::
+
+## Construction d'une typologie
+
+### Calcul d'une matrice des distances
+
+Comme dans le cadre d'une classification ascendante hiérarchique (cf. @sec-classification-ascendante-hierarchique), la première étape consiste à calculer une matrice des distances entre les différentes séquences.
+
+Il existe de nombreux types de distances différents, chacun ayant ses avantages et ses inconvénients. La lecture du chapitre [Mesurer la dissemblance entre trajectoires](https://books.openedition.org/ined/16710) de l'ouvrage de Nicolas Robette est ici fortement conseillée. On pourra également se référer à [cet article (en anglais)](https://doi.org/10.1111/rssa.12125) de Matthias Studer et Gilbert Ritschard.
+
+L'approche usuelle en analyse de séquences est l'appariement optimal ou *optimal matching*. Cette méthode consiste, pour chaque paire de séquences, à compter le nombre minimal de modifications (substitutions, suppressions, insertions) qu’il faut faire subir à l’une des séquences pour obtenir l’autre. On peut considérer que chaque modification est équivalente, mais il est aussi possible de prendre en compte le fait que les distances entre les différents états n’ont pas toutes la même <q>valeur</q> (par exemple, la distance sociale entre emploi à temps plein et chômage est plus grande qu’entre emploi à temps plein et emploi à temps partiel), en assignant aux différentes modifications des coûts distincts. C'est notamment pertinent si l'on peut ordonner les différents statuts.
+
+Dans le cas général, on considérera que les coûts de substitution sont identiques entre tous les statuts et, en pratique, on les fixera à 2. Reste à déterminer les coûts d'insertion/suppression (*indel*) d'un statut en début ou en fin de ligne. Selon, [Nicolas Robette](https://books.openedition.org/ined/16710#para-39) :
+
+> le choix des coûts revient à positionner le curseur entre \[deux cas limites\], selon que l’on privilégie la contemporanéité des situations ou la présence de sous-séquences communes ([Lesnard et de Saint Pol, 2009](http://dx.doi.org/10.1177/075910630609000103)), la temporalité ou l’ordre au sein des trajectoires. Avec un coût de substitution unique, fixer le coût *indel* aux trois quarts de la valeur du coût de substitution est une solution médiane ([Robette et Bry, 2012](http://dx.doi.org/10.1177/0759106312454635)).
+
+Avec des coûts de substitution constants et égaux à 2, la solution médiane pour le coût *indel* est donc de 1,5.
+
+Le calcul de la matrice des distances s'effectue avec la fonction `TraMineR::seqdist()`. Nous préciserons `method = "OM"` pour indiquer le recours à l'*optimal matching*, `sm = "CONSTANT"` pour indiquer une matrice de substitution à coûts constants (2 par défaut) et `indel = 1.5` pour fixer le coût d'insertion/suppression.
+
+```{r}
+md <-
+  seq |> 
+  seqdist(
+    method = "OM",
+    sm = "CONSTANT",
+    indel = 1.5
+  ) |> 
+  as.dist()
+```
+
+::: callout-important
+Notez l'usage de la fonction `stats::as.dist()`, nécessaire pour transformer la matrice renvoyée par `TraMineR::seqdist()` en un objet `dist`, le format usuel sous **R** pour les matrices de distance.
+:::
+
+### Calcul du dendrogramme
+
+Maintenant que nous avons une matrice de distances, il nous reste à calculer le dendrogramme, avec `hclust()`, comme nous l'avions fait dans le chapitre sur la CAH (cf. @sec-classification-ascendante-hierarchique). Attention : il est impératif d'avoir bien appliqué `as.dist()` à l'étape précédente pour que `hclust()` fonctionne correctement.
+
+```{r}
+arbre <-
+  md |> 
+  hclust(method = "ward.D2")
+```
+
+Nous pouvons maintenant représenter graphique notre dendrogramme.
+
+```{r}
+#| message: false
+#| warning: false
+arbre |> 
+  factoextra::fviz_dend(show_labels = FALSE)
+```
+
+Le package `{seqhandbook}` propose une fonction intéressante `seqhandbook::seq_heatmap()` permettant de combiner le dendrogramme avec un tapis de séquence.
+
+```{r}
+seqhandbook::seq_heatmap(seq, arbre)
+```
+
+### Découpage en classes
+
+Comme dans le cadre de la CAH, la question est de déterminer un nombre pertinent de classes à retenir. En premier lieu, nous pouvons regarder les sauts d'inertie avec la fonction `guideR::plot_inertia_from_tree()`.
+
+```{r}
+arbre |> 
+  guideR::plot_inertia_from_tree()
+```
+
+L'un des auteurs de `{TraMineR}`, Mathias Studer, a développé le package `{WeightedCluster}` proposant plusieurs indicateurs pour comparer différents partitionnement. Pour cela, on aura recours à la fonction `WeightedCluster::as.clustrange()`. La fonction `summary()` permet d'avoir une synthèse des résultats.
+
+```{r}
+clusters <- 
+  WeightedCluster::as.clustrange(arbre, md, ncluster = 15)
+summary(clusters, max.rank = 3)
+```
+
+Une représentation graphique est également possible en appliquant `plot()` aux résultats. L'option `norm = "zscore"` permet de normaliser les valeurs des différents indicateurs afin de faciliter les comparaisons.
+
+```{r}
+clusters |> 
+  plot(
+    norm = "zscore",
+    lwd = 2
+  )
+```
+
+Plusieurs indicateurs suggèrent ici un découpage en 3 classes.
+
+```{r}
+#| message: false
+#| warning: false
+arbre |> 
+  factoextra::fviz_dend(show_labels = FALSE, k = 3)
+```
+
+Cependant, cela aboutirait à une très grande classe majoritaire (en rouge sur le graphique précédent) et nous perdrions en finesse d'analyse. Le graphique des sauts d'inertie suggère que les deux découpages suivants et pertinents seraient en 4 ou 6 classes. Le découpage en 6 classes aboutirait à certaines classes avec peu d'effectifs. Nous décidons donc de conserver 4 classes.
+
+```{r}
+#| message: false
+#| warning: false
+arbre |> 
+  factoextra::fviz_dend(show_labels = FALSE, k = 4)
+```
+
+Nous pouvons récupérer notre typologie avec `cutree()`.
+
+```{r}
+typo <- arbre |> cutree(4)
+typo |> head(5)
+```
+
+Le résultat est un vecteur numérique nommé. Les valeurs correspondent aux classes d'appartenance et les noms à l'identifiant des séquences. Cet identifiant a bien été conservé tout au long du processus car, au moment de la création de l'objet `seq`, nous avons soit passé cet identifiant à `TraMineR::seqdef()` soit utilisé `guideR::long_to_seq()`.
+
+Nous pouvons donc facilement faire un petit tableau de résultats avec une colonne pour la typologie obtenue et une colonne avec l'identifiant.
+
+```{r}
+res <- 
+  dplyr::tibble(
+    id_ind = names(typo),
+    typo = typo
+  )
+res
+```
+
+Cela nous permet de récupérer, proprement, notre typologie dans notre fichier long.
+
+```{r}
+d <- 
+  d |> 
+  left_join(res, by = "id_ind")
+```
+
+## Représentation graphiques
+
+Le package `{TraMineR}` fournit plusieurs fonctions graphiques pour décrire les différentes séquences. Le package `{ggseqplot}` propose les mêmes représentations graphiques mais en ayant recours à `{ggplot2}`, permettant ainsi des personnalisations additionnelles des graphiques après leur génération.
+
+Les chronogrammes (*state distribution plots*) présentent une série de coupes transversales : pour chaque âge, on a les proportions d’individus de la classe dans les différentes situations. Ce graphique s’obtient avec `TraMineR::seqdplot()` ou `ggseqplot::ggseqdplot()`. Il est possible de lui passer nos classes via l'argument `group` afin de générer un graphique par sous-groupe.
+
+```{r}
+seq |> 
+  seqdplot(group = typo)
+```
+
+```{r}
+library(ggseqplot, quietly = TRUE)
+seq |> 
+  ggseqdplot(group = typo)
+```
+
+Nous pouvons voir que la première classe est marquée par des études courtes et une carrière principalement à temps plein. La seconde classe se démarque par des études plus longues. La troisième est marquée par l'inactivité (par exemple des mères <q>au foyer</q>) et la quatrième par des emplois à temps partiels et/ou des petits boulots.
+
+Les tapis de séquences (*index plot*) s'obtiennent avec `TraMineR::seqIplot()` ou `ggseqplot::ggseqiplot()`.
+
+```{r}
+seq |> seqIplot(group = typo)
+seq |> ggseqiplot(group = typo)
+```
+
+Il est possible de trier les séquences pour rendre les tapis plus lisibles, par exemple par *multidimensional scaling* à l’aide de la fonction `stats::cmdscale()` appliquée à notre matrice de distance.
+
+```{r}
+ordre <- cmdscale(md, k = 1)[, 1]
+seq |> ggseqiplot(group = typo, sortv = ordre)
+```
+
+Cette représentation des tapis de séquence accorde la même superficie à chaque classe, indépendamment du nombre d'observations.
+
+Une alternative consiste à avoir recours à `guideR::plot_trajectories()` où chaque trajectoire a la même <q>hauteur</q>, permettant ainsi de mieux visualiser les différences d'effectifs entre classes. En amont, nous allons récupérer la variable d'ordonnancement dans notre fichier long.
+
+```{r}
+tmp <- tibble(
+  id_ind = names(ordre),
+  ordre = ordre
+)
+d <- 
+  d |> 
+  left_join(tmp, by = "id_ind") 
+```
+
+```{r}
+#| fig-height: 7
+#| fig-width: 6
+d |> 
+  unlabelled() |> 
+  plot_trajectories(
+    id = id_ind,
+    time = age,
+    fill = statut_pro2,
+    by = typo,
+    sort_by = ordre
+  )
+```
+
+On peut aussi visualiser avec `TraMineR::seqmsplot()` ou `ggseqplot::ggseqmsplot()` l’état modal ou *modal state* (celui qui correspond au plus grand nombre de séquences de la classe) à chaque âge, la hauteur des barres correspondant à la fréquence de l'état modal à chaque âge.
+
+```{r}
+seq |> ggseqmsplot(group = typo)
+```
+
+On peut également représenter avec `TraMineR::seqmtplot()` ou `ggseqplot::ggseqmtplot()` les durées moyennes (*mean time*) passées dans les différents états.
+
+```{r}
+seq |> ggseqmtplot(group = typo)
+```
+
+La distance des séquences d’une classe au centre de cette classe s'obtient avec `TraMineR::disscenter()`. En calculant la moyenne par classe, cela nous permet de mesurer plus précisément l’homogénéité des classes. Une classe plus homogène aura en moyenne une distance au centre de la classe plus faible.
+
+```{r}
+tibble(
+  diss_center = disscenter(md, group = typo),
+  typo = typo
+) |> 
+  group_by(typo) |> 
+  summarise(mean_diss = mean(diss_center))
+```
+
+Ici, nous voyons que la classe 1 est la plus homogène à l'inverse de la classe 4 qui est la plus hétérogène.
+
+Les mêmes moyennes peuvent s'obtenir plus facilement avec `TraMineR::dissassoc()` (section *Discrepancy per level* dans les résultats).
+
+```{r}
+dissassoc(md, typo)
+```
+
+L’entropie transversale décrit l’évolution de l’homogénéité de la classe. Pour un âge donné, une entropie proche de 0 signifie que tous les individus de la classe (ou presque) sont dans la même situation. À l’inverse, l’entropie est de 1 si les individus sont dispersés dans toutes les situations. Ce type de graphique produit par `TraMineR::seqHtplot()` ou `ggseqplot::ggseqeplot()` peut être pratique pour localiser les moments de transition.
+
+```{r}
+seq |> seqHtplot(group = typo)
+seq |> ggseqeplot(group = typo)
+```
+
+## Étapes suivantes
+
+Assez classiquement, on souhaitera analyser si chaque classe est associée à certaines caractéristiques sociodémographiques (ou autres) que l'on connaîtrait sur les individus.
+
+On retombe ici sur la stastistique descriptive bivariée classique (cf. @sec-statistique-bivariee) et éventuellement sur une régression logistique multinomiale (cf. @sec-regression-logistique-multinomiale).
+
 ## webin-R
 
 L'analyse de séquences est présentée sur YouTube dans le [webin-R #16](https://youtu.be/qCEougRU-bA) (*Analyse de séquences*).
@@ -8,10 +428,14 @@ L'analyse de séquences est présentée sur YouTube dans le [webin-R #16](https:
 
 ## Lectures complémentaires
 
+-   [*L’analyse statistique des trajectoires*](https://books.openedition.org/ined/16670) par Nicolas Robette, Collection : Méthodes et savoirs n°12, éditions de l'Ined, 2021 (accès freemium).
+
+-   [*Tutoriel d'analyse de séquences*](https://nakala.fr/10.34847/nkl.bdccx20o) par Nicolas Robette (doi : [10.34847/nkl.bdccx20o](https://doi.org/10.34847/nkl.bdccx20o))
+
 -   [*L’analyse de séquences : une introduction avec le logiciel R et le package TraMineR*](https://quanti.hypotheses.org/686), par Nicolas Robette, carnet Quanti sur Hyoptheses.org, 2012.
 
 -   [*Explorer et décrire les parcours de vie : les typologies de trajectoires*](https://www.ceped.org/fr/publications-ressources/archives-des-editions-du-ceped/les-clefs-pour/article/explorer-et-decrire-les-parcours) par Nicolas Robette, collection Les clefs pour, éditions du Ceped, 2011 (en accès libre).
 
--   [*Tutoriel d'analyse de séquences*](https://nakala.fr/10.34847/nkl.bdccx20o) par Nicolas Robette (doi : [10.34847/nkl.bdccx20o](https://doi.org/10.34847/nkl.bdccx20o))
+-   [*Mining sequence data in R with the TraMineR package: A user’s guide*](https://mephisto.unige.ch/pub/TraMineR/doc/TraMineR-Users-Guide.pdf) par Alexis Gabadinho, Gilbert Ritschard, Matthias Studer and Nicolas S. Müller. Il s'agit du guide d'utilisation officiel de `{TraMineR}` et il constitue une solide introduction à l'analyse de séquences.
 
--   [*L’analyse statistique des trajectoires*](https://www.ined.fr/fr/publications/editions/methodes-savoirs/l-analyse-statistique-des-trajectoires/) par Nicolas Robette, Collection : Méthodes et savoirs n°12, éditions de l'Ined, 2021 (livre payant).
+-   "[What Matters in Differences Between Life Trajectories: A Comparative Review of Sequence Dissimilarity Measures Open Access](https://academic.oup.com/jrsssa/article/179/2/481/7068212)" par Matthias Studer et Gilbert Ritschard, *Journal of the Royal Statistical Society Series A: Statistics in Society*, Volume 179, Issue 2, February 2016, Pages 481–511, <https://doi.org/10.1111/rssa.12125>.
