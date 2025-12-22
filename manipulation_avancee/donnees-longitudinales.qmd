@@ -161,15 +161,39 @@ Nous pouvons ainsi voir que l'individu n'avait pas de logement indépendant de l
 Si l'on passe plusieurs variables à `by`, alors une nouvelle période sera créée à chaque changement d'une de ces variables.
 
 ```{r}
-dlong |> 
+dperiods <-
+  dlong |> 
   long_to_periods(
     id = id_ind,
     start = age,
     by = c(slog, smat, nenf)
+  ) |> 
+  rename(
+    debut = age,
+    fin = .stop
   )
+dperiods
 ```
 
 Pour repasser d'un format long à un format large, on aura recours à `tidyr::pivot_wider()` et pour le passage d'un format périodique à un format long à `guideR::periods_to_long()`.
+
+```{r}
+dlong |> 
+  pivot_wider(
+    id_cols = id_ind,
+    names_from = age,
+    names_prefix = "log_",
+    values_from = slog
+  )
+
+dperiods |> 
+  periods_to_long(
+    start = debut,
+    stop = fin,
+    time_step = 1,
+    time_name = "age"
+  )
+```
 
 ## Exemples de visualisation et de manipulation
 
