@@ -777,7 +777,7 @@ cookieconsent.run({
 ✔ dplyr     1.1.4     ✔ readr     2.1.6
 ✔ forcats   1.0.1     ✔ stringr   1.6.0
 ✔ ggplot2   4.0.1     ✔ tibble    3.3.0
-✔ lubridate 1.9.4     ✔ tidyr     1.3.1
+✔ lubridate 1.9.4     ✔ tidyr     1.3.2
 ✔ purrr     1.2.0     
 ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
 ✖ dplyr::filter() masks stats::filter()
@@ -1014,16 +1014,22 @@ $ nenf35 &lt;dbl&gt; 1, 2, 2, 2, 2, 1, 0, 3, 3, 0, 2, 2, 3, 1, 0, 1, 2, 2, 2, 1,
 <p>Nous pouvons ainsi voir que l’individu n’avait pas de logement indépendant de l’âge de 14 à 26 ans puis a eu un logement indépendant de 26 à 35 ans.</p>
 <p>Si l’on passe plusieurs variables à <code>by</code>, alors une nouvelle période sera créée à chaque changement d’une de ces variables.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1"></a>dlong <span class="sc">|&gt;</span> </span>
-<span id="cb15-2"><a href="#cb15-2"></a>  <span class="fu">long_to_periods</span>(</span>
-<span id="cb15-3"><a href="#cb15-3"></a>    <span class="at">id =</span> id_ind,</span>
-<span id="cb15-4"><a href="#cb15-4"></a>    <span class="at">start =</span> age,</span>
-<span id="cb15-5"><a href="#cb15-5"></a>    <span class="at">by =</span> <span class="fu">c</span>(slog, smat, nenf)</span>
-<span id="cb15-6"><a href="#cb15-6"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1"></a>dperiods <span class="ot">&lt;-</span></span>
+<span id="cb15-2"><a href="#cb15-2"></a>  dlong <span class="sc">|&gt;</span> </span>
+<span id="cb15-3"><a href="#cb15-3"></a>  <span class="fu">long_to_periods</span>(</span>
+<span id="cb15-4"><a href="#cb15-4"></a>    <span class="at">id =</span> id_ind,</span>
+<span id="cb15-5"><a href="#cb15-5"></a>    <span class="at">start =</span> age,</span>
+<span id="cb15-6"><a href="#cb15-6"></a>    <span class="at">by =</span> <span class="fu">c</span>(slog, smat, nenf)</span>
+<span id="cb15-7"><a href="#cb15-7"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb15-8"><a href="#cb15-8"></a>  <span class="fu">rename</span>(</span>
+<span id="cb15-9"><a href="#cb15-9"></a>    <span class="at">debut =</span> age,</span>
+<span id="cb15-10"><a href="#cb15-10"></a>    <span class="at">fin =</span> .stop</span>
+<span id="cb15-11"><a href="#cb15-11"></a>  )</span>
+<span id="cb15-12"><a href="#cb15-12"></a>dperiods</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 2,203 × 6
 # Groups:   id_ind [500]
-   id_ind   age .stop slog                 smat              nenf       
+   id_ind debut   fin slog                 smat              nenf       
     &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;fct&gt;                &lt;fct&gt;             &lt;fct&gt;      
  1      1    14    26 non indépendant      jamais en union   sans enfant
  2      1    26    31 logement indépendant union cohabitante sans enfant
@@ -1039,19 +1045,71 @@ $ nenf35 &lt;dbl&gt; 1, 2, 2, 2, 2, 1, 0, 3, 3, 0, 2, 2, 3, 1, 0, 1, 2, 2, 2, 1,
 </div>
 </div>
 <p>Pour repasser d’un format long à un format large, on aura recours à <code><a href="https://tidyr.tidyverse.org/reference/pivot_wider.html">tidyr::pivot_wider()</a></code> et pour le passage d’un format périodique à un format long à <code><a href="https://larmarange.github.io/guideR/reference/periods_to_long.html">guideR::periods_to_long()</a></code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1"></a>dlong <span class="sc">|&gt;</span> </span>
+<span id="cb17-2"><a href="#cb17-2"></a>  <span class="fu">pivot_wider</span>(</span>
+<span id="cb17-3"><a href="#cb17-3"></a>    <span class="at">id_cols =</span> id_ind,</span>
+<span id="cb17-4"><a href="#cb17-4"></a>    <span class="at">names_from =</span> age,</span>
+<span id="cb17-5"><a href="#cb17-5"></a>    <span class="at">names_prefix =</span> <span class="st">"log_"</span>,</span>
+<span id="cb17-6"><a href="#cb17-6"></a>    <span class="at">values_from =</span> slog</span>
+<span id="cb17-7"><a href="#cb17-7"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 500 × 23
+   id_ind log_14  log_15 log_16 log_17 log_18 log_19 log_20 log_21 log_22 log_23
+    &lt;int&gt; &lt;fct&gt;   &lt;fct&gt;  &lt;fct&gt;  &lt;fct&gt;  &lt;fct&gt;  &lt;fct&gt;  &lt;fct&gt;  &lt;fct&gt;  &lt;fct&gt;  &lt;fct&gt; 
+ 1      1 non in… non i… non i… non i… non i… non i… non i… non i… non i… non i…
+ 2      2 non in… non i… non i… non i… non i… non i… non i… non i… logem… logem…
+ 3      3 non in… non i… non i… non i… non i… non i… non i… non i… non i… non i…
+ 4      4 non in… non i… non i… non i… non i… non i… non i… non i… logem… logem…
+ 5      5 non in… non i… non i… non i… non i… non i… logem… logem… logem… logem…
+ 6      6 non in… non i… non i… non i… non i… logem… logem… non i… non i… logem…
+ 7      7 non in… non i… non i… non i… non i… non i… non i… non i… non i… non i…
+ 8      8 non in… non i… non i… non i… non i… non i… non i… non i… non i… logem…
+ 9      9 non in… non i… non i… logem… logem… logem… non i… non i… logem… logem…
+10     10 non in… non i… non i… non i… non i… non i… non i… non i… non i… non i…
+# ℹ 490 more rows
+# ℹ 12 more variables: log_24 &lt;fct&gt;, log_25 &lt;fct&gt;, log_26 &lt;fct&gt;, log_27 &lt;fct&gt;,
+#   log_28 &lt;fct&gt;, log_29 &lt;fct&gt;, log_30 &lt;fct&gt;, log_31 &lt;fct&gt;, log_32 &lt;fct&gt;,
+#   log_33 &lt;fct&gt;, log_34 &lt;fct&gt;, log_35 &lt;fct&gt;</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1"></a>dperiods <span class="sc">|&gt;</span> </span>
+<span id="cb19-2"><a href="#cb19-2"></a>  <span class="fu">periods_to_long</span>(</span>
+<span id="cb19-3"><a href="#cb19-3"></a>    <span class="at">start =</span> debut,</span>
+<span id="cb19-4"><a href="#cb19-4"></a>    <span class="at">stop =</span> fin,</span>
+<span id="cb19-5"><a href="#cb19-5"></a>    <span class="at">time_step =</span> <span class="dv">1</span>,</span>
+<span id="cb19-6"><a href="#cb19-6"></a>    <span class="at">time_name =</span> <span class="st">"age"</span></span>
+<span id="cb19-7"><a href="#cb19-7"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 12,703 × 5
+# Groups:   id_ind [500]
+   id_ind   age slog            smat            nenf       
+    &lt;int&gt; &lt;dbl&gt; &lt;fct&gt;           &lt;fct&gt;           &lt;fct&gt;      
+ 1      1    14 non indépendant jamais en union sans enfant
+ 2      1    15 non indépendant jamais en union sans enfant
+ 3      1    16 non indépendant jamais en union sans enfant
+ 4      1    17 non indépendant jamais en union sans enfant
+ 5      1    18 non indépendant jamais en union sans enfant
+ 6      1    19 non indépendant jamais en union sans enfant
+ 7      1    20 non indépendant jamais en union sans enfant
+ 8      1    21 non indépendant jamais en union sans enfant
+ 9      1    22 non indépendant jamais en union sans enfant
+10      1    23 non indépendant jamais en union sans enfant
+# ℹ 12,693 more rows</code></pre>
+</div>
+</div>
 </section><section id="exemples-de-visualisation-et-de-manipulation" class="level2" data-number="41.3"><h2 data-number="41.3" class="anchored" data-anchor-id="exemples-de-visualisation-et-de-manipulation">
 <span class="header-section-number">41.3</span> Exemples de visualisation et de manipulation</h2>
 <p>Pour visualiser rapidement les trajectoires individuelles, <a href="https://larmarange.github.io/guideR/">guideR</a> propose une fonction <code><a href="https://larmarange.github.io/guideR/reference/plot_trajectories.html">guideR::plot_trajectories()</a></code> qui part d’une table de données au format long. On parle de <em>tapis de séquences</em>. Par exemple, pour les trajectoires résidentielles selon l’âge.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1"></a>dlong <span class="sc">|&gt;</span> </span>
-<span id="cb17-2"><a href="#cb17-2"></a>  <span class="fu">plot_trajectories</span>(</span>
-<span id="cb17-3"><a href="#cb17-3"></a>    <span class="at">id =</span> id_ind,</span>
-<span id="cb17-4"><a href="#cb17-4"></a>    <span class="at">time =</span> age,</span>
-<span id="cb17-5"><a href="#cb17-5"></a>    <span class="at">fill =</span> slog</span>
-<span id="cb17-6"><a href="#cb17-6"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1"></a>dlong <span class="sc">|&gt;</span> </span>
+<span id="cb21-2"><a href="#cb21-2"></a>  <span class="fu">plot_trajectories</span>(</span>
+<span id="cb21-3"><a href="#cb21-3"></a>    <span class="at">id =</span> id_ind,</span>
+<span id="cb21-4"><a href="#cb21-4"></a>    <span class="at">time =</span> age,</span>
+<span id="cb21-5"><a href="#cb21-5"></a>    <span class="at">fill =</span> slog</span>
+<span id="cb21-6"><a href="#cb21-6"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
-<figure class="figure"><p><a href="donnees-longitudinales_files/figure-html/unnamed-chunk-10-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-1"><img src="donnees-longitudinales_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid figure-img" width="672"></a></p>
+<figure class="figure"><p><a href="donnees-longitudinales_files/figure-html/unnamed-chunk-11-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-1"><img src="donnees-longitudinales_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid figure-img" width="672"></a></p>
 </figure>
 </div>
 </div>
@@ -1060,15 +1118,15 @@ $ nenf35 &lt;dbl&gt; 1, 2, 2, 2, 2, 1, 0, 3, 3, 0, 2, 2, 3, 1, 0, 1, 2, 2, 2, 1,
 <p>Nous pouvons nous demander s’il y a un lien entre l’entrée en union et le statut résidentiel.</p>
 <p>Première étape, calculons, pour chaque individu, l’âge de première entrée en union. Il s’agit donc du plus petit âge ou le statut matrimonial est différent de <q>jamais en union</q>. Cela est relativement facile avec un format long et les verbes de <a href="https://dplyr.tidyverse.org">dplyr</a>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1"></a>age_1u <span class="ot">&lt;-</span></span>
-<span id="cb18-2"><a href="#cb18-2"></a>  dlong <span class="sc">|&gt;</span> </span>
-<span id="cb18-3"><a href="#cb18-3"></a>  <span class="fu">filter</span>(smat <span class="sc">!=</span> <span class="st">"jamais en union"</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb18-4"><a href="#cb18-4"></a>  <span class="fu">group_by</span>(id_ind) <span class="sc">|&gt;</span> </span>
-<span id="cb18-5"><a href="#cb18-5"></a>  <span class="fu">summarise</span>(<span class="at">age_1u =</span> <span class="fu">min</span>(age)) <span class="sc">|&gt;</span> </span>
-<span id="cb18-6"><a href="#cb18-6"></a>  <span class="fu">set_variable_labels</span>(</span>
-<span id="cb18-7"><a href="#cb18-7"></a>    <span class="at">age_1u =</span> <span class="st">"Âge à la première union"</span></span>
-<span id="cb18-8"><a href="#cb18-8"></a>  )</span>
-<span id="cb18-9"><a href="#cb18-9"></a>age_1u</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1"></a>age_1u <span class="ot">&lt;-</span></span>
+<span id="cb22-2"><a href="#cb22-2"></a>  dlong <span class="sc">|&gt;</span> </span>
+<span id="cb22-3"><a href="#cb22-3"></a>  <span class="fu">filter</span>(smat <span class="sc">!=</span> <span class="st">"jamais en union"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb22-4"><a href="#cb22-4"></a>  <span class="fu">group_by</span>(id_ind) <span class="sc">|&gt;</span> </span>
+<span id="cb22-5"><a href="#cb22-5"></a>  <span class="fu">summarise</span>(<span class="at">age_1u =</span> <span class="fu">min</span>(age)) <span class="sc">|&gt;</span> </span>
+<span id="cb22-6"><a href="#cb22-6"></a>  <span class="fu">set_variable_labels</span>(</span>
+<span id="cb22-7"><a href="#cb22-7"></a>    <span class="at">age_1u =</span> <span class="st">"Âge à la première union"</span></span>
+<span id="cb22-8"><a href="#cb22-8"></a>  )</span>
+<span id="cb22-9"><a href="#cb22-9"></a>age_1u</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 459 × 2
    id_ind age_1u
@@ -1088,21 +1146,21 @@ $ nenf35 &lt;dbl&gt; 1, 2, 2, 2, 2, 1, 0, 3, 3, 0, 2, 2, 3, 1, 0, 1, 2, 2, 2, 1,
 </div>
 <p>Ajoutons cette variable au fichier long et trions notre graphique précédent selon cette variable.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1"></a>dlong <span class="ot">&lt;-</span></span>
-<span id="cb20-2"><a href="#cb20-2"></a>  dlong <span class="sc">|&gt;</span> </span>
-<span id="cb20-3"><a href="#cb20-3"></a>  <span class="fu">left_join</span>(age_1u, <span class="at">by =</span> <span class="st">"id_ind"</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1"></a>dlong <span class="ot">&lt;-</span></span>
+<span id="cb24-2"><a href="#cb24-2"></a>  dlong <span class="sc">|&gt;</span> </span>
+<span id="cb24-3"><a href="#cb24-3"></a>  <span class="fu">left_join</span>(age_1u, <span class="at">by =</span> <span class="st">"id_ind"</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1"></a>dlong <span class="sc">|&gt;</span> </span>
-<span id="cb21-2"><a href="#cb21-2"></a>  <span class="fu">plot_trajectories</span>(</span>
-<span id="cb21-3"><a href="#cb21-3"></a>    <span class="at">id =</span> id_ind,</span>
-<span id="cb21-4"><a href="#cb21-4"></a>    <span class="at">time =</span> age,</span>
-<span id="cb21-5"><a href="#cb21-5"></a>    <span class="at">fill =</span> slog,</span>
-<span id="cb21-6"><a href="#cb21-6"></a>    <span class="at">sort_by =</span> age_1u</span>
-<span id="cb21-7"><a href="#cb21-7"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1"></a>dlong <span class="sc">|&gt;</span> </span>
+<span id="cb25-2"><a href="#cb25-2"></a>  <span class="fu">plot_trajectories</span>(</span>
+<span id="cb25-3"><a href="#cb25-3"></a>    <span class="at">id =</span> id_ind,</span>
+<span id="cb25-4"><a href="#cb25-4"></a>    <span class="at">time =</span> age,</span>
+<span id="cb25-5"><a href="#cb25-5"></a>    <span class="at">fill =</span> slog,</span>
+<span id="cb25-6"><a href="#cb25-6"></a>    <span class="at">sort_by =</span> age_1u</span>
+<span id="cb25-7"><a href="#cb25-7"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
-<figure class="figure"><p><a href="donnees-longitudinales_files/figure-html/unnamed-chunk-13-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-2"><img src="donnees-longitudinales_files/figure-html/unnamed-chunk-13-1.png" class="img-fluid figure-img" width="672"></a></p>
+<figure class="figure"><p><a href="donnees-longitudinales_files/figure-html/unnamed-chunk-14-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-2"><img src="donnees-longitudinales_files/figure-html/unnamed-chunk-14-1.png" class="img-fluid figure-img" width="672"></a></p>
 </figure>
 </div>
 </div>
@@ -1110,47 +1168,47 @@ $ nenf35 &lt;dbl&gt; 1, 2, 2, 2, 2, 1, 0, 3, 3, 0, 2, 2, 3, 1, 0, 1, 2, 2, 2, 1,
 <p>Ici, les individus avec le plus petit âge à la première union sont représentés en bas du graphique. On voit une diagonale se dessiner et les individus les plus bas dans le graphique obtiennent également un logement indépendant plus tôt.</p>
 <p>Il faut noter que certains individus n’ont pas vécu d’union avant 35 ans. Ces derniers n’apparaissent dans l’objet <code>age_1u</code> que nous avons créé plus tôt. Dès lors, après fusion, la variable <em>age_1u</em> a pour valeur <code>NA</code> pour ces derniers. Nous pourrions essayer d’isoler ces <q>célibataires de longue durée</q>. Créons une variable dédiée.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1"></a>dlong <span class="ot">&lt;-</span></span>
-<span id="cb22-2"><a href="#cb22-2"></a>  dlong <span class="sc">|&gt;</span> </span>
-<span id="cb22-3"><a href="#cb22-3"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb22-4"><a href="#cb22-4"></a>    <span class="at">celib =</span> <span class="fu">if_else</span>(</span>
-<span id="cb22-5"><a href="#cb22-5"></a>      <span class="fu">is.na</span>(age_1u),</span>
-<span id="cb22-6"><a href="#cb22-6"></a>      <span class="st">"célibataire jusqu'à 35 ans"</span>,</span>
-<span id="cb22-7"><a href="#cb22-7"></a>      <span class="st">"a connu au moins une union"</span></span>
-<span id="cb22-8"><a href="#cb22-8"></a>    ) <span class="sc">|&gt;</span> </span>
-<span id="cb22-9"><a href="#cb22-9"></a>      <span class="fu">as.factor</span>()</span>
-<span id="cb22-10"><a href="#cb22-10"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1"></a>dlong <span class="ot">&lt;-</span></span>
+<span id="cb26-2"><a href="#cb26-2"></a>  dlong <span class="sc">|&gt;</span> </span>
+<span id="cb26-3"><a href="#cb26-3"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb26-4"><a href="#cb26-4"></a>    <span class="at">celib =</span> <span class="fu">if_else</span>(</span>
+<span id="cb26-5"><a href="#cb26-5"></a>      <span class="fu">is.na</span>(age_1u),</span>
+<span id="cb26-6"><a href="#cb26-6"></a>      <span class="st">"célibataire jusqu'à 35 ans"</span>,</span>
+<span id="cb26-7"><a href="#cb26-7"></a>      <span class="st">"a connu au moins une union"</span></span>
+<span id="cb26-8"><a href="#cb26-8"></a>    ) <span class="sc">|&gt;</span> </span>
+<span id="cb26-9"><a href="#cb26-9"></a>      <span class="fu">as.factor</span>()</span>
+<span id="cb26-10"><a href="#cb26-10"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Vérifions cette variable en dessinant les trajectoires matrimoniales par sous-groupe grâce à l’argument <code>by</code>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1"></a>dlong <span class="sc">|&gt;</span> </span>
-<span id="cb23-2"><a href="#cb23-2"></a>  <span class="fu">plot_trajectories</span>(</span>
-<span id="cb23-3"><a href="#cb23-3"></a>    <span class="at">id =</span> id_ind,</span>
-<span id="cb23-4"><a href="#cb23-4"></a>    <span class="at">time =</span> age,</span>
-<span id="cb23-5"><a href="#cb23-5"></a>    <span class="at">fill =</span> smat,</span>
-<span id="cb23-6"><a href="#cb23-6"></a>    <span class="at">sort_by =</span> age_1u,</span>
-<span id="cb23-7"><a href="#cb23-7"></a>    <span class="at">by =</span> celib</span>
-<span id="cb23-8"><a href="#cb23-8"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1"></a>dlong <span class="sc">|&gt;</span> </span>
+<span id="cb27-2"><a href="#cb27-2"></a>  <span class="fu">plot_trajectories</span>(</span>
+<span id="cb27-3"><a href="#cb27-3"></a>    <span class="at">id =</span> id_ind,</span>
+<span id="cb27-4"><a href="#cb27-4"></a>    <span class="at">time =</span> age,</span>
+<span id="cb27-5"><a href="#cb27-5"></a>    <span class="at">fill =</span> smat,</span>
+<span id="cb27-6"><a href="#cb27-6"></a>    <span class="at">sort_by =</span> age_1u,</span>
+<span id="cb27-7"><a href="#cb27-7"></a>    <span class="at">by =</span> celib</span>
+<span id="cb27-8"><a href="#cb27-8"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
-<figure class="figure"><p><a href="donnees-longitudinales_files/figure-html/unnamed-chunk-15-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-3"><img src="donnees-longitudinales_files/figure-html/unnamed-chunk-15-1.png" class="img-fluid figure-img" width="672"></a></p>
+<figure class="figure"><p><a href="donnees-longitudinales_files/figure-html/unnamed-chunk-16-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-3"><img src="donnees-longitudinales_files/figure-html/unnamed-chunk-16-1.png" class="img-fluid figure-img" width="672"></a></p>
 </figure>
 </div>
 </div>
 </div>
 <p>Refaisons notre graphique des trajectoirs résidentielle.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1"></a>dlong <span class="sc">|&gt;</span> </span>
-<span id="cb24-2"><a href="#cb24-2"></a>  <span class="fu">plot_trajectories</span>(</span>
-<span id="cb24-3"><a href="#cb24-3"></a>    <span class="at">id =</span> id_ind,</span>
-<span id="cb24-4"><a href="#cb24-4"></a>    <span class="at">time =</span> age,</span>
-<span id="cb24-5"><a href="#cb24-5"></a>    <span class="at">fill =</span> slog,</span>
-<span id="cb24-6"><a href="#cb24-6"></a>    <span class="at">sort_by =</span> age_1u,</span>
-<span id="cb24-7"><a href="#cb24-7"></a>    <span class="at">by =</span> celib</span>
-<span id="cb24-8"><a href="#cb24-8"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1"></a>dlong <span class="sc">|&gt;</span> </span>
+<span id="cb28-2"><a href="#cb28-2"></a>  <span class="fu">plot_trajectories</span>(</span>
+<span id="cb28-3"><a href="#cb28-3"></a>    <span class="at">id =</span> id_ind,</span>
+<span id="cb28-4"><a href="#cb28-4"></a>    <span class="at">time =</span> age,</span>
+<span id="cb28-5"><a href="#cb28-5"></a>    <span class="at">fill =</span> slog,</span>
+<span id="cb28-6"><a href="#cb28-6"></a>    <span class="at">sort_by =</span> age_1u,</span>
+<span id="cb28-7"><a href="#cb28-7"></a>    <span class="at">by =</span> celib</span>
+<span id="cb28-8"><a href="#cb28-8"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
-<figure class="figure"><p><a href="donnees-longitudinales_files/figure-html/unnamed-chunk-16-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-4"><img src="donnees-longitudinales_files/figure-html/unnamed-chunk-16-1.png" class="img-fluid figure-img" width="672"></a></p>
+<figure class="figure"><p><a href="donnees-longitudinales_files/figure-html/unnamed-chunk-17-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-4"><img src="donnees-longitudinales_files/figure-html/unnamed-chunk-17-1.png" class="img-fluid figure-img" width="672"></a></p>
 </figure>
 </div>
 </div>
@@ -1158,28 +1216,28 @@ $ nenf35 &lt;dbl&gt; 1, 2, 2, 2, 2, 1, 0, 3, 3, 0, 2, 2, 3, 1, 0, 1, 2, 2, 2, 1,
 <p>Nos <q>célibataires</q> sont ici mieux isolés. En croisant les deux figures, il semble que pour celles et ceux qui se sont mis en union assez jeune, cela doit probablement correspondre au moment où ils ont eu un logement indépendant. Par contre, dans le haut du graphique, il y a plus d’hétérogénéité et l’accession à un logement indépenant semble moins corrélé à la mise en union.</p>
 <p>Pour poursuivre notre travail exploratoire, essayons de changer d’horloge et regardons comment évolue nos trajectoires si nous les centrons sur le moment de la mise en union. Calculons la durée (avant/après) par rapport à la première mise en union. Bien entendu, nos <q>célibataires</q> seront exclus de l’analyse puisqu’ils n’ont pax d’âge de première mise en union.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1"></a>dlong <span class="ot">&lt;-</span></span>
-<span id="cb25-2"><a href="#cb25-2"></a>  dlong <span class="sc">|&gt;</span> </span>
-<span id="cb25-3"><a href="#cb25-3"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb25-4"><a href="#cb25-4"></a>    <span class="at">duree_1u =</span> age <span class="sc">-</span> age_1u</span>
-<span id="cb25-5"><a href="#cb25-5"></a>  ) <span class="sc">|&gt;</span> </span>
-<span id="cb25-6"><a href="#cb25-6"></a>  <span class="fu">set_variable_labels</span>(</span>
-<span id="cb25-7"><a href="#cb25-7"></a>    <span class="at">duree_1u =</span> <span class="st">"Années avant/après la première mise en union"</span></span>
-<span id="cb25-8"><a href="#cb25-8"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1"></a>dlong <span class="ot">&lt;-</span></span>
+<span id="cb29-2"><a href="#cb29-2"></a>  dlong <span class="sc">|&gt;</span> </span>
+<span id="cb29-3"><a href="#cb29-3"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb29-4"><a href="#cb29-4"></a>    <span class="at">duree_1u =</span> age <span class="sc">-</span> age_1u</span>
+<span id="cb29-5"><a href="#cb29-5"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb29-6"><a href="#cb29-6"></a>  <span class="fu">set_variable_labels</span>(</span>
+<span id="cb29-7"><a href="#cb29-7"></a>    <span class="at">duree_1u =</span> <span class="st">"Années avant/après la première mise en union"</span></span>
+<span id="cb29-8"><a href="#cb29-8"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Il n’y a plus qu’à redessiner nos trajectoires en changeant d’horloge.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1"></a>dlong <span class="sc">|&gt;</span> </span>
-<span id="cb26-2"><a href="#cb26-2"></a>  <span class="fu">filter</span>(celib <span class="sc">==</span> <span class="st">"a connu au moins une union"</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb26-3"><a href="#cb26-3"></a>  <span class="fu">plot_trajectories</span>(</span>
-<span id="cb26-4"><a href="#cb26-4"></a>    <span class="at">id =</span> id_ind,</span>
-<span id="cb26-5"><a href="#cb26-5"></a>    <span class="at">time =</span> duree_1u,</span>
-<span id="cb26-6"><a href="#cb26-6"></a>    <span class="at">fill =</span> slog,</span>
-<span id="cb26-7"><a href="#cb26-7"></a>    <span class="at">sort_by =</span> age_1u,</span>
-<span id="cb26-8"><a href="#cb26-8"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1"></a>dlong <span class="sc">|&gt;</span> </span>
+<span id="cb30-2"><a href="#cb30-2"></a>  <span class="fu">filter</span>(celib <span class="sc">==</span> <span class="st">"a connu au moins une union"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb30-3"><a href="#cb30-3"></a>  <span class="fu">plot_trajectories</span>(</span>
+<span id="cb30-4"><a href="#cb30-4"></a>    <span class="at">id =</span> id_ind,</span>
+<span id="cb30-5"><a href="#cb30-5"></a>    <span class="at">time =</span> duree_1u,</span>
+<span id="cb30-6"><a href="#cb30-6"></a>    <span class="at">fill =</span> slog,</span>
+<span id="cb30-7"><a href="#cb30-7"></a>    <span class="at">sort_by =</span> age_1u,</span>
+<span id="cb30-8"><a href="#cb30-8"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
-<figure class="figure"><p><a href="donnees-longitudinales_files/figure-html/unnamed-chunk-18-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-5"><img src="donnees-longitudinales_files/figure-html/unnamed-chunk-18-1.png" class="img-fluid figure-img" width="672"></a></p>
+<figure class="figure"><p><a href="donnees-longitudinales_files/figure-html/unnamed-chunk-19-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-5"><img src="donnees-longitudinales_files/figure-html/unnamed-chunk-19-1.png" class="img-fluid figure-img" width="672"></a></p>
 </figure>
 </div>
 </div>
