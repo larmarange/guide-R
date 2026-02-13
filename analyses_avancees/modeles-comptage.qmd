@@ -297,7 +297,9 @@ mod1_quasi |>
   bold_labels()
 ```
 
-Les coefficients sont identiques à ceux obtenus avec le modèle de Poisson (cf. @tbl-regression-poisson), mais les intervalles de confiance sont plus larges et les p-valeurs plus élevées, traduisant la prise en compte d'une variance plus importante. Cela se voit aisément si l'on compare les coefficients avec `ggstats::ggcoef_compare()`.
+Les coefficients sont identiques à ceux obtenus avec le modèle de Poisson (cf. @tbl-regression-poisson), mais les intervalles de confiance sont plus larges et les p-valeurs plus élevées, traduisant la prise en compte d'une variance plus importante. Cela se voit aisément si l'on compare les coefficients avec `ggstats::ggcoef_compare()`.[^modeles-comptage-4]
+
+[^modeles-comptage-4]: Techniquement, si on l'applique à un modèle de quasi-Poisson, elle ne provoquera pas d'erreur mais renverra le même résultat qu'avec un modèle de Poisson classique. Voir <https://github.com/easystats/performance/issues/734>.
 
 ```{r}
 #| label: fig-compare-poisson-quasi
@@ -306,14 +308,9 @@ list(Poisson = mod1_poisson, "quasi-Poisson" = mod1_quasi) |>
   ggcoef_compare(exponentiate = TRUE)
 ```
 
-Le passage à un modèle de quasi-Poisson aura-t-il été suffisant pour régler notre problème de surdispersion ? La fonction `performance::check_overdispersion()` peut être appliquée à un modèle de quasi-Poisson.
+Le passage à un modèle de quasi-Poisson aura-t-il été suffisant pour régler notre problème de surdispersion ? La fonction `performance::check_overdispersion()` n'est pas adaptée aux modèles de quasi-Poisson. De plus, les fonctions `performance::check_predictions()` ou encore `guideR::observed_vs_theoretical()` ne fonctionnent pas avec les modèles de quasi-Poisson.
 
-```{r}
-mod1_quasi |> 
-  performance::check_overdispersion()
-```
-
-Il semble que nous ayons toujours une surdispersion, insuffisamment corrigée par le modèle de quasi-Poisson.
+Il est de fait difficile de savoir le modèle de quasi-Poisson est suffisant pour corriger notre problème de surdispersion. En pratique, il est préférable de passer directement au modèle binomial négatif.
 
 ## Modèle binomial négatif
 
@@ -432,9 +429,9 @@ mod2_poisson |>
   guideR::observed_vs_theoretical()
 ```
 
-Nous voyons très clairement un décalage des deux distributions. Notre modèle de Poisson n'arrive pas à capturer la variabilité des observations. Faisons le test de surdispersion pour vérifier[^modeles-comptage-4].
+Nous voyons très clairement un décalage des deux distributions. Notre modèle de Poisson n'arrive pas à capturer la variabilité des observations. Faisons le test de surdispersion pour vérifier[^modeles-comptage-5].
 
-[^modeles-comptage-4]: Il est possible que l'installation du package `{DHARMa}` soit requise pour la bonne réalisation du test.
+[^modeles-comptage-5]: Il est possible que l'installation du package `{DHARMa}` soit requise pour la bonne réalisation du test.
 
 ```{r}
 #| echo: false
@@ -622,7 +619,7 @@ mod3_log |>
   ggstats::ggcoef_table(exponentiate = TRUE)
 ```
 
-Nous obtenons des résultats assez proches de ceux du modèle de Poisson. Notons cependant les différents avis affichés qui nous indiquent que le modèle a eu des difficultés à converger[^modeles-comptage-5].
+Nous obtenons des résultats assez proches de ceux du modèle de Poisson. Notons cependant les différents avis affichés qui nous indiquent que le modèle a eu des difficultés à converger[^modeles-comptage-6].
 
 Le package `{logbin}` propose, via `logbin::logbin()`, une implémentation de la régression log-binomiale en proposant des algorithmes de convergence plus stables.
 
@@ -642,7 +639,7 @@ mod3_logbin |>
 ```
 :::
 
-[^modeles-comptage-5]: Sur ce sujet, on pourra consulter l'article *Log-binomial models: exploring failed convergence* par Tyler Williamson, Misha Eliasziw et Gordon Hilton Fick, DOI: [10.1186/1742-7622-10-14](https://doi.org/10.1186/1742-7622-10-14). On pourra également consulter cet échange sur [StackExchange](https://stats.stackexchange.com/a/321407).
+[^modeles-comptage-6]: Sur ce sujet, on pourra consulter l'article *Log-binomial models: exploring failed convergence* par Tyler Williamson, Misha Eliasziw et Gordon Hilton Fick, DOI: [10.1186/1742-7622-10-14](https://doi.org/10.1186/1742-7622-10-14). On pourra également consulter cet échange sur [StackExchange](https://stats.stackexchange.com/a/321407).
 
 ## Données pondérées et plan d'échantillonnage
 
@@ -666,9 +663,9 @@ mod4_quasi <- svyglm(
 )
 ```
 
-Il est tout à fait possible d'appliquer `stats::step()` à ces modèles[^modeles-comptage-6].
+Il est tout à fait possible d'appliquer `stats::step()` à ces modèles[^modeles-comptage-7].
 
-[^modeles-comptage-6]: Y compris, dans le cas présent, au modèle de quasi-Poisson.
+[^modeles-comptage-7]: Y compris, dans le cas présent, au modèle de quasi-Poisson.
 
 Concernant la régression binomiale négative, il n'y a pas d'implémentation fournie directement par `{survey}`. Cependant, le package `{sjstats}` en propose une via la fonction `sjstats::svyglm.nb()`.
 
@@ -697,9 +694,9 @@ mod4_nb_alt <- svrepmisc::svynb(
 ```
 :::
 
-## Tuto@Mate
+## Tuto\@Mate
 
-Les modèles de comptage sont présentés sur YouTube dans le [Tuto@Mate#62](https://youtu.be/T5FiU2oaxXM).
+Les modèles de comptage sont présentés sur YouTube dans le [Tuto\@Mate#62](https://youtu.be/T5FiU2oaxXM).
 
 {{< video https://youtu.be/T5FiU2oaxXM >}}
 
