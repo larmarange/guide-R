@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="fr" xml:lang="fr"><head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.7.27">
+<meta name="generator" content="quarto-1.8.27">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 <title>46&nbsp; Régression logistique multinomiale – guide-R</title>
 <style>
@@ -68,18 +68,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../site_libs/cookie-consent/cookie-consent.css" rel="stylesheet">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
 <script src="../site_libs/quarto-html/popper.min.js"></script>
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-985aa47af68dae11cd4d235c71fb941e.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-6c49c5477b92c77c9eb341f9299c235f.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-985aa47af68dae11cd4d235c71fb941e.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-ed96de9b727972fe78a7b5d16c58bf87.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-4d9afe2b8d18ee9fa5d0d57b5ed4214d.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-ed96de9b727972fe78a7b5d16c58bf87.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-1706ad55a43eb6182cc66969adfb4558.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../site_libs/bootstrap/bootstrap-dark-e07f40149b440be50f716415da65e4f4.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<link href="../site_libs/bootstrap/bootstrap-1706ad55a43eb6182cc66969adfb4558.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-bd89720b472e789133713356f69e05bb.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-19020347c2de3e9282294d0be578f340.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../site_libs/bootstrap/bootstrap-bd89720b472e789133713356f69e05bb.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <script src="../site_libs/quarto-contrib/glightbox/glightbox.min.js"></script>
 <link href="../site_libs/quarto-contrib/glightbox/glightbox.min.css" rel="stylesheet">
 <link href="../site_libs/quarto-contrib/glightbox/lightbox.css" rel="stylesheet"><script id="quarto-search-options" type="application/json">{
@@ -149,7 +150,7 @@ cookieconsent.run({
         toggleBodyColorMode(bsSheetEl);
       }
     }
-    window.setColorSchemeToggle = (alternate) => {
+    const setColorSchemeToggle = (alternate) => {
       const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
       for (let i=0; i < toggles.length; i++) {
         const toggle = toggles[i];
@@ -182,7 +183,7 @@ cookieconsent.run({
       }
       manageTransitions('#quarto-margin-sidebar .nav-link', true);
       // Switch the toggles
-      window.setColorSchemeToggle(alternate)
+      setColorSchemeToggle(alternate)
       // Hack to workaround the fact that safari doesn't
       // properly recolor the scrollbar when toggling (#1455)
       if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
@@ -222,7 +223,7 @@ cookieconsent.run({
     const isFileUrl = () => {
       return window.location.protocol === 'file:';
     }
-    window.hasAlternateSentinel = () => {
+    const hasAlternateSentinel = () => {
       let styleSentinel = getColorSchemeSentinel();
       if (styleSentinel !== null) {
         return styleSentinel === "alternate";
@@ -250,7 +251,7 @@ cookieconsent.run({
       const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
       const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
       let newTheme = '';
-      if(darkModeDefault) {
+      if(authorPrefersDark) {
         newTheme = isAlternate ? baseTheme : alternateTheme;
       } else {
         newTheme = isAlternate ? alternateTheme : baseTheme;
@@ -273,20 +274,22 @@ cookieconsent.run({
         changeGiscusTheme();
       }
     };
-    const darkModeDefault = false;
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
       document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
       document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
     let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
     // Dark / light mode switch
     window.quartoToggleColorScheme = () => {
       // Read the current dark / light value
-      let toAlternate = !window.hasAlternateSentinel();
+      let toAlternate = !hasAlternateSentinel();
       toggleColorMode(toAlternate);
       setStyleSentinel(toAlternate);
       toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
     };
     // Switch to dark mode if need be
-    if (window.hasAlternateSentinel()) {
+    if (hasAlternateSentinel()) {
       toggleColorMode(true);
     } else {
       toggleColorMode(false);
@@ -309,7 +312,7 @@ cookieconsent.run({
 <!-- sidebar -->
   <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto"><div class="pt-lg-2 mt-2 text-left sidebar-header sidebar-header-stacked">
       <a href="../index.html" class="sidebar-logo-link">
-      <img src="../ressources/typewriter.png" alt="" class="sidebar-logo py-0 d-lg-inline d-none"></a>
+      <img src="../ressources/typewriter.png" alt="" class="sidebar-logo light-content py-0 d-lg-inline d-none"><img src="../ressources/typewriter.png" alt="" class="sidebar-logo dark-content py-0 d-lg-inline d-none"></a>
     <div class="sidebar-title mb-0 py-0">
       <a href="../">guide-R</a> 
         <div class="sidebar-tools-main tools-wide">
@@ -763,14 +766,14 @@ cookieconsent.run({
 <span class="header-section-number">46.1</span> Données d’illustration</h2>
 <p>Pour illustrer la régression logistique multinomiale, nous allons reprendre le jeu de données <code>hdv2003</code> du package <a href="https://juba.github.io/questionr/">questionr</a> et portant sur l’enquête <em>histoires de vie 2003</em> de l’Insee.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="fu">library</span>(tidyverse)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="fu">library</span>(tidyverse)</span>
 <span id="cb1-2"><a href="#cb1-2"></a><span class="fu">library</span>(labelled)</span>
 <span id="cb1-3"><a href="#cb1-3"></a><span class="fu">data</span>(<span class="st">"hdv2003"</span>, <span class="at">package =</span> <span class="st">"questionr"</span>)</span>
-<span id="cb1-4"><a href="#cb1-4"></a>d <span class="ot">&lt;-</span> hdv2003</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-4"><a href="#cb1-4"></a>d <span class="ot">&lt;-</span> hdv2003</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Nous allons considérer comme variable d’intérêt la variable <em>trav.satisf</em>, à savoir la satisfaction ou l’insatisfaction au travail.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a>d <span class="sc">|&gt;</span> guideR<span class="sc">::</span><span class="fu">proportion</span>(trav.satisf)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a>d <span class="sc">|&gt;</span> guideR<span class="sc">::</span><span class="fu">proportion</span>(trav.satisf)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 4 × 4
   trav.satisf        n     N  prop
@@ -783,15 +786,15 @@ cookieconsent.run({
 </div>
 <p>Nous allons choisir comme modalité de référence la position intermédiaire, à savoir l’«&nbsp;équilibre&nbsp;», que nous allons donc définir comme la première modalité du facteur.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a>d<span class="sc">$</span>trav.satisf <span class="ot">&lt;-</span> d<span class="sc">$</span>trav.satisf <span class="sc">|&gt;</span> <span class="fu">fct_relevel</span>(<span class="st">"Equilibre"</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a>d<span class="sc">$</span>trav.satisf <span class="ot">&lt;-</span> d<span class="sc">$</span>trav.satisf <span class="sc">|&gt;</span> <span class="fu">fct_relevel</span>(<span class="st">"Equilibre"</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Nous allons aussi en profiter pour raccourcir les étiquettes de la variable <em>trav.imp</em>&nbsp;:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a><span class="fu">levels</span>(d<span class="sc">$</span>trav.imp) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"Le plus"</span>, <span class="st">"Aussi"</span>, <span class="st">"Moins"</span>, <span class="st">"Peu"</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a><span class="fu">levels</span>(d<span class="sc">$</span>trav.imp) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"Le plus"</span>, <span class="st">"Aussi"</span>, <span class="st">"Moins"</span>, <span class="st">"Peu"</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Enfin, procédons à quelques recodages additionnels&nbsp;:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a>d <span class="ot">&lt;-</span> d <span class="sc">|&gt;</span> </span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a>d <span class="ot">&lt;-</span> d <span class="sc">|&gt;</span> </span>
 <span id="cb6-2"><a href="#cb6-2"></a>  <span class="fu">mutate</span>(</span>
 <span id="cb6-3"><a href="#cb6-3"></a>    <span class="at">sexe =</span> sexe <span class="sc">|&gt;</span> <span class="fu">fct_relevel</span>(<span class="st">"Femme"</span>),</span>
 <span id="cb6-4"><a href="#cb6-4"></a>    <span class="at">groupe_ages =</span> age <span class="sc">|&gt;</span></span>
@@ -821,16 +824,16 @@ cookieconsent.run({
 <span id="cb6-28"><a href="#cb6-28"></a>    <span class="at">groupe_ages =</span> <span class="st">"Groupe d'âges"</span>,</span>
 <span id="cb6-29"><a href="#cb6-29"></a>    <span class="at">etudes =</span> <span class="st">"Niveau d'études"</span>,</span>
 <span id="cb6-30"><a href="#cb6-30"></a>    <span class="at">trav.imp =</span> <span class="st">"Importance accordée au travail"</span></span>
-<span id="cb6-31"><a href="#cb6-31"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb6-31"><a href="#cb6-31"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section><section id="calcul-du-modèle-multinomial" class="level2 page-columns page-full" data-number="46.2"><h2 data-number="46.2" class="anchored" data-anchor-id="calcul-du-modèle-multinomial">
 <span class="header-section-number">46.2</span> Calcul du modèle multinomial</h2>
 <p>Pour calculer un modèle logistique multinomial, nous allons utiliser la fonction <code><a href="https://rdrr.io/pkg/nnet/man/multinom.html">nnet::multinom()</a></code> de l’extension <a href="http://www.stats.ox.ac.uk/pub/MASS4/">nnet</a><a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>. La syntaxe de <code><a href="https://rdrr.io/pkg/nnet/man/multinom.html">nnet::multinom()</a></code> est similaire à celle de <code><a href="https://rdrr.io/r/stats/glm.html">glm()</a></code>, le paramètre <code>family</code> en moins.</p>
 <div class="no-row-height column-margin column-container"><div id="fn1"><p><sup>1</sup>&nbsp;Il existe plusieurs alternatives possibles&nbsp;: la fonction <code><a href="https://rdrr.io/pkg/VGAM/man/vglm.html">VGAM::vglm()</a></code> avec <code>family = VGAM::multinomial</code> ou encore <code>mlogit::mlogit()</code>. Ces deux fonctions sont un peu plus complexes à mettre en œuvre. On se référera à la documentation de chaque package. Le support des modèles <code>mlogit()</code> et <code>vglm()</code> est aussi plus limité dans d’autres packages tels que <a href="https://larmarange.github.io/broom.helpers/">broom.helpers</a>, <a href="https://github.com/ddsjoberg/gtsummary">gtsummary</a>, <a href="https://larmarange.github.io/ggstats/">ggstats</a> ou encore <a href="https://marginaleffects.com/">marginaleffects</a>.</p></div></div><div class="cell">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a>reg <span class="ot">&lt;-</span> nnet<span class="sc">::</span><span class="fu">multinom</span>(</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a>reg <span class="ot">&lt;-</span> nnet<span class="sc">::</span><span class="fu">multinom</span>(</span>
 <span id="cb7-2"><a href="#cb7-2"></a>  trav.satisf <span class="sc">~</span> sexe <span class="sc">+</span> etudes <span class="sc">+</span> groupe_ages <span class="sc">+</span> trav.imp,</span>
 <span id="cb7-3"><a href="#cb7-3"></a>  <span class="at">data =</span> d</span>
-<span id="cb7-4"><a href="#cb7-4"></a>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb7-4"><a href="#cb7-4"></a>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># weights:  36 (22 variable)
 initial  value 1151.345679 
@@ -842,7 +845,7 @@ converged</code></pre>
 </div>
 <p>Comme pour la régression logistique binaire, il est possible de réaliser une sélection pas à pas descendante (cf. <a href="../analyses/selection-modele-pas-a-pas.html" class="quarto-xref"><span>Chapitre 24</span></a>)&nbsp;:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a>reg2 <span class="ot">&lt;-</span> reg <span class="sc">|&gt;</span> <span class="fu">step</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a>reg2 <span class="ot">&lt;-</span> reg <span class="sc">|&gt;</span> <span class="fu">step</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
 <div class="cell-output cell-output-stdout">
@@ -863,12 +866,12 @@ trying - trav.imp </code></pre>
 <p>La fonction <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/tbl_regression.html">gtsummary::tbl_regression()</a></code> peut gérer ce type de modèles, et va afficher les deux séries de coefficients l’une au-dessus de l’autre. Nous allons indiquer <code>exponentiate = TRUE</code> car, comme pour la régression logistique binaire, l’exponentielle des coefficients peut s’interpréter comme des <em>odds ratios</em>.</p>
 <p>Dans le cas présent, le tableau retourné est un tableau <q>groupé</q>, c’est-à-dire que sa structure est légèrement différente, avec les coefficients groupés par niveau de la variable à expliquer. De fait, les fonctions comme <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/bold_italicize_labels_levels.html">gtsummary::bold_labels()</a></code> ne fonctionneront pas forcément et il n’y pas de fonction native pour la mise en forme des étiquettes des groupes. On pourra alors avoir recours à la fonction <code><a href="https://larmarange.github.io/guideR/reference/grouped_tbl_pivot_wider.html">guideR::style_grouped_tbl()</a></code> de <a href="https://larmarange.github.io/guideR/">guideR</a>, le package compagnon de <em>guide-R</em>. <strong>Attention :</strong> le tableau sera converti au format <code>gt</code> afin de mettre en forme les étiquettes des groupes. On appellera donc <code><a href="https://larmarange.github.io/guideR/reference/grouped_tbl_pivot_wider.html">guideR::style_grouped_tbl()</a></code> en tout dernier. En cas de conversion dans un autre format (<em>data frame</em>, <code>flextable</code>, …), on évitera donc cette fonction.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a><span class="fu">library</span>(gtsummary)</span>
-<span id="cb11-2"><a href="#cb11-2"></a><span class="fu">theme_gtsummary_language</span>(<span class="st">"fr"</span>, <span class="at">decimal.mark =</span> <span class="st">","</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a><span class="fu">library</span>(gtsummary)</span>
+<span id="cb11-2"><a href="#cb11-2"></a><span class="fu">theme_gtsummary_language</span>(<span class="st">"fr"</span>, <span class="at">decimal.mark =</span> <span class="st">","</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell page-columns page-full">
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a>tbl <span class="ot">&lt;-</span> reg2 <span class="sc">|&gt;</span> </span>
-<span id="cb12-2"><a href="#cb12-2"></a>  <span class="fu">tbl_regression</span>(<span class="at">exponentiate =</span> <span class="cn">TRUE</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a>tbl <span class="ot">&lt;-</span> reg2 <span class="sc">|&gt;</span> </span>
+<span id="cb12-2"><a href="#cb12-2"></a>  <span class="fu">tbl_regression</span>(<span class="at">exponentiate =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>ℹ Multinomial models, multi-component models and other groups models have a
   different underlying structure than the models gtsummary was designed for.
@@ -876,27 +879,27 @@ trying - trav.imp </code></pre>
   unexpected results.
 ℹ Suppress this message with `?suppressMessages()`.</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a>tbl <span class="sc">|&gt;</span> guideR<span class="sc">::</span><span class="fu">style_grouped_tbl</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a>tbl <span class="sc">|&gt;</span> guideR<span class="sc">::</span><span class="fu">style_grouped_tbl</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div id="tbl-tbl_regression-multinom" class="cell quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-tbl figure page-columns page-full"><div aria-describedby="tbl-tbl_regression-multinom-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
-<div id="yogmnhgrcz" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#yogmnhgrcz table {
+<div id="mmzranltpd" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#mmzranltpd table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#yogmnhgrcz thead, #yogmnhgrcz tbody, #yogmnhgrcz tfoot, #yogmnhgrcz tr, #yogmnhgrcz td, #yogmnhgrcz th {
+#mmzranltpd thead, #mmzranltpd tbody, #mmzranltpd tfoot, #mmzranltpd tr, #mmzranltpd td, #mmzranltpd th {
   border-style: none;
 }
 
-#yogmnhgrcz p {
+#mmzranltpd p {
   margin: 0;
   padding: 0;
 }
 
-#yogmnhgrcz .gt_table {
+#mmzranltpd .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -922,12 +925,12 @@ trying - trav.imp </code></pre>
   border-left-color: #D3D3D3;
 }
 
-#yogmnhgrcz .gt_caption {
+#mmzranltpd .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#yogmnhgrcz .gt_title {
+#mmzranltpd .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -939,7 +942,7 @@ trying - trav.imp </code></pre>
   border-bottom-width: 0;
 }
 
-#yogmnhgrcz .gt_subtitle {
+#mmzranltpd .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -951,7 +954,7 @@ trying - trav.imp </code></pre>
   border-top-width: 0;
 }
 
-#yogmnhgrcz .gt_heading {
+#mmzranltpd .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -963,13 +966,13 @@ trying - trav.imp </code></pre>
   border-right-color: #D3D3D3;
 }
 
-#yogmnhgrcz .gt_bottom_border {
+#mmzranltpd .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#yogmnhgrcz .gt_col_headings {
+#mmzranltpd .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -984,7 +987,7 @@ trying - trav.imp </code></pre>
   border-right-color: #D3D3D3;
 }
 
-#yogmnhgrcz .gt_col_heading {
+#mmzranltpd .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1004,7 +1007,7 @@ trying - trav.imp </code></pre>
   overflow-x: hidden;
 }
 
-#yogmnhgrcz .gt_column_spanner_outer {
+#mmzranltpd .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1016,15 +1019,15 @@ trying - trav.imp </code></pre>
   padding-right: 4px;
 }
 
-#yogmnhgrcz .gt_column_spanner_outer:first-child {
+#mmzranltpd .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#yogmnhgrcz .gt_column_spanner_outer:last-child {
+#mmzranltpd .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#yogmnhgrcz .gt_column_spanner {
+#mmzranltpd .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -1036,11 +1039,11 @@ trying - trav.imp </code></pre>
   width: 100%;
 }
 
-#yogmnhgrcz .gt_spanner_row {
+#mmzranltpd .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#yogmnhgrcz .gt_group_heading {
+#mmzranltpd .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1066,7 +1069,7 @@ trying - trav.imp </code></pre>
   text-align: left;
 }
 
-#yogmnhgrcz .gt_empty_group_heading {
+#mmzranltpd .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -1081,15 +1084,15 @@ trying - trav.imp </code></pre>
   vertical-align: middle;
 }
 
-#yogmnhgrcz .gt_from_md > :first-child {
+#mmzranltpd .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#yogmnhgrcz .gt_from_md > :last-child {
+#mmzranltpd .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#yogmnhgrcz .gt_row {
+#mmzranltpd .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1108,7 +1111,7 @@ trying - trav.imp </code></pre>
   overflow-x: hidden;
 }
 
-#yogmnhgrcz .gt_stub {
+#mmzranltpd .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1121,7 +1124,7 @@ trying - trav.imp </code></pre>
   padding-right: 5px;
 }
 
-#yogmnhgrcz .gt_stub_row_group {
+#mmzranltpd .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1135,15 +1138,15 @@ trying - trav.imp </code></pre>
   vertical-align: top;
 }
 
-#yogmnhgrcz .gt_row_group_first td {
+#mmzranltpd .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#yogmnhgrcz .gt_row_group_first th {
+#mmzranltpd .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#yogmnhgrcz .gt_summary_row {
+#mmzranltpd .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1153,16 +1156,16 @@ trying - trav.imp </code></pre>
   padding-right: 5px;
 }
 
-#yogmnhgrcz .gt_first_summary_row {
+#mmzranltpd .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#yogmnhgrcz .gt_first_summary_row.thick {
+#mmzranltpd .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#yogmnhgrcz .gt_last_summary_row {
+#mmzranltpd .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1172,7 +1175,7 @@ trying - trav.imp </code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#yogmnhgrcz .gt_grand_summary_row {
+#mmzranltpd .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1182,7 +1185,7 @@ trying - trav.imp </code></pre>
   padding-right: 5px;
 }
 
-#yogmnhgrcz .gt_first_grand_summary_row {
+#mmzranltpd .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1192,7 +1195,7 @@ trying - trav.imp </code></pre>
   border-top-color: #D3D3D3;
 }
 
-#yogmnhgrcz .gt_last_grand_summary_row_top {
+#mmzranltpd .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1202,11 +1205,11 @@ trying - trav.imp </code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#yogmnhgrcz .gt_striped {
+#mmzranltpd .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#yogmnhgrcz .gt_table_body {
+#mmzranltpd .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1215,7 +1218,7 @@ trying - trav.imp </code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#yogmnhgrcz .gt_footnotes {
+#mmzranltpd .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1229,7 +1232,7 @@ trying - trav.imp </code></pre>
   border-right-color: #D3D3D3;
 }
 
-#yogmnhgrcz .gt_footnote {
+#mmzranltpd .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -1238,7 +1241,7 @@ trying - trav.imp </code></pre>
   padding-right: 5px;
 }
 
-#yogmnhgrcz .gt_sourcenotes {
+#mmzranltpd .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1252,7 +1255,7 @@ trying - trav.imp </code></pre>
   border-right-color: #D3D3D3;
 }
 
-#yogmnhgrcz .gt_sourcenote {
+#mmzranltpd .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -1260,76 +1263,76 @@ trying - trav.imp </code></pre>
   padding-right: 5px;
 }
 
-#yogmnhgrcz .gt_left {
+#mmzranltpd .gt_left {
   text-align: left;
 }
 
-#yogmnhgrcz .gt_center {
+#mmzranltpd .gt_center {
   text-align: center;
 }
 
-#yogmnhgrcz .gt_right {
+#mmzranltpd .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#yogmnhgrcz .gt_font_normal {
+#mmzranltpd .gt_font_normal {
   font-weight: normal;
 }
 
-#yogmnhgrcz .gt_font_bold {
+#mmzranltpd .gt_font_bold {
   font-weight: bold;
 }
 
-#yogmnhgrcz .gt_font_italic {
+#mmzranltpd .gt_font_italic {
   font-style: italic;
 }
 
-#yogmnhgrcz .gt_super {
+#mmzranltpd .gt_super {
   font-size: 65%;
 }
 
-#yogmnhgrcz .gt_footnote_marks {
+#mmzranltpd .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#yogmnhgrcz .gt_asterisk {
+#mmzranltpd .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#yogmnhgrcz .gt_indent_1 {
+#mmzranltpd .gt_indent_1 {
   text-indent: 5px;
 }
 
-#yogmnhgrcz .gt_indent_2 {
+#mmzranltpd .gt_indent_2 {
   text-indent: 10px;
 }
 
-#yogmnhgrcz .gt_indent_3 {
+#mmzranltpd .gt_indent_3 {
   text-indent: 15px;
 }
 
-#yogmnhgrcz .gt_indent_4 {
+#mmzranltpd .gt_indent_4 {
   text-indent: 20px;
 }
 
-#yogmnhgrcz .gt_indent_5 {
+#mmzranltpd .gt_indent_5 {
   text-indent: 25px;
 }
 
-#yogmnhgrcz .katex-display {
+#mmzranltpd .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#yogmnhgrcz div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#mmzranltpd div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
-<table class="gt_table do-not-create-environment cell table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<table class="gt_table do-not-create-environment cell table table-sm table-striped small" data-quarto-bootstrap="false">
 <colgroup>
 <col style="width: 25%">
 <col style="width: 25%">
@@ -1344,7 +1347,7 @@ trying - trav.imp </code></pre>
 </tr></thead>
 <tbody class="gt_table_body">
 <tr class="gt_group_heading_row odd">
-<td colspan="4" id="Satisfaction" class="gt_group_heading" data-quarto-table-cell-role="th" scope="colgroup">Satisfaction</td>
+<th colspan="4" id="Satisfaction" class="gt_group_heading" data-quarto-table-cell-role="th" scope="colgroup">Satisfaction</th>
 </tr>
 <tr class="gt_row_group_first even">
 <td class="gt_row gt_left" headers="Satisfaction  label" style="font-style: italic">&nbsp;&nbsp;&nbsp;&nbsp;Niveau d'études</td>
@@ -1413,7 +1416,7 @@ trying - trav.imp </code></pre>
 <td class="gt_row gt_center" headers="Satisfaction  p.value">0,3</td>
 </tr>
 <tr class="gt_group_heading_row odd">
-<td colspan="4" id="Insatisfaction" class="gt_group_heading" data-quarto-table-cell-role="th" scope="colgroup">Insatisfaction</td>
+<th colspan="4" id="Insatisfaction" class="gt_group_heading" data-quarto-table-cell-role="th" scope="colgroup">Insatisfaction</th>
 </tr>
 <tr class="gt_row_group_first even">
 <td class="gt_row gt_left" headers="Insatisfaction  label" style="font-style: italic">&nbsp;&nbsp;&nbsp;&nbsp;Niveau d'études</td>
@@ -1482,7 +1485,7 @@ trying - trav.imp </code></pre>
 <td class="gt_row gt_center" headers="Insatisfaction  p.value">0,042</td>
 </tr>
 </tbody>
-<tfoot class="gt_sourcenotes"><tr class="odd">
+<tfoot><tr class="gt_sourcenotes odd">
 <td colspan="4" class="gt_sourcenote">Abréviations: IC = intervalle de confiance, OR = rapport de cotes</td>
 </tr></tfoot>
 </table>
@@ -1509,27 +1512,27 @@ Astuce
 <p>La fonction <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/tbl_regression.html">gtsummary::tbl_regression()</a></code> affiche le tableau des coefficients dans un format long. Or, il est souvent plus lisible de présenter les coefficients dans un format large, avec les coefficients pour chaque modalité côte à côte.</p>
 <p>Cela n’est pas possible nativement avec <a href="https://github.com/ddsjoberg/gtsummary">gtsummary</a> mais on pourra éventuellement utiliser la fonction <code><a href="https://larmarange.github.io/guideR/reference/grouped_tbl_pivot_wider.html">guideR::grouped_tbl_pivot_wider()</a></code><a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a> fournie par <a href="https://larmarange.github.io/guideR/">guideR</a>, le package compagnon de <em>guide-R</em>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1"></a>tbl <span class="sc">|&gt;</span> </span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1"></a>tbl <span class="sc">|&gt;</span> </span>
 <span id="cb15-2"><a href="#cb15-2"></a>  guideR<span class="sc">::</span><span class="fu">grouped_tbl_pivot_wider</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb15-3"><a href="#cb15-3"></a>  <span class="fu">bold_labels</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb15-3"><a href="#cb15-3"></a>  <span class="fu">bold_labels</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
-<div id="frtddfqrcs" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#frtddfqrcs table {
+<div id="milauvpbor" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#milauvpbor table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#frtddfqrcs thead, #frtddfqrcs tbody, #frtddfqrcs tfoot, #frtddfqrcs tr, #frtddfqrcs td, #frtddfqrcs th {
+#milauvpbor thead, #milauvpbor tbody, #milauvpbor tfoot, #milauvpbor tr, #milauvpbor td, #milauvpbor th {
   border-style: none;
 }
 
-#frtddfqrcs p {
+#milauvpbor p {
   margin: 0;
   padding: 0;
 }
 
-#frtddfqrcs .gt_table {
+#milauvpbor .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -1555,12 +1558,12 @@ Astuce
   border-left-color: #D3D3D3;
 }
 
-#frtddfqrcs .gt_caption {
+#milauvpbor .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#frtddfqrcs .gt_title {
+#milauvpbor .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -1572,7 +1575,7 @@ Astuce
   border-bottom-width: 0;
 }
 
-#frtddfqrcs .gt_subtitle {
+#milauvpbor .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -1584,7 +1587,7 @@ Astuce
   border-top-width: 0;
 }
 
-#frtddfqrcs .gt_heading {
+#milauvpbor .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -1596,13 +1599,13 @@ Astuce
   border-right-color: #D3D3D3;
 }
 
-#frtddfqrcs .gt_bottom_border {
+#milauvpbor .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#frtddfqrcs .gt_col_headings {
+#milauvpbor .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1617,7 +1620,7 @@ Astuce
   border-right-color: #D3D3D3;
 }
 
-#frtddfqrcs .gt_col_heading {
+#milauvpbor .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1637,7 +1640,7 @@ Astuce
   overflow-x: hidden;
 }
 
-#frtddfqrcs .gt_column_spanner_outer {
+#milauvpbor .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1649,15 +1652,15 @@ Astuce
   padding-right: 4px;
 }
 
-#frtddfqrcs .gt_column_spanner_outer:first-child {
+#milauvpbor .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#frtddfqrcs .gt_column_spanner_outer:last-child {
+#milauvpbor .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#frtddfqrcs .gt_column_spanner {
+#milauvpbor .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -1669,11 +1672,11 @@ Astuce
   width: 100%;
 }
 
-#frtddfqrcs .gt_spanner_row {
+#milauvpbor .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#frtddfqrcs .gt_group_heading {
+#milauvpbor .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1699,7 +1702,7 @@ Astuce
   text-align: left;
 }
 
-#frtddfqrcs .gt_empty_group_heading {
+#milauvpbor .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -1714,15 +1717,15 @@ Astuce
   vertical-align: middle;
 }
 
-#frtddfqrcs .gt_from_md > :first-child {
+#milauvpbor .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#frtddfqrcs .gt_from_md > :last-child {
+#milauvpbor .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#frtddfqrcs .gt_row {
+#milauvpbor .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1741,7 +1744,7 @@ Astuce
   overflow-x: hidden;
 }
 
-#frtddfqrcs .gt_stub {
+#milauvpbor .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1754,7 +1757,7 @@ Astuce
   padding-right: 5px;
 }
 
-#frtddfqrcs .gt_stub_row_group {
+#milauvpbor .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1768,15 +1771,15 @@ Astuce
   vertical-align: top;
 }
 
-#frtddfqrcs .gt_row_group_first td {
+#milauvpbor .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#frtddfqrcs .gt_row_group_first th {
+#milauvpbor .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#frtddfqrcs .gt_summary_row {
+#milauvpbor .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1786,16 +1789,16 @@ Astuce
   padding-right: 5px;
 }
 
-#frtddfqrcs .gt_first_summary_row {
+#milauvpbor .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#frtddfqrcs .gt_first_summary_row.thick {
+#milauvpbor .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#frtddfqrcs .gt_last_summary_row {
+#milauvpbor .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1805,7 +1808,7 @@ Astuce
   border-bottom-color: #D3D3D3;
 }
 
-#frtddfqrcs .gt_grand_summary_row {
+#milauvpbor .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1815,7 +1818,7 @@ Astuce
   padding-right: 5px;
 }
 
-#frtddfqrcs .gt_first_grand_summary_row {
+#milauvpbor .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1825,7 +1828,7 @@ Astuce
   border-top-color: #D3D3D3;
 }
 
-#frtddfqrcs .gt_last_grand_summary_row_top {
+#milauvpbor .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1835,11 +1838,11 @@ Astuce
   border-bottom-color: #D3D3D3;
 }
 
-#frtddfqrcs .gt_striped {
+#milauvpbor .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#frtddfqrcs .gt_table_body {
+#milauvpbor .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1848,7 +1851,7 @@ Astuce
   border-bottom-color: #D3D3D3;
 }
 
-#frtddfqrcs .gt_footnotes {
+#milauvpbor .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1862,7 +1865,7 @@ Astuce
   border-right-color: #D3D3D3;
 }
 
-#frtddfqrcs .gt_footnote {
+#milauvpbor .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -1871,7 +1874,7 @@ Astuce
   padding-right: 5px;
 }
 
-#frtddfqrcs .gt_sourcenotes {
+#milauvpbor .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1885,7 +1888,7 @@ Astuce
   border-right-color: #D3D3D3;
 }
 
-#frtddfqrcs .gt_sourcenote {
+#milauvpbor .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -1893,76 +1896,76 @@ Astuce
   padding-right: 5px;
 }
 
-#frtddfqrcs .gt_left {
+#milauvpbor .gt_left {
   text-align: left;
 }
 
-#frtddfqrcs .gt_center {
+#milauvpbor .gt_center {
   text-align: center;
 }
 
-#frtddfqrcs .gt_right {
+#milauvpbor .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#frtddfqrcs .gt_font_normal {
+#milauvpbor .gt_font_normal {
   font-weight: normal;
 }
 
-#frtddfqrcs .gt_font_bold {
+#milauvpbor .gt_font_bold {
   font-weight: bold;
 }
 
-#frtddfqrcs .gt_font_italic {
+#milauvpbor .gt_font_italic {
   font-style: italic;
 }
 
-#frtddfqrcs .gt_super {
+#milauvpbor .gt_super {
   font-size: 65%;
 }
 
-#frtddfqrcs .gt_footnote_marks {
+#milauvpbor .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#frtddfqrcs .gt_asterisk {
+#milauvpbor .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#frtddfqrcs .gt_indent_1 {
+#milauvpbor .gt_indent_1 {
   text-indent: 5px;
 }
 
-#frtddfqrcs .gt_indent_2 {
+#milauvpbor .gt_indent_2 {
   text-indent: 10px;
 }
 
-#frtddfqrcs .gt_indent_3 {
+#milauvpbor .gt_indent_3 {
   text-indent: 15px;
 }
 
-#frtddfqrcs .gt_indent_4 {
+#milauvpbor .gt_indent_4 {
   text-indent: 20px;
 }
 
-#frtddfqrcs .gt_indent_5 {
+#milauvpbor .gt_indent_5 {
   text-indent: 25px;
 }
 
-#frtddfqrcs .katex-display {
+#milauvpbor .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#frtddfqrcs div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#milauvpbor div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
-<table class="gt_table table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<table class="gt_table table table-sm table-striped small" data-quarto-bootstrap="false">
 <colgroup>
 <col style="width: 14%">
 <col style="width: 14%">
@@ -2092,7 +2095,7 @@ Astuce
 <td class="gt_row gt_center" headers="p.value_2">0,042</td>
 </tr>
 </tbody>
-<tfoot class="gt_sourcenotes"><tr class="odd">
+<tfoot><tr class="gt_sourcenotes odd">
 <td colspan="7" class="gt_sourcenote">Abréviations: IC = intervalle de confiance, OR = rapport de cotes</td>
 </tr></tfoot>
 </table>
@@ -2103,7 +2106,7 @@ Astuce
 </div>
 <div class="no-row-height column-margin column-container"><div id="fn2"><p><sup>2</sup>&nbsp;Il s’agit d’une adaptation de la fonction <code>multinom_pivot_wider()</code> proposée sur <a href="https://gist.github.com/ddsjoberg/a55afa74ac58e1f895862fcabab62406">GitHub Gist</a>.</p></div></div><p>Pour tester l’effet globale d’une variable dans le modèle, on aura directement recours à <code><a href="https://rdrr.io/pkg/car/man/Anova.html">car::Anova()</a></code>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1"></a>reg2 <span class="sc">|&gt;</span> car<span class="sc">::</span><span class="fu">Anova</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1"></a>reg2 <span class="sc">|&gt;</span> car<span class="sc">::</span><span class="fu">Anova</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Analysis of Deviance Table (Type II tests)
 
@@ -2117,27 +2120,27 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 </div>
 <p>Si l’on applique <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/add_global_p.html">gtsummary::add_global_p()</a></code> au résultat de <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/tbl_regression.html">gtsummary::tbl_regression()</a></code>, les p-valeurs seront recopiées pour chaque série de coefficients.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1"></a>tbl <span class="sc">|&gt;</span> </span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1"></a>tbl <span class="sc">|&gt;</span> </span>
 <span id="cb18-2"><a href="#cb18-2"></a>  <span class="fu">add_global_p</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb18-3"><a href="#cb18-3"></a>  guideR<span class="sc">::</span><span class="fu">style_grouped_tbl</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb18-3"><a href="#cb18-3"></a>  guideR<span class="sc">::</span><span class="fu">style_grouped_tbl</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
-<div id="coregofjiz" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#coregofjiz table {
+<div id="htclcswqgw" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#htclcswqgw table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#coregofjiz thead, #coregofjiz tbody, #coregofjiz tfoot, #coregofjiz tr, #coregofjiz td, #coregofjiz th {
+#htclcswqgw thead, #htclcswqgw tbody, #htclcswqgw tfoot, #htclcswqgw tr, #htclcswqgw td, #htclcswqgw th {
   border-style: none;
 }
 
-#coregofjiz p {
+#htclcswqgw p {
   margin: 0;
   padding: 0;
 }
 
-#coregofjiz .gt_table {
+#htclcswqgw .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -2163,12 +2166,12 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
   border-left-color: #D3D3D3;
 }
 
-#coregofjiz .gt_caption {
+#htclcswqgw .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#coregofjiz .gt_title {
+#htclcswqgw .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -2180,7 +2183,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
   border-bottom-width: 0;
 }
 
-#coregofjiz .gt_subtitle {
+#htclcswqgw .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -2192,7 +2195,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
   border-top-width: 0;
 }
 
-#coregofjiz .gt_heading {
+#htclcswqgw .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -2204,13 +2207,13 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#coregofjiz .gt_bottom_border {
+#htclcswqgw .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#coregofjiz .gt_col_headings {
+#htclcswqgw .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -2225,7 +2228,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#coregofjiz .gt_col_heading {
+#htclcswqgw .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2245,7 +2248,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
   overflow-x: hidden;
 }
 
-#coregofjiz .gt_column_spanner_outer {
+#htclcswqgw .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2257,15 +2260,15 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
   padding-right: 4px;
 }
 
-#coregofjiz .gt_column_spanner_outer:first-child {
+#htclcswqgw .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#coregofjiz .gt_column_spanner_outer:last-child {
+#htclcswqgw .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#coregofjiz .gt_column_spanner {
+#htclcswqgw .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -2277,11 +2280,11 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
   width: 100%;
 }
 
-#coregofjiz .gt_spanner_row {
+#htclcswqgw .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#coregofjiz .gt_group_heading {
+#htclcswqgw .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2307,7 +2310,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
   text-align: left;
 }
 
-#coregofjiz .gt_empty_group_heading {
+#htclcswqgw .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -2322,15 +2325,15 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
   vertical-align: middle;
 }
 
-#coregofjiz .gt_from_md > :first-child {
+#htclcswqgw .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#coregofjiz .gt_from_md > :last-child {
+#htclcswqgw .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#coregofjiz .gt_row {
+#htclcswqgw .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2349,7 +2352,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
   overflow-x: hidden;
 }
 
-#coregofjiz .gt_stub {
+#htclcswqgw .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2362,7 +2365,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
   padding-right: 5px;
 }
 
-#coregofjiz .gt_stub_row_group {
+#htclcswqgw .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2376,15 +2379,15 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
   vertical-align: top;
 }
 
-#coregofjiz .gt_row_group_first td {
+#htclcswqgw .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#coregofjiz .gt_row_group_first th {
+#htclcswqgw .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#coregofjiz .gt_summary_row {
+#htclcswqgw .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -2394,16 +2397,16 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
   padding-right: 5px;
 }
 
-#coregofjiz .gt_first_summary_row {
+#htclcswqgw .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#coregofjiz .gt_first_summary_row.thick {
+#htclcswqgw .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#coregofjiz .gt_last_summary_row {
+#htclcswqgw .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2413,7 +2416,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#coregofjiz .gt_grand_summary_row {
+#htclcswqgw .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -2423,7 +2426,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
   padding-right: 5px;
 }
 
-#coregofjiz .gt_first_grand_summary_row {
+#htclcswqgw .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2433,7 +2436,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
   border-top-color: #D3D3D3;
 }
 
-#coregofjiz .gt_last_grand_summary_row_top {
+#htclcswqgw .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2443,11 +2446,11 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#coregofjiz .gt_striped {
+#htclcswqgw .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#coregofjiz .gt_table_body {
+#htclcswqgw .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -2456,7 +2459,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#coregofjiz .gt_footnotes {
+#htclcswqgw .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -2470,7 +2473,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#coregofjiz .gt_footnote {
+#htclcswqgw .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -2479,7 +2482,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
   padding-right: 5px;
 }
 
-#coregofjiz .gt_sourcenotes {
+#htclcswqgw .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -2493,7 +2496,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#coregofjiz .gt_sourcenote {
+#htclcswqgw .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -2501,76 +2504,76 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
   padding-right: 5px;
 }
 
-#coregofjiz .gt_left {
+#htclcswqgw .gt_left {
   text-align: left;
 }
 
-#coregofjiz .gt_center {
+#htclcswqgw .gt_center {
   text-align: center;
 }
 
-#coregofjiz .gt_right {
+#htclcswqgw .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#coregofjiz .gt_font_normal {
+#htclcswqgw .gt_font_normal {
   font-weight: normal;
 }
 
-#coregofjiz .gt_font_bold {
+#htclcswqgw .gt_font_bold {
   font-weight: bold;
 }
 
-#coregofjiz .gt_font_italic {
+#htclcswqgw .gt_font_italic {
   font-style: italic;
 }
 
-#coregofjiz .gt_super {
+#htclcswqgw .gt_super {
   font-size: 65%;
 }
 
-#coregofjiz .gt_footnote_marks {
+#htclcswqgw .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#coregofjiz .gt_asterisk {
+#htclcswqgw .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#coregofjiz .gt_indent_1 {
+#htclcswqgw .gt_indent_1 {
   text-indent: 5px;
 }
 
-#coregofjiz .gt_indent_2 {
+#htclcswqgw .gt_indent_2 {
   text-indent: 10px;
 }
 
-#coregofjiz .gt_indent_3 {
+#htclcswqgw .gt_indent_3 {
   text-indent: 15px;
 }
 
-#coregofjiz .gt_indent_4 {
+#htclcswqgw .gt_indent_4 {
   text-indent: 20px;
 }
 
-#coregofjiz .gt_indent_5 {
+#htclcswqgw .gt_indent_5 {
   text-indent: 25px;
 }
 
-#coregofjiz .katex-display {
+#htclcswqgw .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#coregofjiz div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#htclcswqgw div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
-<table class="gt_table table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<table class="gt_table table table-sm table-striped small" data-quarto-bootstrap="false">
 <colgroup>
 <col style="width: 25%">
 <col style="width: 25%">
@@ -2585,7 +2588,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 </tr></thead>
 <tbody class="gt_table_body">
 <tr class="gt_group_heading_row odd">
-<td colspan="4" id="Satisfaction" class="gt_group_heading" data-quarto-table-cell-role="th" scope="colgroup">Satisfaction</td>
+<th colspan="4" id="Satisfaction" class="gt_group_heading" data-quarto-table-cell-role="th" scope="colgroup">Satisfaction</th>
 </tr>
 <tr class="gt_row_group_first even">
 <td class="gt_row gt_left" headers="Satisfaction  label" style="font-style: italic">&nbsp;&nbsp;&nbsp;&nbsp;Niveau d'études</td>
@@ -2654,7 +2657,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <td class="gt_row gt_center" headers="Satisfaction  p.value"><br></td>
 </tr>
 <tr class="gt_group_heading_row odd">
-<td colspan="4" id="Insatisfaction" class="gt_group_heading" data-quarto-table-cell-role="th" scope="colgroup">Insatisfaction</td>
+<th colspan="4" id="Insatisfaction" class="gt_group_heading" data-quarto-table-cell-role="th" scope="colgroup">Insatisfaction</th>
 </tr>
 <tr class="gt_row_group_first even">
 <td class="gt_row gt_left" headers="Insatisfaction  label" style="font-style: italic">&nbsp;&nbsp;&nbsp;&nbsp;Niveau d'études</td>
@@ -2723,7 +2726,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <td class="gt_row gt_center" headers="Insatisfaction  p.value"><br></td>
 </tr>
 </tbody>
-<tfoot class="gt_sourcenotes"><tr class="odd">
+<tfoot><tr class="gt_sourcenotes odd">
 <td colspan="4" class="gt_sourcenote">Abréviations: IC = intervalle de confiance, OR = rapport de cotes</td>
 </tr></tfoot>
 </table>
@@ -2732,27 +2735,27 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 </div>
 <p>Une astuce consiste à cacher toutes ces colonnes de p-valeurs, n’afficher que la dernière et changer son titre de colonne. Pour cela, on pourra profiter de la fonction <code><a href="https://larmarange.github.io/guideR/reference/grouped_tbl_pivot_wider.html">guideR::multinom_add_global_p_pivot_wider()</a></code>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1"></a>tbl <span class="sc">|&gt;</span> </span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1"></a>tbl <span class="sc">|&gt;</span> </span>
 <span id="cb19-2"><a href="#cb19-2"></a>  guideR<span class="sc">::</span><span class="fu">multinom_add_global_p_pivot_wider</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb19-3"><a href="#cb19-3"></a>  <span class="fu">bold_labels</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb19-3"><a href="#cb19-3"></a>  <span class="fu">bold_labels</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
-<div id="ndmcckhmve" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#ndmcckhmve table {
+<div id="cfrsifdhuh" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#cfrsifdhuh table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#ndmcckhmve thead, #ndmcckhmve tbody, #ndmcckhmve tfoot, #ndmcckhmve tr, #ndmcckhmve td, #ndmcckhmve th {
+#cfrsifdhuh thead, #cfrsifdhuh tbody, #cfrsifdhuh tfoot, #cfrsifdhuh tr, #cfrsifdhuh td, #cfrsifdhuh th {
   border-style: none;
 }
 
-#ndmcckhmve p {
+#cfrsifdhuh p {
   margin: 0;
   padding: 0;
 }
 
-#ndmcckhmve .gt_table {
+#cfrsifdhuh .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -2778,12 +2781,12 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
   border-left-color: #D3D3D3;
 }
 
-#ndmcckhmve .gt_caption {
+#cfrsifdhuh .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#ndmcckhmve .gt_title {
+#cfrsifdhuh .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -2795,7 +2798,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
   border-bottom-width: 0;
 }
 
-#ndmcckhmve .gt_subtitle {
+#cfrsifdhuh .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -2807,7 +2810,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
   border-top-width: 0;
 }
 
-#ndmcckhmve .gt_heading {
+#cfrsifdhuh .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -2819,13 +2822,13 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#ndmcckhmve .gt_bottom_border {
+#cfrsifdhuh .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#ndmcckhmve .gt_col_headings {
+#cfrsifdhuh .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -2840,7 +2843,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#ndmcckhmve .gt_col_heading {
+#cfrsifdhuh .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2860,7 +2863,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
   overflow-x: hidden;
 }
 
-#ndmcckhmve .gt_column_spanner_outer {
+#cfrsifdhuh .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2872,15 +2875,15 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
   padding-right: 4px;
 }
 
-#ndmcckhmve .gt_column_spanner_outer:first-child {
+#cfrsifdhuh .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#ndmcckhmve .gt_column_spanner_outer:last-child {
+#cfrsifdhuh .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#ndmcckhmve .gt_column_spanner {
+#cfrsifdhuh .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -2892,11 +2895,11 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
   width: 100%;
 }
 
-#ndmcckhmve .gt_spanner_row {
+#cfrsifdhuh .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#ndmcckhmve .gt_group_heading {
+#cfrsifdhuh .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2922,7 +2925,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
   text-align: left;
 }
 
-#ndmcckhmve .gt_empty_group_heading {
+#cfrsifdhuh .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -2937,15 +2940,15 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
   vertical-align: middle;
 }
 
-#ndmcckhmve .gt_from_md > :first-child {
+#cfrsifdhuh .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#ndmcckhmve .gt_from_md > :last-child {
+#cfrsifdhuh .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#ndmcckhmve .gt_row {
+#cfrsifdhuh .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2964,7 +2967,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
   overflow-x: hidden;
 }
 
-#ndmcckhmve .gt_stub {
+#cfrsifdhuh .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2977,7 +2980,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
   padding-right: 5px;
 }
 
-#ndmcckhmve .gt_stub_row_group {
+#cfrsifdhuh .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2991,15 +2994,15 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
   vertical-align: top;
 }
 
-#ndmcckhmve .gt_row_group_first td {
+#cfrsifdhuh .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#ndmcckhmve .gt_row_group_first th {
+#cfrsifdhuh .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#ndmcckhmve .gt_summary_row {
+#cfrsifdhuh .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -3009,16 +3012,16 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
   padding-right: 5px;
 }
 
-#ndmcckhmve .gt_first_summary_row {
+#cfrsifdhuh .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#ndmcckhmve .gt_first_summary_row.thick {
+#cfrsifdhuh .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#ndmcckhmve .gt_last_summary_row {
+#cfrsifdhuh .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -3028,7 +3031,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#ndmcckhmve .gt_grand_summary_row {
+#cfrsifdhuh .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -3038,7 +3041,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
   padding-right: 5px;
 }
 
-#ndmcckhmve .gt_first_grand_summary_row {
+#cfrsifdhuh .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -3048,7 +3051,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
   border-top-color: #D3D3D3;
 }
 
-#ndmcckhmve .gt_last_grand_summary_row_top {
+#cfrsifdhuh .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -3058,11 +3061,11 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#ndmcckhmve .gt_striped {
+#cfrsifdhuh .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#ndmcckhmve .gt_table_body {
+#cfrsifdhuh .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -3071,7 +3074,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#ndmcckhmve .gt_footnotes {
+#cfrsifdhuh .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -3085,7 +3088,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#ndmcckhmve .gt_footnote {
+#cfrsifdhuh .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -3094,7 +3097,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
   padding-right: 5px;
 }
 
-#ndmcckhmve .gt_sourcenotes {
+#cfrsifdhuh .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -3108,7 +3111,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#ndmcckhmve .gt_sourcenote {
+#cfrsifdhuh .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -3116,76 +3119,76 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
   padding-right: 5px;
 }
 
-#ndmcckhmve .gt_left {
+#cfrsifdhuh .gt_left {
   text-align: left;
 }
 
-#ndmcckhmve .gt_center {
+#cfrsifdhuh .gt_center {
   text-align: center;
 }
 
-#ndmcckhmve .gt_right {
+#cfrsifdhuh .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#ndmcckhmve .gt_font_normal {
+#cfrsifdhuh .gt_font_normal {
   font-weight: normal;
 }
 
-#ndmcckhmve .gt_font_bold {
+#cfrsifdhuh .gt_font_bold {
   font-weight: bold;
 }
 
-#ndmcckhmve .gt_font_italic {
+#cfrsifdhuh .gt_font_italic {
   font-style: italic;
 }
 
-#ndmcckhmve .gt_super {
+#cfrsifdhuh .gt_super {
   font-size: 65%;
 }
 
-#ndmcckhmve .gt_footnote_marks {
+#cfrsifdhuh .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#ndmcckhmve .gt_asterisk {
+#cfrsifdhuh .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#ndmcckhmve .gt_indent_1 {
+#cfrsifdhuh .gt_indent_1 {
   text-indent: 5px;
 }
 
-#ndmcckhmve .gt_indent_2 {
+#cfrsifdhuh .gt_indent_2 {
   text-indent: 10px;
 }
 
-#ndmcckhmve .gt_indent_3 {
+#cfrsifdhuh .gt_indent_3 {
   text-indent: 15px;
 }
 
-#ndmcckhmve .gt_indent_4 {
+#cfrsifdhuh .gt_indent_4 {
   text-indent: 20px;
 }
 
-#ndmcckhmve .gt_indent_5 {
+#cfrsifdhuh .gt_indent_5 {
   text-indent: 25px;
 }
 
-#ndmcckhmve .katex-display {
+#cfrsifdhuh .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#ndmcckhmve div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#cfrsifdhuh div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
-<table class="gt_table table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<table class="gt_table table table-sm table-striped small" data-quarto-bootstrap="false">
 <colgroup>
 <col style="width: 16%">
 <col style="width: 16%">
@@ -3305,7 +3308,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <td class="gt_row gt_center" headers="p.value_2"><br></td>
 </tr>
 </tbody>
-<tfoot class="gt_sourcenotes"><tr class="odd">
+<tfoot><tr class="gt_sourcenotes odd">
 <td colspan="6" class="gt_sourcenote">Abréviations: IC = intervalle de confiance, OR = rapport de cotes</td>
 </tr></tfoot>
 </table>
@@ -3314,12 +3317,8 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 </div>
 <p>Pour un graphique des coefficients, on peut appeler directement <code>ggstats::gcoef_model()</code> ou encore <code>ggstats::coef_table()</code><a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a>. De plus, <a href="https://larmarange.github.io/ggstats/">ggstats</a> propose également les variantes <code>ggstats::gcoef_dodged()</code> et <code><a href="https://larmarange.github.io/ggstats/reference/ggcoef_model.html">ggstats::ggcoef_faceted()</a></code>.</p>
 <div class="no-row-height column-margin column-container"><div id="fn3"><p><sup>3</sup>&nbsp;Attention&nbsp;: pour que cela fonctionne avec un modèle multinomial, il est nécessaire d’utiliser la version 0.9.0 (ou une version plus récente) de <a href="https://larmarange.github.io/ggstats/">ggstats</a>.</p></div></div><div class="cell page-columns page-full">
-<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1"></a>reg2 <span class="sc">|&gt;</span> </span>
-<span id="cb20-2"><a href="#cb20-2"></a>  ggstats<span class="sc">::</span><span class="fu">ggcoef_model</span>(<span class="at">exponentiate =</span> <span class="cn">TRUE</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>`height` was translated to `width`.
-`height` was translated to `width`.</code></pre>
-</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1"></a>reg2 <span class="sc">|&gt;</span> </span>
+<span id="cb20-2"><a href="#cb20-2"></a>  ggstats<span class="sc">::</span><span class="fu">ggcoef_model</span>(<span class="at">exponentiate =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display page-columns page-full">
 <div id="fig-ggcoef_multinom-model" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full"><div aria-describedby="fig-ggcoef_multinom-model-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -3332,12 +3331,8 @@ Figure&nbsp;46.1: Graphique des coefficients du modèle multinomial
 </div>
 </div>
 <div class="cell page-columns page-full">
-<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1"></a>reg2 <span class="sc">|&gt;</span> </span>
-<span id="cb22-2"><a href="#cb22-2"></a>  ggstats<span class="sc">::</span><span class="fu">ggcoef_table</span>(<span class="at">exponentiate =</span> <span class="cn">TRUE</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>`height` was translated to `width`.
-`height` was translated to `width`.</code></pre>
-</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1"></a>reg2 <span class="sc">|&gt;</span> </span>
+<span id="cb21-2"><a href="#cb21-2"></a>  ggstats<span class="sc">::</span><span class="fu">ggcoef_table</span>(<span class="at">exponentiate =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display page-columns page-full">
 <div id="fig-ggcoef_multinom-table" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full"><div aria-describedby="fig-ggcoef_multinom-table-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -3350,11 +3345,8 @@ Figure&nbsp;46.2: Graphique des coefficients du modèle multinomial (type “tab
 </div>
 </div>
 <div class="cell page-columns page-full">
-<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1"></a>reg2 <span class="sc">|&gt;</span> </span>
-<span id="cb24-2"><a href="#cb24-2"></a>  ggstats<span class="sc">::</span><span class="fu">ggcoef_dodged</span>(<span class="at">exponentiate =</span> <span class="cn">TRUE</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>`height` was translated to `width`.</code></pre>
-</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1"></a>reg2 <span class="sc">|&gt;</span> </span>
+<span id="cb22-2"><a href="#cb22-2"></a>  ggstats<span class="sc">::</span><span class="fu">ggcoef_dodged</span>(<span class="at">exponentiate =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display page-columns page-full">
 <div id="fig-ggcoef_multinom-dodged" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full"><div aria-describedby="fig-ggcoef_multinom-dodged-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -3367,11 +3359,8 @@ Figure&nbsp;46.3: Graphique des coefficients du modèle multinomial (type “dod
 </div>
 </div>
 <div class="cell page-columns page-full">
-<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1"></a>reg2 <span class="sc">|&gt;</span> </span>
-<span id="cb26-2"><a href="#cb26-2"></a>  ggstats<span class="sc">::</span><span class="fu">ggcoef_faceted</span>(<span class="at">exponentiate =</span> <span class="cn">TRUE</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>`height` was translated to `width`.</code></pre>
-</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1"></a>reg2 <span class="sc">|&gt;</span> </span>
+<span id="cb23-2"><a href="#cb23-2"></a>  ggstats<span class="sc">::</span><span class="fu">ggcoef_faceted</span>(<span class="at">exponentiate =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display page-columns page-full">
 <div id="fig-ggcoef_multinom-faceted" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full"><div aria-describedby="fig-ggcoef_multinom-faceted-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -3385,11 +3374,11 @@ Figure&nbsp;46.4: Graphique des coefficients du modèle multinomial (type “fac
 </div>
 <p>Pour faciliter l’interprétation, on pourra représenter les prédictions marginales du modèle (cf. <a href="../analyses/estimations-marginales.html" class="quarto-xref"><span>Chapitre 25</span></a>) avec <code><a href="https://larmarange.github.io/broom.helpers/reference/tidy_marginal_predictions.html">broom.helpers::plot_marginal_predictions()</a></code>.</p>
 <div class="cell page-columns page-full">
-<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1"></a>reg2 <span class="sc">|&gt;</span> </span>
-<span id="cb28-2"><a href="#cb28-2"></a>  broom.helpers<span class="sc">::</span><span class="fu">plot_marginal_predictions</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb28-3"><a href="#cb28-3"></a>  patchwork<span class="sc">::</span><span class="fu">wrap_plots</span>(<span class="at">ncol =</span> <span class="dv">1</span>) <span class="sc">&amp;</span></span>
-<span id="cb28-4"><a href="#cb28-4"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">labels =</span> scales<span class="sc">::</span>percent, <span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>, .<span class="dv">8</span>)) <span class="sc">&amp;</span></span>
-<span id="cb28-5"><a href="#cb28-5"></a>  <span class="fu">coord_flip</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1"></a>reg2 <span class="sc">|&gt;</span> </span>
+<span id="cb24-2"><a href="#cb24-2"></a>  broom.helpers<span class="sc">::</span><span class="fu">plot_marginal_predictions</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb24-3"><a href="#cb24-3"></a>  patchwork<span class="sc">::</span><span class="fu">wrap_plots</span>(<span class="at">ncol =</span> <span class="dv">1</span>) <span class="sc">&amp;</span></span>
+<span id="cb24-4"><a href="#cb24-4"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">labels =</span> scales<span class="sc">::</span>percent, <span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>, .<span class="dv">8</span>)) <span class="sc">&amp;</span></span>
+<span id="cb24-5"><a href="#cb24-5"></a>  <span class="fu">coord_flip</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display page-columns page-full">
 <div id="fig-plot_marginal_predictions-multinom" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full"><div aria-describedby="fig-plot_marginal_predictions-multinom-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -3422,133 +3411,133 @@ Astuce
 </h3>
 <p>L’extension <a href="https://github.com/carlganz/svrepmisc">svrepmisc</a> disponible sur <a href="https://github.com/carlganz/svrepmisc">GitHub</a> fournit quelques fonctions facilitant l’utilisation des poids de réplication avec <a href="http://r-survey.r-forge.r-project.org/survey/">survey</a>. Pour l’installer, on utilisera le code ci-dessous&nbsp;:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1"></a>pak<span class="sc">::</span><span class="fu">pkg_install</span>(<span class="st">"carlganz/svrepmisc"</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1"></a>pak<span class="sc">::</span><span class="fu">pkg_install</span>(<span class="st">"carlganz/svrepmisc"</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>En premier lieu, il faut définir le design de notre tableau de données puis calculer des poids de réplication.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1"></a><span class="fu">library</span>(survey)</span>
-<span id="cb30-2"><a href="#cb30-2"></a><span class="fu">library</span>(srvyr)</span>
-<span id="cb30-3"><a href="#cb30-3"></a>dw_rep <span class="ot">&lt;-</span> d <span class="sc">|&gt;</span></span>
-<span id="cb30-4"><a href="#cb30-4"></a>  <span class="fu">as_survey</span>(<span class="at">weights =</span> poids) <span class="sc">|&gt;</span> </span>
-<span id="cb30-5"><a href="#cb30-5"></a>  <span class="fu">as_survey_rep</span>(<span class="at">type =</span> <span class="st">"bootstrap"</span>, <span class="at">replicates =</span> <span class="dv">25</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1"></a><span class="fu">library</span>(survey)</span>
+<span id="cb26-2"><a href="#cb26-2"></a><span class="fu">library</span>(srvyr)</span>
+<span id="cb26-3"><a href="#cb26-3"></a>dw_rep <span class="ot">&lt;-</span> d <span class="sc">|&gt;</span></span>
+<span id="cb26-4"><a href="#cb26-4"></a>  <span class="fu">as_survey</span>(<span class="at">weights =</span> poids) <span class="sc">|&gt;</span> </span>
+<span id="cb26-5"><a href="#cb26-5"></a>  <span class="fu">as_survey_rep</span>(<span class="at">type =</span> <span class="st">"bootstrap"</span>, <span class="at">replicates =</span> <span class="dv">25</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Il faut prévoir un nombre de <code>replicates</code> suffisant pour calculer ultérieurement les intervalles de confiance des coefficients. Plus ce nombre est élevé, plus précise sera l’estimation de la variance et donc des valeurs p et des intervalles de confiance. Cependant, plus ce nombre est élevé, plus le temps de calcul sera important. Pour gagner en temps de calcul, nous avons ici pris une valeur de 25, mais l’usage est de considérer au moins 1000 réplications.</p>
 <p><a href="https://github.com/carlganz/svrepmisc">svrepmisc</a> fournit une fonction <code><a href="https://rdrr.io/pkg/svrepmisc/man/svymultinom.html">svrepmisc::svymultinom()</a></code> pour le calcul d’une régression multinomiale avec des poids de réplication.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1"></a><span class="fu">library</span>(svrepmisc)</span>
-<span id="cb31-2"><a href="#cb31-2"></a>regm <span class="ot">&lt;-</span> <span class="fu">svymultinom</span>(</span>
-<span id="cb31-3"><a href="#cb31-3"></a>  trav.satisf <span class="sc">~</span> sexe <span class="sc">+</span> etudes <span class="sc">+</span> trav.imp,</span>
-<span id="cb31-4"><a href="#cb31-4"></a>  <span class="at">design =</span> dw_rep</span>
-<span id="cb31-5"><a href="#cb31-5"></a>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1"></a><span class="fu">library</span>(svrepmisc)</span>
+<span id="cb27-2"><a href="#cb27-2"></a>regm <span class="ot">&lt;-</span> <span class="fu">svymultinom</span>(</span>
+<span id="cb27-3"><a href="#cb27-3"></a>  trav.satisf <span class="sc">~</span> sexe <span class="sc">+</span> etudes <span class="sc">+</span> trav.imp,</span>
+<span id="cb27-4"><a href="#cb27-4"></a>  <span class="at">design =</span> dw_rep</span>
+<span id="cb27-5"><a href="#cb27-5"></a>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p><a href="https://github.com/carlganz/svrepmisc">svrepmisc</a> fournit également des méthodes <code>svrepmisc::confint()</code> et <code>svrepmisc::tidy()</code>. Nous pouvons donc calculer et afficher les <em>odds ratio</em> et leur intervalle de confiance.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1"></a>regm</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1"></a>regm</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>                                               Coefficient        SE t value
-Satisfaction.(Intercept)                         -0.116149  0.682140 -0.1703
-Insatisfaction.(Intercept)                       -1.547056  0.968423 -1.5975
-Satisfaction.sexeHomme                           -0.041405  0.203336 -0.2036
-Insatisfaction.sexeHomme                          0.221849  0.281590  0.7878
-Satisfaction.etudesSecondaire                     0.115722  0.385037  0.3005
-Insatisfaction.etudesSecondaire                   0.418476  0.591875  0.7070
-Satisfaction.etudesTechnique / Professionnel      0.220702  0.411932  0.5358
-Insatisfaction.etudesTechnique / Professionnel    0.529317  0.543952  0.9731
-Satisfaction.etudesSupérieur                      0.905852  0.370173  2.4471
-Insatisfaction.etudesSupérieur                    0.584499  0.590935  0.9891
-Satisfaction.etudesNon documenté                 -0.323293  1.013718 -0.3189
-Insatisfaction.etudesNon documenté                0.646168  6.312242  0.1024
-Satisfaction.trav.impAussi                       -0.027506  0.632522 -0.0435
-Insatisfaction.trav.impAussi                     -0.375642  0.956326 -0.3928
-Satisfaction.trav.impMoins                       -0.220703  0.633586 -0.3483
-Insatisfaction.trav.impMoins                     -0.694337  0.916940 -0.7572
-Satisfaction.trav.impPeu                         -0.069034  0.630887 -0.1094
-Insatisfaction.trav.impPeu                        1.584747  0.911861  1.7379
+Satisfaction.(Intercept)                         -0.116149  0.575693 -0.2018
+Insatisfaction.(Intercept)                       -1.547056  0.990135 -1.5625
+Satisfaction.sexeHomme                           -0.041405  0.170477 -0.2429
+Insatisfaction.sexeHomme                          0.221849  0.231244  0.9594
+Satisfaction.etudesSecondaire                     0.115722  0.324158  0.3570
+Insatisfaction.etudesSecondaire                   0.418476  0.647634  0.6462
+Satisfaction.etudesTechnique / Professionnel      0.220702  0.272545  0.8098
+Insatisfaction.etudesTechnique / Professionnel    0.529317  0.633254  0.8359
+Satisfaction.etudesSupérieur                      0.905852  0.291179  3.1110
+Insatisfaction.etudesSupérieur                    0.584499  0.542287  1.0778
+Satisfaction.etudesNon documenté                 -0.323293  2.615501 -0.1236
+Insatisfaction.etudesNon documenté                0.646168  3.316197  0.1949
+Satisfaction.trav.impAussi                       -0.027506  0.458699 -0.0600
+Insatisfaction.trav.impAussi                     -0.375642  0.800466 -0.4693
+Satisfaction.trav.impMoins                       -0.220703  0.451784 -0.4885
+Insatisfaction.trav.impMoins                     -0.694337  0.660106 -1.0519
+Satisfaction.trav.impPeu                         -0.069034  0.709213 -0.0973
+Insatisfaction.trav.impPeu                        1.584747  0.699968  2.2640
                                                Pr(&gt;|t|)  
-Satisfaction.(Intercept)                        0.86961  
-Insatisfaction.(Intercept)                      0.15419  
-Satisfaction.sexeHomme                          0.84444  
-Insatisfaction.sexeHomme                        0.45663  
-Satisfaction.etudesSecondaire                   0.77249  
-Insatisfaction.etudesSecondaire                 0.50240  
-Satisfaction.etudesTechnique / Professionnel    0.60871  
-Insatisfaction.etudesTechnique / Professionnel  0.36292  
-Satisfaction.etudesSupérieur                    0.04429 *
-Insatisfaction.etudesSupérieur                  0.35556  
-Satisfaction.etudesNon documenté                0.75909  
-Insatisfaction.etudesNon documenté              0.92134  
-Satisfaction.trav.impAussi                      0.96653  
-Insatisfaction.trav.impAussi                    0.70616  
-Satisfaction.trav.impMoins                      0.73783  
-Insatisfaction.trav.impMoins                    0.47362  
-Satisfaction.trav.impPeu                        0.91594  
-Insatisfaction.trav.impPeu                      0.12579  
+Satisfaction.(Intercept)                        0.84585  
+Insatisfaction.(Intercept)                      0.16215  
+Satisfaction.sexeHomme                          0.81506  
+Insatisfaction.sexeHomme                        0.36933  
+Satisfaction.etudesSecondaire                   0.73162  
+Insatisfaction.etudesSecondaire                 0.53877  
+Satisfaction.etudesTechnique / Professionnel    0.44472  
+Insatisfaction.etudesTechnique / Professionnel  0.43083  
+Satisfaction.etudesSupérieur                    0.01706 *
+Insatisfaction.etudesSupérieur                  0.31684  
+Satisfaction.etudesNon documenté                0.90510  
+Insatisfaction.etudesNon documenté              0.85104  
+Satisfaction.trav.impAussi                      0.95386  
+Insatisfaction.trav.impAussi                    0.65314  
+Satisfaction.trav.impMoins                      0.64012  
+Insatisfaction.trav.impMoins                    0.32782  
+Satisfaction.trav.impPeu                        0.92519  
+Insatisfaction.trav.impPeu                      0.05799 .
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1"></a>regm <span class="sc">|&gt;</span> <span class="fu">confint</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb30"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1"></a>regm <span class="sc">|&gt;</span> <span class="fu">confint</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>                                                      2.5 %     97.5 %
-Satisfaction.(Intercept)                        -1.72915416  1.4968557
-Insatisfaction.(Intercept)                      -3.83701296  0.7429002
-Satisfaction.sexeHomme                          -0.52221762  0.4394068
-Insatisfaction.sexeHomme                        -0.44400668  0.8877045
-Satisfaction.etudesSecondaire                   -0.79474538  1.0261902
-Insatisfaction.etudesSecondaire                 -0.98108643  1.8180392
-Satisfaction.etudesTechnique / Professionnel    -0.75336124  1.1947661
-Insatisfaction.etudesTechnique / Professionnel  -0.75692584  1.8155607
-Satisfaction.etudesSupérieur                     0.03053207  1.7811720
-Insatisfaction.etudesSupérieur                  -0.81283932  1.9818381
-Satisfaction.etudesNon documenté                -2.72035652  2.0737697
-Insatisfaction.etudesNon documenté             -14.27991169 15.5722472
-Satisfaction.trav.impAussi                      -1.52318355  1.4681713
-Insatisfaction.trav.impAussi                    -2.63699457  1.8857109
-Satisfaction.trav.impMoins                      -1.71889608  1.2774892
-Insatisfaction.trav.impMoins                    -2.86255616  1.4738823
-Satisfaction.trav.impPeu                        -1.56084516  1.4227764
-Insatisfaction.trav.impPeu                      -0.57146052  3.7409549</code></pre>
+<pre><code>                                                     2.5 %    97.5 %
+Satisfaction.(Intercept)                       -1.47744619 1.2451477
+Insatisfaction.(Intercept)                     -3.88835390 0.7942411
+Satisfaction.sexeHomme                         -0.44452047 0.3617096
+Insatisfaction.sexeHomme                       -0.32495660 0.7686544
+Satisfaction.etudesSecondaire                  -0.65078874 0.8822336
+Insatisfaction.etudesSecondaire                -1.11293540 1.9498881
+Satisfaction.etudesTechnique / Professionnel   -0.42376314 0.8651680
+Insatisfaction.etudesTechnique / Professionnel -0.96808956 2.0267244
+Satisfaction.etudesSupérieur                    0.21732364 1.5943805
+Insatisfaction.etudesSupérieur                 -0.69780518 1.8668039
+Satisfaction.etudesNon documenté               -6.50797149 5.8613847
+Insatisfaction.etudesNon documenté             -7.19539293 8.4877284
+Satisfaction.trav.impAussi                     -1.11215659 1.0571443
+Insatisfaction.trav.impAussi                   -2.26844416 1.5171605
+Satisfaction.trav.impMoins                     -1.28900220 0.8475953
+Insatisfaction.trav.impMoins                   -2.25524047 0.8665666
+Satisfaction.trav.impPeu                       -1.74605577 1.6079871
+Insatisfaction.trav.impPeu                     -0.07041347 3.2399078</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1"></a>regm <span class="sc">|&gt;</span></span>
-<span id="cb36-2"><a href="#cb36-2"></a>  broom<span class="sc">::</span><span class="fu">tidy</span>(<span class="at">exponentiate =</span> <span class="cn">TRUE</span>, <span class="at">conf.int =</span> <span class="cn">TRUE</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb32"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1"></a>regm <span class="sc">|&gt;</span></span>
+<span id="cb32-2"><a href="#cb32-2"></a>  broom<span class="sc">::</span><span class="fu">tidy</span>(<span class="at">exponentiate =</span> <span class="cn">TRUE</span>, <span class="at">conf.int =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>                                             term  estimate std.error
-1                      Insatisfaction.(Intercept) 0.2128737 0.9684230
-2              Insatisfaction.etudesNon documenté 1.9082140 6.3122415
-3                 Insatisfaction.etudesSecondaire 1.5196444 0.5918753
-4                  Insatisfaction.etudesSupérieur 1.7940926 0.5909348
-5  Insatisfaction.etudesTechnique / Professionnel 1.6977731 0.5439525
-6                        Insatisfaction.sexeHomme 1.2483828 0.2815904
-7                    Insatisfaction.trav.impAussi 0.6868483 0.9563265
-8                    Insatisfaction.trav.impMoins 0.4994055 0.9169403
-9                      Insatisfaction.trav.impPeu 4.8780580 0.9118606
-10                       Satisfaction.(Intercept) 0.8903423 0.6821401
-11               Satisfaction.etudesNon documenté 0.7237615 1.0137184
-12                  Satisfaction.etudesSecondaire 1.1226842 0.3850370
-13                   Satisfaction.etudesSupérieur 2.4740390 0.3701730
-14   Satisfaction.etudesTechnique / Professionnel 1.2469523 0.4119317
-15                         Satisfaction.sexeHomme 0.9594401 0.2033356
-16                     Satisfaction.trav.impAussi 0.9728687 0.6325222
-17                     Satisfaction.trav.impMoins 0.8019545 0.6335859
-18                       Satisfaction.trav.impPeu 0.9332946 0.6308870
-     statistic    p.value     conf.low    conf.high
-1  -1.59750065 0.15418582 2.155790e-02 2.102023e+00
-2   0.10236740 0.92133583 6.285114e-07 5.793500e+06
-3   0.70703463 0.50239618 3.749036e-01 6.159768e+00
-4   0.98910980 0.35555874 4.435968e-01 7.256068e+00
-5   0.97309496 0.36292396 4.691063e-01 6.144520e+00
-6   0.78784250 0.45663323 6.414611e-01 2.429546e+00
-7  -0.39279663 0.70615685 7.157606e-02 6.591039e+00
-8  -0.75723248 0.47362376 5.712256e-02 4.366153e+00
-9   1.73792702 0.12578843 5.647001e-01 4.213821e+01
-10 -0.17027184 0.86961314 1.774344e-01 4.467619e+00
-11 -0.31891835 0.75909405 6.585127e-02 7.954754e+00
-12  0.30054881 0.77248856 4.516962e-01 2.790415e+00
-13  2.44710481 0.04429493 1.031003e+00 5.936810e+00
-14  0.53577434 0.60870870 4.707815e-01 3.302785e+00
-15 -0.20363098 0.84443509 5.932036e-01 1.551786e+00
-16 -0.04348642 0.96652826 2.180167e-01 4.341289e+00
-17 -0.34834019 0.73782588 1.792639e-01 3.587621e+00
-18 -0.10942428 0.91593685 2.099585e-01 4.148623e+00</code></pre>
+1                      Insatisfaction.(Intercept) 0.2128737 0.9901351
+2              Insatisfaction.etudesNon documenté 1.9082140 3.3161973
+3                 Insatisfaction.etudesSecondaire 1.5196444 0.6476343
+4                  Insatisfaction.etudesSupérieur 1.7940926 0.5422868
+5  Insatisfaction.etudesTechnique / Professionnel 1.6977731 0.6332537
+6                        Insatisfaction.sexeHomme 1.2483828 0.2312441
+7                    Insatisfaction.trav.impAussi 0.6868483 0.8004664
+8                    Insatisfaction.trav.impMoins 0.4994055 0.6601064
+9                      Insatisfaction.trav.impPeu 4.8780580 0.6999677
+10                       Satisfaction.(Intercept) 0.8903423 0.5756927
+11               Satisfaction.etudesNon documenté 0.7237615 2.6155014
+12                  Satisfaction.etudesSecondaire 1.1226842 0.3241577
+13                   Satisfaction.etudesSupérieur 2.4740390 0.2911788
+14   Satisfaction.etudesTechnique / Professionnel 1.2469523 0.2725446
+15                         Satisfaction.sexeHomme 0.9594401 0.1704774
+16                     Satisfaction.trav.impAussi 0.9728687 0.4586989
+17                     Satisfaction.trav.impMoins 0.8019545 0.4517837
+18                       Satisfaction.trav.impPeu 0.9332946 0.7092126
+     statistic    p.value     conf.low   conf.high
+1  -1.56247000 0.16214969 0.0204790288    2.212761
+2   0.19485202 0.85104353 0.0007500333 4854.825413
+3   0.64616152 0.53877356 0.3285929905    7.027901
+4   1.07784175 0.31684012 0.4976764144    6.467592
+5   0.83586951 0.43083206 0.3798079474    7.589187
+6   0.95937096 0.36932826 0.7225587098    2.156862
+7  -0.46927866 0.65313604 0.1034730420    4.559261
+8  -1.05185617 0.32781537 0.1048483279    2.378730
+9   2.26402895 0.05798582 0.9320083866   25.531369
+10 -0.20175563 0.84584568 0.2282197747    3.473448
+11 -0.12360666 0.90510106 0.0014915022  351.210125
+12  0.35699417 0.73161574 0.5216341793    2.416291
+13  3.11098235 0.01705772 1.2427462434    4.925277
+14  0.80978464 0.44471508 0.6545789085    2.375405
+15 -0.24287920 0.81506224 0.6411316472    1.435782
+16 -0.05996554 0.95385916 0.3288490049    2.878140
+17 -0.48851569 0.64011604 0.2755455860    2.334028
+18 -0.09733943 0.92518529 0.1744607006    4.992751</code></pre>
 </div>
 </div>
 <p>Par contre, le support de <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/tbl_regression.html">gtsummary::tbl_regression()</a></code> et <code><a href="https://larmarange.github.io/ggstats/reference/ggcoef_model.html">ggstats::ggcoef_model()</a></code> est plus limité. Vous pourrez afficher un tableau basique des résultats et un graphiques des coefficients, mais sans les enrichissements usuels (identification des variables, étiquettes propres, identification des niveaux, etc.).</p>
@@ -3558,19 +3547,19 @@ Insatisfaction.trav.impPeu                      -0.57146052  3.7409549</code></p
 <p>Une alternative possible pour le calcul de la régression logistique multinomiale avec des données pondérées est <code><a href="https://rdrr.io/pkg/svyVGAM/man/svy_vglm.html">svyVGAM::svy_vglm()</a></code> avec <code>family = VGAM::multinomial</code>.</p>
 <p>Nous allons commencer par définir le plan d’échantillonnage.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1"></a><span class="fu">library</span>(survey)</span>
-<span id="cb38-2"><a href="#cb38-2"></a><span class="fu">library</span>(srvyr)</span>
-<span id="cb38-3"><a href="#cb38-3"></a>dw <span class="ot">&lt;-</span> d <span class="sc">|&gt;</span></span>
-<span id="cb38-4"><a href="#cb38-4"></a>  <span class="fu">as_survey</span>(<span class="at">weights =</span> poids)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb34"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1"></a><span class="fu">library</span>(survey)</span>
+<span id="cb34-2"><a href="#cb34-2"></a><span class="fu">library</span>(srvyr)</span>
+<span id="cb34-3"><a href="#cb34-3"></a>dw <span class="ot">&lt;-</span> d <span class="sc">|&gt;</span></span>
+<span id="cb34-4"><a href="#cb34-4"></a>  <span class="fu">as_survey</span>(<span class="at">weights =</span> poids)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Puis, on appelle <code><a href="https://rdrr.io/pkg/svyVGAM/man/svy_vglm.html">svyVGAM::svy_vglm()</a></code> en précisant <code>family = VGAM::multinomial</code>. Par défaut, <code><a href="https://rdrr.io/pkg/VGAM/man/multinomial.html">VGAM::multinomial()</a></code> utilise la dernière modalité de la variable d’intérêt comme modalité de référence. Cela est modifiable avec <code>refLevel</code>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1"></a>regm2 <span class="ot">&lt;-</span> svyVGAM<span class="sc">::</span><span class="fu">svy_vglm</span>(</span>
-<span id="cb39-2"><a href="#cb39-2"></a>  trav.satisf <span class="sc">~</span> sexe <span class="sc">+</span> etudes <span class="sc">+</span> trav.imp,</span>
-<span id="cb39-3"><a href="#cb39-3"></a>  <span class="at">family =</span> VGAM<span class="sc">::</span><span class="fu">multinomial</span>(<span class="at">refLevel =</span> <span class="st">"Equilibre"</span>),</span>
-<span id="cb39-4"><a href="#cb39-4"></a>  <span class="at">design =</span> dw</span>
-<span id="cb39-5"><a href="#cb39-5"></a>)</span>
-<span id="cb39-6"><a href="#cb39-6"></a>regm2 <span class="sc">|&gt;</span> <span class="fu">summary</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb35"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1"></a>regm2 <span class="ot">&lt;-</span> svyVGAM<span class="sc">::</span><span class="fu">svy_vglm</span>(</span>
+<span id="cb35-2"><a href="#cb35-2"></a>  trav.satisf <span class="sc">~</span> sexe <span class="sc">+</span> etudes <span class="sc">+</span> trav.imp,</span>
+<span id="cb35-3"><a href="#cb35-3"></a>  <span class="at">family =</span> VGAM<span class="sc">::</span><span class="fu">multinomial</span>(<span class="at">refLevel =</span> <span class="st">"Equilibre"</span>),</span>
+<span id="cb35-4"><a href="#cb35-4"></a>  <span class="at">design =</span> dw</span>
+<span id="cb35-5"><a href="#cb35-5"></a>)</span>
+<span id="cb35-6"><a href="#cb35-6"></a>regm2 <span class="sc">|&gt;</span> <span class="fu">summary</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>svy_vglm.survey.design(trav.satisf ~ sexe + etudes + trav.imp, 
     family = VGAM::multinomial(refLevel = "Equilibre"), design = dw)
@@ -3608,8 +3597,8 @@ trav.impPeu:2                      1.585521  0.866529  1.8297 0.067289</code></p
 </div>
 <p>Là encore, le support de <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/tbl_regression.html">gtsummary::tbl_regression()</a></code> sera limité<a href="#fn4" class="footnote-ref" id="fnref4" role="doc-noteref"><sup>4</sup></a>. Pour calculer les <em>odds ratios</em> avec leurs intervalles de confiance, on pourra avoir recours à <code><a href="https://larmarange.github.io/broom.helpers/reference/tidy_svy_vglm.html">broom.helpers::tidy_svy_vglm()</a></code>, dédié justement à ce type de modèles<a href="#fn5" class="footnote-ref" id="fnref5" role="doc-noteref"><sup>5</sup></a>.</p>
 <div class="no-row-height column-margin column-container"><div id="fn4"><p><sup>4</sup>&nbsp;Du moins, avec la version stable actuelle de <a href="https://github.com/ddsjoberg/gtsummary">gtsummary</a> (la version 2.2.0). Par contre, le support est intégré à la version de développement et sera donc disponible dans la prochaine version stable.</p></div><div id="fn5"><p><sup>5</sup>&nbsp;Cette fonction a été introduite dans la version 1.21.0 de <a href="https://larmarange.github.io/broom.helpers/">broom.helpers</a>. Pensez à éventuellement mettre à jour le package.</p></div></div><div class="cell">
-<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1"></a>regm2 <span class="sc">|&gt;</span> </span>
-<span id="cb41-2"><a href="#cb41-2"></a>  broom.helpers<span class="sc">::</span><span class="fu">tidy_svy_vglm</span>(<span class="at">exponentiate =</span> <span class="cn">TRUE</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb37"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1"></a>regm2 <span class="sc">|&gt;</span> </span>
+<span id="cb37-2"><a href="#cb37-2"></a>  broom.helpers<span class="sc">::</span><span class="fu">tidy_svy_vglm</span>(<span class="at">exponentiate =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>                       original_term                            term group
 1                      (Intercept):1                     (Intercept)     1
@@ -3672,8 +3661,8 @@ trav.impPeu:2                      1.585521  0.866529  1.8297 0.067289</code></p
 </div>
 <p>Par contre, les dernières versions de <a href="https://larmarange.github.io/ggstats/">ggstats</a> sont compatibles avec ce type de modèle. On pourra donc utiliser les fonctions <code>ggcoef_*()</code>.</p>
 <div class="cell page-columns page-full">
-<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1"></a>regm2 <span class="sc">|&gt;</span> </span>
-<span id="cb43-2"><a href="#cb43-2"></a>  ggstats<span class="sc">::</span><span class="fu">ggcoef_faceted</span>(<span class="at">exponentiate =</span> <span class="cn">TRUE</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb39"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1"></a>regm2 <span class="sc">|&gt;</span> </span>
+<span id="cb39-2"><a href="#cb39-2"></a>  ggstats<span class="sc">::</span><span class="fu">ggcoef_faceted</span>(<span class="at">exponentiate =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>ℹ &lt;svy_vglm&gt; model detected.</code></pre>
 </div>
@@ -3682,9 +3671,6 @@ trav.impPeu:2                      1.585521  0.866529  1.8297 0.067289</code></p
 </div>
 <div class="cell-output cell-output-stderr">
 <pre><code>ℹ Add `tidy_fun = broom.helpers::tidy_svy_vglm` to quiet these messages.</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>`height` was translated to `width`.</code></pre>
 </div>
 <div class="cell-output-display page-columns page-full">
 <div id="fig-ggcoef_faceted-svy_vglm" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
@@ -3717,7 +3703,7 @@ Figure&nbsp;46.6: Graphique des coefficients du modèle multinomial calculé ave
       a.appendChild(i);
       window.document.body.appendChild(a);
     }
-    window.setColorSchemeToggle(window.hasAlternateSentinel())
+    setColorSchemeToggle(hasAlternateSentinel())
     const icon = "";
     const anchorJS = new window.AnchorJS();
     anchorJS.options = {
@@ -3767,13 +3753,14 @@ Figure&nbsp;46.6: Graphique des coefficients du modèle multinomial calculé ave
       e.clearSelection();
     }
     const getTextToCopy = function(trigger) {
-        const codeEl = trigger.previousElementSibling.cloneNode(true);
-        for (const childEl of codeEl.children) {
-          if (isCodeAnnotation(childEl)) {
-            childEl.remove();
-          }
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
         }
-        return codeEl.innerText;
+      }
+      return codeEl.innerText;
     }
     const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
       text: getTextToCopy
@@ -4114,8 +4101,36 @@ Figure&nbsp;46.6: Graphique des coefficients du modèle multinomial calculé ave
       }
     }
   });
-  </script><script src="https://giscus.app/client.js" data-repo="larmarange/guide-R" data-repo-id="R_kgDOH6-xnw" data-category="Forum" data-category-id="DIC_kwDOH6-xn84CRLQy" data-mapping="pathname" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="top" data-theme="light" data-lang="fr" crossorigin="anonymous" data-loading="lazy" async="">
-</script><input type="hidden" id="giscus-base-theme" value="light"><input type="hidden" id="giscus-alt-theme" value="dark"><nav class="page-navigation"><div class="nav-page nav-page-previous">
+  </script><input type="hidden" id="giscus-base-theme" value="light"><input type="hidden" id="giscus-alt-theme" value="dark"><script>
+  function loadGiscus() {
+    // Function to get the theme based on body class
+    const getTheme = () => {
+      let baseTheme = document.getElementById('giscus-base-theme').value;
+      let altTheme = document.getElementById('giscus-alt-theme').value;
+      if (authorPrefersDark) {
+          [baseTheme, altTheme] = [altTheme, baseTheme];
+      }
+      return document.body.classList.contains('quarto-dark') ? altTheme : baseTheme;
+    };
+    const script = document.createElement("script");
+    script.src = "https://giscus.app/client.js";
+    script.async = true;
+    script.dataset.repo = "larmarange/guide-R";
+    script.dataset.repoId = "R_kgDOH6-xnw";
+    script.dataset.category = "Forum";
+    script.dataset.categoryId = "DIC_kwDOH6-xn84CRLQy";
+    script.dataset.mapping = "pathname";
+    script.dataset.reactionsEnabled = "1";
+    script.dataset.emitMetadata = "0";
+    script.dataset.inputPosition = "top";
+    script.dataset.theme = getTheme();
+    script.dataset.lang = "fr";
+    script.crossOrigin = "anonymous";
+    // Append the script to the desired div instead of at the end of the body
+    document.getElementById("quarto-content").appendChild(script);
+  }
+  loadGiscus();
+</script><nav class="page-navigation"><div class="nav-page nav-page-previous">
       <a href="../analyses_avancees/analyse-sequences.html" class="pagination-link" aria-label="Analyse de séquences">
         <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">45</span>&nbsp; <span class="chapter-title">Analyse de séquences</span></span>
       </a>          
