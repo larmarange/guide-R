@@ -9,4 +9,3 @@ Questions & Réponses : <https://github.com/larmarange/guide-R/discussions>
 Demandes de correction / ajout : <https://github.com/larmarange/guide-R/issues>
 
 Ce site est généré avec [quarto](https://quarto.org/).
-
