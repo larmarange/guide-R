@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="fr" xml:lang="fr"><head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.8.27">
+<meta name="generator" content="quarto-1.7.27">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 <title>22&nbsp; Régression linéaire – guide-R</title>
 <style>
@@ -68,19 +68,18 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../site_libs/cookie-consent/cookie-consent.css" rel="stylesheet">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
-<script src="../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
 <script src="../site_libs/quarto-html/popper.min.js"></script>
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-ed96de9b727972fe78a7b5d16c58bf87.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-4d9afe2b8d18ee9fa5d0d57b5ed4214d.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-ed96de9b727972fe78a7b5d16c58bf87.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-985aa47af68dae11cd4d235c71fb941e.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-6c49c5477b92c77c9eb341f9299c235f.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-985aa47af68dae11cd4d235c71fb941e.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-bd89720b472e789133713356f69e05bb.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../site_libs/bootstrap/bootstrap-dark-19020347c2de3e9282294d0be578f340.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<link href="../site_libs/bootstrap/bootstrap-bd89720b472e789133713356f69e05bb.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-1706ad55a43eb6182cc66969adfb4558.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-e07f40149b440be50f716415da65e4f4.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../site_libs/bootstrap/bootstrap-1706ad55a43eb6182cc66969adfb4558.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <script src="../site_libs/quarto-contrib/glightbox/glightbox.min.js"></script>
 <link href="../site_libs/quarto-contrib/glightbox/glightbox.min.css" rel="stylesheet">
 <link href="../site_libs/quarto-contrib/glightbox/lightbox.css" rel="stylesheet"><script id="quarto-search-options" type="application/json">{
@@ -141,7 +140,7 @@ const typesetMath = (el) => {
     var macros = [];
     for (var i = 0; i < mathElements.length; i++) {
       var texText = mathElements[i].firstChild;
-      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+      if (mathElements[i].tagName == "SPAN") {
         window.katex.render(texText.data, mathElements[i], {
           displayMode: mathElements[i].classList.contains('display'),
           throwOnError: false,
@@ -175,7 +174,7 @@ window.Quarto = {
         toggleBodyColorMode(bsSheetEl);
       }
     }
-    const setColorSchemeToggle = (alternate) => {
+    window.setColorSchemeToggle = (alternate) => {
       const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
       for (let i=0; i < toggles.length; i++) {
         const toggle = toggles[i];
@@ -208,7 +207,7 @@ window.Quarto = {
       }
       manageTransitions('#quarto-margin-sidebar .nav-link', true);
       // Switch the toggles
-      setColorSchemeToggle(alternate)
+      window.setColorSchemeToggle(alternate)
       // Hack to workaround the fact that safari doesn't
       // properly recolor the scrollbar when toggling (#1455)
       if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
@@ -248,7 +247,7 @@ window.Quarto = {
     const isFileUrl = () => {
       return window.location.protocol === 'file:';
     }
-    const hasAlternateSentinel = () => {
+    window.hasAlternateSentinel = () => {
       let styleSentinel = getColorSchemeSentinel();
       if (styleSentinel !== null) {
         return styleSentinel === "alternate";
@@ -276,7 +275,7 @@ window.Quarto = {
       const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
       const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
       let newTheme = '';
-      if(authorPrefersDark) {
+      if(darkModeDefault) {
         newTheme = isAlternate ? baseTheme : alternateTheme;
       } else {
         newTheme = isAlternate ? alternateTheme : baseTheme;
@@ -299,22 +298,20 @@ window.Quarto = {
         changeGiscusTheme();
       }
     };
-    const authorPrefersDark = false;
-    const darkModeDefault = authorPrefersDark;
+    const darkModeDefault = false;
       document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
       document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
     let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
     // Dark / light mode switch
     window.quartoToggleColorScheme = () => {
       // Read the current dark / light value
-      let toAlternate = !hasAlternateSentinel();
+      let toAlternate = !window.hasAlternateSentinel();
       toggleColorMode(toAlternate);
       setStyleSentinel(toAlternate);
       toggleGiscusIfUsed(toAlternate, darkModeDefault);
-      window.dispatchEvent(new Event('resize'));
     };
     // Switch to dark mode if need be
-    if (hasAlternateSentinel()) {
+    if (window.hasAlternateSentinel()) {
       toggleColorMode(true);
     } else {
       toggleColorMode(false);
@@ -337,7 +334,7 @@ window.Quarto = {
 <!-- sidebar -->
   <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto"><div class="pt-lg-2 mt-2 text-left sidebar-header sidebar-header-stacked">
       <a href="../index.html" class="sidebar-logo-link">
-      <img src="../ressources/typewriter.png" alt="" class="sidebar-logo light-content py-0 d-lg-inline d-none"><img src="../ressources/typewriter.png" alt="" class="sidebar-logo dark-content py-0 d-lg-inline d-none"></a>
+      <img src="../ressources/typewriter.png" alt="" class="sidebar-logo py-0 d-lg-inline d-none"></a>
     <div class="sidebar-title mb-0 py-0">
       <a href="../">guide-R</a> 
         <div class="sidebar-tools-main tools-wide">
@@ -784,12 +781,12 @@ window.Quarto = {
 <p>Nous avons déjà abordé très rapidement la régression linéaire dans le chapitre sur la <em>statistique bivariée</em> (cf. <a href="statistique-bivariee.html#sec-deux-variables-continues" class="quarto-xref"><span>Section 19.3</span></a>).</p>
 <p>Reprenons le même exemple à partir du jeu de données <code>iris</code> qui comporte les caractéristiques de 150 fleurs de trois espèces différentes d’iris. Nous cherchons dans un premier temps à explorer la relation entre la largeur (<em>Petal.Width</em>) et la longueur des pétales (<em>Petal.Length</em>). Représentons cette relation sous la forme d’un nuage de points.</p>
 <div class="cell page-columns page-full">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="fu">library</span>(tidyverse)</span>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="fu">library</span>(tidyverse)</span>
 <span id="cb1-2"><a href="#cb1-2"></a><span class="fu">ggplot</span>(iris) <span class="sc">+</span></span>
 <span id="cb1-3"><a href="#cb1-3"></a>  <span class="fu">aes</span>(<span class="at">x =</span> Petal.Length, <span class="at">y =</span> Petal.Width) <span class="sc">+</span></span>
 <span id="cb1-4"><a href="#cb1-4"></a>  <span class="fu">geom_point</span>(<span class="at">colour =</span> <span class="st">"blue"</span>, <span class="at">alpha =</span> .<span class="dv">25</span>) <span class="sc">+</span></span>
 <span id="cb1-5"><a href="#cb1-5"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Longueur"</span>, <span class="at">y =</span> <span class="st">"Largeur"</span>) <span class="sc">+</span></span>
-<span id="cb1-6"><a href="#cb1-6"></a>  <span class="fu">theme_light</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb1-6"><a href="#cb1-6"></a>  <span class="fu">theme_light</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display page-columns page-full">
 <div id="fig-rel-petal.width-petal.length" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full"><div aria-describedby="fig-rel-petal.width-petal.length-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -803,12 +800,12 @@ Figure&nbsp;22.1: Relation entre la largeur et la longueur des pétales (nuage d
 </div>
 <p>Il semble bien qu’il y a une <strong>relation linéaire</strong> entre ces deux variables, c’est-à-dire que la relation entre ces deux variables peut être représentée sous la forme d’une droite. Pour cela, on va rechercher la droite telle que la distance entre les points observés et la droite soit la plus petite possible. Cette droite peut être représentée graphique avec <code><a href="https://ggplot2.tidyverse.org/reference/geom_smooth.html">ggplot2::geom_smooth()</a></code> et l’option <code>method = "lm"</code>&nbsp;:</p>
 <div class="cell page-columns page-full">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a><span class="fu">ggplot</span>(iris) <span class="sc">+</span></span>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a><span class="fu">ggplot</span>(iris) <span class="sc">+</span></span>
 <span id="cb2-2"><a href="#cb2-2"></a>  <span class="fu">aes</span>(<span class="at">x =</span> Petal.Length, <span class="at">y =</span> Petal.Width) <span class="sc">+</span></span>
 <span id="cb2-3"><a href="#cb2-3"></a>  <span class="fu">geom_point</span>(<span class="at">colour =</span> <span class="st">"blue"</span>, <span class="at">alpha =</span> .<span class="dv">25</span>) <span class="sc">+</span></span>
 <span id="cb2-4"><a href="#cb2-4"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>) <span class="sc">+</span></span>
 <span id="cb2-5"><a href="#cb2-5"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Longueur"</span>, <span class="at">y =</span> <span class="st">"Largeur"</span>) <span class="sc">+</span></span>
-<span id="cb2-6"><a href="#cb2-6"></a>  <span class="fu">theme_light</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb2-6"><a href="#cb2-6"></a>  <span class="fu">theme_light</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display page-columns page-full">
 <div id="fig-rel-petal.width-petal.length-lm" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full"><div aria-describedby="fig-rel-petal.width-petal.length-lm-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -823,8 +820,8 @@ Figure&nbsp;22.2: Relation linéaire entre la largeur et la longueur des pétale
 <p>La fonction de base pour calculer une régression linéaire est la fonction <code><a href="https://rdrr.io/r/stats/lm.html">stats::lm()</a></code>. On doit en premier lieu spécifier le modèle à l’aide d’une <strong>formule</strong> : on indique la variable à expliquer dans la partie gauche de la formule et la variable explicative dans la partie droite, les deux parties étant séparées par un tilde<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> (<code>~</code>).</p>
 <div class="no-row-height column-margin column-container"><div id="fn1"><p><sup>1</sup>&nbsp;Avec un clavier français, sous Windows, le caractère tilde s’obtient en pressant simultanément les touches <kbd>Alt Gr</kbd> et <kbd>7</kbd>.</p></div></div><p>Dans le cas présent, la variable <em>Petal.Width</em> fait office de variable à expliquer et <em>Petal.Length</em> de variable explicative. Le modèle s’écrit donc <code>Petal.Width ~ Petal.Length</code>.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a>mod <span class="ot">&lt;-</span> <span class="fu">lm</span>(Petal.Width <span class="sc">~</span> Petal.Length, <span class="at">data =</span> iris)</span>
-<span id="cb3-2"><a href="#cb3-2"></a>mod</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a>mod <span class="ot">&lt;-</span> <span class="fu">lm</span>(Petal.Width <span class="sc">~</span> Petal.Length, <span class="at">data =</span> iris)</span>
+<span id="cb3-2"><a href="#cb3-2"></a>mod</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 Call:
@@ -837,7 +834,7 @@ Coefficients:
 </div>
 <p>Le résultat comporte deux coefficients. Le premier, d’une valeur de <span class="math inline">\(0,4158\)</span>, est associé à la variable <em>Petal.Length</em> et indique la pente de la courbe (on parle de <em>slope</em> en anglais). Le second, d’une valeur de <span class="math inline">\(-0,3631\)</span>, représente l’ordonnée à l’origine (<em>intercept</em> en anglais), c’est-à-dire la valeur estimée de <em>Petal.Width</em> lorsque <em>Petal.Length</em> vaut 0. Nous pouvons rendre cela plus visible en élargissant notre graphique.</p>
 <div class="cell page-columns page-full">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a><span class="fu">ggplot</span>(iris) <span class="sc">+</span></span>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a><span class="fu">ggplot</span>(iris) <span class="sc">+</span></span>
 <span id="cb5-2"><a href="#cb5-2"></a>  <span class="fu">aes</span>(<span class="at">x =</span> Petal.Length, <span class="at">y =</span> Petal.Width) <span class="sc">+</span></span>
 <span id="cb5-3"><a href="#cb5-3"></a>  <span class="fu">geom_point</span>(<span class="at">colour =</span> <span class="st">"blue"</span>, <span class="at">alpha =</span> .<span class="dv">25</span>) <span class="sc">+</span></span>
 <span id="cb5-4"><a href="#cb5-4"></a>  <span class="fu">geom_abline</span>(</span>
@@ -849,7 +846,7 @@ Coefficients:
 <span id="cb5-10"><a href="#cb5-10"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="dv">0</span>, <span class="at">linewidth =</span> <span class="dv">1</span>, <span class="at">linetype =</span> <span class="st">"dotted"</span>) <span class="sc">+</span></span>
 <span id="cb5-11"><a href="#cb5-11"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Longueur"</span>, <span class="at">y =</span> <span class="st">"Largeur"</span>) <span class="sc">+</span></span>
 <span id="cb5-12"><a href="#cb5-12"></a>  <span class="fu">expand_limits</span>(<span class="at">x =</span> <span class="dv">0</span>, <span class="at">y =</span> <span class="sc">-</span><span class="dv">1</span>) <span class="sc">+</span></span>
-<span id="cb5-13"><a href="#cb5-13"></a>  <span class="fu">theme_light</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb5-13"><a href="#cb5-13"></a>  <span class="fu">theme_light</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display page-columns page-full">
 <div id="fig-rel-petal.width-petal.length-lm2" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full"><div aria-describedby="fig-rel-petal.width-petal.length-lm2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -867,29 +864,29 @@ Petal.Width = 0,4158 \cdot Petal.Length - 0,3631
 \]</span></p>
 <p>Le package <a href="https://github.com/ddsjoberg/gtsummary">gtsummary</a> fournit <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/tbl_regression.html">gtsummary::tbl_regression()</a></code>, une fonction bien pratique pour produire un tableau propre avec les coefficients du modèle, leur intervalle de confiance à 95% et leur p-valeurs<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a>. On précisera <code>intercept = TRUE</code> pour forcer l’affichage de l’<em>intercept</em> qui est masqué par défaut.</p>
 <div class="no-row-height column-margin column-container"><div id="fn2"><p><sup>2</sup>&nbsp;Si l’on a besoin de ces informations sous la forme d’un tableau de données classique, on pourra se référer à <code><a href="https://larmarange.github.io/broom.helpers/reference/tidy_plus_plus.html">broom.helpers::tidy_plus_plus()</a></code>, utilisée de manière sous-jacente par <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/tbl_regression.html">gtsummary::tbl_regression()</a></code>, ainsi qu’à la méthode <code><a href="https://generics.r-lib.org/reference/tidy.html">broom::tidy()</a></code>. Ces fonctions sont génériques et peut être utilisées avec une très grande variété de modèles.</p></div></div><div class="cell page-columns page-full">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a><span class="fu">library</span>(gtsummary)</span>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a><span class="fu">library</span>(gtsummary)</span>
 <span id="cb6-2"><a href="#cb6-2"></a>mod <span class="sc">%&gt;%</span></span>
-<span id="cb6-3"><a href="#cb6-3"></a>  <span class="fu">tbl_regression</span>(<span class="at">intercept =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb6-3"><a href="#cb6-3"></a>  <span class="fu">tbl_regression</span>(<span class="at">intercept =</span> <span class="cn">TRUE</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div id="tbl-regression-lm" class="cell quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-tbl figure page-columns page-full"><div aria-describedby="tbl-regression-lm-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
-<div id="wswybsvrqp" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#wswybsvrqp table {
+<div id="umomoubpun" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#umomoubpun table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#wswybsvrqp thead, #wswybsvrqp tbody, #wswybsvrqp tfoot, #wswybsvrqp tr, #wswybsvrqp td, #wswybsvrqp th {
+#umomoubpun thead, #umomoubpun tbody, #umomoubpun tfoot, #umomoubpun tr, #umomoubpun td, #umomoubpun th {
   border-style: none;
 }
 
-#wswybsvrqp p {
+#umomoubpun p {
   margin: 0;
   padding: 0;
 }
 
-#wswybsvrqp .gt_table {
+#umomoubpun .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -915,12 +912,12 @@ Petal.Width = 0,4158 \cdot Petal.Length - 0,3631
   border-left-color: #D3D3D3;
 }
 
-#wswybsvrqp .gt_caption {
+#umomoubpun .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#wswybsvrqp .gt_title {
+#umomoubpun .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -932,7 +929,7 @@ Petal.Width = 0,4158 \cdot Petal.Length - 0,3631
   border-bottom-width: 0;
 }
 
-#wswybsvrqp .gt_subtitle {
+#umomoubpun .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -944,7 +941,7 @@ Petal.Width = 0,4158 \cdot Petal.Length - 0,3631
   border-top-width: 0;
 }
 
-#wswybsvrqp .gt_heading {
+#umomoubpun .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -956,13 +953,13 @@ Petal.Width = 0,4158 \cdot Petal.Length - 0,3631
   border-right-color: #D3D3D3;
 }
 
-#wswybsvrqp .gt_bottom_border {
+#umomoubpun .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#wswybsvrqp .gt_col_headings {
+#umomoubpun .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -977,7 +974,7 @@ Petal.Width = 0,4158 \cdot Petal.Length - 0,3631
   border-right-color: #D3D3D3;
 }
 
-#wswybsvrqp .gt_col_heading {
+#umomoubpun .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -997,7 +994,7 @@ Petal.Width = 0,4158 \cdot Petal.Length - 0,3631
   overflow-x: hidden;
 }
 
-#wswybsvrqp .gt_column_spanner_outer {
+#umomoubpun .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1009,15 +1006,15 @@ Petal.Width = 0,4158 \cdot Petal.Length - 0,3631
   padding-right: 4px;
 }
 
-#wswybsvrqp .gt_column_spanner_outer:first-child {
+#umomoubpun .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#wswybsvrqp .gt_column_spanner_outer:last-child {
+#umomoubpun .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#wswybsvrqp .gt_column_spanner {
+#umomoubpun .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -1029,11 +1026,11 @@ Petal.Width = 0,4158 \cdot Petal.Length - 0,3631
   width: 100%;
 }
 
-#wswybsvrqp .gt_spanner_row {
+#umomoubpun .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#wswybsvrqp .gt_group_heading {
+#umomoubpun .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1059,7 +1056,7 @@ Petal.Width = 0,4158 \cdot Petal.Length - 0,3631
   text-align: left;
 }
 
-#wswybsvrqp .gt_empty_group_heading {
+#umomoubpun .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -1074,15 +1071,15 @@ Petal.Width = 0,4158 \cdot Petal.Length - 0,3631
   vertical-align: middle;
 }
 
-#wswybsvrqp .gt_from_md > :first-child {
+#umomoubpun .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#wswybsvrqp .gt_from_md > :last-child {
+#umomoubpun .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#wswybsvrqp .gt_row {
+#umomoubpun .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1101,7 +1098,7 @@ Petal.Width = 0,4158 \cdot Petal.Length - 0,3631
   overflow-x: hidden;
 }
 
-#wswybsvrqp .gt_stub {
+#umomoubpun .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1114,7 +1111,7 @@ Petal.Width = 0,4158 \cdot Petal.Length - 0,3631
   padding-right: 5px;
 }
 
-#wswybsvrqp .gt_stub_row_group {
+#umomoubpun .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1128,15 +1125,15 @@ Petal.Width = 0,4158 \cdot Petal.Length - 0,3631
   vertical-align: top;
 }
 
-#wswybsvrqp .gt_row_group_first td {
+#umomoubpun .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#wswybsvrqp .gt_row_group_first th {
+#umomoubpun .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#wswybsvrqp .gt_summary_row {
+#umomoubpun .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1146,16 +1143,16 @@ Petal.Width = 0,4158 \cdot Petal.Length - 0,3631
   padding-right: 5px;
 }
 
-#wswybsvrqp .gt_first_summary_row {
+#umomoubpun .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#wswybsvrqp .gt_first_summary_row.thick {
+#umomoubpun .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#wswybsvrqp .gt_last_summary_row {
+#umomoubpun .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1165,7 +1162,7 @@ Petal.Width = 0,4158 \cdot Petal.Length - 0,3631
   border-bottom-color: #D3D3D3;
 }
 
-#wswybsvrqp .gt_grand_summary_row {
+#umomoubpun .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1175,7 +1172,7 @@ Petal.Width = 0,4158 \cdot Petal.Length - 0,3631
   padding-right: 5px;
 }
 
-#wswybsvrqp .gt_first_grand_summary_row {
+#umomoubpun .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1185,7 +1182,7 @@ Petal.Width = 0,4158 \cdot Petal.Length - 0,3631
   border-top-color: #D3D3D3;
 }
 
-#wswybsvrqp .gt_last_grand_summary_row_top {
+#umomoubpun .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1195,11 +1192,11 @@ Petal.Width = 0,4158 \cdot Petal.Length - 0,3631
   border-bottom-color: #D3D3D3;
 }
 
-#wswybsvrqp .gt_striped {
+#umomoubpun .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#wswybsvrqp .gt_table_body {
+#umomoubpun .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1208,7 +1205,7 @@ Petal.Width = 0,4158 \cdot Petal.Length - 0,3631
   border-bottom-color: #D3D3D3;
 }
 
-#wswybsvrqp .gt_footnotes {
+#umomoubpun .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1222,7 +1219,7 @@ Petal.Width = 0,4158 \cdot Petal.Length - 0,3631
   border-right-color: #D3D3D3;
 }
 
-#wswybsvrqp .gt_footnote {
+#umomoubpun .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -1231,7 +1228,7 @@ Petal.Width = 0,4158 \cdot Petal.Length - 0,3631
   padding-right: 5px;
 }
 
-#wswybsvrqp .gt_sourcenotes {
+#umomoubpun .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1245,7 +1242,7 @@ Petal.Width = 0,4158 \cdot Petal.Length - 0,3631
   border-right-color: #D3D3D3;
 }
 
-#wswybsvrqp .gt_sourcenote {
+#umomoubpun .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -1253,76 +1250,76 @@ Petal.Width = 0,4158 \cdot Petal.Length - 0,3631
   padding-right: 5px;
 }
 
-#wswybsvrqp .gt_left {
+#umomoubpun .gt_left {
   text-align: left;
 }
 
-#wswybsvrqp .gt_center {
+#umomoubpun .gt_center {
   text-align: center;
 }
 
-#wswybsvrqp .gt_right {
+#umomoubpun .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#wswybsvrqp .gt_font_normal {
+#umomoubpun .gt_font_normal {
   font-weight: normal;
 }
 
-#wswybsvrqp .gt_font_bold {
+#umomoubpun .gt_font_bold {
   font-weight: bold;
 }
 
-#wswybsvrqp .gt_font_italic {
+#umomoubpun .gt_font_italic {
   font-style: italic;
 }
 
-#wswybsvrqp .gt_super {
+#umomoubpun .gt_super {
   font-size: 65%;
 }
 
-#wswybsvrqp .gt_footnote_marks {
+#umomoubpun .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#wswybsvrqp .gt_asterisk {
+#umomoubpun .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#wswybsvrqp .gt_indent_1 {
+#umomoubpun .gt_indent_1 {
   text-indent: 5px;
 }
 
-#wswybsvrqp .gt_indent_2 {
+#umomoubpun .gt_indent_2 {
   text-indent: 10px;
 }
 
-#wswybsvrqp .gt_indent_3 {
+#umomoubpun .gt_indent_3 {
   text-indent: 15px;
 }
 
-#wswybsvrqp .gt_indent_4 {
+#umomoubpun .gt_indent_4 {
   text-indent: 20px;
 }
 
-#wswybsvrqp .gt_indent_5 {
+#umomoubpun .gt_indent_5 {
   text-indent: 25px;
 }
 
-#wswybsvrqp .katex-display {
+#umomoubpun .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#wswybsvrqp div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#umomoubpun div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
-<table class="gt_table do-not-create-environment cell table table-sm table-striped small" data-quarto-bootstrap="false">
+<table class="gt_table do-not-create-environment cell table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
 <thead><tr class="gt_col_headings header">
 <th id="label" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col"><strong>Characteristic</strong></th>
 <th id="estimate" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col"><strong>Beta</strong></th>
@@ -1343,7 +1340,7 @@ Petal.Width = 0,4158 \cdot Petal.Length - 0,3631
 <td class="gt_row gt_center" headers="p.value">&lt;0.001</td>
 </tr>
 </tbody>
-<tfoot><tr class="gt_sourcenotes odd">
+<tfoot class="gt_sourcenotes"><tr class="odd">
 <td colspan="4" class="gt_sourcenote">Abbreviation: CI = Confidence Interval</td>
 </tr></tfoot>
 </table>
@@ -1368,7 +1365,7 @@ Astuce
 <div class="callout-body-container callout-body">
 <p>Dans certains cas, si l’on suppose que la relation entre les deux variables est proportionnelle, on peut souhaiter calculer un modèle sans <em>intercept</em>. Par défaut, <strong>R</strong> ajoute un <em>intercept</em> à ses modèles. Pour forcer le calcul d’un modèle sans <em>intercept</em>, on ajoutera <code>- 1</code> à la formule définissant le modèle.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a><span class="fu">lm</span>(Petal.Width <span class="sc">~</span> Petal.Length <span class="sc">-</span> <span class="dv">1</span>, <span class="at">data =</span> iris)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a><span class="fu">lm</span>(Petal.Width <span class="sc">~</span> Petal.Length <span class="sc">-</span> <span class="dv">1</span>, <span class="at">data =</span> iris)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 Call:
@@ -1385,8 +1382,8 @@ Petal.Length
 <span class="header-section-number">22.2</span> Modèle à une seule variable explicative catégorielle</h2>
 <p>Si dans un modèle linéaire la variable à expliquer est nécessairement continue, il est possible de définir une variable explicative catégorielle. Prenons la variable <em>Species</em>.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a><span class="fu">library</span>(labelled)</span>
-<span id="cb9-2"><a href="#cb9-2"></a>iris <span class="sc">%&gt;%</span> <span class="fu">look_for</span>(<span class="st">"Species"</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a><span class="fu">library</span>(labelled)</span>
+<span id="cb9-2"><a href="#cb9-2"></a>iris <span class="sc">%&gt;%</span> <span class="fu">look_for</span>(<span class="st">"Species"</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code> pos variable label col_type missing values    
  5   Species  —     fct      0       setosa    
@@ -1396,8 +1393,8 @@ Petal.Length
 </div>
 <p>Il s’agit d’un facteur à trois modalités. Par défaut, la première valeur du facteur (ici <em>setosa</em>) va servir de modalité de référence.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a>mod <span class="ot">&lt;-</span> <span class="fu">lm</span>(Petal.Width <span class="sc">~</span> Species, <span class="at">data =</span> iris)</span>
-<span id="cb11-2"><a href="#cb11-2"></a>mod</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a>mod <span class="ot">&lt;-</span> <span class="fu">lm</span>(Petal.Width <span class="sc">~</span> Species, <span class="at">data =</span> iris)</span>
+<span id="cb11-2"><a href="#cb11-2"></a>mod</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 Call:
@@ -1409,28 +1406,28 @@ Coefficients:
 </div>
 </div>
 <div class="cell page-columns page-full">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a>mod <span class="sc">%&gt;%</span></span>
-<span id="cb13-2"><a href="#cb13-2"></a>  <span class="fu">tbl_regression</span>(<span class="at">intercept =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a>mod <span class="sc">%&gt;%</span></span>
+<span id="cb13-2"><a href="#cb13-2"></a>  <span class="fu">tbl_regression</span>(<span class="at">intercept =</span> <span class="cn">TRUE</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div id="tbl-regression-lm-2" class="cell quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-tbl figure page-columns page-full"><div aria-describedby="tbl-regression-lm-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
-<div id="dsvkizcuyb" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#dsvkizcuyb table {
+<div id="freionkini" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#freionkini table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#dsvkizcuyb thead, #dsvkizcuyb tbody, #dsvkizcuyb tfoot, #dsvkizcuyb tr, #dsvkizcuyb td, #dsvkizcuyb th {
+#freionkini thead, #freionkini tbody, #freionkini tfoot, #freionkini tr, #freionkini td, #freionkini th {
   border-style: none;
 }
 
-#dsvkizcuyb p {
+#freionkini p {
   margin: 0;
   padding: 0;
 }
 
-#dsvkizcuyb .gt_table {
+#freionkini .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -1456,12 +1453,12 @@ Coefficients:
   border-left-color: #D3D3D3;
 }
 
-#dsvkizcuyb .gt_caption {
+#freionkini .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#dsvkizcuyb .gt_title {
+#freionkini .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -1473,7 +1470,7 @@ Coefficients:
   border-bottom-width: 0;
 }
 
-#dsvkizcuyb .gt_subtitle {
+#freionkini .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -1485,7 +1482,7 @@ Coefficients:
   border-top-width: 0;
 }
 
-#dsvkizcuyb .gt_heading {
+#freionkini .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -1497,13 +1494,13 @@ Coefficients:
   border-right-color: #D3D3D3;
 }
 
-#dsvkizcuyb .gt_bottom_border {
+#freionkini .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#dsvkizcuyb .gt_col_headings {
+#freionkini .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1518,7 +1515,7 @@ Coefficients:
   border-right-color: #D3D3D3;
 }
 
-#dsvkizcuyb .gt_col_heading {
+#freionkini .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1538,7 +1535,7 @@ Coefficients:
   overflow-x: hidden;
 }
 
-#dsvkizcuyb .gt_column_spanner_outer {
+#freionkini .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1550,15 +1547,15 @@ Coefficients:
   padding-right: 4px;
 }
 
-#dsvkizcuyb .gt_column_spanner_outer:first-child {
+#freionkini .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#dsvkizcuyb .gt_column_spanner_outer:last-child {
+#freionkini .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#dsvkizcuyb .gt_column_spanner {
+#freionkini .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -1570,11 +1567,11 @@ Coefficients:
   width: 100%;
 }
 
-#dsvkizcuyb .gt_spanner_row {
+#freionkini .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#dsvkizcuyb .gt_group_heading {
+#freionkini .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1600,7 +1597,7 @@ Coefficients:
   text-align: left;
 }
 
-#dsvkizcuyb .gt_empty_group_heading {
+#freionkini .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -1615,15 +1612,15 @@ Coefficients:
   vertical-align: middle;
 }
 
-#dsvkizcuyb .gt_from_md > :first-child {
+#freionkini .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#dsvkizcuyb .gt_from_md > :last-child {
+#freionkini .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#dsvkizcuyb .gt_row {
+#freionkini .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1642,7 +1639,7 @@ Coefficients:
   overflow-x: hidden;
 }
 
-#dsvkizcuyb .gt_stub {
+#freionkini .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1655,7 +1652,7 @@ Coefficients:
   padding-right: 5px;
 }
 
-#dsvkizcuyb .gt_stub_row_group {
+#freionkini .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1669,15 +1666,15 @@ Coefficients:
   vertical-align: top;
 }
 
-#dsvkizcuyb .gt_row_group_first td {
+#freionkini .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#dsvkizcuyb .gt_row_group_first th {
+#freionkini .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#dsvkizcuyb .gt_summary_row {
+#freionkini .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1687,16 +1684,16 @@ Coefficients:
   padding-right: 5px;
 }
 
-#dsvkizcuyb .gt_first_summary_row {
+#freionkini .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#dsvkizcuyb .gt_first_summary_row.thick {
+#freionkini .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#dsvkizcuyb .gt_last_summary_row {
+#freionkini .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1706,7 +1703,7 @@ Coefficients:
   border-bottom-color: #D3D3D3;
 }
 
-#dsvkizcuyb .gt_grand_summary_row {
+#freionkini .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1716,7 +1713,7 @@ Coefficients:
   padding-right: 5px;
 }
 
-#dsvkizcuyb .gt_first_grand_summary_row {
+#freionkini .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1726,7 +1723,7 @@ Coefficients:
   border-top-color: #D3D3D3;
 }
 
-#dsvkizcuyb .gt_last_grand_summary_row_top {
+#freionkini .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1736,11 +1733,11 @@ Coefficients:
   border-bottom-color: #D3D3D3;
 }
 
-#dsvkizcuyb .gt_striped {
+#freionkini .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#dsvkizcuyb .gt_table_body {
+#freionkini .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1749,7 +1746,7 @@ Coefficients:
   border-bottom-color: #D3D3D3;
 }
 
-#dsvkizcuyb .gt_footnotes {
+#freionkini .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1763,7 +1760,7 @@ Coefficients:
   border-right-color: #D3D3D3;
 }
 
-#dsvkizcuyb .gt_footnote {
+#freionkini .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -1772,7 +1769,7 @@ Coefficients:
   padding-right: 5px;
 }
 
-#dsvkizcuyb .gt_sourcenotes {
+#freionkini .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1786,7 +1783,7 @@ Coefficients:
   border-right-color: #D3D3D3;
 }
 
-#dsvkizcuyb .gt_sourcenote {
+#freionkini .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -1794,76 +1791,76 @@ Coefficients:
   padding-right: 5px;
 }
 
-#dsvkizcuyb .gt_left {
+#freionkini .gt_left {
   text-align: left;
 }
 
-#dsvkizcuyb .gt_center {
+#freionkini .gt_center {
   text-align: center;
 }
 
-#dsvkizcuyb .gt_right {
+#freionkini .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#dsvkizcuyb .gt_font_normal {
+#freionkini .gt_font_normal {
   font-weight: normal;
 }
 
-#dsvkizcuyb .gt_font_bold {
+#freionkini .gt_font_bold {
   font-weight: bold;
 }
 
-#dsvkizcuyb .gt_font_italic {
+#freionkini .gt_font_italic {
   font-style: italic;
 }
 
-#dsvkizcuyb .gt_super {
+#freionkini .gt_super {
   font-size: 65%;
 }
 
-#dsvkizcuyb .gt_footnote_marks {
+#freionkini .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#dsvkizcuyb .gt_asterisk {
+#freionkini .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#dsvkizcuyb .gt_indent_1 {
+#freionkini .gt_indent_1 {
   text-indent: 5px;
 }
 
-#dsvkizcuyb .gt_indent_2 {
+#freionkini .gt_indent_2 {
   text-indent: 10px;
 }
 
-#dsvkizcuyb .gt_indent_3 {
+#freionkini .gt_indent_3 {
   text-indent: 15px;
 }
 
-#dsvkizcuyb .gt_indent_4 {
+#freionkini .gt_indent_4 {
   text-indent: 20px;
 }
 
-#dsvkizcuyb .gt_indent_5 {
+#freionkini .gt_indent_5 {
   text-indent: 25px;
 }
 
-#dsvkizcuyb .katex-display {
+#freionkini .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#dsvkizcuyb div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#freionkini div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
-<table class="gt_table do-not-create-environment cell table table-sm table-striped small" data-quarto-bootstrap="false">
+<table class="gt_table do-not-create-environment cell table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
 <colgroup>
 <col style="width: 25%">
 <col style="width: 25%">
@@ -1908,7 +1905,7 @@ Coefficients:
 <td class="gt_row gt_center" headers="p.value">&lt;0.001</td>
 </tr>
 </tbody>
-<tfoot><tr class="gt_sourcenotes odd">
+<tfoot class="gt_sourcenotes"><tr class="odd">
 <td colspan="4" class="gt_sourcenote">Abbreviation: CI = Confidence Interval</td>
 </tr></tfoot>
 </table>
@@ -1923,9 +1920,9 @@ Table&nbsp;22.2: régression linaire avec une variable explicative catégorielle
 <p>Dans ce cas de figure, l’<em>intercept</em> représente la situation à la référence, donc pour l’espèce <em>setosa</em>.</p>
 <p>Calculons les moyennes par espèce&nbsp;:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a>iris <span class="sc">%&gt;%</span></span>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a>iris <span class="sc">%&gt;%</span></span>
 <span id="cb14-2"><a href="#cb14-2"></a>  <span class="fu">group_by</span>(Species) <span class="sc">%&gt;%</span></span>
-<span id="cb14-3"><a href="#cb14-3"></a>  <span class="fu">summarise</span>(<span class="fu">mean</span>(Petal.Width))</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb14-3"><a href="#cb14-3"></a>  <span class="fu">summarise</span>(<span class="fu">mean</span>(Petal.Width))</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 3 × 2
   Species    `mean(Petal.Width)`
@@ -1950,7 +1947,7 @@ Astuce
 <div class="callout-body-container callout-body">
 <p>Lorsque l’on calcule le même modèle sans <em>intercept</em>, les coefficients s’interprètent un différemment&nbsp;:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1"></a><span class="fu">lm</span>(Petal.Width <span class="sc">~</span> Species <span class="sc">-</span> <span class="dv">1</span>, <span class="at">data =</span> iris)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1"></a><span class="fu">lm</span>(Petal.Width <span class="sc">~</span> Species <span class="sc">-</span> <span class="dv">1</span>, <span class="at">data =</span> iris)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 Call:
@@ -1970,11 +1967,11 @@ Coefficients:
 <p>Un des intérêts de la régression linéaire est de pouvoir estimer un modèle multivariable, c’est-à-dire avec plusieurs variables explicatives.</p>
 <p>Pour cela, on listera les différentes variables explicatives dans la partie droite de la formule, séparées par le symbole <code>+</code>.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1"></a>mod <span class="ot">&lt;-</span> <span class="fu">lm</span>(</span>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1"></a>mod <span class="ot">&lt;-</span> <span class="fu">lm</span>(</span>
 <span id="cb18-2"><a href="#cb18-2"></a>  Petal.Width <span class="sc">~</span> Petal.Length <span class="sc">+</span> Sepal.Width <span class="sc">+</span> Sepal.Length <span class="sc">+</span> Species,</span>
 <span id="cb18-3"><a href="#cb18-3"></a>  <span class="at">data =</span> iris</span>
 <span id="cb18-4"><a href="#cb18-4"></a>)</span>
-<span id="cb18-5"><a href="#cb18-5"></a>mod</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb18-5"><a href="#cb18-5"></a>mod</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 Call:
@@ -2006,28 +2003,28 @@ Note
 </div>
 </div>
 <div class="cell page-columns page-full">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1"></a>mod <span class="sc">%&gt;%</span></span>
-<span id="cb20-2"><a href="#cb20-2"></a>  <span class="fu">tbl_regression</span>(<span class="at">intercept =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1"></a>mod <span class="sc">%&gt;%</span></span>
+<span id="cb20-2"><a href="#cb20-2"></a>  <span class="fu">tbl_regression</span>(<span class="at">intercept =</span> <span class="cn">TRUE</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div id="tbl-regression-lm-3" class="cell quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-tbl figure page-columns page-full"><div aria-describedby="tbl-regression-lm-3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
-<div id="tgnotrwcgz" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#tgnotrwcgz table {
+<div id="vkhijaxizb" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#vkhijaxizb table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#tgnotrwcgz thead, #tgnotrwcgz tbody, #tgnotrwcgz tfoot, #tgnotrwcgz tr, #tgnotrwcgz td, #tgnotrwcgz th {
+#vkhijaxizb thead, #vkhijaxizb tbody, #vkhijaxizb tfoot, #vkhijaxizb tr, #vkhijaxizb td, #vkhijaxizb th {
   border-style: none;
 }
 
-#tgnotrwcgz p {
+#vkhijaxizb p {
   margin: 0;
   padding: 0;
 }
 
-#tgnotrwcgz .gt_table {
+#vkhijaxizb .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -2053,12 +2050,12 @@ Note
   border-left-color: #D3D3D3;
 }
 
-#tgnotrwcgz .gt_caption {
+#vkhijaxizb .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#tgnotrwcgz .gt_title {
+#vkhijaxizb .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -2070,7 +2067,7 @@ Note
   border-bottom-width: 0;
 }
 
-#tgnotrwcgz .gt_subtitle {
+#vkhijaxizb .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -2082,7 +2079,7 @@ Note
   border-top-width: 0;
 }
 
-#tgnotrwcgz .gt_heading {
+#vkhijaxizb .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -2094,13 +2091,13 @@ Note
   border-right-color: #D3D3D3;
 }
 
-#tgnotrwcgz .gt_bottom_border {
+#vkhijaxizb .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#tgnotrwcgz .gt_col_headings {
+#vkhijaxizb .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -2115,7 +2112,7 @@ Note
   border-right-color: #D3D3D3;
 }
 
-#tgnotrwcgz .gt_col_heading {
+#vkhijaxizb .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2135,7 +2132,7 @@ Note
   overflow-x: hidden;
 }
 
-#tgnotrwcgz .gt_column_spanner_outer {
+#vkhijaxizb .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2147,15 +2144,15 @@ Note
   padding-right: 4px;
 }
 
-#tgnotrwcgz .gt_column_spanner_outer:first-child {
+#vkhijaxizb .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#tgnotrwcgz .gt_column_spanner_outer:last-child {
+#vkhijaxizb .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#tgnotrwcgz .gt_column_spanner {
+#vkhijaxizb .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -2167,11 +2164,11 @@ Note
   width: 100%;
 }
 
-#tgnotrwcgz .gt_spanner_row {
+#vkhijaxizb .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#tgnotrwcgz .gt_group_heading {
+#vkhijaxizb .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2197,7 +2194,7 @@ Note
   text-align: left;
 }
 
-#tgnotrwcgz .gt_empty_group_heading {
+#vkhijaxizb .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -2212,15 +2209,15 @@ Note
   vertical-align: middle;
 }
 
-#tgnotrwcgz .gt_from_md > :first-child {
+#vkhijaxizb .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#tgnotrwcgz .gt_from_md > :last-child {
+#vkhijaxizb .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#tgnotrwcgz .gt_row {
+#vkhijaxizb .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2239,7 +2236,7 @@ Note
   overflow-x: hidden;
 }
 
-#tgnotrwcgz .gt_stub {
+#vkhijaxizb .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2252,7 +2249,7 @@ Note
   padding-right: 5px;
 }
 
-#tgnotrwcgz .gt_stub_row_group {
+#vkhijaxizb .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2266,15 +2263,15 @@ Note
   vertical-align: top;
 }
 
-#tgnotrwcgz .gt_row_group_first td {
+#vkhijaxizb .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#tgnotrwcgz .gt_row_group_first th {
+#vkhijaxizb .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#tgnotrwcgz .gt_summary_row {
+#vkhijaxizb .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -2284,16 +2281,16 @@ Note
   padding-right: 5px;
 }
 
-#tgnotrwcgz .gt_first_summary_row {
+#vkhijaxizb .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#tgnotrwcgz .gt_first_summary_row.thick {
+#vkhijaxizb .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#tgnotrwcgz .gt_last_summary_row {
+#vkhijaxizb .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2303,7 +2300,7 @@ Note
   border-bottom-color: #D3D3D3;
 }
 
-#tgnotrwcgz .gt_grand_summary_row {
+#vkhijaxizb .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -2313,7 +2310,7 @@ Note
   padding-right: 5px;
 }
 
-#tgnotrwcgz .gt_first_grand_summary_row {
+#vkhijaxizb .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2323,7 +2320,7 @@ Note
   border-top-color: #D3D3D3;
 }
 
-#tgnotrwcgz .gt_last_grand_summary_row_top {
+#vkhijaxizb .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2333,11 +2330,11 @@ Note
   border-bottom-color: #D3D3D3;
 }
 
-#tgnotrwcgz .gt_striped {
+#vkhijaxizb .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#tgnotrwcgz .gt_table_body {
+#vkhijaxizb .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -2346,7 +2343,7 @@ Note
   border-bottom-color: #D3D3D3;
 }
 
-#tgnotrwcgz .gt_footnotes {
+#vkhijaxizb .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -2360,7 +2357,7 @@ Note
   border-right-color: #D3D3D3;
 }
 
-#tgnotrwcgz .gt_footnote {
+#vkhijaxizb .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -2369,7 +2366,7 @@ Note
   padding-right: 5px;
 }
 
-#tgnotrwcgz .gt_sourcenotes {
+#vkhijaxizb .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -2383,7 +2380,7 @@ Note
   border-right-color: #D3D3D3;
 }
 
-#tgnotrwcgz .gt_sourcenote {
+#vkhijaxizb .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -2391,76 +2388,76 @@ Note
   padding-right: 5px;
 }
 
-#tgnotrwcgz .gt_left {
+#vkhijaxizb .gt_left {
   text-align: left;
 }
 
-#tgnotrwcgz .gt_center {
+#vkhijaxizb .gt_center {
   text-align: center;
 }
 
-#tgnotrwcgz .gt_right {
+#vkhijaxizb .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#tgnotrwcgz .gt_font_normal {
+#vkhijaxizb .gt_font_normal {
   font-weight: normal;
 }
 
-#tgnotrwcgz .gt_font_bold {
+#vkhijaxizb .gt_font_bold {
   font-weight: bold;
 }
 
-#tgnotrwcgz .gt_font_italic {
+#vkhijaxizb .gt_font_italic {
   font-style: italic;
 }
 
-#tgnotrwcgz .gt_super {
+#vkhijaxizb .gt_super {
   font-size: 65%;
 }
 
-#tgnotrwcgz .gt_footnote_marks {
+#vkhijaxizb .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#tgnotrwcgz .gt_asterisk {
+#vkhijaxizb .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#tgnotrwcgz .gt_indent_1 {
+#vkhijaxizb .gt_indent_1 {
   text-indent: 5px;
 }
 
-#tgnotrwcgz .gt_indent_2 {
+#vkhijaxizb .gt_indent_2 {
   text-indent: 10px;
 }
 
-#tgnotrwcgz .gt_indent_3 {
+#vkhijaxizb .gt_indent_3 {
   text-indent: 15px;
 }
 
-#tgnotrwcgz .gt_indent_4 {
+#vkhijaxizb .gt_indent_4 {
   text-indent: 20px;
 }
 
-#tgnotrwcgz .gt_indent_5 {
+#vkhijaxizb .gt_indent_5 {
   text-indent: 25px;
 }
 
-#tgnotrwcgz .katex-display {
+#vkhijaxizb .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#tgnotrwcgz div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#vkhijaxizb div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
-<table class="gt_table do-not-create-environment cell table table-sm table-striped small" data-quarto-bootstrap="false">
+<table class="gt_table do-not-create-environment cell table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
 <colgroup>
 <col style="width: 25%">
 <col style="width: 25%">
@@ -2523,7 +2520,7 @@ Note
 <td class="gt_row gt_center" headers="p.value">&lt;0.001</td>
 </tr>
 </tbody>
-<tfoot><tr class="gt_sourcenotes odd">
+<tfoot class="gt_sourcenotes"><tr class="odd">
 <td colspan="4" class="gt_sourcenote">Abbreviation: CI = Confidence Interval</td>
 </tr></tfoot>
 </table>
@@ -2538,8 +2535,11 @@ Table&nbsp;22.3: régression linaire avec plusieurs variables explicatives
 <p>Ce type de modèle permet d’estimer l’effet de chaque variable explicative, <q>toutes choses égales par ailleurs</q>. Dans le cas présent, on s’aperçoit que la largeur des pétales diffère significativement selon les espèces, est fortement corrélée positivement à la longueur du pétale et la largeur du sépale et qu’il y a, lorsque l’on ajuste sur l’ensemble des autres variables, une relation négative (faiblement significative) avec la longueur du sépale.</p>
 <p>Lorsque le nombre de coefficients est élevé, une représentation graphique est souvent plus facile à lire qu’un tableau. On parle alors de graphique en forêt ou <em>forest plot</em> en anglais. Rien de plus facile&nbsp;! Il suffit d’avoir recours à <code><a href="https://larmarange.github.io/ggstats/reference/ggcoef_model.html">ggstats::ggcoef_model()</a></code>.</p>
 <div class="cell page-columns page-full">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1"></a><span class="fu">library</span>(ggstats)</span>
-<span id="cb21-2"><a href="#cb21-2"></a><span class="fu">ggcoef_model</span>(mod)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1"></a><span class="fu">library</span>(ggstats)</span>
+<span id="cb21-2"><a href="#cb21-2"></a><span class="fu">ggcoef_model</span>(mod)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`height` was translated to `width`.</code></pre>
+</div>
 <div class="cell-output-display page-columns page-full">
 <div id="fig-forest-plot-lm" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full"><div aria-describedby="fig-forest-plot-lm-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -2567,7 +2567,7 @@ Figure&nbsp;22.4: un graphique en forêt des coefficients du modèle
       a.appendChild(i);
       window.document.body.appendChild(a);
     }
-    setColorSchemeToggle(hasAlternateSentinel())
+    window.setColorSchemeToggle(window.hasAlternateSentinel())
     const icon = "";
     const anchorJS = new window.AnchorJS();
     anchorJS.options = {
@@ -2617,14 +2617,13 @@ Figure&nbsp;22.4: un graphique en forêt des coefficients du modèle
       e.clearSelection();
     }
     const getTextToCopy = function(trigger) {
-      const outerScaffold = trigger.parentElement.cloneNode(true);
-      const codeEl = outerScaffold.querySelector('code');
-      for (const childEl of codeEl.children) {
-        if (isCodeAnnotation(childEl)) {
-          childEl.remove();
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
         }
-      }
-      return codeEl.innerText;
+        return codeEl.innerText;
     }
     const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
       text: getTextToCopy
@@ -2965,36 +2964,8 @@ Figure&nbsp;22.4: un graphique en forêt des coefficients du modèle
       }
     }
   });
-  </script><input type="hidden" id="giscus-base-theme" value="light"><input type="hidden" id="giscus-alt-theme" value="dark"><script>
-  function loadGiscus() {
-    // Function to get the theme based on body class
-    const getTheme = () => {
-      let baseTheme = document.getElementById('giscus-base-theme').value;
-      let altTheme = document.getElementById('giscus-alt-theme').value;
-      if (authorPrefersDark) {
-          [baseTheme, altTheme] = [altTheme, baseTheme];
-      }
-      return document.body.classList.contains('quarto-dark') ? altTheme : baseTheme;
-    };
-    const script = document.createElement("script");
-    script.src = "https://giscus.app/client.js";
-    script.async = true;
-    script.dataset.repo = "larmarange/guide-R";
-    script.dataset.repoId = "R_kgDOH6-xnw";
-    script.dataset.category = "Forum";
-    script.dataset.categoryId = "DIC_kwDOH6-xn84CRLQy";
-    script.dataset.mapping = "pathname";
-    script.dataset.reactionsEnabled = "1";
-    script.dataset.emitMetadata = "0";
-    script.dataset.inputPosition = "top";
-    script.dataset.theme = getTheme();
-    script.dataset.lang = "fr";
-    script.crossOrigin = "anonymous";
-    // Append the script to the desired div instead of at the end of the body
-    document.getElementById("quarto-content").appendChild(script);
-  }
-  loadGiscus();
-</script><nav class="page-navigation"><div class="nav-page nav-page-previous">
+  </script><script src="https://giscus.app/client.js" data-repo="larmarange/guide-R" data-repo-id="R_kgDOH6-xnw" data-category="Forum" data-category-id="DIC_kwDOH6-xn84CRLQy" data-mapping="pathname" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="top" data-theme="light" data-lang="fr" crossorigin="anonymous" data-loading="lazy" async="">
+</script><input type="hidden" id="giscus-base-theme" value="light"><input type="hidden" id="giscus-alt-theme" value="dark"><nav class="page-navigation"><div class="nav-page nav-page-previous">
       <a href="../analyses/reponses-multiples.html" class="pagination-link" aria-label="Questions à réponses multiples">
         <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Questions à réponses multiples</span></span>
       </a>          

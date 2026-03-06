@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="fr" xml:lang="fr"><head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.8.27">
+<meta name="generator" content="quarto-1.7.27">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 <title>30&nbsp; Manipulation de données pondérées – guide-R</title>
 <style>
@@ -68,19 +68,18 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../site_libs/cookie-consent/cookie-consent.css" rel="stylesheet">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
-<script src="../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
 <script src="../site_libs/quarto-html/popper.min.js"></script>
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-ed96de9b727972fe78a7b5d16c58bf87.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-4d9afe2b8d18ee9fa5d0d57b5ed4214d.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-ed96de9b727972fe78a7b5d16c58bf87.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-985aa47af68dae11cd4d235c71fb941e.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-6c49c5477b92c77c9eb341f9299c235f.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-985aa47af68dae11cd4d235c71fb941e.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-bd89720b472e789133713356f69e05bb.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../site_libs/bootstrap/bootstrap-dark-19020347c2de3e9282294d0be578f340.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<link href="../site_libs/bootstrap/bootstrap-bd89720b472e789133713356f69e05bb.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light"><script id="quarto-search-options" type="application/json">{
+<link href="../site_libs/bootstrap/bootstrap-1706ad55a43eb6182cc66969adfb4558.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-e07f40149b440be50f716415da65e4f4.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../site_libs/bootstrap/bootstrap-1706ad55a43eb6182cc66969adfb4558.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light"><script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
   "collapse-after": 3,
@@ -147,7 +146,7 @@ cookieconsent.run({
         toggleBodyColorMode(bsSheetEl);
       }
     }
-    const setColorSchemeToggle = (alternate) => {
+    window.setColorSchemeToggle = (alternate) => {
       const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
       for (let i=0; i < toggles.length; i++) {
         const toggle = toggles[i];
@@ -180,7 +179,7 @@ cookieconsent.run({
       }
       manageTransitions('#quarto-margin-sidebar .nav-link', true);
       // Switch the toggles
-      setColorSchemeToggle(alternate)
+      window.setColorSchemeToggle(alternate)
       // Hack to workaround the fact that safari doesn't
       // properly recolor the scrollbar when toggling (#1455)
       if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
@@ -220,7 +219,7 @@ cookieconsent.run({
     const isFileUrl = () => {
       return window.location.protocol === 'file:';
     }
-    const hasAlternateSentinel = () => {
+    window.hasAlternateSentinel = () => {
       let styleSentinel = getColorSchemeSentinel();
       if (styleSentinel !== null) {
         return styleSentinel === "alternate";
@@ -248,7 +247,7 @@ cookieconsent.run({
       const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
       const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
       let newTheme = '';
-      if(authorPrefersDark) {
+      if(darkModeDefault) {
         newTheme = isAlternate ? baseTheme : alternateTheme;
       } else {
         newTheme = isAlternate ? alternateTheme : baseTheme;
@@ -271,22 +270,20 @@ cookieconsent.run({
         changeGiscusTheme();
       }
     };
-    const authorPrefersDark = false;
-    const darkModeDefault = authorPrefersDark;
+    const darkModeDefault = false;
       document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
       document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
     let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
     // Dark / light mode switch
     window.quartoToggleColorScheme = () => {
       // Read the current dark / light value
-      let toAlternate = !hasAlternateSentinel();
+      let toAlternate = !window.hasAlternateSentinel();
       toggleColorMode(toAlternate);
       setStyleSentinel(toAlternate);
       toggleGiscusIfUsed(toAlternate, darkModeDefault);
-      window.dispatchEvent(new Event('resize'));
     };
     // Switch to dark mode if need be
-    if (hasAlternateSentinel()) {
+    if (window.hasAlternateSentinel()) {
       toggleColorMode(true);
     } else {
       toggleColorMode(false);
@@ -309,7 +306,7 @@ cookieconsent.run({
 <!-- sidebar -->
   <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto"><div class="pt-lg-2 mt-2 text-left sidebar-header sidebar-header-stacked">
       <a href="../index.html" class="sidebar-logo-link">
-      <img src="../ressources/typewriter.png" alt="" class="sidebar-logo light-content py-0 d-lg-inline d-none"><img src="../ressources/typewriter.png" alt="" class="sidebar-logo dark-content py-0 d-lg-inline d-none"></a>
+      <img src="../ressources/typewriter.png" alt="" class="sidebar-logo py-0 d-lg-inline d-none"></a>
     <div class="sidebar-title mb-0 py-0">
       <a href="../">guide-R</a> 
         <div class="sidebar-tools-main tools-wide">
@@ -752,10 +749,10 @@ cookieconsent.run({
 
 </header><p>L’objet créé avec <code><a href="https://rdrr.io/pkg/survey/man/svydesign.html">survey::svydesign()</a></code> ou <code><a href="http://gdfe.co/srvyr/reference/as_survey_design.html">srvyr::as_survey_design()</a></code> n’est plus un tableau de données, mais plutôt un tableau de données auquel est attaché un plan d’échantillonnage. Les colonnes du tableau d’origine ne sont plus directement accessibles avec l’opérateur <code>$</code>. En fait, elles sont stockées dans un sous-objet <code>$variables</code>.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a>titanic <span class="ot">&lt;-</span> dplyr<span class="sc">::</span><span class="fu">as_tibble</span>(Titanic)</span>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a>titanic <span class="ot">&lt;-</span> dplyr<span class="sc">::</span><span class="fu">as_tibble</span>(Titanic)</span>
 <span id="cb1-2"><a href="#cb1-2"></a>t_titanic <span class="ot">&lt;-</span> titanic <span class="sc">|&gt;</span> </span>
 <span id="cb1-3"><a href="#cb1-3"></a>  srvyr<span class="sc">::</span><span class="fu">as_survey_design</span>(<span class="at">weights =</span> n)</span>
-<span id="cb1-4"><a href="#cb1-4"></a>t_titanic<span class="sc">$</span>variables <span class="sc">|&gt;</span> dplyr<span class="sc">::</span><span class="fu">glimpse</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb1-4"><a href="#cb1-4"></a>t_titanic<span class="sc">$</span>variables <span class="sc">|&gt;</span> dplyr<span class="sc">::</span><span class="fu">glimpse</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Rows: 32
 Columns: 5
@@ -773,7 +770,7 @@ $ n        &lt;dbl&gt; 0, 0, 35, 0, 0, 0, 17, 0, 118, 154, 387, 670, 4, 13, 89, 
 </h2>
 <p><a href="http://gdfe.co/srvyr/">srvyr</a> fournit les verbes <code><a href="https://dplyr.tidyverse.org/reference/select.html">srvyr::select()</a></code> et <code><a href="https://dplyr.tidyverse.org/reference/filter.html">srvyr::filter()</a></code> pour sélectionner respectivement des colonnes et des lignes.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a><span class="fu">library</span>(srvyr)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a><span class="fu">library</span>(srvyr)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>
 Attachement du package : 'srvyr'</code></pre>
@@ -783,7 +780,7 @@ Attachement du package : 'srvyr'</code></pre>
 
     filter</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a>t_titanic <span class="sc">|&gt;</span> <span class="fu">select</span>(Sex, Age)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a>t_titanic <span class="sc">|&gt;</span> <span class="fu">select</span>(Sex, Age)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Independent Sampling design (with replacement)
 Called via srvyr
@@ -793,7 +790,7 @@ Sampling variables:
 Data variables: 
   - Sex (chr), Age (chr)</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a>t_titanic <span class="sc">|&gt;</span> <span class="fu">filter</span>(Sex <span class="sc">==</span> <span class="st">"Female"</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a>t_titanic <span class="sc">|&gt;</span> <span class="fu">filter</span>(Sex <span class="sc">==</span> <span class="st">"Female"</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Independent Sampling design (with replacement)
 Called via srvyr
@@ -820,10 +817,10 @@ Avertissement
 </div>
 <p><code>srvyr</code> fournit également le verbe <code><a href="https://dplyr.tidyverse.org/reference/summarise.html">srvyr::summarize()</a></code> permettant de calculer des statistiques sur l’ensemble du fichier ou par sous-groupe (en combinant <code>summarize()</code> avec <code>group_by()</code>). Afin de prendre en compte correctement la pondération et le plan d’échantillonnage, <code>srvyr</code> fournit des fonctions adaptées pour un usage au sein de <code>summarize()</code>&nbsp;: <code><a href="http://gdfe.co/srvyr/reference/survey_mean.html">srvyr::survey_mean()</a></code>, <code><a href="http://gdfe.co/srvyr/reference/survey_total.html">srvyr::survey_total()</a></code>, <code><a href="http://gdfe.co/srvyr/reference/survey_mean.html">srvyr::survey_prop()</a></code>, <code><a href="http://gdfe.co/srvyr/reference/survey_ratio.html">srvyr::survey_ratio()</a></code>, <code><a href="http://gdfe.co/srvyr/reference/survey_quantile.html">srvyr::survey_quantile()</a></code> ou encore <code><a href="http://gdfe.co/srvyr/reference/survey_quantile.html">srvyr::survey_median()</a></code>.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a>t_titanic <span class="sc">|&gt;</span> </span>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a>t_titanic <span class="sc">|&gt;</span> </span>
 <span id="cb10-2"><a href="#cb10-2"></a>  <span class="fu">group_by</span>(Sex, Class, Survived) <span class="sc">|&gt;</span> </span>
 <span id="cb10-3"><a href="#cb10-3"></a>  <span class="fu">summarise</span>(<span class="at">taux_survie =</span> <span class="fu">survey_prop</span>()) <span class="sc">|&gt;</span> </span>
-<span id="cb10-4"><a href="#cb10-4"></a>  <span class="fu">filter</span>(Survived <span class="sc">==</span> <span class="st">"Yes"</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb10-4"><a href="#cb10-4"></a>  <span class="fu">filter</span>(Survived <span class="sc">==</span> <span class="st">"Yes"</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>When `proportion` is unspecified, `survey_prop()` now defaults to `proportion = TRUE`.
 ℹ This should improve confidence interval coverage.
@@ -857,7 +854,7 @@ Caused by warning in `summary.glm()`:
 <span class="header-section-number">30.2</span> Lister / Rechercher des variables</h2>
 <p>La fonction <code><a href="https://larmarange.github.io/labelled/reference/look_for.html">labelled::look_for()</a></code>, que nous avons déjà abordée (cf. <a href="../bases/tableaux_donnees.html#sec-afficher-donnees" class="quarto-xref"><span>Section 4.3</span></a>), est compatible avec les objets <code>survey</code> et peut donc être utilisée pour lister ou rechercher des variables.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a>t_titanic <span class="ot">&lt;-</span> titanic <span class="sc">|&gt;</span> </span>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a>t_titanic <span class="ot">&lt;-</span> titanic <span class="sc">|&gt;</span> </span>
 <span id="cb14-2"><a href="#cb14-2"></a>  labelled<span class="sc">::</span><span class="fu">set_variable_labels</span>(</span>
 <span id="cb14-3"><a href="#cb14-3"></a>    <span class="at">Class =</span> <span class="st">"Class du passager"</span>,</span>
 <span id="cb14-4"><a href="#cb14-4"></a>    <span class="at">Sex =</span> <span class="st">"Sexe du passager"</span>,</span>
@@ -866,7 +863,7 @@ Caused by warning in `summary.glm()`:
 <span id="cb14-7"><a href="#cb14-7"></a>    <span class="at">n =</span> <span class="st">"Nombre d'observations"</span></span>
 <span id="cb14-8"><a href="#cb14-8"></a>  ) <span class="sc">|&gt;</span> </span>
 <span id="cb14-9"><a href="#cb14-9"></a>  srvyr<span class="sc">::</span><span class="fu">as_survey_design</span>(<span class="at">weights =</span> n)</span>
-<span id="cb14-10"><a href="#cb14-10"></a>t_titanic <span class="sc">|&gt;</span> labelled<span class="sc">::</span><span class="fu">look_for</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb14-10"><a href="#cb14-10"></a>t_titanic <span class="sc">|&gt;</span> labelled<span class="sc">::</span><span class="fu">look_for</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code> pos variable label                   col_type missing values
  1   Class    Class du passager       chr      0             
@@ -875,7 +872,7 @@ Caused by warning in `summary.glm()`:
  4   Survived A survécu au naufrage ? chr      0             
  5   n        Nombre d'observations   dbl      0             </code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1"></a>t_titanic <span class="sc">|&gt;</span> labelled<span class="sc">::</span><span class="fu">look_for</span>(<span class="st">"nau"</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1"></a>t_titanic <span class="sc">|&gt;</span> labelled<span class="sc">::</span><span class="fu">look_for</span>(<span class="st">"nau"</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code> pos variable label                   col_type missing values
  4   Survived A survécu au naufrage ? chr      0             </code></pre>
@@ -888,8 +885,8 @@ Caused by warning in `summary.glm()`:
 <p>La fonction classique pour sélectionner des lignes est <code><a href="https://rdrr.io/r/base/subset.html">subset()</a></code>. Cependant, elle a un inconvénient lorsque nos données comportent des étiquettes de variables (cf. <a href="../manipulation/etiquettes-variables.html" class="quarto-xref"><span>Chapitre 11</span></a>) ou de valeurs ( <a href="../manipulation/etiquettes-valeurs.html" class="quarto-xref"><span>Chapitre 12</span></a>), car les étiquettes ne sont pas conservées après l’opération.</p>
 <p>On préférera donc avoir recours à <code><a href="https://dplyr.tidyverse.org/reference/filter.html">srvyr::filter()</a></code> qui conservent les attributs associés aux colonnes du tableau de données.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1"></a>t_subset <span class="ot">&lt;-</span> t_titanic <span class="sc">|&gt;</span> <span class="fu">subset</span>(Sex <span class="sc">==</span> <span class="st">"Female"</span>)</span>
-<span id="cb18-2"><a href="#cb18-2"></a>t_subset <span class="sc">|&gt;</span> labelled<span class="sc">::</span><span class="fu">look_for</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1"></a>t_subset <span class="ot">&lt;-</span> t_titanic <span class="sc">|&gt;</span> <span class="fu">subset</span>(Sex <span class="sc">==</span> <span class="st">"Female"</span>)</span>
+<span id="cb18-2"><a href="#cb18-2"></a>t_subset <span class="sc">|&gt;</span> labelled<span class="sc">::</span><span class="fu">look_for</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code> pos variable label col_type missing values
  1   Class    —     chr      0             
@@ -898,8 +895,8 @@ Caused by warning in `summary.glm()`:
  4   Survived —     chr      0             
  5   n        —     dbl      0             </code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1"></a>t_filter <span class="ot">&lt;-</span> t_titanic <span class="sc">|&gt;</span> <span class="fu">filter</span>(Sex <span class="sc">==</span> <span class="st">"Female"</span>)</span>
-<span id="cb20-2"><a href="#cb20-2"></a>t_filter <span class="sc">|&gt;</span> labelled<span class="sc">::</span><span class="fu">look_for</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1"></a>t_filter <span class="ot">&lt;-</span> t_titanic <span class="sc">|&gt;</span> <span class="fu">filter</span>(Sex <span class="sc">==</span> <span class="st">"Female"</span>)</span>
+<span id="cb20-2"><a href="#cb20-2"></a>t_filter <span class="sc">|&gt;</span> labelled<span class="sc">::</span><span class="fu">look_for</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code> pos variable label                   col_type missing values
  1   Class    Class du passager       chr      0             
@@ -925,7 +922,7 @@ Caused by warning in `summary.glm()`:
       a.appendChild(i);
       window.document.body.appendChild(a);
     }
-    setColorSchemeToggle(hasAlternateSentinel())
+    window.setColorSchemeToggle(window.hasAlternateSentinel())
     const icon = "";
     const anchorJS = new window.AnchorJS();
     anchorJS.options = {
@@ -975,14 +972,13 @@ Caused by warning in `summary.glm()`:
       e.clearSelection();
     }
     const getTextToCopy = function(trigger) {
-      const outerScaffold = trigger.parentElement.cloneNode(true);
-      const codeEl = outerScaffold.querySelector('code');
-      for (const childEl of codeEl.children) {
-        if (isCodeAnnotation(childEl)) {
-          childEl.remove();
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
         }
-      }
-      return codeEl.innerText;
+        return codeEl.innerText;
     }
     const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
       text: getTextToCopy
@@ -1323,36 +1319,8 @@ Caused by warning in `summary.glm()`:
       }
     }
   });
-  </script><input type="hidden" id="giscus-base-theme" value="light"><input type="hidden" id="giscus-alt-theme" value="dark"><script>
-  function loadGiscus() {
-    // Function to get the theme based on body class
-    const getTheme = () => {
-      let baseTheme = document.getElementById('giscus-base-theme').value;
-      let altTheme = document.getElementById('giscus-alt-theme').value;
-      if (authorPrefersDark) {
-          [baseTheme, altTheme] = [altTheme, baseTheme];
-      }
-      return document.body.classList.contains('quarto-dark') ? altTheme : baseTheme;
-    };
-    const script = document.createElement("script");
-    script.src = "https://giscus.app/client.js";
-    script.async = true;
-    script.dataset.repo = "larmarange/guide-R";
-    script.dataset.repoId = "R_kgDOH6-xnw";
-    script.dataset.category = "Forum";
-    script.dataset.categoryId = "DIC_kwDOH6-xn84CRLQy";
-    script.dataset.mapping = "pathname";
-    script.dataset.reactionsEnabled = "1";
-    script.dataset.emitMetadata = "0";
-    script.dataset.inputPosition = "top";
-    script.dataset.theme = getTheme();
-    script.dataset.lang = "fr";
-    script.crossOrigin = "anonymous";
-    // Append the script to the desired div instead of at the end of the body
-    document.getElementById("quarto-content").appendChild(script);
-  }
-  loadGiscus();
-</script><nav class="page-navigation"><div class="nav-page nav-page-previous">
+  </script><script src="https://giscus.app/client.js" data-repo="larmarange/guide-R" data-repo-id="R_kgDOH6-xnw" data-category="Forum" data-category-id="DIC_kwDOH6-xn84CRLQy" data-mapping="pathname" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="top" data-theme="light" data-lang="fr" crossorigin="anonymous" data-loading="lazy" async="">
+</script><input type="hidden" id="giscus-base-theme" value="light"><input type="hidden" id="giscus-alt-theme" value="dark"><nav class="page-navigation"><div class="nav-page nav-page-previous">
       <a href="../donnees_ponderees/plan-echantillonnage.html" class="pagination-link" aria-label="Définir un plan d'échantillonnage">
         <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">29</span>&nbsp; <span class="chapter-title">Définir un plan d’échantillonnage</span></span>
       </a>          

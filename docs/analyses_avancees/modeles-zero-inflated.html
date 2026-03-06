@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="fr" xml:lang="fr"><head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.8.27">
+<meta name="generator" content="quarto-1.7.27">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 <title>50&nbsp; Modèles de comptage zero-inflated et hurdle – guide-R</title>
 <style>
@@ -88,19 +88,18 @@ div.csl-indent {
 <link href="../site_libs/cookie-consent/cookie-consent.css" rel="stylesheet">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
-<script src="../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
 <script src="../site_libs/quarto-html/popper.min.js"></script>
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-ed96de9b727972fe78a7b5d16c58bf87.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-4d9afe2b8d18ee9fa5d0d57b5ed4214d.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-ed96de9b727972fe78a7b5d16c58bf87.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-985aa47af68dae11cd4d235c71fb941e.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-6c49c5477b92c77c9eb341f9299c235f.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-985aa47af68dae11cd4d235c71fb941e.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-bd89720b472e789133713356f69e05bb.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../site_libs/bootstrap/bootstrap-dark-19020347c2de3e9282294d0be578f340.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<link href="../site_libs/bootstrap/bootstrap-bd89720b472e789133713356f69e05bb.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-1706ad55a43eb6182cc66969adfb4558.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-e07f40149b440be50f716415da65e4f4.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../site_libs/bootstrap/bootstrap-1706ad55a43eb6182cc66969adfb4558.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <script src="../site_libs/quarto-contrib/glightbox/glightbox.min.js"></script>
 <link href="../site_libs/quarto-contrib/glightbox/glightbox.min.css" rel="stylesheet">
 <link href="../site_libs/quarto-contrib/glightbox/lightbox.css" rel="stylesheet"><script id="quarto-search-options" type="application/json">{
@@ -170,7 +169,7 @@ cookieconsent.run({
         toggleBodyColorMode(bsSheetEl);
       }
     }
-    const setColorSchemeToggle = (alternate) => {
+    window.setColorSchemeToggle = (alternate) => {
       const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
       for (let i=0; i < toggles.length; i++) {
         const toggle = toggles[i];
@@ -203,7 +202,7 @@ cookieconsent.run({
       }
       manageTransitions('#quarto-margin-sidebar .nav-link', true);
       // Switch the toggles
-      setColorSchemeToggle(alternate)
+      window.setColorSchemeToggle(alternate)
       // Hack to workaround the fact that safari doesn't
       // properly recolor the scrollbar when toggling (#1455)
       if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
@@ -243,7 +242,7 @@ cookieconsent.run({
     const isFileUrl = () => {
       return window.location.protocol === 'file:';
     }
-    const hasAlternateSentinel = () => {
+    window.hasAlternateSentinel = () => {
       let styleSentinel = getColorSchemeSentinel();
       if (styleSentinel !== null) {
         return styleSentinel === "alternate";
@@ -271,7 +270,7 @@ cookieconsent.run({
       const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
       const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
       let newTheme = '';
-      if(authorPrefersDark) {
+      if(darkModeDefault) {
         newTheme = isAlternate ? baseTheme : alternateTheme;
       } else {
         newTheme = isAlternate ? alternateTheme : baseTheme;
@@ -294,22 +293,20 @@ cookieconsent.run({
         changeGiscusTheme();
       }
     };
-    const authorPrefersDark = false;
-    const darkModeDefault = authorPrefersDark;
+    const darkModeDefault = false;
       document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
       document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
     let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
     // Dark / light mode switch
     window.quartoToggleColorScheme = () => {
       // Read the current dark / light value
-      let toAlternate = !hasAlternateSentinel();
+      let toAlternate = !window.hasAlternateSentinel();
       toggleColorMode(toAlternate);
       setStyleSentinel(toAlternate);
       toggleGiscusIfUsed(toAlternate, darkModeDefault);
-      window.dispatchEvent(new Event('resize'));
     };
     // Switch to dark mode if need be
-    if (hasAlternateSentinel()) {
+    if (window.hasAlternateSentinel()) {
       toggleColorMode(true);
     } else {
       toggleColorMode(false);
@@ -332,7 +329,7 @@ cookieconsent.run({
 <!-- sidebar -->
   <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto"><div class="pt-lg-2 mt-2 text-left sidebar-header sidebar-header-stacked">
       <a href="../index.html" class="sidebar-logo-link">
-      <img src="../ressources/typewriter.png" alt="" class="sidebar-logo light-content py-0 d-lg-inline d-none"><img src="../ressources/typewriter.png" alt="" class="sidebar-logo dark-content py-0 d-lg-inline d-none"></a>
+      <img src="../ressources/typewriter.png" alt="" class="sidebar-logo py-0 d-lg-inline d-none"></a>
     <div class="sidebar-title mb-0 py-0">
       <a href="../">guide-R</a> 
         <div class="sidebar-tools-main tools-wide">
@@ -786,7 +783,7 @@ Deb, Partha, et Pravin K. Trivedi. 1997. <span>«&nbsp;Demand for Medical Care b
 </div></div><p>L’analyse va porter sur la demande de soins, mesurée ici à travers le nombre de visites médicales (<em>ofp</em>). Pour les variables explicatives, nous allons considérer le genre du patient (<em>gender</em>), le fait de disposer d’une assurance privée (<em>privins</em>), la santé perçue (<em>health</em>) et le nombre de conditions chroniques de l’assuré.</p>
 <p>Chargeons et préparons rapidement les données. Nous allons recoder les variables catégorielles en français (<a href="../manipulation/facteurs.html#sec-modifier-modalites" class="quarto-xref"><span>Section 9.3</span></a>) et ajouter des étiquettes de variables (cf. <a href="../manipulation/etiquettes-variables.html" class="quarto-xref"><span>Chapitre 11</span></a>).</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="fu">library</span>(labelled)</span>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="fu">library</span>(labelled)</span>
 <span id="cb1-2"><a href="#cb1-2"></a><span class="fu">library</span>(tidyverse)</span>
 <span id="cb1-3"><a href="#cb1-3"></a><span class="fu">load</span>(<span class="fu">url</span>(<span class="st">"https://github.com/larmarange/guide-R/raw/main/analyses_avancees/ressources/DebTrivedi.rda"</span>))</span>
 <span id="cb1-4"><a href="#cb1-4"></a>d <span class="ot">&lt;-</span> DebTrivedi <span class="sc">|&gt;</span></span>
@@ -809,19 +806,19 @@ Deb, Partha, et Pravin K. Trivedi. 1997. <span>«&nbsp;Demand for Medical Care b
 <span id="cb1-21"><a href="#cb1-21"></a>    <span class="at">health =</span> <span class="st">"Santé perçue"</span>,</span>
 <span id="cb1-22"><a href="#cb1-22"></a>    <span class="at">numchron =</span> <span class="st">"Nombre de conditions chroniques"</span></span>
 <span id="cb1-23"><a href="#cb1-23"></a>  )</span>
-<span id="cb1-24"><a href="#cb1-24"></a><span class="fu">contrasts</span>(d<span class="sc">$</span>health) <span class="ot">&lt;-</span> <span class="fu">contr.treatment</span>(<span class="dv">3</span>, <span class="at">base =</span> <span class="dv">2</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb1-24"><a href="#cb1-24"></a><span class="fu">contrasts</span>(d<span class="sc">$</span>health) <span class="ot">&lt;-</span> <span class="fu">contr.treatment</span>(<span class="dv">3</span>, <span class="at">base =</span> <span class="dv">2</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section><section id="modèles-de-comptage-classique" class="level2 page-columns page-full" data-number="50.2"><h2 data-number="50.2" class="anchored" data-anchor-id="modèles-de-comptage-classique">
 <span class="header-section-number">50.2</span> Modèles de comptage classique</h2>
 <p>Commençons tout d’abord par une approche classique (<a href="modeles-comptage.html" class="quarto-xref"><span>Chapitre 48</span></a>)&nbsp;: calculons un modèle de Poisson et vérifions la surdispersion.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a>mod_poisson <span class="ot">&lt;-</span> <span class="fu">glm</span>(</span>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a>mod_poisson <span class="ot">&lt;-</span> <span class="fu">glm</span>(</span>
 <span id="cb2-2"><a href="#cb2-2"></a>  ofp <span class="sc">~</span> gender <span class="sc">+</span> privins <span class="sc">+</span> health <span class="sc">+</span> numchron,</span>
 <span id="cb2-3"><a href="#cb2-3"></a>  <span class="at">family =</span> poisson,</span>
 <span id="cb2-4"><a href="#cb2-4"></a>  <span class="at">data =</span> d</span>
 <span id="cb2-5"><a href="#cb2-5"></a>)</span>
 <span id="cb2-6"><a href="#cb2-6"></a>mod_poisson <span class="sc">|&gt;</span></span>
-<span id="cb2-7"><a href="#cb2-7"></a>  performance<span class="sc">::</span><span class="fu">check_overdispersion</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb2-7"><a href="#cb2-7"></a>  performance<span class="sc">::</span><span class="fu">check_overdispersion</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># Overdispersion test
 
@@ -835,12 +832,12 @@ Deb, Partha, et Pravin K. Trivedi. 1997. <span>«&nbsp;Demand for Medical Care b
 </div>
 <p>Une surdispersion étant détectée, basculons sur un modèle négatif binomial.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a>mod_nb <span class="ot">&lt;-</span> MASS<span class="sc">::</span><span class="fu">glm.nb</span>(</span>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a>mod_nb <span class="ot">&lt;-</span> MASS<span class="sc">::</span><span class="fu">glm.nb</span>(</span>
 <span id="cb5-2"><a href="#cb5-2"></a>  ofp <span class="sc">~</span> gender <span class="sc">+</span> privins <span class="sc">+</span> health <span class="sc">+</span> numchron,</span>
 <span id="cb5-3"><a href="#cb5-3"></a>  <span class="at">data =</span> d</span>
 <span id="cb5-4"><a href="#cb5-4"></a>)</span>
 <span id="cb5-5"><a href="#cb5-5"></a>mod_nb <span class="sc">|&gt;</span></span>
-<span id="cb5-6"><a href="#cb5-6"></a>  performance<span class="sc">::</span><span class="fu">check_overdispersion</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb5-6"><a href="#cb5-6"></a>  performance<span class="sc">::</span><span class="fu">check_overdispersion</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># Overdispersion test
 
@@ -853,13 +850,13 @@ Deb, Partha, et Pravin K. Trivedi. 1997. <span>«&nbsp;Demand for Medical Care b
 </div>
 <p>Le modèle négatif binomial ne règle pas notre problème de surdispersion. Comparons les valeurs observées avec les valeurs théoriques avec <code><a href="https://easystats.github.io/performance/reference/check_predictions.html">performance::check_predictions()</a></code> et <code><a href="https://larmarange.github.io/guideR/reference/observed_vs_theoretical.html">guideR::observed_vs_theoretical()</a></code>. Pour faciliter la lecture du graphique, nous allons <q>zoomer</q> sur les 20 premières valeurs.</p>
 <div class="cell page-columns page-full">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a>mod_nb <span class="sc">|&gt;</span> </span>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a>mod_nb <span class="sc">|&gt;</span> </span>
 <span id="cb8-2"><a href="#cb8-2"></a>  guideR<span class="sc">::</span><span class="fu">observed_vs_theoretical</span>() <span class="sc">+</span></span>
 <span id="cb8-3"><a href="#cb8-3"></a>  <span class="fu">xlim</span>(<span class="dv">0</span>, <span class="dv">20</span>)</span>
 <span id="cb8-4"><a href="#cb8-4"></a>mod_nb <span class="sc">|&gt;</span> </span>
 <span id="cb8-5"><a href="#cb8-5"></a>  performance<span class="sc">::</span><span class="fu">check_predictions</span>() <span class="sc">|&gt;</span> </span>
 <span id="cb8-6"><a href="#cb8-6"></a>  <span class="fu">plot</span>() <span class="sc">+</span></span>
-<span id="cb8-7"><a href="#cb8-7"></a>  <span class="fu">xlim</span>(<span class="dv">0</span>, <span class="dv">20</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb8-7"><a href="#cb8-7"></a>  <span class="fu">xlim</span>(<span class="dv">0</span>, <span class="dv">20</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display page-columns page-full">
 <div id="fig-check_predictions-mod_nb-DebTrivedi-1" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full"><div aria-describedby="fig-check_predictions-mod_nb-DebTrivedi-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -884,8 +881,8 @@ Figure&nbsp;50.2: Comparaison des valeurs observées et des valeurs théoriques
 <p>Comme nous pouvons le voir sur ce graphique, le nombre de 0 prédit par le modèle est inférieur à celui observé. Cela signifie que les 0 sont sur-représentés dans nos données par rapport à une distribution négative binomiale. Ces 0 ont tendance à <q>tirer</q> la moyenne vers le bas. Dès lors, le nombre de 1 et de 2 prédits par le modèle sont quant à eux sur-représentés par rapport aux données observées. On dit alors qu’il y a une <q>inflation de zéros</q> dans les données (<em>zero-inflated</em> en anglais).</p>
 <p>On peut essayer de regarder s’il y a une sous- ou une sur-représentation de zéros avec la fonction <code><a href="https://easystats.github.io/performance/reference/check_zeroinflation.html">performance::check_zeroinflation()</a></code>.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a>mod_nb <span class="sc">|&gt;</span> </span>
-<span id="cb9-2"><a href="#cb9-2"></a>  performance<span class="sc">::</span><span class="fu">check_zeroinflation</span>(<span class="at">tolerance =</span> <span class="fl">0.05</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a>mod_nb <span class="sc">|&gt;</span> </span>
+<span id="cb9-2"><a href="#cb9-2"></a>  performance<span class="sc">::</span><span class="fu">check_zeroinflation</span>(<span class="at">tolerance =</span> <span class="fl">0.05</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># Check for zero-inflation
 
@@ -904,18 +901,18 @@ Figure&nbsp;50.2: Comparaison des valeurs observées et des valeurs théoriques
 <p>Les modèles de Poisson <em>zero-inflated</em> sont notamment implémentés dans le package <a href="https://github.com/atahk/pscl">pscl</a> via la fonction <code><a href="https://rdrr.io/pkg/pscl/man/zeroinfl.html">pscl::zeroinfl()</a></code>.</p>
 <p>Calculons un premier modèle de Poisson <em>zero-inflated</em>.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a>mod_zip <span class="ot">&lt;-</span> pscl<span class="sc">::</span><span class="fu">zeroinfl</span>(</span>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a>mod_zip <span class="ot">&lt;-</span> pscl<span class="sc">::</span><span class="fu">zeroinfl</span>(</span>
 <span id="cb12-2"><a href="#cb12-2"></a>  ofp <span class="sc">~</span> gender <span class="sc">+</span> privins <span class="sc">+</span> health <span class="sc">+</span> numchron,</span>
 <span id="cb12-3"><a href="#cb12-3"></a>  <span class="at">data =</span> d</span>
-<span id="cb12-4"><a href="#cb12-4"></a>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb12-4"><a href="#cb12-4"></a>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Regardons les coefficients du modèle (en forçant l’affichage des <em>intercepts</em>) avec <code><a href="https://larmarange.github.io/ggstats/reference/ggcoef_model.html">ggstats::ggcoef_model()</a></code> et ses variantes<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>.</p>
 <div class="no-row-height column-margin column-container"><div id="fn1"><p><sup>1</sup>&nbsp;Attention&nbsp;: pour que cela fonctionne avec un modèle multinomial, il est nécessaire d’utiliser la version 0.9.0 (ou une version plus récente) de <a href="https://larmarange.github.io/ggstats/">ggstats</a>.</p></div></div><div class="cell page-columns page-full">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a>mod_zip <span class="sc">|&gt;</span> </span>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a>mod_zip <span class="sc">|&gt;</span> </span>
 <span id="cb13-2"><a href="#cb13-2"></a>  ggstats<span class="sc">::</span><span class="fu">ggcoef_table</span>(</span>
 <span id="cb13-3"><a href="#cb13-3"></a>    <span class="at">exponentiate =</span> <span class="cn">TRUE</span>,</span>
 <span id="cb13-4"><a href="#cb13-4"></a>    <span class="at">intercept =</span> <span class="cn">TRUE</span></span>
-<span id="cb13-5"><a href="#cb13-5"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb13-5"><a href="#cb13-5"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>ℹ &lt;zeroinfl&gt; model detected.</code></pre>
 </div>
@@ -924,6 +921,10 @@ Figure&nbsp;50.2: Comparaison des valeurs observées et des valeurs théoriques
 </div>
 <div class="cell-output cell-output-stderr">
 <pre><code>ℹ Add `tidy_fun = broom.helpers::tidy_zeroinfl` to quiet these messages.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`height` was translated to `width`.
+`height` was translated to `width`.</code></pre>
 </div>
 <div class="cell-output-display page-columns page-full">
 <div id="fig-ggcoef_table-mod_zip" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
@@ -938,11 +939,11 @@ Figure&nbsp;50.3: Coefficients du modèle de Poisson <em>zero-inflated</em>
 </div>
 <p>Pour les résultats sous forme de tableau, nous pouvons avoir recours à <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/tbl_regression.html">gtsummary::tbl_regression()</a></code><a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a> et à l’utilitaire <code><a href="https://larmarange.github.io/guideR/reference/grouped_tbl_pivot_wider.html">guideR::grouped_tbl_pivot_wider()</a></code><a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a>.</p>
 <div class="no-row-height column-margin column-container"><div id="fn2"><p><sup>2</sup>&nbsp;À partir de la version 2.3.0.</p></div><div id="fn3"><p><sup>3</sup>&nbsp;Voir la section <a href="regression-logistique-multinomiale.html#sec-affichage-tableau-regression-multinomiale" class="quarto-xref"><span>Section 46.3</span></a> dans le chapitre sur la régression logistique multinomiale.</p></div></div><div class="cell page-columns page-full">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1"></a><span class="fu">library</span>(gtsummary)</span>
-<span id="cb17-2"><a href="#cb17-2"></a>mod_zip <span class="sc">|&gt;</span> </span>
-<span id="cb17-3"><a href="#cb17-3"></a>  <span class="fu">tbl_regression</span>(<span class="at">exponentiate =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb17-4"><a href="#cb17-4"></a>  guideR<span class="sc">::</span><span class="fu">grouped_tbl_pivot_wider</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb17-5"><a href="#cb17-5"></a>  <span class="fu">bold_labels</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1"></a><span class="fu">library</span>(gtsummary)</span>
+<span id="cb18-2"><a href="#cb18-2"></a>mod_zip <span class="sc">|&gt;</span> </span>
+<span id="cb18-3"><a href="#cb18-3"></a>  <span class="fu">tbl_regression</span>(<span class="at">exponentiate =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb18-4"><a href="#cb18-4"></a>  guideR<span class="sc">::</span><span class="fu">grouped_tbl_pivot_wider</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb18-5"><a href="#cb18-5"></a>  <span class="fu">bold_labels</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>ℹ &lt;zeroinfl&gt; model detected.</code></pre>
 </div>
@@ -962,23 +963,23 @@ Figure&nbsp;50.3: Coefficients du modèle de Poisson <em>zero-inflated</em>
 <div id="tbl-tbl_regression-mod_zip" class="cell quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-tbl figure page-columns page-full"><div aria-describedby="tbl-tbl_regression-mod_zip-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
-<div id="xawubdsjug" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#xawubdsjug table {
+<div id="citbiyzmwk" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#citbiyzmwk table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#xawubdsjug thead, #xawubdsjug tbody, #xawubdsjug tfoot, #xawubdsjug tr, #xawubdsjug td, #xawubdsjug th {
+#citbiyzmwk thead, #citbiyzmwk tbody, #citbiyzmwk tfoot, #citbiyzmwk tr, #citbiyzmwk td, #citbiyzmwk th {
   border-style: none;
 }
 
-#xawubdsjug p {
+#citbiyzmwk p {
   margin: 0;
   padding: 0;
 }
 
-#xawubdsjug .gt_table {
+#citbiyzmwk .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -1004,12 +1005,12 @@ Figure&nbsp;50.3: Coefficients du modèle de Poisson <em>zero-inflated</em>
   border-left-color: #D3D3D3;
 }
 
-#xawubdsjug .gt_caption {
+#citbiyzmwk .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#xawubdsjug .gt_title {
+#citbiyzmwk .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -1021,7 +1022,7 @@ Figure&nbsp;50.3: Coefficients du modèle de Poisson <em>zero-inflated</em>
   border-bottom-width: 0;
 }
 
-#xawubdsjug .gt_subtitle {
+#citbiyzmwk .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -1033,7 +1034,7 @@ Figure&nbsp;50.3: Coefficients du modèle de Poisson <em>zero-inflated</em>
   border-top-width: 0;
 }
 
-#xawubdsjug .gt_heading {
+#citbiyzmwk .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -1045,13 +1046,13 @@ Figure&nbsp;50.3: Coefficients du modèle de Poisson <em>zero-inflated</em>
   border-right-color: #D3D3D3;
 }
 
-#xawubdsjug .gt_bottom_border {
+#citbiyzmwk .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#xawubdsjug .gt_col_headings {
+#citbiyzmwk .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1066,7 +1067,7 @@ Figure&nbsp;50.3: Coefficients du modèle de Poisson <em>zero-inflated</em>
   border-right-color: #D3D3D3;
 }
 
-#xawubdsjug .gt_col_heading {
+#citbiyzmwk .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1086,7 +1087,7 @@ Figure&nbsp;50.3: Coefficients du modèle de Poisson <em>zero-inflated</em>
   overflow-x: hidden;
 }
 
-#xawubdsjug .gt_column_spanner_outer {
+#citbiyzmwk .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1098,15 +1099,15 @@ Figure&nbsp;50.3: Coefficients du modèle de Poisson <em>zero-inflated</em>
   padding-right: 4px;
 }
 
-#xawubdsjug .gt_column_spanner_outer:first-child {
+#citbiyzmwk .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#xawubdsjug .gt_column_spanner_outer:last-child {
+#citbiyzmwk .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#xawubdsjug .gt_column_spanner {
+#citbiyzmwk .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -1118,11 +1119,11 @@ Figure&nbsp;50.3: Coefficients du modèle de Poisson <em>zero-inflated</em>
   width: 100%;
 }
 
-#xawubdsjug .gt_spanner_row {
+#citbiyzmwk .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#xawubdsjug .gt_group_heading {
+#citbiyzmwk .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1148,7 +1149,7 @@ Figure&nbsp;50.3: Coefficients du modèle de Poisson <em>zero-inflated</em>
   text-align: left;
 }
 
-#xawubdsjug .gt_empty_group_heading {
+#citbiyzmwk .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -1163,15 +1164,15 @@ Figure&nbsp;50.3: Coefficients du modèle de Poisson <em>zero-inflated</em>
   vertical-align: middle;
 }
 
-#xawubdsjug .gt_from_md > :first-child {
+#citbiyzmwk .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#xawubdsjug .gt_from_md > :last-child {
+#citbiyzmwk .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#xawubdsjug .gt_row {
+#citbiyzmwk .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1190,7 +1191,7 @@ Figure&nbsp;50.3: Coefficients du modèle de Poisson <em>zero-inflated</em>
   overflow-x: hidden;
 }
 
-#xawubdsjug .gt_stub {
+#citbiyzmwk .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1203,7 +1204,7 @@ Figure&nbsp;50.3: Coefficients du modèle de Poisson <em>zero-inflated</em>
   padding-right: 5px;
 }
 
-#xawubdsjug .gt_stub_row_group {
+#citbiyzmwk .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1217,15 +1218,15 @@ Figure&nbsp;50.3: Coefficients du modèle de Poisson <em>zero-inflated</em>
   vertical-align: top;
 }
 
-#xawubdsjug .gt_row_group_first td {
+#citbiyzmwk .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#xawubdsjug .gt_row_group_first th {
+#citbiyzmwk .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#xawubdsjug .gt_summary_row {
+#citbiyzmwk .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1235,16 +1236,16 @@ Figure&nbsp;50.3: Coefficients du modèle de Poisson <em>zero-inflated</em>
   padding-right: 5px;
 }
 
-#xawubdsjug .gt_first_summary_row {
+#citbiyzmwk .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#xawubdsjug .gt_first_summary_row.thick {
+#citbiyzmwk .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#xawubdsjug .gt_last_summary_row {
+#citbiyzmwk .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1254,7 +1255,7 @@ Figure&nbsp;50.3: Coefficients du modèle de Poisson <em>zero-inflated</em>
   border-bottom-color: #D3D3D3;
 }
 
-#xawubdsjug .gt_grand_summary_row {
+#citbiyzmwk .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1264,7 +1265,7 @@ Figure&nbsp;50.3: Coefficients du modèle de Poisson <em>zero-inflated</em>
   padding-right: 5px;
 }
 
-#xawubdsjug .gt_first_grand_summary_row {
+#citbiyzmwk .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1274,7 +1275,7 @@ Figure&nbsp;50.3: Coefficients du modèle de Poisson <em>zero-inflated</em>
   border-top-color: #D3D3D3;
 }
 
-#xawubdsjug .gt_last_grand_summary_row_top {
+#citbiyzmwk .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1284,11 +1285,11 @@ Figure&nbsp;50.3: Coefficients du modèle de Poisson <em>zero-inflated</em>
   border-bottom-color: #D3D3D3;
 }
 
-#xawubdsjug .gt_striped {
+#citbiyzmwk .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#xawubdsjug .gt_table_body {
+#citbiyzmwk .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1297,7 +1298,7 @@ Figure&nbsp;50.3: Coefficients du modèle de Poisson <em>zero-inflated</em>
   border-bottom-color: #D3D3D3;
 }
 
-#xawubdsjug .gt_footnotes {
+#citbiyzmwk .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1311,7 +1312,7 @@ Figure&nbsp;50.3: Coefficients du modèle de Poisson <em>zero-inflated</em>
   border-right-color: #D3D3D3;
 }
 
-#xawubdsjug .gt_footnote {
+#citbiyzmwk .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -1320,7 +1321,7 @@ Figure&nbsp;50.3: Coefficients du modèle de Poisson <em>zero-inflated</em>
   padding-right: 5px;
 }
 
-#xawubdsjug .gt_sourcenotes {
+#citbiyzmwk .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1334,7 +1335,7 @@ Figure&nbsp;50.3: Coefficients du modèle de Poisson <em>zero-inflated</em>
   border-right-color: #D3D3D3;
 }
 
-#xawubdsjug .gt_sourcenote {
+#citbiyzmwk .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -1342,76 +1343,76 @@ Figure&nbsp;50.3: Coefficients du modèle de Poisson <em>zero-inflated</em>
   padding-right: 5px;
 }
 
-#xawubdsjug .gt_left {
+#citbiyzmwk .gt_left {
   text-align: left;
 }
 
-#xawubdsjug .gt_center {
+#citbiyzmwk .gt_center {
   text-align: center;
 }
 
-#xawubdsjug .gt_right {
+#citbiyzmwk .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#xawubdsjug .gt_font_normal {
+#citbiyzmwk .gt_font_normal {
   font-weight: normal;
 }
 
-#xawubdsjug .gt_font_bold {
+#citbiyzmwk .gt_font_bold {
   font-weight: bold;
 }
 
-#xawubdsjug .gt_font_italic {
+#citbiyzmwk .gt_font_italic {
   font-style: italic;
 }
 
-#xawubdsjug .gt_super {
+#citbiyzmwk .gt_super {
   font-size: 65%;
 }
 
-#xawubdsjug .gt_footnote_marks {
+#citbiyzmwk .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#xawubdsjug .gt_asterisk {
+#citbiyzmwk .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#xawubdsjug .gt_indent_1 {
+#citbiyzmwk .gt_indent_1 {
   text-indent: 5px;
 }
 
-#xawubdsjug .gt_indent_2 {
+#citbiyzmwk .gt_indent_2 {
   text-indent: 10px;
 }
 
-#xawubdsjug .gt_indent_3 {
+#citbiyzmwk .gt_indent_3 {
   text-indent: 15px;
 }
 
-#xawubdsjug .gt_indent_4 {
+#citbiyzmwk .gt_indent_4 {
   text-indent: 20px;
 }
 
-#xawubdsjug .gt_indent_5 {
+#citbiyzmwk .gt_indent_5 {
   text-indent: 25px;
 }
 
-#xawubdsjug .katex-display {
+#citbiyzmwk .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#xawubdsjug div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#citbiyzmwk div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
-<table class="gt_table do-not-create-environment cell table table-sm table-striped small" data-quarto-bootstrap="false">
+<table class="gt_table do-not-create-environment cell table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
 <colgroup>
 <col style="width: 14%">
 <col style="width: 14%">
@@ -1541,7 +1542,7 @@ Figure&nbsp;50.3: Coefficients du modèle de Poisson <em>zero-inflated</em>
 <td class="gt_row gt_center" headers="p.value_2">&lt;0.001</td>
 </tr>
 </tbody>
-<tfoot><tr class="gt_sourcenotes odd">
+<tfoot class="gt_sourcenotes"><tr class="odd">
 <td colspan="7" class="gt_sourcenote">Abbreviation: CI = Confidence Interval</td>
 </tr></tfoot>
 </table>
@@ -1556,23 +1557,27 @@ Table&nbsp;50.1: Coefficients du modèle de Poisson <em>zero-inflated</em>
 <p>Nous obtenons deux séries de coefficients&nbsp;: une série <em>conditional</em> correspondant au modèle de Poisson et une série <em>zero_inflated</em> correspondant au modèle logistique binaire. Nous avons représenter les exponentiels des coefficients, qui s’interprètent donc comme des <em>risk ratio</em> pour le modèle de Poisson et des <em>odds ratio</em> pour le modèle logistique.</p>
 <p>Les variables ayant un effet significatif ne sont pas les mêmes pour les deux composantes du modèle. Il est d’ailleurs possible d’utiliser des variables différentes pour chaque composante, en écrivant d’abord l’équation du modèle de Poisson, puis celle du modèle logistique et en les séparant avec le symbole <code>|</code>. D’ailleurs, la syntaxe <code>ofp ~ gender + privins + health + numchron</code> est équivalente à <code>ofp ~ gender + privins + health + numchron | gender + privins + health + numchron</code>. Dans la littérature, on trouve fréquemment des modèles de Poisson <em>zero-inflated</em> simplifiés où seul un <em>intercept</em> est utilisé pour la composante logistique binaire.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1"></a>mod_zip_simple <span class="ot">&lt;-</span> pscl<span class="sc">::</span><span class="fu">zeroinfl</span>(</span>
-<span id="cb22-2"><a href="#cb22-2"></a>  ofp <span class="sc">~</span> gender <span class="sc">+</span> privins <span class="sc">+</span> health <span class="sc">+</span> numchron <span class="sc">|</span> <span class="dv">1</span>,</span>
-<span id="cb22-3"><a href="#cb22-3"></a>  <span class="at">data =</span> d</span>
-<span id="cb22-4"><a href="#cb22-4"></a>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1"></a>mod_zip_simple <span class="ot">&lt;-</span> pscl<span class="sc">::</span><span class="fu">zeroinfl</span>(</span>
+<span id="cb23-2"><a href="#cb23-2"></a>  ofp <span class="sc">~</span> gender <span class="sc">+</span> privins <span class="sc">+</span> health <span class="sc">+</span> numchron <span class="sc">|</span> <span class="dv">1</span>,</span>
+<span id="cb23-3"><a href="#cb23-3"></a>  <span class="at">data =</span> d</span>
+<span id="cb23-4"><a href="#cb23-4"></a>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell page-columns page-full">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1"></a>mod_zip_simple <span class="sc">|&gt;</span> </span>
-<span id="cb23-2"><a href="#cb23-2"></a>  ggstats<span class="sc">::</span><span class="fu">ggcoef_table</span>(</span>
-<span id="cb23-3"><a href="#cb23-3"></a>    <span class="at">tidy_fun =</span> broom.helpers<span class="sc">::</span>tidy_zeroinfl,</span>
-<span id="cb23-4"><a href="#cb23-4"></a>    <span class="at">exponentiate =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb23-5"><a href="#cb23-5"></a>    <span class="at">intercept =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb23-6"><a href="#cb23-6"></a>    <span class="at">component_label =</span> <span class="fu">c</span>(</span>
-<span id="cb23-7"><a href="#cb23-7"></a>      <span class="at">conditional =</span> <span class="st">"Modèle de Poisson"</span>,</span>
-<span id="cb23-8"><a href="#cb23-8"></a>      <span class="at">zero_inflated =</span> <span class="st">"Modèle logistique binaire"</span></span>
-<span id="cb23-9"><a href="#cb23-9"></a>    )</span>
-<span id="cb23-10"><a href="#cb23-10"></a>  ) <span class="sc">+</span></span>
-<span id="cb23-11"><a href="#cb23-11"></a>  patchwork<span class="sc">::</span><span class="fu">plot_layout</span>(<span class="at">heights =</span> <span class="fu">c</span>(<span class="dv">6</span>, <span class="dv">1</span>))</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1"></a>mod_zip_simple <span class="sc">|&gt;</span> </span>
+<span id="cb24-2"><a href="#cb24-2"></a>  ggstats<span class="sc">::</span><span class="fu">ggcoef_table</span>(</span>
+<span id="cb24-3"><a href="#cb24-3"></a>    <span class="at">tidy_fun =</span> broom.helpers<span class="sc">::</span>tidy_zeroinfl,</span>
+<span id="cb24-4"><a href="#cb24-4"></a>    <span class="at">exponentiate =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb24-5"><a href="#cb24-5"></a>    <span class="at">intercept =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb24-6"><a href="#cb24-6"></a>    <span class="at">component_label =</span> <span class="fu">c</span>(</span>
+<span id="cb24-7"><a href="#cb24-7"></a>      <span class="at">conditional =</span> <span class="st">"Modèle de Poisson"</span>,</span>
+<span id="cb24-8"><a href="#cb24-8"></a>      <span class="at">zero_inflated =</span> <span class="st">"Modèle logistique binaire"</span></span>
+<span id="cb24-9"><a href="#cb24-9"></a>    )</span>
+<span id="cb24-10"><a href="#cb24-10"></a>  ) <span class="sc">+</span></span>
+<span id="cb24-11"><a href="#cb24-11"></a>  patchwork<span class="sc">::</span><span class="fu">plot_layout</span>(<span class="at">heights =</span> <span class="fu">c</span>(<span class="dv">6</span>, <span class="dv">1</span>))</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`height` was translated to `width`.
+`height` was translated to `width`.</code></pre>
+</div>
 <div class="cell-output-display page-columns page-full">
 <div id="fig-ggcoef_table-mod_zip_simple" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full"><div aria-describedby="fig-ggcoef_table-mod_zip_simple-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -1587,22 +1592,22 @@ Figure&nbsp;50.4: Coefficients du modèle de Poisson <em>zero-inflated</em> simp
 <p>Pour ce jeu de données, cela ne modifie que peu les coefficients de la composante modèle de comptage.</p>
 <p>De même, il est possible de préférer un modèle négatif binomial plutôt que Poisson pour la composante modèle de comptage. Il suffit d’ajouter l’argument <code>dist = "negbin"</code>.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1"></a>mod_zinb <span class="ot">&lt;-</span> pscl<span class="sc">::</span><span class="fu">zeroinfl</span>(</span>
-<span id="cb24-2"><a href="#cb24-2"></a>  ofp <span class="sc">~</span> gender <span class="sc">+</span> privins <span class="sc">+</span> health <span class="sc">+</span> numchron,</span>
-<span id="cb24-3"><a href="#cb24-3"></a>  <span class="at">dist =</span> <span class="st">"negbin"</span>,</span>
-<span id="cb24-4"><a href="#cb24-4"></a>  <span class="at">data =</span> d</span>
-<span id="cb24-5"><a href="#cb24-5"></a>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1"></a>mod_zinb <span class="ot">&lt;-</span> pscl<span class="sc">::</span><span class="fu">zeroinfl</span>(</span>
+<span id="cb26-2"><a href="#cb26-2"></a>  ofp <span class="sc">~</span> gender <span class="sc">+</span> privins <span class="sc">+</span> health <span class="sc">+</span> numchron,</span>
+<span id="cb26-3"><a href="#cb26-3"></a>  <span class="at">dist =</span> <span class="st">"negbin"</span>,</span>
+<span id="cb26-4"><a href="#cb26-4"></a>  <span class="at">data =</span> d</span>
+<span id="cb26-5"><a href="#cb26-5"></a>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Nous pouvons aisément comparer l’AIC de ces différents modèles.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1"></a>performance<span class="sc">::</span><span class="fu">compare_performance</span>(</span>
-<span id="cb25-2"><a href="#cb25-2"></a>  mod_poisson,</span>
-<span id="cb25-3"><a href="#cb25-3"></a>  mod_zip_simple,</span>
-<span id="cb25-4"><a href="#cb25-4"></a>  mod_zip,</span>
-<span id="cb25-5"><a href="#cb25-5"></a>  mod_nb,</span>
-<span id="cb25-6"><a href="#cb25-6"></a>  mod_zinb,</span>
-<span id="cb25-7"><a href="#cb25-7"></a>  <span class="at">metrics =</span> <span class="st">"AIC"</span></span>
-<span id="cb25-8"><a href="#cb25-8"></a>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1"></a>performance<span class="sc">::</span><span class="fu">compare_performance</span>(</span>
+<span id="cb27-2"><a href="#cb27-2"></a>  mod_poisson,</span>
+<span id="cb27-3"><a href="#cb27-3"></a>  mod_zip_simple,</span>
+<span id="cb27-4"><a href="#cb27-4"></a>  mod_zip,</span>
+<span id="cb27-5"><a href="#cb27-5"></a>  mod_nb,</span>
+<span id="cb27-6"><a href="#cb27-6"></a>  mod_zinb,</span>
+<span id="cb27-7"><a href="#cb27-7"></a>  <span class="at">metrics =</span> <span class="st">"AIC"</span></span>
+<span id="cb27-8"><a href="#cb27-8"></a>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># Comparison of Model Performance Indices
 
@@ -1617,14 +1622,14 @@ mod_zinb       | zeroinfl | 24380.9 (&gt;.999)</code></pre>
 </div>
 <p>Comparons les coefficients de la composante <q>comptage</q> du modèle négatif binomial <em>zero-inflated</em> avec ceux du modèle négatif binomial classique.</p>
 <div class="cell page-columns page-full">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1"></a>tbl_nb <span class="ot">&lt;-</span> mod_nb <span class="sc">|&gt;</span> </span>
-<span id="cb27-2"><a href="#cb27-2"></a>  <span class="fu">tbl_regression</span>(<span class="at">exponentiate =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb27-3"><a href="#cb27-3"></a>tbl_zinb <span class="ot">&lt;-</span> mod_zinb <span class="sc">|&gt;</span> </span>
-<span id="cb27-4"><a href="#cb27-4"></a>  <span class="fu">tbl_regression</span>(</span>
-<span id="cb27-5"><a href="#cb27-5"></a>    <span class="at">tidy_fun =</span> broom.helpers<span class="sc">::</span>tidy_zeroinfl,</span>
-<span id="cb27-6"><a href="#cb27-6"></a>    <span class="at">component =</span> <span class="st">"conditional"</span>,</span>
-<span id="cb27-7"><a href="#cb27-7"></a>    <span class="at">exponentiate =</span> <span class="cn">TRUE</span></span>
-<span id="cb27-8"><a href="#cb27-8"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1"></a>tbl_nb <span class="ot">&lt;-</span> mod_nb <span class="sc">|&gt;</span> </span>
+<span id="cb29-2"><a href="#cb29-2"></a>  <span class="fu">tbl_regression</span>(<span class="at">exponentiate =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb29-3"><a href="#cb29-3"></a>tbl_zinb <span class="ot">&lt;-</span> mod_zinb <span class="sc">|&gt;</span> </span>
+<span id="cb29-4"><a href="#cb29-4"></a>  <span class="fu">tbl_regression</span>(</span>
+<span id="cb29-5"><a href="#cb29-5"></a>    <span class="at">tidy_fun =</span> broom.helpers<span class="sc">::</span>tidy_zeroinfl,</span>
+<span id="cb29-6"><a href="#cb29-6"></a>    <span class="at">component =</span> <span class="st">"conditional"</span>,</span>
+<span id="cb29-7"><a href="#cb29-7"></a>    <span class="at">exponentiate =</span> <span class="cn">TRUE</span></span>
+<span id="cb29-8"><a href="#cb29-8"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>ℹ Multinomial models, multi-component models and other groups models have a
   different underlying structure than the models gtsummary was designed for.
@@ -1632,29 +1637,29 @@ mod_zinb       | zeroinfl | 24380.9 (&gt;.999)</code></pre>
   unexpected results.
 ℹ Suppress this message with `?suppressMessages()`.</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1"></a><span class="fu">list</span>(tbl_nb, tbl_zinb) <span class="sc">|&gt;</span> </span>
-<span id="cb29-2"><a href="#cb29-2"></a>  <span class="fu">tbl_merge</span>(<span class="fu">c</span>(<span class="st">"**NB**"</span>, <span class="st">"**ZI-NB**"</span>)) <span class="sc">|&gt;</span> </span>
-<span id="cb29-3"><a href="#cb29-3"></a>  <span class="fu">bold_labels</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1"></a><span class="fu">list</span>(tbl_nb, tbl_zinb) <span class="sc">|&gt;</span> </span>
+<span id="cb31-2"><a href="#cb31-2"></a>  <span class="fu">tbl_merge</span>(<span class="fu">c</span>(<span class="st">"**NB**"</span>, <span class="st">"**ZI-NB**"</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb31-3"><a href="#cb31-3"></a>  <span class="fu">bold_labels</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div id="tbl-comparaison-nb-zinb" class="cell quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-tbl figure page-columns page-full"><div aria-describedby="tbl-comparaison-nb-zinb-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
-<div id="ocrfafhfdb" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#ocrfafhfdb table {
+<div id="svvrpktuhm" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#svvrpktuhm table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#ocrfafhfdb thead, #ocrfafhfdb tbody, #ocrfafhfdb tfoot, #ocrfafhfdb tr, #ocrfafhfdb td, #ocrfafhfdb th {
+#svvrpktuhm thead, #svvrpktuhm tbody, #svvrpktuhm tfoot, #svvrpktuhm tr, #svvrpktuhm td, #svvrpktuhm th {
   border-style: none;
 }
 
-#ocrfafhfdb p {
+#svvrpktuhm p {
   margin: 0;
   padding: 0;
 }
 
-#ocrfafhfdb .gt_table {
+#svvrpktuhm .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -1680,12 +1685,12 @@ mod_zinb       | zeroinfl | 24380.9 (&gt;.999)</code></pre>
   border-left-color: #D3D3D3;
 }
 
-#ocrfafhfdb .gt_caption {
+#svvrpktuhm .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#ocrfafhfdb .gt_title {
+#svvrpktuhm .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -1697,7 +1702,7 @@ mod_zinb       | zeroinfl | 24380.9 (&gt;.999)</code></pre>
   border-bottom-width: 0;
 }
 
-#ocrfafhfdb .gt_subtitle {
+#svvrpktuhm .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -1709,7 +1714,7 @@ mod_zinb       | zeroinfl | 24380.9 (&gt;.999)</code></pre>
   border-top-width: 0;
 }
 
-#ocrfafhfdb .gt_heading {
+#svvrpktuhm .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -1721,13 +1726,13 @@ mod_zinb       | zeroinfl | 24380.9 (&gt;.999)</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#ocrfafhfdb .gt_bottom_border {
+#svvrpktuhm .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#ocrfafhfdb .gt_col_headings {
+#svvrpktuhm .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1742,7 +1747,7 @@ mod_zinb       | zeroinfl | 24380.9 (&gt;.999)</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#ocrfafhfdb .gt_col_heading {
+#svvrpktuhm .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1762,7 +1767,7 @@ mod_zinb       | zeroinfl | 24380.9 (&gt;.999)</code></pre>
   overflow-x: hidden;
 }
 
-#ocrfafhfdb .gt_column_spanner_outer {
+#svvrpktuhm .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1774,15 +1779,15 @@ mod_zinb       | zeroinfl | 24380.9 (&gt;.999)</code></pre>
   padding-right: 4px;
 }
 
-#ocrfafhfdb .gt_column_spanner_outer:first-child {
+#svvrpktuhm .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#ocrfafhfdb .gt_column_spanner_outer:last-child {
+#svvrpktuhm .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#ocrfafhfdb .gt_column_spanner {
+#svvrpktuhm .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -1794,11 +1799,11 @@ mod_zinb       | zeroinfl | 24380.9 (&gt;.999)</code></pre>
   width: 100%;
 }
 
-#ocrfafhfdb .gt_spanner_row {
+#svvrpktuhm .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#ocrfafhfdb .gt_group_heading {
+#svvrpktuhm .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1824,7 +1829,7 @@ mod_zinb       | zeroinfl | 24380.9 (&gt;.999)</code></pre>
   text-align: left;
 }
 
-#ocrfafhfdb .gt_empty_group_heading {
+#svvrpktuhm .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -1839,15 +1844,15 @@ mod_zinb       | zeroinfl | 24380.9 (&gt;.999)</code></pre>
   vertical-align: middle;
 }
 
-#ocrfafhfdb .gt_from_md > :first-child {
+#svvrpktuhm .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#ocrfafhfdb .gt_from_md > :last-child {
+#svvrpktuhm .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#ocrfafhfdb .gt_row {
+#svvrpktuhm .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1866,7 +1871,7 @@ mod_zinb       | zeroinfl | 24380.9 (&gt;.999)</code></pre>
   overflow-x: hidden;
 }
 
-#ocrfafhfdb .gt_stub {
+#svvrpktuhm .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1879,7 +1884,7 @@ mod_zinb       | zeroinfl | 24380.9 (&gt;.999)</code></pre>
   padding-right: 5px;
 }
 
-#ocrfafhfdb .gt_stub_row_group {
+#svvrpktuhm .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1893,15 +1898,15 @@ mod_zinb       | zeroinfl | 24380.9 (&gt;.999)</code></pre>
   vertical-align: top;
 }
 
-#ocrfafhfdb .gt_row_group_first td {
+#svvrpktuhm .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#ocrfafhfdb .gt_row_group_first th {
+#svvrpktuhm .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#ocrfafhfdb .gt_summary_row {
+#svvrpktuhm .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1911,16 +1916,16 @@ mod_zinb       | zeroinfl | 24380.9 (&gt;.999)</code></pre>
   padding-right: 5px;
 }
 
-#ocrfafhfdb .gt_first_summary_row {
+#svvrpktuhm .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#ocrfafhfdb .gt_first_summary_row.thick {
+#svvrpktuhm .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#ocrfafhfdb .gt_last_summary_row {
+#svvrpktuhm .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1930,7 +1935,7 @@ mod_zinb       | zeroinfl | 24380.9 (&gt;.999)</code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#ocrfafhfdb .gt_grand_summary_row {
+#svvrpktuhm .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1940,7 +1945,7 @@ mod_zinb       | zeroinfl | 24380.9 (&gt;.999)</code></pre>
   padding-right: 5px;
 }
 
-#ocrfafhfdb .gt_first_grand_summary_row {
+#svvrpktuhm .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1950,7 +1955,7 @@ mod_zinb       | zeroinfl | 24380.9 (&gt;.999)</code></pre>
   border-top-color: #D3D3D3;
 }
 
-#ocrfafhfdb .gt_last_grand_summary_row_top {
+#svvrpktuhm .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1960,11 +1965,11 @@ mod_zinb       | zeroinfl | 24380.9 (&gt;.999)</code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#ocrfafhfdb .gt_striped {
+#svvrpktuhm .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#ocrfafhfdb .gt_table_body {
+#svvrpktuhm .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1973,7 +1978,7 @@ mod_zinb       | zeroinfl | 24380.9 (&gt;.999)</code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#ocrfafhfdb .gt_footnotes {
+#svvrpktuhm .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1987,7 +1992,7 @@ mod_zinb       | zeroinfl | 24380.9 (&gt;.999)</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#ocrfafhfdb .gt_footnote {
+#svvrpktuhm .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -1996,7 +2001,7 @@ mod_zinb       | zeroinfl | 24380.9 (&gt;.999)</code></pre>
   padding-right: 5px;
 }
 
-#ocrfafhfdb .gt_sourcenotes {
+#svvrpktuhm .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -2010,7 +2015,7 @@ mod_zinb       | zeroinfl | 24380.9 (&gt;.999)</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#ocrfafhfdb .gt_sourcenote {
+#svvrpktuhm .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -2018,76 +2023,76 @@ mod_zinb       | zeroinfl | 24380.9 (&gt;.999)</code></pre>
   padding-right: 5px;
 }
 
-#ocrfafhfdb .gt_left {
+#svvrpktuhm .gt_left {
   text-align: left;
 }
 
-#ocrfafhfdb .gt_center {
+#svvrpktuhm .gt_center {
   text-align: center;
 }
 
-#ocrfafhfdb .gt_right {
+#svvrpktuhm .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#ocrfafhfdb .gt_font_normal {
+#svvrpktuhm .gt_font_normal {
   font-weight: normal;
 }
 
-#ocrfafhfdb .gt_font_bold {
+#svvrpktuhm .gt_font_bold {
   font-weight: bold;
 }
 
-#ocrfafhfdb .gt_font_italic {
+#svvrpktuhm .gt_font_italic {
   font-style: italic;
 }
 
-#ocrfafhfdb .gt_super {
+#svvrpktuhm .gt_super {
   font-size: 65%;
 }
 
-#ocrfafhfdb .gt_footnote_marks {
+#svvrpktuhm .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#ocrfafhfdb .gt_asterisk {
+#svvrpktuhm .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#ocrfafhfdb .gt_indent_1 {
+#svvrpktuhm .gt_indent_1 {
   text-indent: 5px;
 }
 
-#ocrfafhfdb .gt_indent_2 {
+#svvrpktuhm .gt_indent_2 {
   text-indent: 10px;
 }
 
-#ocrfafhfdb .gt_indent_3 {
+#svvrpktuhm .gt_indent_3 {
   text-indent: 15px;
 }
 
-#ocrfafhfdb .gt_indent_4 {
+#svvrpktuhm .gt_indent_4 {
   text-indent: 20px;
 }
 
-#ocrfafhfdb .gt_indent_5 {
+#svvrpktuhm .gt_indent_5 {
   text-indent: 25px;
 }
 
-#ocrfafhfdb .katex-display {
+#svvrpktuhm .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#ocrfafhfdb div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#svvrpktuhm div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
-<table class="gt_table do-not-create-environment cell table table-sm table-striped small" data-quarto-bootstrap="false">
+<table class="gt_table do-not-create-environment cell table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
 <colgroup>
 <col style="width: 12%">
 <col style="width: 12%">
@@ -2230,7 +2235,7 @@ mod_zinb       | zeroinfl | 24380.9 (&gt;.999)</code></pre>
 <td class="gt_row gt_center" headers="p.value_2">&lt;0.001</td>
 </tr>
 </tbody>
-<tfoot><tr class="gt_sourcenotes odd">
+<tfoot class="gt_sourcenotes"><tr class="odd">
 <td colspan="8" class="gt_sourcenote">Abbreviations: CI = Confidence Interval, IRR = Incidence Rate Ratio</td>
 </tr></tfoot>
 </table>
@@ -2260,27 +2265,31 @@ Feng, Cindy Xin. 2021. <span>«&nbsp;A comparison of zero-inflated and hurdle mo
 Min, Yongyi, et Alan Agresti. 2005. <span>«&nbsp;Random Effect Models for Repeated Measures of Zero-Inflated Count Data&nbsp;»</span>. <em>Statistical Modelling</em> 5 (1): 1‑19. <a href="https://doi.org/10.1191/1471082X05st084oa">https://doi.org/10.1191/1471082X05st084oa</a>.
 </div></div><p>Les modèles <em>hurdle</em> peuvent être calculés avec la fonction <code><a href="https://rdrr.io/pkg/pscl/man/hurdle.html">pscl::hurdle()</a></code> dont la syntaxe est similaire à <code><a href="https://rdrr.io/pkg/pscl/man/zeroinfl.html">pscl::zeroinfl()</a></code>.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb30"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1"></a>mod_hurdle_poisson <span class="ot">&lt;-</span> pscl<span class="sc">::</span><span class="fu">hurdle</span>(</span>
-<span id="cb30-2"><a href="#cb30-2"></a>  ofp <span class="sc">~</span> gender <span class="sc">+</span> privins <span class="sc">+</span> health <span class="sc">+</span> numchron,</span>
-<span id="cb30-3"><a href="#cb30-3"></a>  <span class="at">data =</span> d</span>
-<span id="cb30-4"><a href="#cb30-4"></a>)</span>
-<span id="cb30-5"><a href="#cb30-5"></a>mod_hurdle_nb <span class="ot">&lt;-</span> pscl<span class="sc">::</span><span class="fu">hurdle</span>(</span>
-<span id="cb30-6"><a href="#cb30-6"></a>  ofp <span class="sc">~</span> gender <span class="sc">+</span> privins <span class="sc">+</span> health <span class="sc">+</span> numchron,</span>
-<span id="cb30-7"><a href="#cb30-7"></a>  <span class="at">dist =</span> <span class="st">"negbin"</span>,</span>
-<span id="cb30-8"><a href="#cb30-8"></a>  <span class="at">data =</span> d</span>
-<span id="cb30-9"><a href="#cb30-9"></a>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1"></a>mod_hurdle_poisson <span class="ot">&lt;-</span> pscl<span class="sc">::</span><span class="fu">hurdle</span>(</span>
+<span id="cb32-2"><a href="#cb32-2"></a>  ofp <span class="sc">~</span> gender <span class="sc">+</span> privins <span class="sc">+</span> health <span class="sc">+</span> numchron,</span>
+<span id="cb32-3"><a href="#cb32-3"></a>  <span class="at">data =</span> d</span>
+<span id="cb32-4"><a href="#cb32-4"></a>)</span>
+<span id="cb32-5"><a href="#cb32-5"></a>mod_hurdle_nb <span class="ot">&lt;-</span> pscl<span class="sc">::</span><span class="fu">hurdle</span>(</span>
+<span id="cb32-6"><a href="#cb32-6"></a>  ofp <span class="sc">~</span> gender <span class="sc">+</span> privins <span class="sc">+</span> health <span class="sc">+</span> numchron,</span>
+<span id="cb32-7"><a href="#cb32-7"></a>  <span class="at">dist =</span> <span class="st">"negbin"</span>,</span>
+<span id="cb32-8"><a href="#cb32-8"></a>  <span class="at">data =</span> d</span>
+<span id="cb32-9"><a href="#cb32-9"></a>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Regardons les coefficients obtenus.</p>
 <div class="cell page-columns page-full">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb31"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1"></a>mod_hurdle_nb <span class="sc">|&gt;</span> </span>
-<span id="cb31-2"><a href="#cb31-2"></a>  ggstats<span class="sc">::</span><span class="fu">ggcoef_table</span>(</span>
-<span id="cb31-3"><a href="#cb31-3"></a>    <span class="at">tidy_fun =</span> broom.helpers<span class="sc">::</span>tidy_zeroinfl,</span>
-<span id="cb31-4"><a href="#cb31-4"></a>    <span class="at">exponentiate =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb31-5"><a href="#cb31-5"></a>    <span class="at">component_label =</span> <span class="fu">c</span>(</span>
-<span id="cb31-6"><a href="#cb31-6"></a>      <span class="at">conditional =</span> <span class="st">"Facteurs associés au nombre d'évènements"</span>,</span>
-<span id="cb31-7"><a href="#cb31-7"></a>      <span class="at">zero_inflated =</span> <span class="st">"Facteurs associés au fait d'avoir vécu l'évènement"</span></span>
-<span id="cb31-8"><a href="#cb31-8"></a>    )</span>
-<span id="cb31-9"><a href="#cb31-9"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1"></a>mod_hurdle_nb <span class="sc">|&gt;</span> </span>
+<span id="cb33-2"><a href="#cb33-2"></a>  ggstats<span class="sc">::</span><span class="fu">ggcoef_table</span>(</span>
+<span id="cb33-3"><a href="#cb33-3"></a>    <span class="at">tidy_fun =</span> broom.helpers<span class="sc">::</span>tidy_zeroinfl,</span>
+<span id="cb33-4"><a href="#cb33-4"></a>    <span class="at">exponentiate =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb33-5"><a href="#cb33-5"></a>    <span class="at">component_label =</span> <span class="fu">c</span>(</span>
+<span id="cb33-6"><a href="#cb33-6"></a>      <span class="at">conditional =</span> <span class="st">"Facteurs associés au nombre d'évènements"</span>,</span>
+<span id="cb33-7"><a href="#cb33-7"></a>      <span class="at">zero_inflated =</span> <span class="st">"Facteurs associés au fait d'avoir vécu l'évènement"</span></span>
+<span id="cb33-8"><a href="#cb33-8"></a>    )</span>
+<span id="cb33-9"><a href="#cb33-9"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`height` was translated to `width`.
+`height` was translated to `width`.</code></pre>
+</div>
 <div class="cell-output-display page-columns page-full">
 <div id="fig-ggcoef_table-mod_hurdle_nb" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full"><div aria-describedby="fig-ggcoef_table-mod_hurdle_nb-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -2294,14 +2303,14 @@ Figure&nbsp;50.5: Coefficients du modèle négatif binomial <em>hurdle</em>
 </div>
 <p>Nous pouvons également produire un tableau avec <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/tbl_regression.html">gtsummary::tbl_regression()</a></code><a href="#fn4" class="footnote-ref" id="fnref4" role="doc-noteref"><sup>4</sup></a>.</p>
 <div class="no-row-height column-margin column-container"><div id="fn4"><p><sup>4</sup>&nbsp;À condition d’utiliser une version récente (2.3.0 minimum) de <a href="https://github.com/ddsjoberg/gtsummary">gtsummary</a>.</p></div></div><div class="cell page-columns page-full">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb32"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1"></a>tbl_hurdle_nb <span class="ot">&lt;-</span></span>
-<span id="cb32-2"><a href="#cb32-2"></a>  mod_hurdle_nb <span class="sc">|&gt;</span> </span>
-<span id="cb32-3"><a href="#cb32-3"></a>  <span class="fu">tbl_regression</span>(</span>
-<span id="cb32-4"><a href="#cb32-4"></a>    <span class="at">tidy_fun =</span> broom.helpers<span class="sc">::</span>tidy_zeroinfl,</span>
-<span id="cb32-5"><a href="#cb32-5"></a>    <span class="at">exponentiate =</span> <span class="cn">TRUE</span></span>
-<span id="cb32-6"><a href="#cb32-6"></a>  ) <span class="sc">|&gt;</span> </span>
-<span id="cb32-7"><a href="#cb32-7"></a>  guideR<span class="sc">::</span><span class="fu">grouped_tbl_pivot_wider</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb32-8"><a href="#cb32-8"></a>  <span class="fu">bold_labels</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1"></a>tbl_hurdle_nb <span class="ot">&lt;-</span></span>
+<span id="cb35-2"><a href="#cb35-2"></a>  mod_hurdle_nb <span class="sc">|&gt;</span> </span>
+<span id="cb35-3"><a href="#cb35-3"></a>  <span class="fu">tbl_regression</span>(</span>
+<span id="cb35-4"><a href="#cb35-4"></a>    <span class="at">tidy_fun =</span> broom.helpers<span class="sc">::</span>tidy_zeroinfl,</span>
+<span id="cb35-5"><a href="#cb35-5"></a>    <span class="at">exponentiate =</span> <span class="cn">TRUE</span></span>
+<span id="cb35-6"><a href="#cb35-6"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb35-7"><a href="#cb35-7"></a>  guideR<span class="sc">::</span><span class="fu">grouped_tbl_pivot_wider</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb35-8"><a href="#cb35-8"></a>  <span class="fu">bold_labels</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>ℹ Multinomial models, multi-component models and other groups models have a
   different underlying structure than the models gtsummary was designed for.
@@ -2309,27 +2318,27 @@ Figure&nbsp;50.5: Coefficients du modèle négatif binomial <em>hurdle</em>
   unexpected results.
 ℹ Suppress this message with `?suppressMessages()`.</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb34"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1"></a>tbl_hurdle_nb</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1"></a>tbl_hurdle_nb</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div id="tbl-tbl_regression-mod_hurdle_nb" class="cell quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-tbl figure page-columns page-full"><div aria-describedby="tbl-tbl_regression-mod_hurdle_nb-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
-<div id="droigoxxsr" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#droigoxxsr table {
+<div id="ldfltmdley" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#ldfltmdley table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#droigoxxsr thead, #droigoxxsr tbody, #droigoxxsr tfoot, #droigoxxsr tr, #droigoxxsr td, #droigoxxsr th {
+#ldfltmdley thead, #ldfltmdley tbody, #ldfltmdley tfoot, #ldfltmdley tr, #ldfltmdley td, #ldfltmdley th {
   border-style: none;
 }
 
-#droigoxxsr p {
+#ldfltmdley p {
   margin: 0;
   padding: 0;
 }
 
-#droigoxxsr .gt_table {
+#ldfltmdley .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -2355,12 +2364,12 @@ Figure&nbsp;50.5: Coefficients du modèle négatif binomial <em>hurdle</em>
   border-left-color: #D3D3D3;
 }
 
-#droigoxxsr .gt_caption {
+#ldfltmdley .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#droigoxxsr .gt_title {
+#ldfltmdley .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -2372,7 +2381,7 @@ Figure&nbsp;50.5: Coefficients du modèle négatif binomial <em>hurdle</em>
   border-bottom-width: 0;
 }
 
-#droigoxxsr .gt_subtitle {
+#ldfltmdley .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -2384,7 +2393,7 @@ Figure&nbsp;50.5: Coefficients du modèle négatif binomial <em>hurdle</em>
   border-top-width: 0;
 }
 
-#droigoxxsr .gt_heading {
+#ldfltmdley .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -2396,13 +2405,13 @@ Figure&nbsp;50.5: Coefficients du modèle négatif binomial <em>hurdle</em>
   border-right-color: #D3D3D3;
 }
 
-#droigoxxsr .gt_bottom_border {
+#ldfltmdley .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#droigoxxsr .gt_col_headings {
+#ldfltmdley .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -2417,7 +2426,7 @@ Figure&nbsp;50.5: Coefficients du modèle négatif binomial <em>hurdle</em>
   border-right-color: #D3D3D3;
 }
 
-#droigoxxsr .gt_col_heading {
+#ldfltmdley .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2437,7 +2446,7 @@ Figure&nbsp;50.5: Coefficients du modèle négatif binomial <em>hurdle</em>
   overflow-x: hidden;
 }
 
-#droigoxxsr .gt_column_spanner_outer {
+#ldfltmdley .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2449,15 +2458,15 @@ Figure&nbsp;50.5: Coefficients du modèle négatif binomial <em>hurdle</em>
   padding-right: 4px;
 }
 
-#droigoxxsr .gt_column_spanner_outer:first-child {
+#ldfltmdley .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#droigoxxsr .gt_column_spanner_outer:last-child {
+#ldfltmdley .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#droigoxxsr .gt_column_spanner {
+#ldfltmdley .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -2469,11 +2478,11 @@ Figure&nbsp;50.5: Coefficients du modèle négatif binomial <em>hurdle</em>
   width: 100%;
 }
 
-#droigoxxsr .gt_spanner_row {
+#ldfltmdley .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#droigoxxsr .gt_group_heading {
+#ldfltmdley .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2499,7 +2508,7 @@ Figure&nbsp;50.5: Coefficients du modèle négatif binomial <em>hurdle</em>
   text-align: left;
 }
 
-#droigoxxsr .gt_empty_group_heading {
+#ldfltmdley .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -2514,15 +2523,15 @@ Figure&nbsp;50.5: Coefficients du modèle négatif binomial <em>hurdle</em>
   vertical-align: middle;
 }
 
-#droigoxxsr .gt_from_md > :first-child {
+#ldfltmdley .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#droigoxxsr .gt_from_md > :last-child {
+#ldfltmdley .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#droigoxxsr .gt_row {
+#ldfltmdley .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2541,7 +2550,7 @@ Figure&nbsp;50.5: Coefficients du modèle négatif binomial <em>hurdle</em>
   overflow-x: hidden;
 }
 
-#droigoxxsr .gt_stub {
+#ldfltmdley .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2554,7 +2563,7 @@ Figure&nbsp;50.5: Coefficients du modèle négatif binomial <em>hurdle</em>
   padding-right: 5px;
 }
 
-#droigoxxsr .gt_stub_row_group {
+#ldfltmdley .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2568,15 +2577,15 @@ Figure&nbsp;50.5: Coefficients du modèle négatif binomial <em>hurdle</em>
   vertical-align: top;
 }
 
-#droigoxxsr .gt_row_group_first td {
+#ldfltmdley .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#droigoxxsr .gt_row_group_first th {
+#ldfltmdley .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#droigoxxsr .gt_summary_row {
+#ldfltmdley .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -2586,16 +2595,16 @@ Figure&nbsp;50.5: Coefficients du modèle négatif binomial <em>hurdle</em>
   padding-right: 5px;
 }
 
-#droigoxxsr .gt_first_summary_row {
+#ldfltmdley .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#droigoxxsr .gt_first_summary_row.thick {
+#ldfltmdley .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#droigoxxsr .gt_last_summary_row {
+#ldfltmdley .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2605,7 +2614,7 @@ Figure&nbsp;50.5: Coefficients du modèle négatif binomial <em>hurdle</em>
   border-bottom-color: #D3D3D3;
 }
 
-#droigoxxsr .gt_grand_summary_row {
+#ldfltmdley .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -2615,7 +2624,7 @@ Figure&nbsp;50.5: Coefficients du modèle négatif binomial <em>hurdle</em>
   padding-right: 5px;
 }
 
-#droigoxxsr .gt_first_grand_summary_row {
+#ldfltmdley .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2625,7 +2634,7 @@ Figure&nbsp;50.5: Coefficients du modèle négatif binomial <em>hurdle</em>
   border-top-color: #D3D3D3;
 }
 
-#droigoxxsr .gt_last_grand_summary_row_top {
+#ldfltmdley .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2635,11 +2644,11 @@ Figure&nbsp;50.5: Coefficients du modèle négatif binomial <em>hurdle</em>
   border-bottom-color: #D3D3D3;
 }
 
-#droigoxxsr .gt_striped {
+#ldfltmdley .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#droigoxxsr .gt_table_body {
+#ldfltmdley .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -2648,7 +2657,7 @@ Figure&nbsp;50.5: Coefficients du modèle négatif binomial <em>hurdle</em>
   border-bottom-color: #D3D3D3;
 }
 
-#droigoxxsr .gt_footnotes {
+#ldfltmdley .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -2662,7 +2671,7 @@ Figure&nbsp;50.5: Coefficients du modèle négatif binomial <em>hurdle</em>
   border-right-color: #D3D3D3;
 }
 
-#droigoxxsr .gt_footnote {
+#ldfltmdley .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -2671,7 +2680,7 @@ Figure&nbsp;50.5: Coefficients du modèle négatif binomial <em>hurdle</em>
   padding-right: 5px;
 }
 
-#droigoxxsr .gt_sourcenotes {
+#ldfltmdley .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -2685,7 +2694,7 @@ Figure&nbsp;50.5: Coefficients du modèle négatif binomial <em>hurdle</em>
   border-right-color: #D3D3D3;
 }
 
-#droigoxxsr .gt_sourcenote {
+#ldfltmdley .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -2693,76 +2702,76 @@ Figure&nbsp;50.5: Coefficients du modèle négatif binomial <em>hurdle</em>
   padding-right: 5px;
 }
 
-#droigoxxsr .gt_left {
+#ldfltmdley .gt_left {
   text-align: left;
 }
 
-#droigoxxsr .gt_center {
+#ldfltmdley .gt_center {
   text-align: center;
 }
 
-#droigoxxsr .gt_right {
+#ldfltmdley .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#droigoxxsr .gt_font_normal {
+#ldfltmdley .gt_font_normal {
   font-weight: normal;
 }
 
-#droigoxxsr .gt_font_bold {
+#ldfltmdley .gt_font_bold {
   font-weight: bold;
 }
 
-#droigoxxsr .gt_font_italic {
+#ldfltmdley .gt_font_italic {
   font-style: italic;
 }
 
-#droigoxxsr .gt_super {
+#ldfltmdley .gt_super {
   font-size: 65%;
 }
 
-#droigoxxsr .gt_footnote_marks {
+#ldfltmdley .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#droigoxxsr .gt_asterisk {
+#ldfltmdley .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#droigoxxsr .gt_indent_1 {
+#ldfltmdley .gt_indent_1 {
   text-indent: 5px;
 }
 
-#droigoxxsr .gt_indent_2 {
+#ldfltmdley .gt_indent_2 {
   text-indent: 10px;
 }
 
-#droigoxxsr .gt_indent_3 {
+#ldfltmdley .gt_indent_3 {
   text-indent: 15px;
 }
 
-#droigoxxsr .gt_indent_4 {
+#ldfltmdley .gt_indent_4 {
   text-indent: 20px;
 }
 
-#droigoxxsr .gt_indent_5 {
+#ldfltmdley .gt_indent_5 {
   text-indent: 25px;
 }
 
-#droigoxxsr .katex-display {
+#ldfltmdley .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#droigoxxsr div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#ldfltmdley div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
-<table class="gt_table do-not-create-environment table table-sm table-striped small" data-quarto-bootstrap="false">
+<table class="gt_table do-not-create-environment table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
 <colgroup>
 <col style="width: 14%">
 <col style="width: 14%">
@@ -2892,7 +2901,7 @@ Figure&nbsp;50.5: Coefficients du modèle négatif binomial <em>hurdle</em>
 <td class="gt_row gt_center" headers="p.value_2">&lt;0.001</td>
 </tr>
 </tbody>
-<tfoot><tr class="gt_sourcenotes odd">
+<tfoot class="gt_sourcenotes"><tr class="odd">
 <td colspan="7" class="gt_sourcenote">Abbreviation: CI = Confidence Interval</td>
 </tr></tfoot>
 </table>
@@ -2918,8 +2927,8 @@ Astuce
 <p>On peut améliorer le tableau en personnalisant les intitulés de colonne.</p>
 <p>Pour se faciliter les choses, on peut utiliser <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/modify.html">gtsummary::show_header_names()</a></code> pour connaître les intitulés internes des différentes colonnes.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb35"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1"></a>tbl_hurdle_nb <span class="sc">|&gt;</span> </span>
-<span id="cb35-2"><a href="#cb35-2"></a>  <span class="fu">show_header_names</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1"></a>tbl_hurdle_nb <span class="sc">|&gt;</span> </span>
+<span id="cb38-2"><a href="#cb38-2"></a>  <span class="fu">show_header_names</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Column Name   Header                 N*             
 label         "**Characteristic**"   4,406 &lt;dbl&gt;    
@@ -2938,33 +2947,33 @@ p.value_2     "**p-value**"          4,406 &lt;dbl&gt;    </code></pre>
 </div>
 <p>Il devient alors plus facile d’utiliser <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/modify.html">gtsummary::modify_spanning_header()</a></code> ou encore <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/modify.html">gtsummary::modify_header()</a></code>.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb38"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1"></a>tbl_hurdle_nb <span class="sc">|&gt;</span> </span>
-<span id="cb38-2"><a href="#cb38-2"></a>  <span class="fu">modify_spanning_header</span>(</span>
-<span id="cb38-3"><a href="#cb38-3"></a>    <span class="fu">ends_with</span>(<span class="st">"_1"</span>) <span class="sc">~</span> <span class="st">"**Composante comptage**"</span>,</span>
-<span id="cb38-4"><a href="#cb38-4"></a>    <span class="fu">ends_with</span>(<span class="st">"_2"</span>) <span class="sc">~</span> <span class="st">"**Composante *zero-inflated***"</span></span>
-<span id="cb38-5"><a href="#cb38-5"></a>  ) <span class="sc">|&gt;</span> </span>
-<span id="cb38-6"><a href="#cb38-6"></a>  <span class="fu">modify_header</span>(</span>
-<span id="cb38-7"><a href="#cb38-7"></a>    estimate_1 <span class="sc">~</span> <span class="st">"**RR**"</span>,</span>
-<span id="cb38-8"><a href="#cb38-8"></a>    estimate_2 <span class="sc">~</span> <span class="st">"**OR**"</span></span>
-<span id="cb38-9"><a href="#cb38-9"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1"></a>tbl_hurdle_nb <span class="sc">|&gt;</span> </span>
+<span id="cb41-2"><a href="#cb41-2"></a>  <span class="fu">modify_spanning_header</span>(</span>
+<span id="cb41-3"><a href="#cb41-3"></a>    <span class="fu">ends_with</span>(<span class="st">"_1"</span>) <span class="sc">~</span> <span class="st">"**Composante comptage**"</span>,</span>
+<span id="cb41-4"><a href="#cb41-4"></a>    <span class="fu">ends_with</span>(<span class="st">"_2"</span>) <span class="sc">~</span> <span class="st">"**Composante *zero-inflated***"</span></span>
+<span id="cb41-5"><a href="#cb41-5"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb41-6"><a href="#cb41-6"></a>  <span class="fu">modify_header</span>(</span>
+<span id="cb41-7"><a href="#cb41-7"></a>    estimate_1 <span class="sc">~</span> <span class="st">"**RR**"</span>,</span>
+<span id="cb41-8"><a href="#cb41-8"></a>    estimate_2 <span class="sc">~</span> <span class="st">"**OR**"</span></span>
+<span id="cb41-9"><a href="#cb41-9"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<div id="pjjthmiybi" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#pjjthmiybi table {
+<div id="dsewzzjsly" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#dsewzzjsly table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#pjjthmiybi thead, #pjjthmiybi tbody, #pjjthmiybi tfoot, #pjjthmiybi tr, #pjjthmiybi td, #pjjthmiybi th {
+#dsewzzjsly thead, #dsewzzjsly tbody, #dsewzzjsly tfoot, #dsewzzjsly tr, #dsewzzjsly td, #dsewzzjsly th {
   border-style: none;
 }
 
-#pjjthmiybi p {
+#dsewzzjsly p {
   margin: 0;
   padding: 0;
 }
 
-#pjjthmiybi .gt_table {
+#dsewzzjsly .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -2990,12 +2999,12 @@ p.value_2     "**p-value**"          4,406 &lt;dbl&gt;    </code></pre>
   border-left-color: #D3D3D3;
 }
 
-#pjjthmiybi .gt_caption {
+#dsewzzjsly .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#pjjthmiybi .gt_title {
+#dsewzzjsly .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -3007,7 +3016,7 @@ p.value_2     "**p-value**"          4,406 &lt;dbl&gt;    </code></pre>
   border-bottom-width: 0;
 }
 
-#pjjthmiybi .gt_subtitle {
+#dsewzzjsly .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -3019,7 +3028,7 @@ p.value_2     "**p-value**"          4,406 &lt;dbl&gt;    </code></pre>
   border-top-width: 0;
 }
 
-#pjjthmiybi .gt_heading {
+#dsewzzjsly .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -3031,13 +3040,13 @@ p.value_2     "**p-value**"          4,406 &lt;dbl&gt;    </code></pre>
   border-right-color: #D3D3D3;
 }
 
-#pjjthmiybi .gt_bottom_border {
+#dsewzzjsly .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#pjjthmiybi .gt_col_headings {
+#dsewzzjsly .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -3052,7 +3061,7 @@ p.value_2     "**p-value**"          4,406 &lt;dbl&gt;    </code></pre>
   border-right-color: #D3D3D3;
 }
 
-#pjjthmiybi .gt_col_heading {
+#dsewzzjsly .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -3072,7 +3081,7 @@ p.value_2     "**p-value**"          4,406 &lt;dbl&gt;    </code></pre>
   overflow-x: hidden;
 }
 
-#pjjthmiybi .gt_column_spanner_outer {
+#dsewzzjsly .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -3084,15 +3093,15 @@ p.value_2     "**p-value**"          4,406 &lt;dbl&gt;    </code></pre>
   padding-right: 4px;
 }
 
-#pjjthmiybi .gt_column_spanner_outer:first-child {
+#dsewzzjsly .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#pjjthmiybi .gt_column_spanner_outer:last-child {
+#dsewzzjsly .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#pjjthmiybi .gt_column_spanner {
+#dsewzzjsly .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -3104,11 +3113,11 @@ p.value_2     "**p-value**"          4,406 &lt;dbl&gt;    </code></pre>
   width: 100%;
 }
 
-#pjjthmiybi .gt_spanner_row {
+#dsewzzjsly .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#pjjthmiybi .gt_group_heading {
+#dsewzzjsly .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -3134,7 +3143,7 @@ p.value_2     "**p-value**"          4,406 &lt;dbl&gt;    </code></pre>
   text-align: left;
 }
 
-#pjjthmiybi .gt_empty_group_heading {
+#dsewzzjsly .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -3149,15 +3158,15 @@ p.value_2     "**p-value**"          4,406 &lt;dbl&gt;    </code></pre>
   vertical-align: middle;
 }
 
-#pjjthmiybi .gt_from_md > :first-child {
+#dsewzzjsly .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#pjjthmiybi .gt_from_md > :last-child {
+#dsewzzjsly .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#pjjthmiybi .gt_row {
+#dsewzzjsly .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -3176,7 +3185,7 @@ p.value_2     "**p-value**"          4,406 &lt;dbl&gt;    </code></pre>
   overflow-x: hidden;
 }
 
-#pjjthmiybi .gt_stub {
+#dsewzzjsly .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -3189,7 +3198,7 @@ p.value_2     "**p-value**"          4,406 &lt;dbl&gt;    </code></pre>
   padding-right: 5px;
 }
 
-#pjjthmiybi .gt_stub_row_group {
+#dsewzzjsly .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -3203,15 +3212,15 @@ p.value_2     "**p-value**"          4,406 &lt;dbl&gt;    </code></pre>
   vertical-align: top;
 }
 
-#pjjthmiybi .gt_row_group_first td {
+#dsewzzjsly .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#pjjthmiybi .gt_row_group_first th {
+#dsewzzjsly .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#pjjthmiybi .gt_summary_row {
+#dsewzzjsly .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -3221,16 +3230,16 @@ p.value_2     "**p-value**"          4,406 &lt;dbl&gt;    </code></pre>
   padding-right: 5px;
 }
 
-#pjjthmiybi .gt_first_summary_row {
+#dsewzzjsly .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#pjjthmiybi .gt_first_summary_row.thick {
+#dsewzzjsly .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#pjjthmiybi .gt_last_summary_row {
+#dsewzzjsly .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -3240,7 +3249,7 @@ p.value_2     "**p-value**"          4,406 &lt;dbl&gt;    </code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#pjjthmiybi .gt_grand_summary_row {
+#dsewzzjsly .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -3250,7 +3259,7 @@ p.value_2     "**p-value**"          4,406 &lt;dbl&gt;    </code></pre>
   padding-right: 5px;
 }
 
-#pjjthmiybi .gt_first_grand_summary_row {
+#dsewzzjsly .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -3260,7 +3269,7 @@ p.value_2     "**p-value**"          4,406 &lt;dbl&gt;    </code></pre>
   border-top-color: #D3D3D3;
 }
 
-#pjjthmiybi .gt_last_grand_summary_row_top {
+#dsewzzjsly .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -3270,11 +3279,11 @@ p.value_2     "**p-value**"          4,406 &lt;dbl&gt;    </code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#pjjthmiybi .gt_striped {
+#dsewzzjsly .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#pjjthmiybi .gt_table_body {
+#dsewzzjsly .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -3283,7 +3292,7 @@ p.value_2     "**p-value**"          4,406 &lt;dbl&gt;    </code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#pjjthmiybi .gt_footnotes {
+#dsewzzjsly .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -3297,7 +3306,7 @@ p.value_2     "**p-value**"          4,406 &lt;dbl&gt;    </code></pre>
   border-right-color: #D3D3D3;
 }
 
-#pjjthmiybi .gt_footnote {
+#dsewzzjsly .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -3306,7 +3315,7 @@ p.value_2     "**p-value**"          4,406 &lt;dbl&gt;    </code></pre>
   padding-right: 5px;
 }
 
-#pjjthmiybi .gt_sourcenotes {
+#dsewzzjsly .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -3320,7 +3329,7 @@ p.value_2     "**p-value**"          4,406 &lt;dbl&gt;    </code></pre>
   border-right-color: #D3D3D3;
 }
 
-#pjjthmiybi .gt_sourcenote {
+#dsewzzjsly .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -3328,76 +3337,76 @@ p.value_2     "**p-value**"          4,406 &lt;dbl&gt;    </code></pre>
   padding-right: 5px;
 }
 
-#pjjthmiybi .gt_left {
+#dsewzzjsly .gt_left {
   text-align: left;
 }
 
-#pjjthmiybi .gt_center {
+#dsewzzjsly .gt_center {
   text-align: center;
 }
 
-#pjjthmiybi .gt_right {
+#dsewzzjsly .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#pjjthmiybi .gt_font_normal {
+#dsewzzjsly .gt_font_normal {
   font-weight: normal;
 }
 
-#pjjthmiybi .gt_font_bold {
+#dsewzzjsly .gt_font_bold {
   font-weight: bold;
 }
 
-#pjjthmiybi .gt_font_italic {
+#dsewzzjsly .gt_font_italic {
   font-style: italic;
 }
 
-#pjjthmiybi .gt_super {
+#dsewzzjsly .gt_super {
   font-size: 65%;
 }
 
-#pjjthmiybi .gt_footnote_marks {
+#dsewzzjsly .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#pjjthmiybi .gt_asterisk {
+#dsewzzjsly .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#pjjthmiybi .gt_indent_1 {
+#dsewzzjsly .gt_indent_1 {
   text-indent: 5px;
 }
 
-#pjjthmiybi .gt_indent_2 {
+#dsewzzjsly .gt_indent_2 {
   text-indent: 10px;
 }
 
-#pjjthmiybi .gt_indent_3 {
+#dsewzzjsly .gt_indent_3 {
   text-indent: 15px;
 }
 
-#pjjthmiybi .gt_indent_4 {
+#dsewzzjsly .gt_indent_4 {
   text-indent: 20px;
 }
 
-#pjjthmiybi .gt_indent_5 {
+#dsewzzjsly .gt_indent_5 {
   text-indent: 25px;
 }
 
-#pjjthmiybi .katex-display {
+#dsewzzjsly .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#pjjthmiybi div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#dsewzzjsly div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
-<table class="gt_table table table-sm table-striped small" data-quarto-bootstrap="false">
+<table class="gt_table table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
 <colgroup>
 <col style="width: 14%">
 <col style="width: 14%">
@@ -3527,7 +3536,7 @@ p.value_2     "**p-value**"          4,406 &lt;dbl&gt;    </code></pre>
 <td class="gt_row gt_center" headers="p.value_2">&lt;0.001</td>
 </tr>
 </tbody>
-<tfoot><tr class="gt_sourcenotes odd">
+<tfoot class="gt_sourcenotes"><tr class="odd">
 <td colspan="7" class="gt_sourcenote">Abbreviation: CI = Confidence Interval</td>
 </tr></tfoot>
 </table>
@@ -3578,7 +3587,7 @@ Feng, Cindy. 2022. <span>«&nbsp;Zero-inflated models for adjusting varying expo
       a.appendChild(i);
       window.document.body.appendChild(a);
     }
-    setColorSchemeToggle(hasAlternateSentinel())
+    window.setColorSchemeToggle(window.hasAlternateSentinel())
     const icon = "";
     const anchorJS = new window.AnchorJS();
     anchorJS.options = {
@@ -3628,14 +3637,13 @@ Feng, Cindy. 2022. <span>«&nbsp;Zero-inflated models for adjusting varying expo
       e.clearSelection();
     }
     const getTextToCopy = function(trigger) {
-      const outerScaffold = trigger.parentElement.cloneNode(true);
-      const codeEl = outerScaffold.querySelector('code');
-      for (const childEl of codeEl.children) {
-        if (isCodeAnnotation(childEl)) {
-          childEl.remove();
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
         }
-      }
-      return codeEl.innerText;
+        return codeEl.innerText;
     }
     const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
       text: getTextToCopy
@@ -3976,36 +3984,8 @@ Feng, Cindy. 2022. <span>«&nbsp;Zero-inflated models for adjusting varying expo
       }
     }
   });
-  </script><input type="hidden" id="giscus-base-theme" value="light"><input type="hidden" id="giscus-alt-theme" value="dark"><script>
-  function loadGiscus() {
-    // Function to get the theme based on body class
-    const getTheme = () => {
-      let baseTheme = document.getElementById('giscus-base-theme').value;
-      let altTheme = document.getElementById('giscus-alt-theme').value;
-      if (authorPrefersDark) {
-          [baseTheme, altTheme] = [altTheme, baseTheme];
-      }
-      return document.body.classList.contains('quarto-dark') ? altTheme : baseTheme;
-    };
-    const script = document.createElement("script");
-    script.src = "https://giscus.app/client.js";
-    script.async = true;
-    script.dataset.repo = "larmarange/guide-R";
-    script.dataset.repoId = "R_kgDOH6-xnw";
-    script.dataset.category = "Forum";
-    script.dataset.categoryId = "DIC_kwDOH6-xn84CRLQy";
-    script.dataset.mapping = "pathname";
-    script.dataset.reactionsEnabled = "1";
-    script.dataset.emitMetadata = "0";
-    script.dataset.inputPosition = "top";
-    script.dataset.theme = getTheme();
-    script.dataset.lang = "fr";
-    script.crossOrigin = "anonymous";
-    // Append the script to the desired div instead of at the end of the body
-    document.getElementById("quarto-content").appendChild(script);
-  }
-  loadGiscus();
-</script><nav class="page-navigation"><div class="nav-page nav-page-previous">
+  </script><script src="https://giscus.app/client.js" data-repo="larmarange/guide-R" data-repo-id="R_kgDOH6-xnw" data-category="Forum" data-category-id="DIC_kwDOH6-xn84CRLQy" data-mapping="pathname" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="top" data-theme="light" data-lang="fr" crossorigin="anonymous" data-loading="lazy" async="">
+</script><input type="hidden" id="giscus-base-theme" value="light"><input type="hidden" id="giscus-alt-theme" value="dark"><nav class="page-navigation"><div class="nav-page nav-page-previous">
       <a href="../analyses_avancees/modeles-incidence.html" class="pagination-link" aria-label="Modèles d'incidence / de taux">
         <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">49</span>&nbsp; <span class="chapter-title">Modèles d’incidence / de taux</span></span>
       </a>          

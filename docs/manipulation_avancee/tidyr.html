@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="fr" xml:lang="fr"><head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.8.27">
+<meta name="generator" content="quarto-1.7.27">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 <title>37&nbsp; Réorganisation avec tidyr – guide-R</title>
 <style>
@@ -68,19 +68,18 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../site_libs/cookie-consent/cookie-consent.css" rel="stylesheet">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
-<script src="../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
 <script src="../site_libs/quarto-html/popper.min.js"></script>
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-ed96de9b727972fe78a7b5d16c58bf87.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-4d9afe2b8d18ee9fa5d0d57b5ed4214d.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-ed96de9b727972fe78a7b5d16c58bf87.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-985aa47af68dae11cd4d235c71fb941e.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-6c49c5477b92c77c9eb341f9299c235f.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-985aa47af68dae11cd4d235c71fb941e.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-bd89720b472e789133713356f69e05bb.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../site_libs/bootstrap/bootstrap-dark-19020347c2de3e9282294d0be578f340.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<link href="../site_libs/bootstrap/bootstrap-bd89720b472e789133713356f69e05bb.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-1706ad55a43eb6182cc66969adfb4558.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-e07f40149b440be50f716415da65e4f4.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../site_libs/bootstrap/bootstrap-1706ad55a43eb6182cc66969adfb4558.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <script src="../site_libs/quarto-contrib/glightbox/glightbox.min.js"></script>
 <link href="../site_libs/quarto-contrib/glightbox/glightbox.min.css" rel="stylesheet">
 <link href="../site_libs/quarto-contrib/glightbox/lightbox.css" rel="stylesheet"><script id="quarto-search-options" type="application/json">{
@@ -150,7 +149,7 @@ cookieconsent.run({
         toggleBodyColorMode(bsSheetEl);
       }
     }
-    const setColorSchemeToggle = (alternate) => {
+    window.setColorSchemeToggle = (alternate) => {
       const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
       for (let i=0; i < toggles.length; i++) {
         const toggle = toggles[i];
@@ -183,7 +182,7 @@ cookieconsent.run({
       }
       manageTransitions('#quarto-margin-sidebar .nav-link', true);
       // Switch the toggles
-      setColorSchemeToggle(alternate)
+      window.setColorSchemeToggle(alternate)
       // Hack to workaround the fact that safari doesn't
       // properly recolor the scrollbar when toggling (#1455)
       if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
@@ -223,7 +222,7 @@ cookieconsent.run({
     const isFileUrl = () => {
       return window.location.protocol === 'file:';
     }
-    const hasAlternateSentinel = () => {
+    window.hasAlternateSentinel = () => {
       let styleSentinel = getColorSchemeSentinel();
       if (styleSentinel !== null) {
         return styleSentinel === "alternate";
@@ -251,7 +250,7 @@ cookieconsent.run({
       const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
       const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
       let newTheme = '';
-      if(authorPrefersDark) {
+      if(darkModeDefault) {
         newTheme = isAlternate ? baseTheme : alternateTheme;
       } else {
         newTheme = isAlternate ? alternateTheme : baseTheme;
@@ -274,22 +273,20 @@ cookieconsent.run({
         changeGiscusTheme();
       }
     };
-    const authorPrefersDark = false;
-    const darkModeDefault = authorPrefersDark;
+    const darkModeDefault = false;
       document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
       document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
     let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
     // Dark / light mode switch
     window.quartoToggleColorScheme = () => {
       // Read the current dark / light value
-      let toAlternate = !hasAlternateSentinel();
+      let toAlternate = !window.hasAlternateSentinel();
       toggleColorMode(toAlternate);
       setStyleSentinel(toAlternate);
       toggleGiscusIfUsed(toAlternate, darkModeDefault);
-      window.dispatchEvent(new Event('resize'));
     };
     // Switch to dark mode if need be
-    if (hasAlternateSentinel()) {
+    if (window.hasAlternateSentinel()) {
       toggleColorMode(true);
     } else {
       toggleColorMode(false);
@@ -312,7 +309,7 @@ cookieconsent.run({
 <!-- sidebar -->
   <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto"><div class="pt-lg-2 mt-2 text-left sidebar-header sidebar-header-stacked">
       <a href="../index.html" class="sidebar-logo-link">
-      <img src="../ressources/typewriter.png" alt="" class="sidebar-logo light-content py-0 d-lg-inline d-none"><img src="../ressources/typewriter.png" alt="" class="sidebar-logo dark-content py-0 d-lg-inline d-none"></a>
+      <img src="../ressources/typewriter.png" alt="" class="sidebar-logo py-0 d-lg-inline d-none"></a>
     <div class="sidebar-title mb-0 py-0">
       <a href="../">guide-R</a> 
         <div class="sidebar-tools-main tools-wide">
@@ -878,7 +875,7 @@ cookieconsent.run({
 </div>
 <p>C’est seulement avec les données dans ce format qu’on peut réaliser le graphique&nbsp;:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="fu">library</span>(tidyverse)</span>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="fu">library</span>(tidyverse)</span>
 <span id="cb1-2"><a href="#cb1-2"></a><span class="fu">ggplot</span>(d) <span class="sc">+</span> </span>
 <span id="cb1-3"><a href="#cb1-3"></a>  <span class="fu">aes</span>(<span class="at">x =</span> year, <span class="at">y =</span> population, <span class="at">color =</span> country) <span class="sc">+</span></span>
 <span id="cb1-4"><a href="#cb1-4"></a>  <span class="fu">geom_line</span>() <span class="sc">+</span></span>
@@ -888,7 +885,7 @@ cookieconsent.run({
 <span id="cb1-8"><a href="#cb1-8"></a>      <span class="at">scale =</span> <span class="dv">10</span><span class="sc">^-</span><span class="dv">6</span>,</span>
 <span id="cb1-9"><a href="#cb1-9"></a>      <span class="at">suffix =</span> <span class="st">" millions"</span></span>
 <span id="cb1-10"><a href="#cb1-10"></a>    )</span>
-<span id="cb1-11"><a href="#cb1-11"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb1-11"><a href="#cb1-11"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure"><p><a href="tidyr_files/figure-html/unnamed-chunk-4-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-1"><img src="tidyr_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid figure-img" width="672"></a></p>
@@ -898,9 +895,9 @@ cookieconsent.run({
 </div>
 <p>C’est la même chose pour <a href="https://dplyr.tidyverse.org">dplyr</a>, par exemple si on voulait calculer la population minimale pour chaque pays avec <code><a href="https://dplyr.tidyverse.org/reference/summarise.html">dplyr::summarise()</a></code>&nbsp;:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a>d <span class="sc">|&gt;</span> </span>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a>d <span class="sc">|&gt;</span> </span>
 <span id="cb2-2"><a href="#cb2-2"></a>  <span class="fu">group_by</span>(country) <span class="sc">|&gt;</span>  </span>
-<span id="cb2-3"><a href="#cb2-3"></a>  <span class="fu">summarise</span>(<span class="at">pop_min =</span> <span class="fu">min</span>(population))</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb2-3"><a href="#cb2-3"></a>  <span class="fu">summarise</span>(<span class="at">pop_min =</span> <span class="fu">min</span>(population))</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 3 × 2
   country  pop_min
@@ -1268,12 +1265,12 @@ cookieconsent.run({
 <p>Dans ce tableau, une même variable (la population) est répartie sur plusieurs colonnes, chacune représentant une observation à un moment différent. On souhaite que la variable ne représente plus qu’une seule colonne, et que les observations soient réparties sur plusieurs lignes.</p>
 <p>Pour cela on va utiliser la fonction <code><a href="https://tidyr.tidyverse.org/reference/pivot_longer.html">tidyr::pivot_longer()</a></code>&nbsp;:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a>d <span class="sc">|&gt;</span></span>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a>d <span class="sc">|&gt;</span></span>
 <span id="cb4-2"><a href="#cb4-2"></a>  <span class="fu">pivot_longer</span>(</span>
 <span id="cb4-3"><a href="#cb4-3"></a>    <span class="at">cols =</span> <span class="fu">c</span>(<span class="st">`</span><span class="at">2002</span><span class="st">`</span>,<span class="st">`</span><span class="at">2007</span><span class="st">`</span>),</span>
 <span id="cb4-4"><a href="#cb4-4"></a>    <span class="at">names_to =</span> <span class="st">"annee"</span>,</span>
 <span id="cb4-5"><a href="#cb4-5"></a>    <span class="at">values_to =</span> <span class="st">"population"</span></span>
-<span id="cb4-6"><a href="#cb4-6"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb4-6"><a href="#cb4-6"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 8 × 3
   country annee population
@@ -1297,12 +1294,12 @@ cookieconsent.run({
 </ul>
 <p>Parfois il est plus rapide d’indiquer à <code><a href="https://tidyr.tidyverse.org/reference/pivot_longer.html">tidyr::pivot_longer()</a></code> les colonnes qu’on ne souhaite pas rassembler. On peut le faire avec la syntaxe suivante&nbsp;:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a>d <span class="sc">|&gt;</span></span>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a>d <span class="sc">|&gt;</span></span>
 <span id="cb6-2"><a href="#cb6-2"></a>  <span class="fu">pivot_longer</span>(</span>
 <span id="cb6-3"><a href="#cb6-3"></a>    <span class="sc">-</span>country,</span>
 <span id="cb6-4"><a href="#cb6-4"></a>    <span class="at">names_to =</span> <span class="st">"annee"</span>,</span>
 <span id="cb6-5"><a href="#cb6-5"></a>    <span class="at">values_to =</span> <span class="st">"population"</span></span>
-<span id="cb6-6"><a href="#cb6-6"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb6-6"><a href="#cb6-6"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 8 × 3
   country annee population
@@ -1423,11 +1420,11 @@ cookieconsent.run({
 <p>Ce tableau a le problème inverse du précédent&nbsp;: on a deux variables, <code>lifeExp</code> et <code>pop</code> qui, plutôt que d’être réparties en deux colonnes, sont réparties entre plusieurs lignes.</p>
 <p>On va donc utiliser <code><a href="https://tidyr.tidyverse.org/reference/pivot_wider.html">tidyr::pivot_wider()</a></code> pour <q>disperser</q> ces lignes dans deux colonnes différentes&nbsp;:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a>d <span class="sc">|&gt;</span></span>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a>d <span class="sc">|&gt;</span></span>
 <span id="cb8-2"><a href="#cb8-2"></a>  <span class="fu">pivot_wider</span>(</span>
 <span id="cb8-3"><a href="#cb8-3"></a>    <span class="at">names_from =</span> variable,</span>
 <span id="cb8-4"><a href="#cb8-4"></a>    <span class="at">values_from =</span> value</span>
-<span id="cb8-5"><a href="#cb8-5"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb8-5"><a href="#cb8-5"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 6 × 5
   country continent  year lifeExp      pop
@@ -1556,11 +1553,11 @@ cookieconsent.run({
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a>d <span class="sc">|&gt;</span> </span>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a>d <span class="sc">|&gt;</span> </span>
 <span id="cb10-2"><a href="#cb10-2"></a>  <span class="fu">pivot_wider</span>(</span>
 <span id="cb10-3"><a href="#cb10-3"></a>    <span class="at">names_from =</span>  variable,</span>
 <span id="cb10-4"><a href="#cb10-4"></a>    <span class="at">values_from =</span> value</span>
-<span id="cb10-5"><a href="#cb10-5"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb10-5"><a href="#cb10-5"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 6 × 6
   country continent  year lifeExp      pop density
@@ -1574,12 +1571,12 @@ cookieconsent.run({
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a>d <span class="sc">|&gt;</span> </span>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a>d <span class="sc">|&gt;</span> </span>
 <span id="cb12-2"><a href="#cb12-2"></a>  <span class="fu">pivot_wider</span>(</span>
 <span id="cb12-3"><a href="#cb12-3"></a>    <span class="at">names_from =</span>  variable,</span>
 <span id="cb12-4"><a href="#cb12-4"></a>    <span class="at">values_from =</span> value,</span>
 <span id="cb12-5"><a href="#cb12-5"></a>    <span class="at">values_fill =</span> <span class="fu">list</span>(<span class="at">value =</span> <span class="dv">0</span>)</span>
-<span id="cb12-6"><a href="#cb12-6"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb12-6"><a href="#cb12-6"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 6 × 6
   country continent  year lifeExp      pop density
@@ -1596,11 +1593,11 @@ cookieconsent.run({
 <span class="header-section-number">37.5</span> <code>separate()</code>&nbsp;: séparer une colonne en plusieurs colonnes</h2>
 <p>Parfois on a plusieurs informations réunies en une seule colonne et on souhaite les séparer. Soit le tableau d’exemple caricatural suivant, nommé <code>df</code>&nbsp;:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a>df <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a>df <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
 <span id="cb14-2"><a href="#cb14-2"></a>  <span class="at">eleve =</span> <span class="fu">c</span>(<span class="st">"Alex Petit"</span>, <span class="st">"Bertrand Dupont"</span>, <span class="st">"Corinne Durand"</span>),</span>
 <span id="cb14-3"><a href="#cb14-3"></a>  <span class="at">note =</span> <span class="fu">c</span>(<span class="st">"5/20"</span>, <span class="st">"6/10"</span>, <span class="st">"87/100"</span>)</span>
 <span id="cb14-4"><a href="#cb14-4"></a>)</span>
-<span id="cb14-5"><a href="#cb14-5"></a>df</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb14-5"><a href="#cb14-5"></a>df</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 3 × 2
   eleve           note  
@@ -1612,8 +1609,8 @@ cookieconsent.run({
 </div>
 <p><code><a href="https://tidyr.tidyverse.org/reference/separate.html">tidyr::separate()</a></code> permet de séparer la colonne <code>note</code> en deux nouvelles colonnes <code>note</code> et <code>note_sur</code>&nbsp;:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1"></a>df <span class="sc">|&gt;</span></span>
-<span id="cb16-2"><a href="#cb16-2"></a>  <span class="fu">separate</span>(note, <span class="fu">c</span>(<span class="st">"note"</span>, <span class="st">"note_sur"</span>))</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1"></a>df <span class="sc">|&gt;</span></span>
+<span id="cb16-2"><a href="#cb16-2"></a>  <span class="fu">separate</span>(note, <span class="fu">c</span>(<span class="st">"note"</span>, <span class="st">"note_sur"</span>))</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 3 × 3
   eleve           note  note_sur
@@ -1625,12 +1622,12 @@ cookieconsent.run({
 </div>
 <p><code><a href="https://tidyr.tidyverse.org/reference/separate.html">tidyr::separate()</a></code> prend deux arguments principaux, le nom de la colonne à séparer et un vecteur indiquant les noms des nouvelles variables à créer. Par défaut <code><a href="https://tidyr.tidyverse.org/reference/separate.html">tidyr::separate()</a></code> <q>sépare</q> au niveau des caractères non-alphanumérique (espace, symbole, etc.). On peut lui indiquer explicitement le caractère sur lequel séparer avec l’argument <code>sep</code>&nbsp;:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1"></a>df <span class="sc">|&gt;</span></span>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1"></a>df <span class="sc">|&gt;</span></span>
 <span id="cb18-2"><a href="#cb18-2"></a>  tidyr<span class="sc">::</span><span class="fu">separate</span>(</span>
 <span id="cb18-3"><a href="#cb18-3"></a>    eleve,</span>
 <span id="cb18-4"><a href="#cb18-4"></a>    <span class="fu">c</span>(<span class="st">"prenom"</span>, <span class="st">"nom"</span>),</span>
 <span id="cb18-5"><a href="#cb18-5"></a>    <span class="at">sep =</span> <span class="st">" "</span></span>
-<span id="cb18-6"><a href="#cb18-6"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb18-6"><a href="#cb18-6"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 3 × 3
   prenom   nom    note  
@@ -1644,11 +1641,11 @@ cookieconsent.run({
 <span class="header-section-number">37.6</span> separate_rows()&nbsp;: séparer une colonne en plusieurs lignes</h2>
 <p>La fonction <code><a href="https://tidyr.tidyverse.org/reference/separate_rows.html">tidyr::separate_rows()</a></code> est utile lorsque plusieurs valeurs sont contenues dans la même variable. Mais, alors que <code><a href="https://tidyr.tidyverse.org/reference/separate.html">tidyr::separate()</a></code> permet de répartir ces différentes valeurs dans plusieurs colonnes, <code><a href="https://tidyr.tidyverse.org/reference/separate_rows.html">tidyr::separate_rows()</a></code> va créé une ligne pour chaque valeur. Prenons cet exemple trivial où les différentes notes de chaque élève sont contenues dans la colonne <code>notes</code>.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1"></a>df <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1"></a>df <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
 <span id="cb20-2"><a href="#cb20-2"></a>  <span class="at">eleve =</span> <span class="fu">c</span>(<span class="st">"Alex Petit"</span>, <span class="st">"Bertrand Dupont"</span>, <span class="st">"Corinne Durand"</span>),</span>
 <span id="cb20-3"><a href="#cb20-3"></a>  <span class="at">notes =</span> <span class="fu">c</span>(<span class="st">"10,15,16"</span>, <span class="st">"18,12,14"</span>, <span class="st">"16,17"</span>)</span>
 <span id="cb20-4"><a href="#cb20-4"></a>)</span>
-<span id="cb20-5"><a href="#cb20-5"></a>df</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb20-5"><a href="#cb20-5"></a>df</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 3 × 2
   eleve           notes   
@@ -1660,9 +1657,9 @@ cookieconsent.run({
 </div>
 <p>Appliquons <code><a href="https://tidyr.tidyverse.org/reference/separate_rows.html">tidyr::separate_rows()</a></code>.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1"></a>df <span class="sc">|&gt;</span> </span>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1"></a>df <span class="sc">|&gt;</span> </span>
 <span id="cb22-2"><a href="#cb22-2"></a>  <span class="fu">separate_rows</span>(notes) <span class="sc">|&gt;</span> </span>
-<span id="cb22-3"><a href="#cb22-3"></a>  <span class="fu">rename</span>(<span class="at">note =</span> notes)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb22-3"><a href="#cb22-3"></a>  <span class="fu">rename</span>(<span class="at">note =</span> notes)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 8 × 2
   eleve           note 
@@ -1679,9 +1676,9 @@ cookieconsent.run({
 </div>
 <p>Par défaut <code><a href="https://tidyr.tidyverse.org/reference/separate_rows.html">tidyr::separate_rows()</a></code> sépare les valeurs dès qu’elle trouve un caractère qui ne soit ni un chiffre ni une lettre, mais on peut spécifier le séparateur à l’aide de l’argument <code>sep</code> (qui accepte une chaîne de caractère ou même une expression régulière)&nbsp;:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1"></a>df <span class="sc">|&gt;</span> </span>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1"></a>df <span class="sc">|&gt;</span> </span>
 <span id="cb24-2"><a href="#cb24-2"></a>  <span class="fu">separate_rows</span>(notes, <span class="at">sep =</span> <span class="st">","</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb24-3"><a href="#cb24-3"></a>  <span class="fu">rename</span>(<span class="at">note =</span> notes)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb24-3"><a href="#cb24-3"></a>  <span class="fu">rename</span>(<span class="at">note =</span> notes)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 8 × 2
   eleve           note 
@@ -1751,8 +1748,8 @@ cookieconsent.run({
 </div>
 <p>On souhaite reconstruire une colonne <code>code_insee</code> qui indique le code INSEE de la commune, et qui s’obtient en concaténant le code du département et celui de la commune. On peut utiliser <code><a href="https://tidyr.tidyverse.org/reference/unite.html">tidyr::unite()</a></code> pour cela on indique d’abord le nom de la nouvelle variable puis la liste des variables à concaténer&nbsp;:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1"></a>d <span class="sc">|&gt;</span></span>
-<span id="cb26-2"><a href="#cb26-2"></a>  <span class="fu">unite</span>(code_insee, code_departement, code_commune)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1"></a>d <span class="sc">|&gt;</span></span>
+<span id="cb26-2"><a href="#cb26-2"></a>  <span class="fu">unite</span>(code_insee, code_departement, code_commune)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 6 × 3
   code_insee commune           pop_tot
@@ -1767,14 +1764,14 @@ cookieconsent.run({
 </div>
 <p>Le résultat n’est pas idéal&nbsp;: par défaut <code><a href="https://tidyr.tidyverse.org/reference/unite.html">tidyr::unite()</a></code> ajoute un caractère <code>_</code> entre les deux valeurs concaténées, alors qu’on ne veut aucun séparateur. De plus, on souhaite conserver nos deux colonnes d’origine, qui peuvent nous être utiles. On peut résoudre ces deux problèmes à l’aide des arguments <code>sep</code> et <code>remove</code>&nbsp;:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1"></a>d <span class="sc">|&gt;</span> </span>
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1"></a>d <span class="sc">|&gt;</span> </span>
 <span id="cb28-2"><a href="#cb28-2"></a>  <span class="fu">unite</span>(</span>
 <span id="cb28-3"><a href="#cb28-3"></a>    code_insee,</span>
 <span id="cb28-4"><a href="#cb28-4"></a>    code_departement,</span>
 <span id="cb28-5"><a href="#cb28-5"></a>    code_commune, </span>
 <span id="cb28-6"><a href="#cb28-6"></a>    <span class="at">sep =</span> <span class="st">""</span>,</span>
 <span id="cb28-7"><a href="#cb28-7"></a>    <span class="at">remove =</span> <span class="cn">FALSE</span></span>
-<span id="cb28-8"><a href="#cb28-8"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb28-8"><a href="#cb28-8"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 6 × 5
   code_insee code_departement code_commune commune           pop_tot
@@ -1817,12 +1814,12 @@ cookieconsent.run({
 </div>
 <p>On peut extraire les noms et prénoms dans deux nouvelles colonnes avec&nbsp;:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb30"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1"></a>df <span class="sc">|&gt;</span></span>
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1"></a>df <span class="sc">|&gt;</span></span>
 <span id="cb30-2"><a href="#cb30-2"></a>  <span class="fu">extract</span>(</span>
 <span id="cb30-3"><a href="#cb30-3"></a>    eleve,</span>
 <span id="cb30-4"><a href="#cb30-4"></a>    <span class="fu">c</span>(<span class="st">"prenom"</span>, <span class="st">"nom"</span>),</span>
 <span id="cb30-5"><a href="#cb30-5"></a>    <span class="st">"^(.*) (.*)$"</span></span>
-<span id="cb30-6"><a href="#cb30-6"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb30-6"><a href="#cb30-6"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 3 × 3
   prenom   nom    note  
@@ -1840,13 +1837,13 @@ cookieconsent.run({
 </ul>
 <p>Par défaut la colonne d’origine n’est pas conservée dans la table résultat. On peut modifier ce comportement avec l’argument <code>remove = FALSE</code>. Ainsi, le code suivant extrait les initiales du prénom et du nom mais conserve la colonne d’origine&nbsp;:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb32"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1"></a>df <span class="sc">|&gt;</span></span>
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1"></a>df <span class="sc">|&gt;</span></span>
 <span id="cb32-2"><a href="#cb32-2"></a>  tidyr<span class="sc">::</span><span class="fu">extract</span>(</span>
 <span id="cb32-3"><a href="#cb32-3"></a>    eleve, </span>
 <span id="cb32-4"><a href="#cb32-4"></a>    <span class="fu">c</span>(<span class="st">"initiale_prenom"</span>, <span class="st">"initiale_nom"</span>), </span>
 <span id="cb32-5"><a href="#cb32-5"></a>    <span class="st">"^(.).* (.).*$"</span>, </span>
 <span id="cb32-6"><a href="#cb32-6"></a>    <span class="at">remove =</span> <span class="cn">FALSE</span></span>
-<span id="cb32-7"><a href="#cb32-7"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb32-7"><a href="#cb32-7"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 3 × 4
   eleve           initiale_prenom initiale_nom note  
@@ -1896,8 +1893,8 @@ cookieconsent.run({
 <p>La fonction <code><a href="https://tidyr.tidyverse.org/reference/complete.html">tidyr::complete()</a></code> est prévue pour ce cas de figure&nbsp;: elle permet de compléter des combinaisons manquantes de valeurs de plusieurs colonnes.</p>
 <p>On peut l’utiliser de cette manière&nbsp;:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb34"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1"></a>df <span class="sc">|&gt;</span></span>
-<span id="cb34-2"><a href="#cb34-2"></a>  <span class="fu">complete</span>(eleve, matiere)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1"></a>df <span class="sc">|&gt;</span></span>
+<span id="cb34-2"><a href="#cb34-2"></a>  <span class="fu">complete</span>(eleve, matiere)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 6 × 3
   eleve   matiere   note
@@ -1913,12 +1910,12 @@ cookieconsent.run({
 <p>On voit que les combinaisons manquante “Barnabé - Français” et “Chantal - Maths” ont bien été ajoutées par <code><a href="https://tidyr.tidyverse.org/reference/complete.html">tidyr::complete()</a></code>.</p>
 <p>Par défaut les lignes insérées récupèrent des valeurs manquantes <code>NA</code> pour les colonnes restantes. On peut néanmoins choisir une autre valeur avec l’argument <code>fill</code>, qui prend la forme d’une liste nommée&nbsp;:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb36"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1"></a>df <span class="sc">|&gt;</span></span>
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1"></a>df <span class="sc">|&gt;</span></span>
 <span id="cb36-2"><a href="#cb36-2"></a>  <span class="fu">complete</span>(</span>
 <span id="cb36-3"><a href="#cb36-3"></a>    eleve,</span>
 <span id="cb36-4"><a href="#cb36-4"></a>    matiere,</span>
 <span id="cb36-5"><a href="#cb36-5"></a>    <span class="at">fill =</span> <span class="fu">list</span>(<span class="at">note =</span> <span class="dv">0</span>)</span>
-<span id="cb36-6"><a href="#cb36-6"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb36-6"><a href="#cb36-6"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 6 × 3
   eleve   matiere   note
@@ -1972,8 +1969,8 @@ cookieconsent.run({
 </div>
 <p>Si on applique <code><a href="https://tidyr.tidyverse.org/reference/complete.html">tidyr::complete()</a></code> comme précédemment, le résultat n’est pas bon car il génère des valeurs manquantes pour <code>id.</code></p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb38"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1"></a>df <span class="sc">|&gt;</span></span>
-<span id="cb38-2"><a href="#cb38-2"></a>  <span class="fu">complete</span>(eleve, matiere)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1"></a>df <span class="sc">|&gt;</span></span>
+<span id="cb38-2"><a href="#cb38-2"></a>  <span class="fu">complete</span>(eleve, matiere)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 6 × 4
   eleve   matiere       id  note
@@ -1988,8 +1985,8 @@ cookieconsent.run({
 </div>
 <p>Et si nous ajoutons <code>id</code> dans l’appel de la fonction, nous obtenons toutes les combinaisons de <code>id</code>, <code>eleve</code> et <code>matiere</code>.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb40"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1"></a>df <span class="sc">|&gt;</span></span>
-<span id="cb40-2"><a href="#cb40-2"></a>  <span class="fu">complete</span>(id, eleve, matiere)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1"></a>df <span class="sc">|&gt;</span></span>
+<span id="cb40-2"><a href="#cb40-2"></a>  <span class="fu">complete</span>(id, eleve, matiere)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 18 × 4
         id eleve   matiere   note
@@ -2016,11 +2013,11 @@ cookieconsent.run({
 </div>
 <p>Dans ce cas, pour signifier à <code><a href="https://tidyr.tidyverse.org/reference/complete.html">tidyr::complete()</a></code> que <code>id</code> et <code>eleve</code> sont deux attributs d’un même individu et ne doivent pas être combinés entre eux, on doit les placer dans une fonction <code><a href="https://tidyr.tidyverse.org/reference/expand.html">tidyr::nesting()</a></code>&nbsp;:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb42"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1"></a>df <span class="sc">|&gt;</span></span>
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1"></a>df <span class="sc">|&gt;</span></span>
 <span id="cb42-2"><a href="#cb42-2"></a>  <span class="fu">complete</span>(</span>
 <span id="cb42-3"><a href="#cb42-3"></a>    <span class="fu">nesting</span>(id, eleve),</span>
 <span id="cb42-4"><a href="#cb42-4"></a>    matiere</span>
-<span id="cb42-5"><a href="#cb42-5"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb42-5"><a href="#cb42-5"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 6 × 4
        id eleve   matiere   note
@@ -2067,7 +2064,7 @@ cookieconsent.run({
       a.appendChild(i);
       window.document.body.appendChild(a);
     }
-    setColorSchemeToggle(hasAlternateSentinel())
+    window.setColorSchemeToggle(window.hasAlternateSentinel())
     const icon = "";
     const anchorJS = new window.AnchorJS();
     anchorJS.options = {
@@ -2117,14 +2114,13 @@ cookieconsent.run({
       e.clearSelection();
     }
     const getTextToCopy = function(trigger) {
-      const outerScaffold = trigger.parentElement.cloneNode(true);
-      const codeEl = outerScaffold.querySelector('code');
-      for (const childEl of codeEl.children) {
-        if (isCodeAnnotation(childEl)) {
-          childEl.remove();
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
         }
-      }
-      return codeEl.innerText;
+        return codeEl.innerText;
     }
     const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
       text: getTextToCopy
@@ -2465,36 +2461,8 @@ cookieconsent.run({
       }
     }
   });
-  </script><input type="hidden" id="giscus-base-theme" value="light"><input type="hidden" id="giscus-alt-theme" value="dark"><script>
-  function loadGiscus() {
-    // Function to get the theme based on body class
-    const getTheme = () => {
-      let baseTheme = document.getElementById('giscus-base-theme').value;
-      let altTheme = document.getElementById('giscus-alt-theme').value;
-      if (authorPrefersDark) {
-          [baseTheme, altTheme] = [altTheme, baseTheme];
-      }
-      return document.body.classList.contains('quarto-dark') ? altTheme : baseTheme;
-    };
-    const script = document.createElement("script");
-    script.src = "https://giscus.app/client.js";
-    script.async = true;
-    script.dataset.repo = "larmarange/guide-R";
-    script.dataset.repoId = "R_kgDOH6-xnw";
-    script.dataset.category = "Forum";
-    script.dataset.categoryId = "DIC_kwDOH6-xn84CRLQy";
-    script.dataset.mapping = "pathname";
-    script.dataset.reactionsEnabled = "1";
-    script.dataset.emitMetadata = "0";
-    script.dataset.inputPosition = "top";
-    script.dataset.theme = getTheme();
-    script.dataset.lang = "fr";
-    script.crossOrigin = "anonymous";
-    // Append the script to the desired div instead of at the end of the body
-    document.getElementById("quarto-content").appendChild(script);
-  }
-  loadGiscus();
-</script><nav class="page-navigation"><div class="nav-page nav-page-previous">
+  </script><script src="https://giscus.app/client.js" data-repo="larmarange/guide-R" data-repo-id="R_kgDOH6-xnw" data-category="Forum" data-category-id="DIC_kwDOH6-xn84CRLQy" data-mapping="pathname" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="top" data-theme="light" data-lang="fr" crossorigin="anonymous" data-loading="lazy" async="">
+</script><input type="hidden" id="giscus-base-theme" value="light"><input type="hidden" id="giscus-alt-theme" value="dark"><nav class="page-navigation"><div class="nav-page nav-page-previous">
       <a href="../manipulation_avancee/stringr.html" class="pagination-link" aria-label="Chaînes de texte avec `stringr`">
         <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">36</span>&nbsp; <span class="chapter-title">Chaînes de texte avec <code>stringr</code></span></span>
       </a>          

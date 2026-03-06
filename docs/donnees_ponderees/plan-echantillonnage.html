@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="fr" xml:lang="fr"><head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.8.27">
+<meta name="generator" content="quarto-1.7.27">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 <title>29&nbsp; Définir un plan d’échantillonnage – guide-R</title>
 <style>
@@ -68,19 +68,18 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../site_libs/cookie-consent/cookie-consent.css" rel="stylesheet">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
-<script src="../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
 <script src="../site_libs/quarto-html/popper.min.js"></script>
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-ed96de9b727972fe78a7b5d16c58bf87.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-4d9afe2b8d18ee9fa5d0d57b5ed4214d.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-ed96de9b727972fe78a7b5d16c58bf87.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-985aa47af68dae11cd4d235c71fb941e.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-6c49c5477b92c77c9eb341f9299c235f.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-985aa47af68dae11cd4d235c71fb941e.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-bd89720b472e789133713356f69e05bb.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../site_libs/bootstrap/bootstrap-dark-19020347c2de3e9282294d0be578f340.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<link href="../site_libs/bootstrap/bootstrap-bd89720b472e789133713356f69e05bb.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light"><script id="quarto-search-options" type="application/json">{
+<link href="../site_libs/bootstrap/bootstrap-1706ad55a43eb6182cc66969adfb4558.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-e07f40149b440be50f716415da65e4f4.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../site_libs/bootstrap/bootstrap-1706ad55a43eb6182cc66969adfb4558.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light"><script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
   "collapse-after": 3,
@@ -147,7 +146,7 @@ cookieconsent.run({
         toggleBodyColorMode(bsSheetEl);
       }
     }
-    const setColorSchemeToggle = (alternate) => {
+    window.setColorSchemeToggle = (alternate) => {
       const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
       for (let i=0; i < toggles.length; i++) {
         const toggle = toggles[i];
@@ -180,7 +179,7 @@ cookieconsent.run({
       }
       manageTransitions('#quarto-margin-sidebar .nav-link', true);
       // Switch the toggles
-      setColorSchemeToggle(alternate)
+      window.setColorSchemeToggle(alternate)
       // Hack to workaround the fact that safari doesn't
       // properly recolor the scrollbar when toggling (#1455)
       if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
@@ -220,7 +219,7 @@ cookieconsent.run({
     const isFileUrl = () => {
       return window.location.protocol === 'file:';
     }
-    const hasAlternateSentinel = () => {
+    window.hasAlternateSentinel = () => {
       let styleSentinel = getColorSchemeSentinel();
       if (styleSentinel !== null) {
         return styleSentinel === "alternate";
@@ -248,7 +247,7 @@ cookieconsent.run({
       const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
       const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
       let newTheme = '';
-      if(authorPrefersDark) {
+      if(darkModeDefault) {
         newTheme = isAlternate ? baseTheme : alternateTheme;
       } else {
         newTheme = isAlternate ? alternateTheme : baseTheme;
@@ -271,22 +270,20 @@ cookieconsent.run({
         changeGiscusTheme();
       }
     };
-    const authorPrefersDark = false;
-    const darkModeDefault = authorPrefersDark;
+    const darkModeDefault = false;
       document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
       document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
     let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
     // Dark / light mode switch
     window.quartoToggleColorScheme = () => {
       // Read the current dark / light value
-      let toAlternate = !hasAlternateSentinel();
+      let toAlternate = !window.hasAlternateSentinel();
       toggleColorMode(toAlternate);
       setStyleSentinel(toAlternate);
       toggleGiscusIfUsed(toAlternate, darkModeDefault);
-      window.dispatchEvent(new Event('resize'));
     };
     // Switch to dark mode if need be
-    if (hasAlternateSentinel()) {
+    if (window.hasAlternateSentinel()) {
       toggleColorMode(true);
     } else {
       toggleColorMode(false);
@@ -309,7 +306,7 @@ cookieconsent.run({
 <!-- sidebar -->
   <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto"><div class="pt-lg-2 mt-2 text-left sidebar-header sidebar-header-stacked">
       <a href="../index.html" class="sidebar-logo-link">
-      <img src="../ressources/typewriter.png" alt="" class="sidebar-logo light-content py-0 d-lg-inline d-none"><img src="../ressources/typewriter.png" alt="" class="sidebar-logo dark-content py-0 d-lg-inline d-none"></a>
+      <img src="../ressources/typewriter.png" alt="" class="sidebar-logo py-0 d-lg-inline d-none"></a>
     <div class="sidebar-title mb-0 py-0">
       <a href="../">guide-R</a> 
         <div class="sidebar-tools-main tools-wide">
@@ -771,15 +768,15 @@ cookieconsent.run({
 <p>Si l’échantillon est stratifié, qu’au sein de chaque strate les individus ont été tirés au sort de manière aléatoire et que l’on connaît la taille de chaque strate, il est possible de ne pas avoir à spécifier la probabilité de tirage ou la pondération de chaque observation. Il est préférable de fournir une variable contenant la taille de chaque strate à l’argument <code>fpc</code>. De plus, dans ce cas-là, une petite correction sera appliquée au modèle pour prendre en compte la taille finie de chaque strate.</p>
 <p>On peut tout à fait définir un <strong>échantillonnage aléatoire simple</strong> (on considère donc que toutes les observations ont le même poids, égal à 1). Pour rappel, en l’absence de clusters/grappes, il faut préciser <code>ids = ~ 1</code>, ce paramètre n’ayant pas de valeur par défaut.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a>p_iris <span class="ot">&lt;-</span> survey<span class="sc">::</span><span class="fu">svydesign</span>(</span>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a>p_iris <span class="ot">&lt;-</span> survey<span class="sc">::</span><span class="fu">svydesign</span>(</span>
 <span id="cb1-2"><a href="#cb1-2"></a>  <span class="at">ids =</span> <span class="sc">~</span> <span class="dv">1</span>, </span>
 <span id="cb1-3"><a href="#cb1-3"></a>  <span class="at">data =</span> iris</span>
-<span id="cb1-4"><a href="#cb1-4"></a>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb1-4"><a href="#cb1-4"></a>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Warning in svydesign.default(ids = ~1, data = iris): No weights or
 probabilities supplied, assuming equal probability</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a>p_iris</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a>p_iris</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Independent Sampling design (with replacement)
 survey::svydesign(ids = ~1, data = iris)</code></pre>
@@ -787,8 +784,8 @@ survey::svydesign(ids = ~1, data = iris)</code></pre>
 </div>
 <p>Pour un jeu de données <strong>simplement pondéré</strong> (chaque ligne représente plusieurs observations)&nbsp;:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a>titanic <span class="ot">&lt;-</span> dplyr<span class="sc">::</span><span class="fu">as_tibble</span>(Titanic)</span>
-<span id="cb5-2"><a href="#cb5-2"></a>titanic <span class="sc">|&gt;</span> labelled<span class="sc">::</span><span class="fu">look_for</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a>titanic <span class="ot">&lt;-</span> dplyr<span class="sc">::</span><span class="fu">as_tibble</span>(Titanic)</span>
+<span id="cb5-2"><a href="#cb5-2"></a>titanic <span class="sc">|&gt;</span> labelled<span class="sc">::</span><span class="fu">look_for</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code> pos variable label col_type missing values
  1   Class    —     chr      0             
@@ -797,12 +794,12 @@ survey::svydesign(ids = ~1, data = iris)</code></pre>
  4   Survived —     chr      0             
  5   n        —     dbl      0             </code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a>p_titanic <span class="ot">&lt;-</span> survey<span class="sc">::</span><span class="fu">svydesign</span>(</span>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a>p_titanic <span class="ot">&lt;-</span> survey<span class="sc">::</span><span class="fu">svydesign</span>(</span>
 <span id="cb7-2"><a href="#cb7-2"></a>  <span class="at">ids =</span> <span class="sc">~</span> <span class="dv">1</span>, </span>
 <span id="cb7-3"><a href="#cb7-3"></a>  <span class="at">data =</span> titanic, </span>
 <span id="cb7-4"><a href="#cb7-4"></a>  <span class="at">weights =</span> <span class="sc">~</span> n</span>
 <span id="cb7-5"><a href="#cb7-5"></a>)</span>
-<span id="cb7-6"><a href="#cb7-6"></a>p_titanic</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb7-6"><a href="#cb7-6"></a>p_titanic</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Independent Sampling design (with replacement)
 survey::svydesign(ids = ~1, data = titanic, weights = ~n)</code></pre>
@@ -810,14 +807,14 @@ survey::svydesign(ids = ~1, data = titanic, weights = ~n)</code></pre>
 </div>
 <p>Pour un <strong>échantillon stratifié</strong> pour lequel les strates sont indiquées dans la variable <em>stype</em> et les poids indiquées dans la variable <em>pw</em>.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a><span class="fu">data</span>(<span class="st">"api"</span>, <span class="at">package =</span> <span class="st">"survey"</span>)</span>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a><span class="fu">data</span>(<span class="st">"api"</span>, <span class="at">package =</span> <span class="st">"survey"</span>)</span>
 <span id="cb9-2"><a href="#cb9-2"></a>p_strates <span class="ot">&lt;-</span> survey<span class="sc">::</span><span class="fu">svydesign</span>(</span>
 <span id="cb9-3"><a href="#cb9-3"></a>  <span class="at">id =</span> <span class="sc">~</span> <span class="dv">1</span>, </span>
 <span id="cb9-4"><a href="#cb9-4"></a>  <span class="at">strata =</span> <span class="sc">~</span> stype, </span>
 <span id="cb9-5"><a href="#cb9-5"></a>  <span class="at">weights =</span> <span class="sc">~</span> pw, </span>
 <span id="cb9-6"><a href="#cb9-6"></a>  <span class="at">data =</span> apistrat</span>
 <span id="cb9-7"><a href="#cb9-7"></a>)</span>
-<span id="cb9-8"><a href="#cb9-8"></a>p_strates</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb9-8"><a href="#cb9-8"></a>p_strates</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Stratified Independent Sampling design (with replacement)
 survey::svydesign(id = ~1, strata = ~stype, weights = ~pw, data = apistrat)</code></pre>
@@ -825,13 +822,13 @@ survey::svydesign(id = ~1, strata = ~stype, weights = ~pw, data = apistrat)</cod
 </div>
 <p>Pour une <strong>enquête en grappes à 1 degré</strong>, pour laquelle l’identifiant des grappes (<em>clusters</em>) est indiqué par la variable <em>dnum</em>.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a><span class="fu">data</span>(<span class="st">"api"</span>, <span class="at">package =</span> <span class="st">"survey"</span>)</span>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a><span class="fu">data</span>(<span class="st">"api"</span>, <span class="at">package =</span> <span class="st">"survey"</span>)</span>
 <span id="cb11-2"><a href="#cb11-2"></a>p_grappes <span class="ot">&lt;-</span> survey<span class="sc">::</span><span class="fu">svydesign</span>(</span>
 <span id="cb11-3"><a href="#cb11-3"></a>  <span class="at">id =</span> <span class="sc">~</span> dnum, </span>
 <span id="cb11-4"><a href="#cb11-4"></a>  <span class="at">weights =</span> <span class="sc">~</span> pw, </span>
 <span id="cb11-5"><a href="#cb11-5"></a>  <span class="at">data =</span> apiclus1</span>
 <span id="cb11-6"><a href="#cb11-6"></a>)</span>
-<span id="cb11-7"><a href="#cb11-7"></a>p_grappes</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb11-7"><a href="#cb11-7"></a>p_grappes</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>1 - level Cluster Sampling design (with replacement)
 With (15) clusters.
@@ -840,13 +837,13 @@ survey::svydesign(id = ~dnum, weights = ~pw, data = apiclus1)</code></pre>
 </div>
 <p>Voici un exemple un peu plus complexe d’une <strong>enquête en grappes à deux degrés</strong> (les deux niveaux étant donnés par les variables <em>dnum</em> et <em>snum</em>). Les poids ne sont pas fournis mais la taille des grappes est connue et renseignée dans les variables <em>fpc1</em> et <em>fpc2</em> que nous pourrons donc transmettre via l’argument <code>fpc</code>.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a><span class="fu">data</span>(<span class="st">"api"</span>, <span class="at">package =</span> <span class="st">"survey"</span>)</span>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a><span class="fu">data</span>(<span class="st">"api"</span>, <span class="at">package =</span> <span class="st">"survey"</span>)</span>
 <span id="cb13-2"><a href="#cb13-2"></a>p_grappes2 <span class="ot">&lt;-</span> survey<span class="sc">::</span><span class="fu">svydesign</span>(</span>
 <span id="cb13-3"><a href="#cb13-3"></a>  <span class="at">id =</span> <span class="sc">~</span> dnum <span class="sc">+</span> snum,</span>
 <span id="cb13-4"><a href="#cb13-4"></a>  <span class="at">fpc =</span> <span class="sc">~</span> fpc1 <span class="sc">+</span> fpc2,</span>
 <span id="cb13-5"><a href="#cb13-5"></a>  <span class="at">data =</span> apiclus2</span>
 <span id="cb13-6"><a href="#cb13-6"></a>)</span>
-<span id="cb13-7"><a href="#cb13-7"></a>p_grappes2</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb13-7"><a href="#cb13-7"></a>p_grappes2</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>2 - level Cluster Sampling design
 With (40, 126) clusters.
@@ -856,13 +853,13 @@ survey::svydesign(id = ~dnum + snum, fpc = ~fpc1 + fpc2, data = apiclus2)</code>
 <p>Dans le cas présent, <a href="http://r-survey.r-forge.r-project.org/survey/">survey</a> a calculé les poids s’appliquant à chaque individu. On peut les obtenir avec la fonction <code><a href="https://rdrr.io/r/stats/weights.html">weights()</a></code>, en l’occurrence avec <code>p_grappes2 |&gt; weights()</code>.</p>
 <p>Enfin, prenons l’exemple d’une <em>Enquête Démographique et de Santé</em>. Le nom des différentes variables est standardisé et commun quelle que soit l’enquête. Nous supposerons que vous avez importé le fichier <em>individus</em> dans un tableau de données nommés <code>eds</code>. Le poids statistique de chaque individu est fourni par la variable <em>V005</em> qui doit au préalable être divisée par un million. Les grappes d’échantillonnage au premier degré sont fournies par la variable <em>V021 (primary sample unit)</em>. Si elle n’est pas renseignée, on pourra utiliser le numéro de grappe <em>V001</em>. Enfin, le milieu de résidence (urbain / rural) est fourni par <em>V025</em> et la région par <em>V024</em>. Pour rappel, l’échantillon a été stratifié à la fois par région et par milieu de résidence. Certaines enquêtes fournissent directement un numéro de strate via <em>V022</em>. Si tel est le cas, on pourra préciser le plan d’échantillonnage ainsi&nbsp;:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1"></a>eds<span class="sc">$</span>poids <span class="ot">&lt;-</span> eds<span class="sc">$</span>V005<span class="sc">/</span><span class="dv">1000000</span></span>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1"></a>eds<span class="sc">$</span>poids <span class="ot">&lt;-</span> eds<span class="sc">$</span>V005<span class="sc">/</span><span class="dv">1000000</span></span>
 <span id="cb15-2"><a href="#cb15-2"></a>p_eds <span class="ot">&lt;-</span> survey<span class="sc">::</span><span class="fu">svydesign</span>(</span>
 <span id="cb15-3"><a href="#cb15-3"></a>  <span class="at">ids =</span> <span class="sc">~</span> V021, </span>
 <span id="cb15-4"><a href="#cb15-4"></a>  <span class="at">data =</span> eds, </span>
 <span id="cb15-5"><a href="#cb15-5"></a>  <span class="at">strata =</span> <span class="sc">~</span> V022, </span>
 <span id="cb15-6"><a href="#cb15-6"></a>  <span class="at">weights =</span> <span class="sc">~</span> poids</span>
-<span id="cb15-7"><a href="#cb15-7"></a>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb15-7"><a href="#cb15-7"></a>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section><section id="avec-srvyras_survey_design" class="level2" data-number="29.3"><h2 data-number="29.3" class="anchored" data-anchor-id="avec-srvyras_survey_design">
 <span class="header-section-number">29.3</span> Avec <code>srvyr::as_survey_design()</code>
@@ -876,9 +873,9 @@ survey::svydesign(id = ~dnum + snum, fpc = ~fpc1 + fpc2, data = apiclus2)</code>
 </ul>
 <p>Reprenons nos exemples précédents en commençant par un <strong>échantillonnage aléatoire simple</strong>.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1"></a>t_iris <span class="ot">&lt;-</span> iris <span class="sc">|&gt;</span> </span>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1"></a>t_iris <span class="ot">&lt;-</span> iris <span class="sc">|&gt;</span> </span>
 <span id="cb16-2"><a href="#cb16-2"></a>  srvyr<span class="sc">::</span><span class="fu">as_survey_design</span>()</span>
-<span id="cb16-3"><a href="#cb16-3"></a>t_iris</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb16-3"><a href="#cb16-3"></a>t_iris</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Independent Sampling design (with replacement)
 Called via srvyr
@@ -888,17 +885,17 @@ Data variables:
   - Sepal.Length (dbl), Sepal.Width (dbl), Petal.Length (dbl), Petal.Width
     (dbl), Species (fct)</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1"></a><span class="fu">class</span>(t_iris)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1"></a><span class="fu">class</span>(t_iris)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] "tbl_svy"        "survey.design2" "survey.design" </code></pre>
 </div>
 </div>
 <p>Pour un jeu de données <strong>simplement pondéré</strong> (chaque ligne représente plusieurs observations)&nbsp;:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1"></a>titanic <span class="ot">&lt;-</span> dplyr<span class="sc">::</span><span class="fu">as_tibble</span>(Titanic)</span>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1"></a>titanic <span class="ot">&lt;-</span> dplyr<span class="sc">::</span><span class="fu">as_tibble</span>(Titanic)</span>
 <span id="cb20-2"><a href="#cb20-2"></a>t_titanic <span class="ot">&lt;-</span> titanic <span class="sc">|&gt;</span> </span>
 <span id="cb20-3"><a href="#cb20-3"></a>  srvyr<span class="sc">::</span><span class="fu">as_survey_design</span>(<span class="at">weights =</span> n)</span>
-<span id="cb20-4"><a href="#cb20-4"></a>t_titanic</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb20-4"><a href="#cb20-4"></a>t_titanic</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Independent Sampling design (with replacement)
 Called via srvyr
@@ -911,10 +908,10 @@ Data variables:
 </div>
 <p>Pour un <strong>échantillon stratifié</strong> pour lequel les strates sont indiquées dans la variable <em>stype</em> et les poids indiquées dans la variable <em>pw</em>.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1"></a><span class="fu">data</span>(<span class="st">"api"</span>, <span class="at">package =</span> <span class="st">"survey"</span>)</span>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1"></a><span class="fu">data</span>(<span class="st">"api"</span>, <span class="at">package =</span> <span class="st">"survey"</span>)</span>
 <span id="cb22-2"><a href="#cb22-2"></a>t_strates <span class="ot">&lt;-</span> apistrat <span class="sc">|&gt;</span> </span>
 <span id="cb22-3"><a href="#cb22-3"></a>  srvyr<span class="sc">::</span><span class="fu">as_survey_design</span>(<span class="at">strata =</span> stype, <span class="at">weights =</span> pw)</span>
-<span id="cb22-4"><a href="#cb22-4"></a>t_strates</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb22-4"><a href="#cb22-4"></a>t_strates</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Stratified Independent Sampling design (with replacement)
 Called via srvyr
@@ -935,10 +932,10 @@ Data variables:
 </div>
 <p>Pour une <strong>enquête en grappes à 1 degré</strong>, pour laquelle l’identifiant des grappes (<em>clusters</em>) est indiqué par la variable <em>dnum</em>.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1"></a><span class="fu">data</span>(<span class="st">"api"</span>, <span class="at">package =</span> <span class="st">"survey"</span>)</span>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1"></a><span class="fu">data</span>(<span class="st">"api"</span>, <span class="at">package =</span> <span class="st">"survey"</span>)</span>
 <span id="cb24-2"><a href="#cb24-2"></a>t_grappes <span class="ot">&lt;-</span> apiclus1 <span class="sc">|&gt;</span> </span>
 <span id="cb24-3"><a href="#cb24-3"></a>    srvyr<span class="sc">::</span><span class="fu">as_survey_design</span>(<span class="at">id =</span> dnum, <span class="at">weights =</span> pw)</span>
-<span id="cb24-4"><a href="#cb24-4"></a>t_grappes</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb24-4"><a href="#cb24-4"></a>t_grappes</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>1 - level Cluster Sampling design (with replacement)
 With (15) clusters.
@@ -959,11 +956,11 @@ Data variables:
 </div>
 <p>Voici un exemple un peu plus complexe d’une <strong>enquête en grappes à deux degrés</strong> (les deux niveaux étant donnés par les variables <em>dnum</em> et <em>snum</em>). Les poids ne sont pas fournis mais la taille des grappes est connue et renseignée dans les variables <em>fpc1</em> et <em>fpc2</em> que nous pourrons donc transmettre via l’argument <code>fpc</code>.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1"></a><span class="fu">data</span>(<span class="st">"api"</span>, <span class="at">package =</span> <span class="st">"survey"</span>)</span>
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1"></a><span class="fu">data</span>(<span class="st">"api"</span>, <span class="at">package =</span> <span class="st">"survey"</span>)</span>
 <span id="cb26-2"><a href="#cb26-2"></a><span class="fu">data</span>(<span class="st">"api"</span>, <span class="at">package =</span> <span class="st">"survey"</span>)</span>
 <span id="cb26-3"><a href="#cb26-3"></a>t_grappes2 <span class="ot">&lt;-</span> apiclus2 <span class="sc">|&gt;</span> </span>
 <span id="cb26-4"><a href="#cb26-4"></a>    srvyr<span class="sc">::</span><span class="fu">as_survey_design</span>(<span class="at">id =</span> <span class="fu">c</span>(dnum, snum), <span class="at">fpc =</span> <span class="fu">c</span>(fpc1, fpc2))</span>
-<span id="cb26-5"><a href="#cb26-5"></a>t_grappes2</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb26-5"><a href="#cb26-5"></a>t_grappes2</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>2 - level Cluster Sampling design
 With (40, 126) clusters.
@@ -984,13 +981,13 @@ Data variables:
 </div>
 <p>Enfin, prenons l’exemple d’une <em>Enquête Démographique et de Santé</em>. Le nom des différentes variables est standardisé et commun quelle que soit l’enquête. Nous supposerons que vous avez importé le fichier <em>individus</em> dans un tableau de données nommés <code>eds</code>. Le poids statistique de chaque individu est fourni par la variable <em>V005</em> qui doit au préalable être divisée par un million. Les grappes d’échantillonnage au premier degré sont fournies par la variable <em>V021 (primary sample unit)</em>. Si elle n’est pas renseignée, on pourra utiliser le numéro de grappe <em>V001</em>. Enfin, le milieu de résidence (urbain / rural) est fourni par <em>V025</em> et la région par <em>V024</em>. Pour rappel, l’échantillon a été stratifié à la fois par région et par milieu de résidence. Certaines enquêtes fournissent directement un numéro de strate via <em>V022</em>. Si tel est le cas, on pourra préciser le plan d’échantillonnage ainsi&nbsp;:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1"></a>eds<span class="sc">$</span>poids <span class="ot">&lt;-</span> eds<span class="sc">$</span>V005<span class="sc">/</span><span class="dv">1000000</span></span>
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1"></a>eds<span class="sc">$</span>poids <span class="ot">&lt;-</span> eds<span class="sc">$</span>V005<span class="sc">/</span><span class="dv">1000000</span></span>
 <span id="cb28-2"><a href="#cb28-2"></a>t_eds <span class="ot">&lt;-</span> eds <span class="sc">|&gt;</span> </span>
 <span id="cb28-3"><a href="#cb28-3"></a>  srvyr<span class="sc">::</span><span class="fu">as_survey_design</span>(</span>
 <span id="cb28-4"><a href="#cb28-4"></a>    <span class="at">ids =</span> V021,</span>
 <span id="cb28-5"><a href="#cb28-5"></a>    <span class="at">strata =</span> V022,</span>
 <span id="cb28-6"><a href="#cb28-6"></a>    <span class="at">weights =</span> poids</span>
-<span id="cb28-7"><a href="#cb28-7"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb28-7"><a href="#cb28-7"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section><section id="webin-r" class="level2" data-number="29.4"><h2 data-number="29.4" class="anchored" data-anchor-id="webin-r">
 <span class="header-section-number">29.4</span> webin-R</h2>
@@ -1012,7 +1009,7 @@ Data variables:
       a.appendChild(i);
       window.document.body.appendChild(a);
     }
-    setColorSchemeToggle(hasAlternateSentinel())
+    window.setColorSchemeToggle(window.hasAlternateSentinel())
     const icon = "";
     const anchorJS = new window.AnchorJS();
     anchorJS.options = {
@@ -1062,14 +1059,13 @@ Data variables:
       e.clearSelection();
     }
     const getTextToCopy = function(trigger) {
-      const outerScaffold = trigger.parentElement.cloneNode(true);
-      const codeEl = outerScaffold.querySelector('code');
-      for (const childEl of codeEl.children) {
-        if (isCodeAnnotation(childEl)) {
-          childEl.remove();
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
         }
-      }
-      return codeEl.innerText;
+        return codeEl.innerText;
     }
     const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
       text: getTextToCopy
@@ -1410,36 +1406,8 @@ Data variables:
       }
     }
   });
-  </script><input type="hidden" id="giscus-base-theme" value="light"><input type="hidden" id="giscus-alt-theme" value="dark"><script>
-  function loadGiscus() {
-    // Function to get the theme based on body class
-    const getTheme = () => {
-      let baseTheme = document.getElementById('giscus-base-theme').value;
-      let altTheme = document.getElementById('giscus-alt-theme').value;
-      if (authorPrefersDark) {
-          [baseTheme, altTheme] = [altTheme, baseTheme];
-      }
-      return document.body.classList.contains('quarto-dark') ? altTheme : baseTheme;
-    };
-    const script = document.createElement("script");
-    script.src = "https://giscus.app/client.js";
-    script.async = true;
-    script.dataset.repo = "larmarange/guide-R";
-    script.dataset.repoId = "R_kgDOH6-xnw";
-    script.dataset.category = "Forum";
-    script.dataset.categoryId = "DIC_kwDOH6-xn84CRLQy";
-    script.dataset.mapping = "pathname";
-    script.dataset.reactionsEnabled = "1";
-    script.dataset.emitMetadata = "0";
-    script.dataset.inputPosition = "top";
-    script.dataset.theme = getTheme();
-    script.dataset.lang = "fr";
-    script.crossOrigin = "anonymous";
-    // Append the script to the desired div instead of at the end of the body
-    document.getElementById("quarto-content").appendChild(script);
-  }
-  loadGiscus();
-</script><nav class="page-navigation"><div class="nav-page nav-page-previous">
+  </script><script src="https://giscus.app/client.js" data-repo="larmarange/guide-R" data-repo-id="R_kgDOH6-xnw" data-category="Forum" data-category-id="DIC_kwDOH6-xn84CRLQy" data-mapping="pathname" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="top" data-theme="light" data-lang="fr" crossorigin="anonymous" data-loading="lazy" async="">
+</script><input type="hidden" id="giscus-base-theme" value="light"><input type="hidden" id="giscus-alt-theme" value="dark"><nav class="page-navigation"><div class="nav-page nav-page-previous">
       <a href="../analyses/multicolinearite.html" class="pagination-link" aria-label="Multicolinéarité">
         <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">28</span>&nbsp; <span class="chapter-title">Multicolinéarité</span></span>
       </a>          

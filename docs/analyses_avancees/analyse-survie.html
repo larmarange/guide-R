@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="fr" xml:lang="fr"><head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.8.27">
+<meta name="generator" content="quarto-1.7.27">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 <title>44&nbsp; Analyse de survie – guide-R</title>
 <style>
@@ -68,19 +68,18 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../site_libs/cookie-consent/cookie-consent.css" rel="stylesheet">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
-<script src="../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
 <script src="../site_libs/quarto-html/popper.min.js"></script>
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-ed96de9b727972fe78a7b5d16c58bf87.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-4d9afe2b8d18ee9fa5d0d57b5ed4214d.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-ed96de9b727972fe78a7b5d16c58bf87.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-985aa47af68dae11cd4d235c71fb941e.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-6c49c5477b92c77c9eb341f9299c235f.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-985aa47af68dae11cd4d235c71fb941e.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-bd89720b472e789133713356f69e05bb.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../site_libs/bootstrap/bootstrap-dark-19020347c2de3e9282294d0be578f340.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<link href="../site_libs/bootstrap/bootstrap-bd89720b472e789133713356f69e05bb.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-1706ad55a43eb6182cc66969adfb4558.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-e07f40149b440be50f716415da65e4f4.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../site_libs/bootstrap/bootstrap-1706ad55a43eb6182cc66969adfb4558.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <script src="../site_libs/quarto-contrib/glightbox/glightbox.min.js"></script>
 <link href="../site_libs/quarto-contrib/glightbox/glightbox.min.css" rel="stylesheet">
 <link href="../site_libs/quarto-contrib/glightbox/lightbox.css" rel="stylesheet"><script id="quarto-search-options" type="application/json">{
@@ -150,7 +149,7 @@ cookieconsent.run({
         toggleBodyColorMode(bsSheetEl);
       }
     }
-    const setColorSchemeToggle = (alternate) => {
+    window.setColorSchemeToggle = (alternate) => {
       const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
       for (let i=0; i < toggles.length; i++) {
         const toggle = toggles[i];
@@ -183,7 +182,7 @@ cookieconsent.run({
       }
       manageTransitions('#quarto-margin-sidebar .nav-link', true);
       // Switch the toggles
-      setColorSchemeToggle(alternate)
+      window.setColorSchemeToggle(alternate)
       // Hack to workaround the fact that safari doesn't
       // properly recolor the scrollbar when toggling (#1455)
       if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
@@ -223,7 +222,7 @@ cookieconsent.run({
     const isFileUrl = () => {
       return window.location.protocol === 'file:';
     }
-    const hasAlternateSentinel = () => {
+    window.hasAlternateSentinel = () => {
       let styleSentinel = getColorSchemeSentinel();
       if (styleSentinel !== null) {
         return styleSentinel === "alternate";
@@ -251,7 +250,7 @@ cookieconsent.run({
       const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
       const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
       let newTheme = '';
-      if(authorPrefersDark) {
+      if(darkModeDefault) {
         newTheme = isAlternate ? baseTheme : alternateTheme;
       } else {
         newTheme = isAlternate ? alternateTheme : baseTheme;
@@ -274,22 +273,20 @@ cookieconsent.run({
         changeGiscusTheme();
       }
     };
-    const authorPrefersDark = false;
-    const darkModeDefault = authorPrefersDark;
+    const darkModeDefault = false;
       document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
       document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
     let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
     // Dark / light mode switch
     window.quartoToggleColorScheme = () => {
       // Read the current dark / light value
-      let toAlternate = !hasAlternateSentinel();
+      let toAlternate = !window.hasAlternateSentinel();
       toggleColorMode(toAlternate);
       setStyleSentinel(toAlternate);
       toggleGiscusIfUsed(toAlternate, darkModeDefault);
-      window.dispatchEvent(new Event('resize'));
     };
     // Switch to dark mode if need be
-    if (hasAlternateSentinel()) {
+    if (window.hasAlternateSentinel()) {
       toggleColorMode(true);
     } else {
       toggleColorMode(false);
@@ -312,7 +309,7 @@ cookieconsent.run({
 <!-- sidebar -->
   <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto"><div class="pt-lg-2 mt-2 text-left sidebar-header sidebar-header-stacked">
       <a href="../index.html" class="sidebar-logo-link">
-      <img src="../ressources/typewriter.png" alt="" class="sidebar-logo light-content py-0 d-lg-inline d-none"><img src="../ressources/typewriter.png" alt="" class="sidebar-logo dark-content py-0 d-lg-inline d-none"></a>
+      <img src="../ressources/typewriter.png" alt="" class="sidebar-logo py-0 d-lg-inline d-none"></a>
     <div class="sidebar-title mb-0 py-0">
       <a href="../">guide-R</a> 
         <div class="sidebar-tools-main tools-wide">
@@ -796,13 +793,13 @@ cookieconsent.run({
 <p>La courbe de survie de <strong>Kaplan-Meier</strong> permet de décrire la probabilité de survie au cours du temps tout en tenant compte des éventuelles censures à droite.</p>
 <p>Elle se calcule avec la fonction <code><a href="https://rdrr.io/pkg/survival/man/survfit.html">survival::survfit()</a></code> à laquelle nous allons décrire notre <em>outcome</em> à l’aide de <code><a href="https://rdrr.io/pkg/survival/man/Surv.html">survival::Surv()</a></code> en lui indiquant d’abord la variable temps puis la variable évènement.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="fu">library</span>(gtsummary)</span>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="fu">library</span>(gtsummary)</span>
 <span id="cb1-2"><a href="#cb1-2"></a><span class="fu">library</span>(survival)</span>
-<span id="cb1-3"><a href="#cb1-3"></a>km <span class="ot">&lt;-</span> <span class="fu">survfit</span>(<span class="fu">Surv</span>(ttdeath, death) <span class="sc">~</span> <span class="dv">1</span>, <span class="at">data =</span> trial)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb1-3"><a href="#cb1-3"></a>km <span class="ot">&lt;-</span> <span class="fu">survfit</span>(<span class="fu">Surv</span>(ttdeath, death) <span class="sc">~</span> <span class="dv">1</span>, <span class="at">data =</span> trial)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Pour un graphique rapide, on peut utiliser <code><a href="https://rdrr.io/r/graphics/plot.default.html">plot()</a></code>.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a>km <span class="sc">|&gt;</span> <span class="fu">plot</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a>km <span class="sc">|&gt;</span> <span class="fu">plot</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure"><p><a href="analyse-survie_files/figure-html/unnamed-chunk-2-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-1"><img src="analyse-survie_files/figure-html/unnamed-chunk-2-1.png" class="img-fluid figure-img" width="672"></a></p>
@@ -812,11 +809,11 @@ cookieconsent.run({
 </div>
 <p>Cependant, il est préférable d’avoir recours au package {ggsurvfit}, développé par le même auteur que <a href="https://github.com/ddsjoberg/gtsummary">gtsummary</a>, et sa fonction homonyme <code><a href="http://www.danieldsjoberg.com/ggsurvfit/reference/ggsurvfit.html">ggsurvfit::ggsurvfit()</a></code>.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a><span class="fu">library</span>(ggsurvfit)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a><span class="fu">library</span>(ggsurvfit)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Loading required package: ggplot2</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a>km <span class="sc">|&gt;</span> <span class="fu">ggsurvfit</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a>km <span class="sc">|&gt;</span> <span class="fu">ggsurvfit</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure"><p><a href="analyse-survie_files/figure-html/unnamed-chunk-3-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-2"><img src="analyse-survie_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid figure-img" width="672"></a></p>
@@ -837,7 +834,7 @@ cookieconsent.run({
 </ul>
 <p>Le graphique renvoyé est un objet <a href="https://ggplot2.tidyverse.org">ggplot2</a> et l’on peut appliquer toute fonction graphique additionnelle.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a><span class="fu">library</span>(ggplot2)</span>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a><span class="fu">library</span>(ggplot2)</span>
 <span id="cb6-2"><a href="#cb6-2"></a>km <span class="sc">|&gt;</span> </span>
 <span id="cb6-3"><a href="#cb6-3"></a>  <span class="fu">ggsurvfit</span>() <span class="sc">+</span></span>
 <span id="cb6-4"><a href="#cb6-4"></a>  <span class="fu">add_confidence_interval</span>() <span class="sc">+</span></span>
@@ -855,7 +852,7 @@ cookieconsent.run({
 <span id="cb6-16"><a href="#cb6-16"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">breaks =</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">4</span><span class="sc">*</span><span class="dv">6</span>) <span class="sc">+</span></span>
 <span id="cb6-17"><a href="#cb6-17"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">labels =</span> scales<span class="sc">::</span>percent) <span class="sc">+</span></span>
 <span id="cb6-18"><a href="#cb6-18"></a>  <span class="fu">xlab</span>(<span class="st">"Mois depuis le diagnostic"</span>) <span class="sc">+</span></span>
-<span id="cb6-19"><a href="#cb6-19"></a>  <span class="fu">ylab</span>(<span class="st">"Proportion toujours en vie"</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb6-19"><a href="#cb6-19"></a>  <span class="fu">ylab</span>(<span class="st">"Proportion toujours en vie"</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure"><p><a href="analyse-survie_files/figure-html/unnamed-chunk-4-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-3"><img src="analyse-survie_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid figure-img" width="672"></a></p>
@@ -865,12 +862,12 @@ cookieconsent.run({
 </div>
 <p>Il est également possible de représenter la proportion de personnes ayant vécu l’évènement plutôt que celle ne l’ayant toujours pas vécu.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a>km <span class="sc">|&gt;</span> </span>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a>km <span class="sc">|&gt;</span> </span>
 <span id="cb7-2"><a href="#cb7-2"></a>  <span class="fu">ggsurvfit</span>(<span class="at">type =</span> <span class="st">"risk"</span>) <span class="sc">+</span></span>
 <span id="cb7-3"><a href="#cb7-3"></a>  <span class="fu">add_confidence_interval</span>() <span class="sc">+</span></span>
 <span id="cb7-4"><a href="#cb7-4"></a>  <span class="fu">scale_ggsurvfit</span>() <span class="sc">+</span></span>
 <span id="cb7-5"><a href="#cb7-5"></a>  <span class="fu">xlab</span>(<span class="st">"Mois depuis le diagnostic"</span>) <span class="sc">+</span></span>
-<span id="cb7-6"><a href="#cb7-6"></a>  <span class="fu">ylab</span>(<span class="st">"Proportion décédée"</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb7-6"><a href="#cb7-6"></a>  <span class="fu">ylab</span>(<span class="st">"Proportion décédée"</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure"><p><a href="analyse-survie_files/figure-html/unnamed-chunk-5-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-4"><img src="analyse-survie_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid figure-img" width="672"></a></p>
@@ -880,34 +877,34 @@ cookieconsent.run({
 </div>
 <p>Pour un tableau des résultats, on fera appel à <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/tbl_survfit.html">gtsummary::tbl_survfit()</a></code> à laquelle on indiquera soit des points dans le temps, soit une série de quantiles. Par défaut, cela affiche la valeur de la courbe et les intervalles de confiance à 95%.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a><span class="co"># affichage des résultats en français</span></span>
-<span id="cb8-2"><a href="#cb8-2"></a><span class="fu">theme_gtsummary_language</span>(<span class="st">"fr"</span>, <span class="at">decimal.mark =</span> <span class="st">","</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a><span class="co"># affichage des résultats en français</span></span>
+<span id="cb8-2"><a href="#cb8-2"></a><span class="fu">theme_gtsummary_language</span>(<span class="st">"fr"</span>, <span class="at">decimal.mark =</span> <span class="st">","</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Setting theme "language: fr"</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a>km <span class="sc">|&gt;</span> </span>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a>km <span class="sc">|&gt;</span> </span>
 <span id="cb10-2"><a href="#cb10-2"></a>  <span class="fu">tbl_survfit</span>(</span>
 <span id="cb10-3"><a href="#cb10-3"></a>    <span class="at">times =</span> <span class="fu">c</span>(<span class="dv">6</span>, <span class="dv">12</span>, <span class="dv">18</span>, <span class="dv">24</span>),</span>
 <span id="cb10-4"><a href="#cb10-4"></a>    <span class="at">label_header =</span> <span class="st">"**Mois {time}**"</span></span>
-<span id="cb10-5"><a href="#cb10-5"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb10-5"><a href="#cb10-5"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<div id="imbonpgqrt" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#imbonpgqrt table {
+<div id="tkjxznkugp" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#tkjxznkugp table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#imbonpgqrt thead, #imbonpgqrt tbody, #imbonpgqrt tfoot, #imbonpgqrt tr, #imbonpgqrt td, #imbonpgqrt th {
+#tkjxznkugp thead, #tkjxznkugp tbody, #tkjxznkugp tfoot, #tkjxznkugp tr, #tkjxznkugp td, #tkjxznkugp th {
   border-style: none;
 }
 
-#imbonpgqrt p {
+#tkjxznkugp p {
   margin: 0;
   padding: 0;
 }
 
-#imbonpgqrt .gt_table {
+#tkjxznkugp .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -933,12 +930,12 @@ cookieconsent.run({
   border-left-color: #D3D3D3;
 }
 
-#imbonpgqrt .gt_caption {
+#tkjxznkugp .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#imbonpgqrt .gt_title {
+#tkjxznkugp .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -950,7 +947,7 @@ cookieconsent.run({
   border-bottom-width: 0;
 }
 
-#imbonpgqrt .gt_subtitle {
+#tkjxznkugp .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -962,7 +959,7 @@ cookieconsent.run({
   border-top-width: 0;
 }
 
-#imbonpgqrt .gt_heading {
+#tkjxznkugp .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -974,13 +971,13 @@ cookieconsent.run({
   border-right-color: #D3D3D3;
 }
 
-#imbonpgqrt .gt_bottom_border {
+#tkjxznkugp .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#imbonpgqrt .gt_col_headings {
+#tkjxznkugp .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -995,7 +992,7 @@ cookieconsent.run({
   border-right-color: #D3D3D3;
 }
 
-#imbonpgqrt .gt_col_heading {
+#tkjxznkugp .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1015,7 +1012,7 @@ cookieconsent.run({
   overflow-x: hidden;
 }
 
-#imbonpgqrt .gt_column_spanner_outer {
+#tkjxznkugp .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1027,15 +1024,15 @@ cookieconsent.run({
   padding-right: 4px;
 }
 
-#imbonpgqrt .gt_column_spanner_outer:first-child {
+#tkjxznkugp .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#imbonpgqrt .gt_column_spanner_outer:last-child {
+#tkjxznkugp .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#imbonpgqrt .gt_column_spanner {
+#tkjxznkugp .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -1047,11 +1044,11 @@ cookieconsent.run({
   width: 100%;
 }
 
-#imbonpgqrt .gt_spanner_row {
+#tkjxznkugp .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#imbonpgqrt .gt_group_heading {
+#tkjxznkugp .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1077,7 +1074,7 @@ cookieconsent.run({
   text-align: left;
 }
 
-#imbonpgqrt .gt_empty_group_heading {
+#tkjxznkugp .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -1092,15 +1089,15 @@ cookieconsent.run({
   vertical-align: middle;
 }
 
-#imbonpgqrt .gt_from_md > :first-child {
+#tkjxznkugp .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#imbonpgqrt .gt_from_md > :last-child {
+#tkjxznkugp .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#imbonpgqrt .gt_row {
+#tkjxznkugp .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1119,7 +1116,7 @@ cookieconsent.run({
   overflow-x: hidden;
 }
 
-#imbonpgqrt .gt_stub {
+#tkjxznkugp .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1132,7 +1129,7 @@ cookieconsent.run({
   padding-right: 5px;
 }
 
-#imbonpgqrt .gt_stub_row_group {
+#tkjxznkugp .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1146,15 +1143,15 @@ cookieconsent.run({
   vertical-align: top;
 }
 
-#imbonpgqrt .gt_row_group_first td {
+#tkjxznkugp .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#imbonpgqrt .gt_row_group_first th {
+#tkjxznkugp .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#imbonpgqrt .gt_summary_row {
+#tkjxznkugp .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1164,16 +1161,16 @@ cookieconsent.run({
   padding-right: 5px;
 }
 
-#imbonpgqrt .gt_first_summary_row {
+#tkjxznkugp .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#imbonpgqrt .gt_first_summary_row.thick {
+#tkjxznkugp .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#imbonpgqrt .gt_last_summary_row {
+#tkjxznkugp .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1183,7 +1180,7 @@ cookieconsent.run({
   border-bottom-color: #D3D3D3;
 }
 
-#imbonpgqrt .gt_grand_summary_row {
+#tkjxznkugp .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1193,7 +1190,7 @@ cookieconsent.run({
   padding-right: 5px;
 }
 
-#imbonpgqrt .gt_first_grand_summary_row {
+#tkjxznkugp .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1203,7 +1200,7 @@ cookieconsent.run({
   border-top-color: #D3D3D3;
 }
 
-#imbonpgqrt .gt_last_grand_summary_row_top {
+#tkjxznkugp .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1213,11 +1210,11 @@ cookieconsent.run({
   border-bottom-color: #D3D3D3;
 }
 
-#imbonpgqrt .gt_striped {
+#tkjxznkugp .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#imbonpgqrt .gt_table_body {
+#tkjxznkugp .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1226,7 +1223,7 @@ cookieconsent.run({
   border-bottom-color: #D3D3D3;
 }
 
-#imbonpgqrt .gt_footnotes {
+#tkjxznkugp .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1240,7 +1237,7 @@ cookieconsent.run({
   border-right-color: #D3D3D3;
 }
 
-#imbonpgqrt .gt_footnote {
+#tkjxznkugp .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -1249,7 +1246,7 @@ cookieconsent.run({
   padding-right: 5px;
 }
 
-#imbonpgqrt .gt_sourcenotes {
+#tkjxznkugp .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1263,7 +1260,7 @@ cookieconsent.run({
   border-right-color: #D3D3D3;
 }
 
-#imbonpgqrt .gt_sourcenote {
+#tkjxznkugp .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -1271,76 +1268,76 @@ cookieconsent.run({
   padding-right: 5px;
 }
 
-#imbonpgqrt .gt_left {
+#tkjxznkugp .gt_left {
   text-align: left;
 }
 
-#imbonpgqrt .gt_center {
+#tkjxznkugp .gt_center {
   text-align: center;
 }
 
-#imbonpgqrt .gt_right {
+#tkjxznkugp .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#imbonpgqrt .gt_font_normal {
+#tkjxznkugp .gt_font_normal {
   font-weight: normal;
 }
 
-#imbonpgqrt .gt_font_bold {
+#tkjxznkugp .gt_font_bold {
   font-weight: bold;
 }
 
-#imbonpgqrt .gt_font_italic {
+#tkjxznkugp .gt_font_italic {
   font-style: italic;
 }
 
-#imbonpgqrt .gt_super {
+#tkjxznkugp .gt_super {
   font-size: 65%;
 }
 
-#imbonpgqrt .gt_footnote_marks {
+#tkjxznkugp .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#imbonpgqrt .gt_asterisk {
+#tkjxznkugp .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#imbonpgqrt .gt_indent_1 {
+#tkjxznkugp .gt_indent_1 {
   text-indent: 5px;
 }
 
-#imbonpgqrt .gt_indent_2 {
+#tkjxznkugp .gt_indent_2 {
   text-indent: 10px;
 }
 
-#imbonpgqrt .gt_indent_3 {
+#tkjxznkugp .gt_indent_3 {
   text-indent: 15px;
 }
 
-#imbonpgqrt .gt_indent_4 {
+#tkjxznkugp .gt_indent_4 {
   text-indent: 20px;
 }
 
-#imbonpgqrt .gt_indent_5 {
+#tkjxznkugp .gt_indent_5 {
   text-indent: 25px;
 }
 
-#imbonpgqrt .katex-display {
+#tkjxznkugp .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#imbonpgqrt div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#tkjxznkugp div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
-<table class="gt_table table table-sm table-striped small" data-quarto-bootstrap="false">
+<table class="gt_table table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
 <thead><tr class="gt_col_headings header">
 <th id="label" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col"><strong>Caractéristique</strong></th>
 <th id="stat_1" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col"><strong>Mois 6</strong></th>
@@ -1358,31 +1355,31 @@ cookieconsent.run({
 </table>
 </div>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a>km <span class="sc">|&gt;</span> </span>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a>km <span class="sc">|&gt;</span> </span>
 <span id="cb11-2"><a href="#cb11-2"></a>  <span class="fu">tbl_survfit</span>(</span>
 <span id="cb11-3"><a href="#cb11-3"></a>    <span class="at">probs =</span> <span class="fu">c</span>(.<span class="dv">25</span>, .<span class="dv">5</span>, .<span class="dv">75</span>)</span>
 <span id="cb11-4"><a href="#cb11-4"></a>  ) <span class="sc">|&gt;</span> </span>
 <span id="cb11-5"><a href="#cb11-5"></a>  <span class="fu">modify_spanning_header</span>(</span>
 <span id="cb11-6"><a href="#cb11-6"></a>    <span class="fu">all_stat_cols</span>() <span class="sc">~</span> <span class="st">"**Proportion décédée**"</span></span>
-<span id="cb11-7"><a href="#cb11-7"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb11-7"><a href="#cb11-7"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<div id="fgmqdfljtr" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#fgmqdfljtr table {
+<div id="kmtfoxvmnt" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#kmtfoxvmnt table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#fgmqdfljtr thead, #fgmqdfljtr tbody, #fgmqdfljtr tfoot, #fgmqdfljtr tr, #fgmqdfljtr td, #fgmqdfljtr th {
+#kmtfoxvmnt thead, #kmtfoxvmnt tbody, #kmtfoxvmnt tfoot, #kmtfoxvmnt tr, #kmtfoxvmnt td, #kmtfoxvmnt th {
   border-style: none;
 }
 
-#fgmqdfljtr p {
+#kmtfoxvmnt p {
   margin: 0;
   padding: 0;
 }
 
-#fgmqdfljtr .gt_table {
+#kmtfoxvmnt .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -1408,12 +1405,12 @@ cookieconsent.run({
   border-left-color: #D3D3D3;
 }
 
-#fgmqdfljtr .gt_caption {
+#kmtfoxvmnt .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#fgmqdfljtr .gt_title {
+#kmtfoxvmnt .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -1425,7 +1422,7 @@ cookieconsent.run({
   border-bottom-width: 0;
 }
 
-#fgmqdfljtr .gt_subtitle {
+#kmtfoxvmnt .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -1437,7 +1434,7 @@ cookieconsent.run({
   border-top-width: 0;
 }
 
-#fgmqdfljtr .gt_heading {
+#kmtfoxvmnt .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -1449,13 +1446,13 @@ cookieconsent.run({
   border-right-color: #D3D3D3;
 }
 
-#fgmqdfljtr .gt_bottom_border {
+#kmtfoxvmnt .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#fgmqdfljtr .gt_col_headings {
+#kmtfoxvmnt .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1470,7 +1467,7 @@ cookieconsent.run({
   border-right-color: #D3D3D3;
 }
 
-#fgmqdfljtr .gt_col_heading {
+#kmtfoxvmnt .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1490,7 +1487,7 @@ cookieconsent.run({
   overflow-x: hidden;
 }
 
-#fgmqdfljtr .gt_column_spanner_outer {
+#kmtfoxvmnt .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1502,15 +1499,15 @@ cookieconsent.run({
   padding-right: 4px;
 }
 
-#fgmqdfljtr .gt_column_spanner_outer:first-child {
+#kmtfoxvmnt .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#fgmqdfljtr .gt_column_spanner_outer:last-child {
+#kmtfoxvmnt .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#fgmqdfljtr .gt_column_spanner {
+#kmtfoxvmnt .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -1522,11 +1519,11 @@ cookieconsent.run({
   width: 100%;
 }
 
-#fgmqdfljtr .gt_spanner_row {
+#kmtfoxvmnt .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#fgmqdfljtr .gt_group_heading {
+#kmtfoxvmnt .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1552,7 +1549,7 @@ cookieconsent.run({
   text-align: left;
 }
 
-#fgmqdfljtr .gt_empty_group_heading {
+#kmtfoxvmnt .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -1567,15 +1564,15 @@ cookieconsent.run({
   vertical-align: middle;
 }
 
-#fgmqdfljtr .gt_from_md > :first-child {
+#kmtfoxvmnt .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#fgmqdfljtr .gt_from_md > :last-child {
+#kmtfoxvmnt .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#fgmqdfljtr .gt_row {
+#kmtfoxvmnt .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1594,7 +1591,7 @@ cookieconsent.run({
   overflow-x: hidden;
 }
 
-#fgmqdfljtr .gt_stub {
+#kmtfoxvmnt .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1607,7 +1604,7 @@ cookieconsent.run({
   padding-right: 5px;
 }
 
-#fgmqdfljtr .gt_stub_row_group {
+#kmtfoxvmnt .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1621,15 +1618,15 @@ cookieconsent.run({
   vertical-align: top;
 }
 
-#fgmqdfljtr .gt_row_group_first td {
+#kmtfoxvmnt .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#fgmqdfljtr .gt_row_group_first th {
+#kmtfoxvmnt .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#fgmqdfljtr .gt_summary_row {
+#kmtfoxvmnt .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1639,16 +1636,16 @@ cookieconsent.run({
   padding-right: 5px;
 }
 
-#fgmqdfljtr .gt_first_summary_row {
+#kmtfoxvmnt .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#fgmqdfljtr .gt_first_summary_row.thick {
+#kmtfoxvmnt .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#fgmqdfljtr .gt_last_summary_row {
+#kmtfoxvmnt .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1658,7 +1655,7 @@ cookieconsent.run({
   border-bottom-color: #D3D3D3;
 }
 
-#fgmqdfljtr .gt_grand_summary_row {
+#kmtfoxvmnt .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1668,7 +1665,7 @@ cookieconsent.run({
   padding-right: 5px;
 }
 
-#fgmqdfljtr .gt_first_grand_summary_row {
+#kmtfoxvmnt .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1678,7 +1675,7 @@ cookieconsent.run({
   border-top-color: #D3D3D3;
 }
 
-#fgmqdfljtr .gt_last_grand_summary_row_top {
+#kmtfoxvmnt .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1688,11 +1685,11 @@ cookieconsent.run({
   border-bottom-color: #D3D3D3;
 }
 
-#fgmqdfljtr .gt_striped {
+#kmtfoxvmnt .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#fgmqdfljtr .gt_table_body {
+#kmtfoxvmnt .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1701,7 +1698,7 @@ cookieconsent.run({
   border-bottom-color: #D3D3D3;
 }
 
-#fgmqdfljtr .gt_footnotes {
+#kmtfoxvmnt .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1715,7 +1712,7 @@ cookieconsent.run({
   border-right-color: #D3D3D3;
 }
 
-#fgmqdfljtr .gt_footnote {
+#kmtfoxvmnt .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -1724,7 +1721,7 @@ cookieconsent.run({
   padding-right: 5px;
 }
 
-#fgmqdfljtr .gt_sourcenotes {
+#kmtfoxvmnt .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1738,7 +1735,7 @@ cookieconsent.run({
   border-right-color: #D3D3D3;
 }
 
-#fgmqdfljtr .gt_sourcenote {
+#kmtfoxvmnt .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -1746,76 +1743,76 @@ cookieconsent.run({
   padding-right: 5px;
 }
 
-#fgmqdfljtr .gt_left {
+#kmtfoxvmnt .gt_left {
   text-align: left;
 }
 
-#fgmqdfljtr .gt_center {
+#kmtfoxvmnt .gt_center {
   text-align: center;
 }
 
-#fgmqdfljtr .gt_right {
+#kmtfoxvmnt .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#fgmqdfljtr .gt_font_normal {
+#kmtfoxvmnt .gt_font_normal {
   font-weight: normal;
 }
 
-#fgmqdfljtr .gt_font_bold {
+#kmtfoxvmnt .gt_font_bold {
   font-weight: bold;
 }
 
-#fgmqdfljtr .gt_font_italic {
+#kmtfoxvmnt .gt_font_italic {
   font-style: italic;
 }
 
-#fgmqdfljtr .gt_super {
+#kmtfoxvmnt .gt_super {
   font-size: 65%;
 }
 
-#fgmqdfljtr .gt_footnote_marks {
+#kmtfoxvmnt .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#fgmqdfljtr .gt_asterisk {
+#kmtfoxvmnt .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#fgmqdfljtr .gt_indent_1 {
+#kmtfoxvmnt .gt_indent_1 {
   text-indent: 5px;
 }
 
-#fgmqdfljtr .gt_indent_2 {
+#kmtfoxvmnt .gt_indent_2 {
   text-indent: 10px;
 }
 
-#fgmqdfljtr .gt_indent_3 {
+#kmtfoxvmnt .gt_indent_3 {
   text-indent: 15px;
 }
 
-#fgmqdfljtr .gt_indent_4 {
+#kmtfoxvmnt .gt_indent_4 {
   text-indent: 20px;
 }
 
-#fgmqdfljtr .gt_indent_5 {
+#kmtfoxvmnt .gt_indent_5 {
   text-indent: 25px;
 }
 
-#fgmqdfljtr .katex-display {
+#kmtfoxvmnt .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#fgmqdfljtr div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#kmtfoxvmnt div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
-<table class="gt_table table table-sm table-striped small" data-quarto-bootstrap="false">
+<table class="gt_table table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
 <colgroup>
 <col style="width: 25%">
 <col style="width: 25%">
@@ -1849,11 +1846,11 @@ cookieconsent.run({
 <span class="header-section-number">44.3</span> Analyse bivariée (Kaplan-Meier)</h2>
 <p>Il est possible de calculer des courbes de Kaplan-Meier selon une variable catégorielle (analyse stratifiée). Par exemple, pour voir comment varie la survie en fonction du stade au diagnostic.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a>km_stade <span class="ot">&lt;-</span> <span class="fu">survfit</span>(</span>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a>km_stade <span class="ot">&lt;-</span> <span class="fu">survfit</span>(</span>
 <span id="cb12-2"><a href="#cb12-2"></a>  <span class="fu">Surv</span>(ttdeath, death) <span class="sc">~</span> stage,</span>
 <span id="cb12-3"><a href="#cb12-3"></a>  <span class="at">data =</span> trial</span>
 <span id="cb12-4"><a href="#cb12-4"></a>)</span>
-<span id="cb12-5"><a href="#cb12-5"></a>km_stade <span class="sc">|&gt;</span> <span class="fu">ggsurvfit</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb12-5"><a href="#cb12-5"></a>km_stade <span class="sc">|&gt;</span> <span class="fu">ggsurvfit</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure"><p><a href="analyse-survie_files/figure-html/unnamed-chunk-7-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-5"><img src="analyse-survie_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid figure-img" width="672"></a></p>
@@ -1863,13 +1860,13 @@ cookieconsent.run({
 </div>
 <p>Nous pouvons facilement améliorer le rendu du graphique en utilisant <code>ggsurvfit::surfit2()</code> à la place de <code><a href="https://rdrr.io/pkg/survival/man/survfit.html">survival::survfit()</a></code>. Les deux fonctions sont équivalentes à l’exception du fait que la version fournie par <a href="https://github.com/pharmaverse/ggsurvfit">ggsurvfit</a> concerne certaines informations, comme les étiquettes de variables, afin d’améliorer le rendu visuel par défaut du graphique.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a>km_stade <span class="ot">&lt;-</span> <span class="fu">survfit2</span>(</span>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a>km_stade <span class="ot">&lt;-</span> <span class="fu">survfit2</span>(</span>
 <span id="cb13-2"><a href="#cb13-2"></a>  <span class="fu">Surv</span>(ttdeath, death) <span class="sc">~</span> stage,</span>
 <span id="cb13-3"><a href="#cb13-3"></a>  <span class="at">data =</span> trial</span>
 <span id="cb13-4"><a href="#cb13-4"></a>)</span>
 <span id="cb13-5"><a href="#cb13-5"></a>km_stade <span class="sc">|&gt;</span> </span>
 <span id="cb13-6"><a href="#cb13-6"></a>  <span class="fu">ggsurvfit</span>() <span class="sc">+</span></span>
-<span id="cb13-7"><a href="#cb13-7"></a>  <span class="fu">scale_ggsurvfit</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb13-7"><a href="#cb13-7"></a>  <span class="fu">scale_ggsurvfit</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure"><p><a href="analyse-survie_files/figure-html/unnamed-chunk-8-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-6"><img src="analyse-survie_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid figure-img" width="672"></a></p>
@@ -1879,10 +1876,10 @@ cookieconsent.run({
 </div>
 <p>Il est possible de faire un test statistique pour déterminer si les courbes de survie diffèrent selon les stades avec la fonction <code><a href="https://rdrr.io/pkg/survival/man/survdiff.html">survival::survdiff()</a></code> qui implémente le test du <em>log-rank</em> ou de Mantel-Haenszel (par défaut).</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a><span class="fu">survdiff</span>(</span>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a><span class="fu">survdiff</span>(</span>
 <span id="cb14-2"><a href="#cb14-2"></a>  <span class="fu">Surv</span>(ttdeath, death) <span class="sc">~</span> stage,</span>
 <span id="cb14-3"><a href="#cb14-3"></a>  <span class="at">data =</span> trial</span>
-<span id="cb14-4"><a href="#cb14-4"></a>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb14-4"><a href="#cb14-4"></a>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Call:
 survdiff(formula = Surv(ttdeath, death) ~ stage, data = trial)
@@ -1898,11 +1895,11 @@ stage=T4 50       39     22.0    13.223     16.56
 </div>
 <p>Il est possible de calculer et d’afficher directement ce résultat sur le graphique (en bas à droite) avec <code><a href="http://www.danieldsjoberg.com/ggsurvfit/reference/add_pvalue.html">ggsurvfit::add_pvalue()</a></code>.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1"></a>km_stade <span class="sc">|&gt;</span> </span>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1"></a>km_stade <span class="sc">|&gt;</span> </span>
 <span id="cb16-2"><a href="#cb16-2"></a>  <span class="fu">ggsurvfit</span>() <span class="sc">+</span></span>
 <span id="cb16-3"><a href="#cb16-3"></a>  <span class="fu">add_confidence_interval</span>() <span class="sc">+</span></span>
 <span id="cb16-4"><a href="#cb16-4"></a>  <span class="fu">add_pvalue</span>() <span class="sc">+</span></span>
-<span id="cb16-5"><a href="#cb16-5"></a>  <span class="fu">scale_ggsurvfit</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb16-5"><a href="#cb16-5"></a>  <span class="fu">scale_ggsurvfit</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure"><p><a href="analyse-survie_files/figure-html/unnamed-chunk-10-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-7"><img src="analyse-survie_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid figure-img" width="672"></a></p>
@@ -1912,28 +1909,28 @@ stage=T4 50       39     22.0    13.223     16.56
 </div>
 <p>Dans un tableau, on aura recours à <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/add_p.html">gtsummary::add_p()</a></code>.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1"></a>km_stade <span class="sc">|&gt;</span> </span>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1"></a>km_stade <span class="sc">|&gt;</span> </span>
 <span id="cb17-2"><a href="#cb17-2"></a>  <span class="fu">tbl_survfit</span>(<span class="at">times =</span> <span class="fu">c</span>(<span class="dv">12</span>, <span class="dv">24</span>)) <span class="sc">|&gt;</span> </span>
 <span id="cb17-3"><a href="#cb17-3"></a>  <span class="fu">add_p</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb17-4"><a href="#cb17-4"></a>  <span class="fu">bold_labels</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb17-4"><a href="#cb17-4"></a>  <span class="fu">bold_labels</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<div id="lcarzrohza" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#lcarzrohza table {
+<div id="ieqnmjsfzu" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#ieqnmjsfzu table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#lcarzrohza thead, #lcarzrohza tbody, #lcarzrohza tfoot, #lcarzrohza tr, #lcarzrohza td, #lcarzrohza th {
+#ieqnmjsfzu thead, #ieqnmjsfzu tbody, #ieqnmjsfzu tfoot, #ieqnmjsfzu tr, #ieqnmjsfzu td, #ieqnmjsfzu th {
   border-style: none;
 }
 
-#lcarzrohza p {
+#ieqnmjsfzu p {
   margin: 0;
   padding: 0;
 }
 
-#lcarzrohza .gt_table {
+#ieqnmjsfzu .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -1959,12 +1956,12 @@ stage=T4 50       39     22.0    13.223     16.56
   border-left-color: #D3D3D3;
 }
 
-#lcarzrohza .gt_caption {
+#ieqnmjsfzu .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#lcarzrohza .gt_title {
+#ieqnmjsfzu .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -1976,7 +1973,7 @@ stage=T4 50       39     22.0    13.223     16.56
   border-bottom-width: 0;
 }
 
-#lcarzrohza .gt_subtitle {
+#ieqnmjsfzu .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -1988,7 +1985,7 @@ stage=T4 50       39     22.0    13.223     16.56
   border-top-width: 0;
 }
 
-#lcarzrohza .gt_heading {
+#ieqnmjsfzu .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -2000,13 +1997,13 @@ stage=T4 50       39     22.0    13.223     16.56
   border-right-color: #D3D3D3;
 }
 
-#lcarzrohza .gt_bottom_border {
+#ieqnmjsfzu .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#lcarzrohza .gt_col_headings {
+#ieqnmjsfzu .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -2021,7 +2018,7 @@ stage=T4 50       39     22.0    13.223     16.56
   border-right-color: #D3D3D3;
 }
 
-#lcarzrohza .gt_col_heading {
+#ieqnmjsfzu .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2041,7 +2038,7 @@ stage=T4 50       39     22.0    13.223     16.56
   overflow-x: hidden;
 }
 
-#lcarzrohza .gt_column_spanner_outer {
+#ieqnmjsfzu .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2053,15 +2050,15 @@ stage=T4 50       39     22.0    13.223     16.56
   padding-right: 4px;
 }
 
-#lcarzrohza .gt_column_spanner_outer:first-child {
+#ieqnmjsfzu .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#lcarzrohza .gt_column_spanner_outer:last-child {
+#ieqnmjsfzu .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#lcarzrohza .gt_column_spanner {
+#ieqnmjsfzu .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -2073,11 +2070,11 @@ stage=T4 50       39     22.0    13.223     16.56
   width: 100%;
 }
 
-#lcarzrohza .gt_spanner_row {
+#ieqnmjsfzu .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#lcarzrohza .gt_group_heading {
+#ieqnmjsfzu .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2103,7 +2100,7 @@ stage=T4 50       39     22.0    13.223     16.56
   text-align: left;
 }
 
-#lcarzrohza .gt_empty_group_heading {
+#ieqnmjsfzu .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -2118,15 +2115,15 @@ stage=T4 50       39     22.0    13.223     16.56
   vertical-align: middle;
 }
 
-#lcarzrohza .gt_from_md > :first-child {
+#ieqnmjsfzu .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#lcarzrohza .gt_from_md > :last-child {
+#ieqnmjsfzu .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#lcarzrohza .gt_row {
+#ieqnmjsfzu .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2145,7 +2142,7 @@ stage=T4 50       39     22.0    13.223     16.56
   overflow-x: hidden;
 }
 
-#lcarzrohza .gt_stub {
+#ieqnmjsfzu .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2158,7 +2155,7 @@ stage=T4 50       39     22.0    13.223     16.56
   padding-right: 5px;
 }
 
-#lcarzrohza .gt_stub_row_group {
+#ieqnmjsfzu .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2172,15 +2169,15 @@ stage=T4 50       39     22.0    13.223     16.56
   vertical-align: top;
 }
 
-#lcarzrohza .gt_row_group_first td {
+#ieqnmjsfzu .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#lcarzrohza .gt_row_group_first th {
+#ieqnmjsfzu .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#lcarzrohza .gt_summary_row {
+#ieqnmjsfzu .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -2190,16 +2187,16 @@ stage=T4 50       39     22.0    13.223     16.56
   padding-right: 5px;
 }
 
-#lcarzrohza .gt_first_summary_row {
+#ieqnmjsfzu .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#lcarzrohza .gt_first_summary_row.thick {
+#ieqnmjsfzu .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#lcarzrohza .gt_last_summary_row {
+#ieqnmjsfzu .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2209,7 +2206,7 @@ stage=T4 50       39     22.0    13.223     16.56
   border-bottom-color: #D3D3D3;
 }
 
-#lcarzrohza .gt_grand_summary_row {
+#ieqnmjsfzu .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -2219,7 +2216,7 @@ stage=T4 50       39     22.0    13.223     16.56
   padding-right: 5px;
 }
 
-#lcarzrohza .gt_first_grand_summary_row {
+#ieqnmjsfzu .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2229,7 +2226,7 @@ stage=T4 50       39     22.0    13.223     16.56
   border-top-color: #D3D3D3;
 }
 
-#lcarzrohza .gt_last_grand_summary_row_top {
+#ieqnmjsfzu .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2239,11 +2236,11 @@ stage=T4 50       39     22.0    13.223     16.56
   border-bottom-color: #D3D3D3;
 }
 
-#lcarzrohza .gt_striped {
+#ieqnmjsfzu .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#lcarzrohza .gt_table_body {
+#ieqnmjsfzu .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -2252,7 +2249,7 @@ stage=T4 50       39     22.0    13.223     16.56
   border-bottom-color: #D3D3D3;
 }
 
-#lcarzrohza .gt_footnotes {
+#ieqnmjsfzu .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -2266,7 +2263,7 @@ stage=T4 50       39     22.0    13.223     16.56
   border-right-color: #D3D3D3;
 }
 
-#lcarzrohza .gt_footnote {
+#ieqnmjsfzu .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -2275,7 +2272,7 @@ stage=T4 50       39     22.0    13.223     16.56
   padding-right: 5px;
 }
 
-#lcarzrohza .gt_sourcenotes {
+#ieqnmjsfzu .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -2289,7 +2286,7 @@ stage=T4 50       39     22.0    13.223     16.56
   border-right-color: #D3D3D3;
 }
 
-#lcarzrohza .gt_sourcenote {
+#ieqnmjsfzu .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -2297,76 +2294,76 @@ stage=T4 50       39     22.0    13.223     16.56
   padding-right: 5px;
 }
 
-#lcarzrohza .gt_left {
+#ieqnmjsfzu .gt_left {
   text-align: left;
 }
 
-#lcarzrohza .gt_center {
+#ieqnmjsfzu .gt_center {
   text-align: center;
 }
 
-#lcarzrohza .gt_right {
+#ieqnmjsfzu .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#lcarzrohza .gt_font_normal {
+#ieqnmjsfzu .gt_font_normal {
   font-weight: normal;
 }
 
-#lcarzrohza .gt_font_bold {
+#ieqnmjsfzu .gt_font_bold {
   font-weight: bold;
 }
 
-#lcarzrohza .gt_font_italic {
+#ieqnmjsfzu .gt_font_italic {
   font-style: italic;
 }
 
-#lcarzrohza .gt_super {
+#ieqnmjsfzu .gt_super {
   font-size: 65%;
 }
 
-#lcarzrohza .gt_footnote_marks {
+#ieqnmjsfzu .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#lcarzrohza .gt_asterisk {
+#ieqnmjsfzu .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#lcarzrohza .gt_indent_1 {
+#ieqnmjsfzu .gt_indent_1 {
   text-indent: 5px;
 }
 
-#lcarzrohza .gt_indent_2 {
+#ieqnmjsfzu .gt_indent_2 {
   text-indent: 10px;
 }
 
-#lcarzrohza .gt_indent_3 {
+#ieqnmjsfzu .gt_indent_3 {
   text-indent: 15px;
 }
 
-#lcarzrohza .gt_indent_4 {
+#ieqnmjsfzu .gt_indent_4 {
   text-indent: 20px;
 }
 
-#lcarzrohza .gt_indent_5 {
+#ieqnmjsfzu .gt_indent_5 {
   text-indent: 25px;
 }
 
-#lcarzrohza .katex-display {
+#ieqnmjsfzu .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#lcarzrohza div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#ieqnmjsfzu div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
-<table class="gt_table table table-sm table-striped small" data-quarto-bootstrap="false">
+<table class="gt_table table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
 <colgroup>
 <col style="width: 25%">
 <col style="width: 25%">
@@ -2413,7 +2410,7 @@ stage=T4 50       39     22.0    13.223     16.56
 <td class="gt_row gt_center" headers="p.value"><br></td>
 </tr>
 </tbody>
-<tfoot><tr class="gt_footnotes odd">
+<tfoot class="gt_footnotes"><tr class="odd">
 <td colspan="4" class="gt_footnote">
 <span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;"><sup>1</sup></span> Log-rank test</td>
 </tr></tfoot>
@@ -2430,32 +2427,32 @@ stage=T4 50       39     22.0    13.223     16.56
 <span class="header-section-number">44.3.1</span> Courbes de survie bivariées répétées</h3>
 <p>Il est possible de réaliser simultanément plusieurs analyses de survie bivariées avec <code>tbl_survfit()</code>. La syntaxe est juste un peu différente. Au lieu de passer un objet <code>survfit()</code> à <code>tbl_survfit()</code>, on lui passera le jeu de données et on utilisera <code>y</code> et <code>include</code> pour indiquer comment calculer les courbes de survies.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1"></a>trial <span class="sc">|&gt;</span> </span>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1"></a>trial <span class="sc">|&gt;</span> </span>
 <span id="cb18-2"><a href="#cb18-2"></a>  <span class="fu">tbl_survfit</span>(</span>
 <span id="cb18-3"><a href="#cb18-3"></a>    <span class="at">y =</span> <span class="fu">Surv</span>(ttdeath, death),</span>
 <span id="cb18-4"><a href="#cb18-4"></a>    <span class="at">include =</span> <span class="fu">c</span>(stage, trt),</span>
 <span id="cb18-5"><a href="#cb18-5"></a>    <span class="at">times =</span> <span class="fu">c</span>(<span class="dv">12</span>, <span class="dv">24</span>)</span>
 <span id="cb18-6"><a href="#cb18-6"></a>  ) <span class="sc">|&gt;</span> </span>
 <span id="cb18-7"><a href="#cb18-7"></a>  <span class="fu">add_p</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb18-8"><a href="#cb18-8"></a>  <span class="fu">bold_labels</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb18-8"><a href="#cb18-8"></a>  <span class="fu">bold_labels</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<div id="bsputtbfjn" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#bsputtbfjn table {
+<div id="zbczubqzhj" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#zbczubqzhj table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#bsputtbfjn thead, #bsputtbfjn tbody, #bsputtbfjn tfoot, #bsputtbfjn tr, #bsputtbfjn td, #bsputtbfjn th {
+#zbczubqzhj thead, #zbczubqzhj tbody, #zbczubqzhj tfoot, #zbczubqzhj tr, #zbczubqzhj td, #zbczubqzhj th {
   border-style: none;
 }
 
-#bsputtbfjn p {
+#zbczubqzhj p {
   margin: 0;
   padding: 0;
 }
 
-#bsputtbfjn .gt_table {
+#zbczubqzhj .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -2481,12 +2478,12 @@ stage=T4 50       39     22.0    13.223     16.56
   border-left-color: #D3D3D3;
 }
 
-#bsputtbfjn .gt_caption {
+#zbczubqzhj .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#bsputtbfjn .gt_title {
+#zbczubqzhj .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -2498,7 +2495,7 @@ stage=T4 50       39     22.0    13.223     16.56
   border-bottom-width: 0;
 }
 
-#bsputtbfjn .gt_subtitle {
+#zbczubqzhj .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -2510,7 +2507,7 @@ stage=T4 50       39     22.0    13.223     16.56
   border-top-width: 0;
 }
 
-#bsputtbfjn .gt_heading {
+#zbczubqzhj .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -2522,13 +2519,13 @@ stage=T4 50       39     22.0    13.223     16.56
   border-right-color: #D3D3D3;
 }
 
-#bsputtbfjn .gt_bottom_border {
+#zbczubqzhj .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#bsputtbfjn .gt_col_headings {
+#zbczubqzhj .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -2543,7 +2540,7 @@ stage=T4 50       39     22.0    13.223     16.56
   border-right-color: #D3D3D3;
 }
 
-#bsputtbfjn .gt_col_heading {
+#zbczubqzhj .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2563,7 +2560,7 @@ stage=T4 50       39     22.0    13.223     16.56
   overflow-x: hidden;
 }
 
-#bsputtbfjn .gt_column_spanner_outer {
+#zbczubqzhj .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2575,15 +2572,15 @@ stage=T4 50       39     22.0    13.223     16.56
   padding-right: 4px;
 }
 
-#bsputtbfjn .gt_column_spanner_outer:first-child {
+#zbczubqzhj .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#bsputtbfjn .gt_column_spanner_outer:last-child {
+#zbczubqzhj .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#bsputtbfjn .gt_column_spanner {
+#zbczubqzhj .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -2595,11 +2592,11 @@ stage=T4 50       39     22.0    13.223     16.56
   width: 100%;
 }
 
-#bsputtbfjn .gt_spanner_row {
+#zbczubqzhj .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#bsputtbfjn .gt_group_heading {
+#zbczubqzhj .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2625,7 +2622,7 @@ stage=T4 50       39     22.0    13.223     16.56
   text-align: left;
 }
 
-#bsputtbfjn .gt_empty_group_heading {
+#zbczubqzhj .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -2640,15 +2637,15 @@ stage=T4 50       39     22.0    13.223     16.56
   vertical-align: middle;
 }
 
-#bsputtbfjn .gt_from_md > :first-child {
+#zbczubqzhj .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#bsputtbfjn .gt_from_md > :last-child {
+#zbczubqzhj .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#bsputtbfjn .gt_row {
+#zbczubqzhj .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2667,7 +2664,7 @@ stage=T4 50       39     22.0    13.223     16.56
   overflow-x: hidden;
 }
 
-#bsputtbfjn .gt_stub {
+#zbczubqzhj .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2680,7 +2677,7 @@ stage=T4 50       39     22.0    13.223     16.56
   padding-right: 5px;
 }
 
-#bsputtbfjn .gt_stub_row_group {
+#zbczubqzhj .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2694,15 +2691,15 @@ stage=T4 50       39     22.0    13.223     16.56
   vertical-align: top;
 }
 
-#bsputtbfjn .gt_row_group_first td {
+#zbczubqzhj .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#bsputtbfjn .gt_row_group_first th {
+#zbczubqzhj .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#bsputtbfjn .gt_summary_row {
+#zbczubqzhj .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -2712,16 +2709,16 @@ stage=T4 50       39     22.0    13.223     16.56
   padding-right: 5px;
 }
 
-#bsputtbfjn .gt_first_summary_row {
+#zbczubqzhj .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#bsputtbfjn .gt_first_summary_row.thick {
+#zbczubqzhj .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#bsputtbfjn .gt_last_summary_row {
+#zbczubqzhj .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2731,7 +2728,7 @@ stage=T4 50       39     22.0    13.223     16.56
   border-bottom-color: #D3D3D3;
 }
 
-#bsputtbfjn .gt_grand_summary_row {
+#zbczubqzhj .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -2741,7 +2738,7 @@ stage=T4 50       39     22.0    13.223     16.56
   padding-right: 5px;
 }
 
-#bsputtbfjn .gt_first_grand_summary_row {
+#zbczubqzhj .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2751,7 +2748,7 @@ stage=T4 50       39     22.0    13.223     16.56
   border-top-color: #D3D3D3;
 }
 
-#bsputtbfjn .gt_last_grand_summary_row_top {
+#zbczubqzhj .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2761,11 +2758,11 @@ stage=T4 50       39     22.0    13.223     16.56
   border-bottom-color: #D3D3D3;
 }
 
-#bsputtbfjn .gt_striped {
+#zbczubqzhj .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#bsputtbfjn .gt_table_body {
+#zbczubqzhj .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -2774,7 +2771,7 @@ stage=T4 50       39     22.0    13.223     16.56
   border-bottom-color: #D3D3D3;
 }
 
-#bsputtbfjn .gt_footnotes {
+#zbczubqzhj .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -2788,7 +2785,7 @@ stage=T4 50       39     22.0    13.223     16.56
   border-right-color: #D3D3D3;
 }
 
-#bsputtbfjn .gt_footnote {
+#zbczubqzhj .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -2797,7 +2794,7 @@ stage=T4 50       39     22.0    13.223     16.56
   padding-right: 5px;
 }
 
-#bsputtbfjn .gt_sourcenotes {
+#zbczubqzhj .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -2811,7 +2808,7 @@ stage=T4 50       39     22.0    13.223     16.56
   border-right-color: #D3D3D3;
 }
 
-#bsputtbfjn .gt_sourcenote {
+#zbczubqzhj .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -2819,76 +2816,76 @@ stage=T4 50       39     22.0    13.223     16.56
   padding-right: 5px;
 }
 
-#bsputtbfjn .gt_left {
+#zbczubqzhj .gt_left {
   text-align: left;
 }
 
-#bsputtbfjn .gt_center {
+#zbczubqzhj .gt_center {
   text-align: center;
 }
 
-#bsputtbfjn .gt_right {
+#zbczubqzhj .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#bsputtbfjn .gt_font_normal {
+#zbczubqzhj .gt_font_normal {
   font-weight: normal;
 }
 
-#bsputtbfjn .gt_font_bold {
+#zbczubqzhj .gt_font_bold {
   font-weight: bold;
 }
 
-#bsputtbfjn .gt_font_italic {
+#zbczubqzhj .gt_font_italic {
   font-style: italic;
 }
 
-#bsputtbfjn .gt_super {
+#zbczubqzhj .gt_super {
   font-size: 65%;
 }
 
-#bsputtbfjn .gt_footnote_marks {
+#zbczubqzhj .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#bsputtbfjn .gt_asterisk {
+#zbczubqzhj .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#bsputtbfjn .gt_indent_1 {
+#zbczubqzhj .gt_indent_1 {
   text-indent: 5px;
 }
 
-#bsputtbfjn .gt_indent_2 {
+#zbczubqzhj .gt_indent_2 {
   text-indent: 10px;
 }
 
-#bsputtbfjn .gt_indent_3 {
+#zbczubqzhj .gt_indent_3 {
   text-indent: 15px;
 }
 
-#bsputtbfjn .gt_indent_4 {
+#zbczubqzhj .gt_indent_4 {
   text-indent: 20px;
 }
 
-#bsputtbfjn .gt_indent_5 {
+#zbczubqzhj .gt_indent_5 {
   text-indent: 25px;
 }
 
-#bsputtbfjn .katex-display {
+#zbczubqzhj .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#bsputtbfjn div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#zbczubqzhj div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
-<table class="gt_table table table-sm table-striped small" data-quarto-bootstrap="false">
+<table class="gt_table table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
 <colgroup>
 <col style="width: 25%">
 <col style="width: 25%">
@@ -2953,7 +2950,7 @@ stage=T4 50       39     22.0    13.223     16.56
 <td class="gt_row gt_center" headers="p.value"><br></td>
 </tr>
 </tbody>
-<tfoot><tr class="gt_footnotes odd">
+<tfoot class="gt_footnotes"><tr class="odd">
 <td colspan="4" class="gt_footnote">
 <span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;"><sup>1</sup></span> Log-rank test</td>
 </tr></tfoot>
@@ -2966,38 +2963,38 @@ stage=T4 50       39     22.0    13.223     16.56
 <p>Pour une analyse multivariable, on aura recours à un modèle de Cox. Il est tout à fait possible d’inclure des variables continues, par exemple l’âge des patients. Ici, nous n’abordons qu’un modèle avec des variables fixes au cours du temps. Mais il est possible de calculer un modèle de Cox avec des variables explicatives pouvant changer au cours du temps.</p>
 <p>Le modèle de Cox se calcule avec <code><a href="https://rdrr.io/pkg/survival/man/coxph.html">survival::coxph()</a></code>.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1"></a>mod <span class="ot">&lt;-</span> <span class="fu">coxph</span>(</span>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1"></a>mod <span class="ot">&lt;-</span> <span class="fu">coxph</span>(</span>
 <span id="cb19-2"><a href="#cb19-2"></a>  <span class="fu">Surv</span>(ttdeath, death) <span class="sc">~</span> stage <span class="sc">+</span> trt <span class="sc">+</span> age,</span>
 <span id="cb19-3"><a href="#cb19-3"></a>  <span class="at">data =</span> trial</span>
-<span id="cb19-4"><a href="#cb19-4"></a>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb19-4"><a href="#cb19-4"></a>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <section id="visualisation-des-résultats" class="level3" data-number="44.4.1"><h3 data-number="44.4.1" class="anchored" data-anchor-id="visualisation-des-résultats">
 <span class="header-section-number">44.4.1</span> Visualisation des résultats</h3>
 <p>Comme pour la régression logistique (cf. <a href="../analyses/regression-logistique-binaire.html" class="quarto-xref"><span>Chapitre 23</span></a>), nous pouvons utiliser <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/tbl_regression.html">gtsummary::tbl_regression()</a></code>, <code><a href="https://larmarange.github.io/ggstats/reference/ggcoef_model.html">ggstats::ggcoef_model()</a></code> et <code><a href="https://larmarange.github.io/ggstats/reference/ggcoef_model.html">ggstats::ggcoef_table()</a></code> pour afficher les coefficients du modèle.</p>
 <p>Il est pertinent d’afficher l’exponentielle des coefficients car il s’interprètent comme des risque relatifs ou <em>hazard ratios</em>.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1"></a>mod <span class="sc">|&gt;</span> </span>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1"></a>mod <span class="sc">|&gt;</span> </span>
 <span id="cb20-2"><a href="#cb20-2"></a>  <span class="fu">tbl_regression</span>(<span class="at">exponentiate =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span> </span>
 <span id="cb20-3"><a href="#cb20-3"></a>  <span class="fu">add_global_p</span>(<span class="at">keep =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb20-4"><a href="#cb20-4"></a>  <span class="fu">bold_labels</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb20-4"><a href="#cb20-4"></a>  <span class="fu">bold_labels</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<div id="vaupjosjgc" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#vaupjosjgc table {
+<div id="zxirpoydzs" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#zxirpoydzs table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#vaupjosjgc thead, #vaupjosjgc tbody, #vaupjosjgc tfoot, #vaupjosjgc tr, #vaupjosjgc td, #vaupjosjgc th {
+#zxirpoydzs thead, #zxirpoydzs tbody, #zxirpoydzs tfoot, #zxirpoydzs tr, #zxirpoydzs td, #zxirpoydzs th {
   border-style: none;
 }
 
-#vaupjosjgc p {
+#zxirpoydzs p {
   margin: 0;
   padding: 0;
 }
 
-#vaupjosjgc .gt_table {
+#zxirpoydzs .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -3023,12 +3020,12 @@ stage=T4 50       39     22.0    13.223     16.56
   border-left-color: #D3D3D3;
 }
 
-#vaupjosjgc .gt_caption {
+#zxirpoydzs .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#vaupjosjgc .gt_title {
+#zxirpoydzs .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -3040,7 +3037,7 @@ stage=T4 50       39     22.0    13.223     16.56
   border-bottom-width: 0;
 }
 
-#vaupjosjgc .gt_subtitle {
+#zxirpoydzs .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -3052,7 +3049,7 @@ stage=T4 50       39     22.0    13.223     16.56
   border-top-width: 0;
 }
 
-#vaupjosjgc .gt_heading {
+#zxirpoydzs .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -3064,13 +3061,13 @@ stage=T4 50       39     22.0    13.223     16.56
   border-right-color: #D3D3D3;
 }
 
-#vaupjosjgc .gt_bottom_border {
+#zxirpoydzs .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#vaupjosjgc .gt_col_headings {
+#zxirpoydzs .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -3085,7 +3082,7 @@ stage=T4 50       39     22.0    13.223     16.56
   border-right-color: #D3D3D3;
 }
 
-#vaupjosjgc .gt_col_heading {
+#zxirpoydzs .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -3105,7 +3102,7 @@ stage=T4 50       39     22.0    13.223     16.56
   overflow-x: hidden;
 }
 
-#vaupjosjgc .gt_column_spanner_outer {
+#zxirpoydzs .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -3117,15 +3114,15 @@ stage=T4 50       39     22.0    13.223     16.56
   padding-right: 4px;
 }
 
-#vaupjosjgc .gt_column_spanner_outer:first-child {
+#zxirpoydzs .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#vaupjosjgc .gt_column_spanner_outer:last-child {
+#zxirpoydzs .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#vaupjosjgc .gt_column_spanner {
+#zxirpoydzs .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -3137,11 +3134,11 @@ stage=T4 50       39     22.0    13.223     16.56
   width: 100%;
 }
 
-#vaupjosjgc .gt_spanner_row {
+#zxirpoydzs .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#vaupjosjgc .gt_group_heading {
+#zxirpoydzs .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -3167,7 +3164,7 @@ stage=T4 50       39     22.0    13.223     16.56
   text-align: left;
 }
 
-#vaupjosjgc .gt_empty_group_heading {
+#zxirpoydzs .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -3182,15 +3179,15 @@ stage=T4 50       39     22.0    13.223     16.56
   vertical-align: middle;
 }
 
-#vaupjosjgc .gt_from_md > :first-child {
+#zxirpoydzs .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#vaupjosjgc .gt_from_md > :last-child {
+#zxirpoydzs .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#vaupjosjgc .gt_row {
+#zxirpoydzs .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -3209,7 +3206,7 @@ stage=T4 50       39     22.0    13.223     16.56
   overflow-x: hidden;
 }
 
-#vaupjosjgc .gt_stub {
+#zxirpoydzs .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -3222,7 +3219,7 @@ stage=T4 50       39     22.0    13.223     16.56
   padding-right: 5px;
 }
 
-#vaupjosjgc .gt_stub_row_group {
+#zxirpoydzs .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -3236,15 +3233,15 @@ stage=T4 50       39     22.0    13.223     16.56
   vertical-align: top;
 }
 
-#vaupjosjgc .gt_row_group_first td {
+#zxirpoydzs .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#vaupjosjgc .gt_row_group_first th {
+#zxirpoydzs .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#vaupjosjgc .gt_summary_row {
+#zxirpoydzs .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -3254,16 +3251,16 @@ stage=T4 50       39     22.0    13.223     16.56
   padding-right: 5px;
 }
 
-#vaupjosjgc .gt_first_summary_row {
+#zxirpoydzs .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#vaupjosjgc .gt_first_summary_row.thick {
+#zxirpoydzs .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#vaupjosjgc .gt_last_summary_row {
+#zxirpoydzs .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -3273,7 +3270,7 @@ stage=T4 50       39     22.0    13.223     16.56
   border-bottom-color: #D3D3D3;
 }
 
-#vaupjosjgc .gt_grand_summary_row {
+#zxirpoydzs .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -3283,7 +3280,7 @@ stage=T4 50       39     22.0    13.223     16.56
   padding-right: 5px;
 }
 
-#vaupjosjgc .gt_first_grand_summary_row {
+#zxirpoydzs .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -3293,7 +3290,7 @@ stage=T4 50       39     22.0    13.223     16.56
   border-top-color: #D3D3D3;
 }
 
-#vaupjosjgc .gt_last_grand_summary_row_top {
+#zxirpoydzs .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -3303,11 +3300,11 @@ stage=T4 50       39     22.0    13.223     16.56
   border-bottom-color: #D3D3D3;
 }
 
-#vaupjosjgc .gt_striped {
+#zxirpoydzs .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#vaupjosjgc .gt_table_body {
+#zxirpoydzs .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -3316,7 +3313,7 @@ stage=T4 50       39     22.0    13.223     16.56
   border-bottom-color: #D3D3D3;
 }
 
-#vaupjosjgc .gt_footnotes {
+#zxirpoydzs .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -3330,7 +3327,7 @@ stage=T4 50       39     22.0    13.223     16.56
   border-right-color: #D3D3D3;
 }
 
-#vaupjosjgc .gt_footnote {
+#zxirpoydzs .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -3339,7 +3336,7 @@ stage=T4 50       39     22.0    13.223     16.56
   padding-right: 5px;
 }
 
-#vaupjosjgc .gt_sourcenotes {
+#zxirpoydzs .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -3353,7 +3350,7 @@ stage=T4 50       39     22.0    13.223     16.56
   border-right-color: #D3D3D3;
 }
 
-#vaupjosjgc .gt_sourcenote {
+#zxirpoydzs .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -3361,76 +3358,76 @@ stage=T4 50       39     22.0    13.223     16.56
   padding-right: 5px;
 }
 
-#vaupjosjgc .gt_left {
+#zxirpoydzs .gt_left {
   text-align: left;
 }
 
-#vaupjosjgc .gt_center {
+#zxirpoydzs .gt_center {
   text-align: center;
 }
 
-#vaupjosjgc .gt_right {
+#zxirpoydzs .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#vaupjosjgc .gt_font_normal {
+#zxirpoydzs .gt_font_normal {
   font-weight: normal;
 }
 
-#vaupjosjgc .gt_font_bold {
+#zxirpoydzs .gt_font_bold {
   font-weight: bold;
 }
 
-#vaupjosjgc .gt_font_italic {
+#zxirpoydzs .gt_font_italic {
   font-style: italic;
 }
 
-#vaupjosjgc .gt_super {
+#zxirpoydzs .gt_super {
   font-size: 65%;
 }
 
-#vaupjosjgc .gt_footnote_marks {
+#zxirpoydzs .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#vaupjosjgc .gt_asterisk {
+#zxirpoydzs .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#vaupjosjgc .gt_indent_1 {
+#zxirpoydzs .gt_indent_1 {
   text-indent: 5px;
 }
 
-#vaupjosjgc .gt_indent_2 {
+#zxirpoydzs .gt_indent_2 {
   text-indent: 10px;
 }
 
-#vaupjosjgc .gt_indent_3 {
+#zxirpoydzs .gt_indent_3 {
   text-indent: 15px;
 }
 
-#vaupjosjgc .gt_indent_4 {
+#zxirpoydzs .gt_indent_4 {
   text-indent: 20px;
 }
 
-#vaupjosjgc .gt_indent_5 {
+#zxirpoydzs .gt_indent_5 {
   text-indent: 25px;
 }
 
-#vaupjosjgc .katex-display {
+#zxirpoydzs .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#vaupjosjgc div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#zxirpoydzs div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
-<table class="gt_table table table-sm table-striped small" data-quarto-bootstrap="false">
+<table class="gt_table table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
 <colgroup>
 <col style="width: 25%">
 <col style="width: 25%">
@@ -3499,7 +3496,7 @@ stage=T4 50       39     22.0    13.223     16.56
 <td class="gt_row gt_center" headers="p.value">0,15</td>
 </tr>
 </tbody>
-<tfoot><tr class="gt_sourcenotes odd">
+<tfoot class="gt_sourcenotes"><tr class="odd">
 <td colspan="4" class="gt_sourcenote">Abréviations: HR = rapport de risques instantanés, IC = intervalle de confiance</td>
 </tr></tfoot>
 </table>
@@ -3507,9 +3504,12 @@ stage=T4 50       39     22.0    13.223     16.56
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1"></a><span class="fu">library</span>(ggstats)</span>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1"></a><span class="fu">library</span>(ggstats)</span>
 <span id="cb21-2"><a href="#cb21-2"></a>mod <span class="sc">|&gt;</span> </span>
-<span id="cb21-3"><a href="#cb21-3"></a>  <span class="fu">ggcoef_model</span>(<span class="at">exponentiate =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb21-3"><a href="#cb21-3"></a>  <span class="fu">ggcoef_model</span>(<span class="at">exponentiate =</span> <span class="cn">TRUE</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`height` was translated to `width`.</code></pre>
+</div>
 <div class="cell-output-display">
 <div>
 <figure class="figure"><p><a href="analyse-survie_files/figure-html/unnamed-chunk-15-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-8"><img src="analyse-survie_files/figure-html/unnamed-chunk-15-1.png" class="img-fluid figure-img" width="672"></a></p>
@@ -3518,8 +3518,11 @@ stage=T4 50       39     22.0    13.223     16.56
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1"></a>mod <span class="sc">|&gt;</span> </span>
-<span id="cb22-2"><a href="#cb22-2"></a>  <span class="fu">ggcoef_table</span>(<span class="at">exponentiate =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1"></a>mod <span class="sc">|&gt;</span> </span>
+<span id="cb23-2"><a href="#cb23-2"></a>  <span class="fu">ggcoef_table</span>(<span class="at">exponentiate =</span> <span class="cn">TRUE</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`height` was translated to `width`.</code></pre>
+</div>
 <div class="cell-output-display">
 <div>
 <figure class="figure"><p><a href="analyse-survie_files/figure-html/unnamed-chunk-16-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-9"><img src="analyse-survie_files/figure-html/unnamed-chunk-16-1.png" class="img-fluid figure-img" width="672"></a></p>
@@ -3532,7 +3535,7 @@ stage=T4 50       39     22.0    13.223     16.56
 <span class="header-section-number">44.4.2</span> Vérification des hypothèses</h3>
 <p>Le modèle de Cox considère que, bien que le risque de décès évolue au cours du temps, les risques relatifs restent quant à eux identiques. Il s’agit de l’hypothèse de la proportionnalité des risques relatifs. Selon cette hypothèse les résidus de Schoenfeld ne dépendent pas du temps. Cette hypothèse peut être testée avec la fonction <code>cox.zph()</code>.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1"></a>mod <span class="sc">|&gt;</span> <span class="fu">cox.zph</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1"></a>mod <span class="sc">|&gt;</span> <span class="fu">cox.zph</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>       chisq df    p
 stage  0.983  3 0.81
@@ -3544,7 +3547,7 @@ GLOBAL 2.969  5 0.70</code></pre>
 <p>Un test est ici effectué globalement et pour chaque variable individuellement. Une valeur de p inférieure à 5% indique un problème potentiel en termes de proportionnalité des risques.</p>
 <p>La fonction <code><a href="https://rdrr.io/pkg/survminer/man/ggcoxzph.html">survminer::ggcoxzph()</a></code> du package <a href="https://rpkgs.datanovia.com/survminer/index.html">survminer</a> permet de représenter les résidus de Schoenfeld et de visualiser si leur répartition est relativement stable au cours du temps (visuellement <q>horizontale</q> autour de 0) ou bien s’ils suivent une autre distribution.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1"></a>mod <span class="sc">|&gt;</span> <span class="fu">cox.zph</span>() <span class="sc">|&gt;</span> survminer<span class="sc">::</span><span class="fu">ggcoxzph</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1"></a>mod <span class="sc">|&gt;</span> <span class="fu">cox.zph</span>() <span class="sc">|&gt;</span> survminer<span class="sc">::</span><span class="fu">ggcoxzph</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure"><p><a href="analyse-survie_files/figure-html/unnamed-chunk-18-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-10"><img src="analyse-survie_files/figure-html/unnamed-chunk-18-1.png" class="img-fluid figure-img" width="576"></a></p>
@@ -3556,13 +3559,13 @@ GLOBAL 2.969  5 0.70</code></pre>
 <span class="header-section-number">44.4.3</span> Représentation graphique d’une courbe de survie ajustée</h3>
 <p>Il est possible de calculer, avec <code>survfit2()</code>, des courbes de survie ajustées à partir d’un modèle de Cox. Cependant, pour indiquer la variable de stratification des courbes, il est nécessaire de l’inclure avec <code>strata()</code> dans l’appel du modèle de Cox.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1"></a>trial <span class="sc">|&gt;</span> </span>
-<span id="cb26-2"><a href="#cb26-2"></a>  <span class="fu">coxph</span>(</span>
-<span id="cb26-3"><a href="#cb26-3"></a>    <span class="fu">Surv</span>(ttdeath, death) <span class="sc">~</span> <span class="fu">strata</span>(stage) <span class="sc">+</span> trt <span class="sc">+</span> age,</span>
-<span id="cb26-4"><a href="#cb26-4"></a>    <span class="at">data =</span> _</span>
-<span id="cb26-5"><a href="#cb26-5"></a>  ) <span class="sc">|&gt;</span> </span>
-<span id="cb26-6"><a href="#cb26-6"></a>  <span class="fu">survfit2</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb26-7"><a href="#cb26-7"></a>  <span class="fu">ggsurvfit</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1"></a>trial <span class="sc">|&gt;</span> </span>
+<span id="cb28-2"><a href="#cb28-2"></a>  <span class="fu">coxph</span>(</span>
+<span id="cb28-3"><a href="#cb28-3"></a>    <span class="fu">Surv</span>(ttdeath, death) <span class="sc">~</span> <span class="fu">strata</span>(stage) <span class="sc">+</span> trt <span class="sc">+</span> age,</span>
+<span id="cb28-4"><a href="#cb28-4"></a>    <span class="at">data =</span> _</span>
+<span id="cb28-5"><a href="#cb28-5"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb28-6"><a href="#cb28-6"></a>  <span class="fu">survfit2</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb28-7"><a href="#cb28-7"></a>  <span class="fu">ggsurvfit</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure"><p><a href="analyse-survie_files/figure-html/unnamed-chunk-19-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-11"><img src="analyse-survie_files/figure-html/unnamed-chunk-19-1.png" class="img-fluid figure-img" width="672"></a></p>
@@ -3574,19 +3577,18 @@ GLOBAL 2.969  5 0.70</code></pre>
 <span class="header-section-number">44.4.4</span> Sélection pas à pas d’un modèle réduit</h3>
 <p>Pour réduire le modèle (voir <a href="../analyses/selection-modele-pas-a-pas.html" class="quarto-xref"><span>Chapitre 24</span></a>), il est possible d’utiliser la fonction <code><a href="https://rdrr.io/r/stats/step.html">step()</a></code>.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1"></a>mod <span class="sc">|&gt;</span> <span class="fu">step</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1"></a>mod <span class="sc">|&gt;</span> <span class="fu">step</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Start:  AIC=1002.04
 Surv(ttdeath, death) ~ stage + trt + age</code></pre>
 </div>
 <div class="cell-output cell-output-error">
-<pre><code>Error in `drop1.default()`:
-! le nombre de lignes utilisées a changé : supprimer les valeurs manquantes ?</code></pre>
+<pre><code>Error in drop1.default(fit, scope$drop, scale = scale, trace = trace, : le nombre de lignes utilisées a changé : supprimer les valeurs manquantes ?</code></pre>
 </div>
 </div>
 <p>Dans notre exemple, nous rencontrons une erreur liée à des valeurs manquantes pour l’une des variables explicatives. Comme abordé précédemment (cf. <a href="../analyses/selection-modele-pas-a-pas.html#sec-step-avec-na" class="quarto-xref"><span>Section 24.8</span></a>), nous pouvons avoir recours à la fonction <code><a href="https://larmarange.github.io/guideR/reference/step_with_na.html">guideR::step_with_na()</a></code>.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb30"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1"></a>mod <span class="sc">|&gt;</span> guideR<span class="sc">::</span><span class="fu">step_with_na</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1"></a>mod <span class="sc">|&gt;</span> guideR<span class="sc">::</span><span class="fu">step_with_na</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Start:  AIC=1002.04
 Surv(ttdeath, death) ~ stage + trt + age
@@ -3599,7 +3601,7 @@ Surv(ttdeath, death) ~ stage + trt + age
 </div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Call:
-coxph(formula = Surv(ttdeath, death) ~ stage + trt + age, data = trial)
+coxph(formula = Surv(ttdeath, death) ~ stage + trt + age, data = full_data)
 
               coef exp(coef) se(coef)     z        p
 stageT2   0.268596  1.308126 0.287412 0.935 0.350028
@@ -3617,32 +3619,32 @@ n= 189, number of events= 103
 <span class="header-section-number">44.4.5</span> Modèles de Cox univariables</h3>
 <p>Comme déjà abordé dans le chapitre sur la régression logistique binaire, il est possible d’effectuer en une fois plusieurs modèles univariables avec <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/tbl_uvregression.html">gtsummary::tbl_uvregression()</a></code> (cf. <a href="../analyses/regression-logistique-binaire.html#sec-regressions-logistiques-univariables" class="quarto-xref"><span>Section 23.9</span></a>).</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb33"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1"></a>trial <span class="sc">|&gt;</span> </span>
-<span id="cb33-2"><a href="#cb33-2"></a>  <span class="fu">tbl_uvregression</span>(</span>
-<span id="cb33-3"><a href="#cb33-3"></a>    <span class="at">method =</span> coxph,</span>
-<span id="cb33-4"><a href="#cb33-4"></a>    <span class="at">y =</span> <span class="fu">Surv</span>(ttdeath, death),</span>
-<span id="cb33-5"><a href="#cb33-5"></a>    <span class="at">include =</span> <span class="fu">c</span>(stage, trt, age),</span>
-<span id="cb33-6"><a href="#cb33-6"></a>    <span class="at">exponentiate =</span> <span class="cn">TRUE</span></span>
-<span id="cb33-7"><a href="#cb33-7"></a>  ) <span class="sc">|&gt;</span> </span>
-<span id="cb33-8"><a href="#cb33-8"></a>  <span class="fu">bold_labels</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1"></a>trial <span class="sc">|&gt;</span> </span>
+<span id="cb35-2"><a href="#cb35-2"></a>  <span class="fu">tbl_uvregression</span>(</span>
+<span id="cb35-3"><a href="#cb35-3"></a>    <span class="at">method =</span> coxph,</span>
+<span id="cb35-4"><a href="#cb35-4"></a>    <span class="at">y =</span> <span class="fu">Surv</span>(ttdeath, death),</span>
+<span id="cb35-5"><a href="#cb35-5"></a>    <span class="at">include =</span> <span class="fu">c</span>(stage, trt, age),</span>
+<span id="cb35-6"><a href="#cb35-6"></a>    <span class="at">exponentiate =</span> <span class="cn">TRUE</span></span>
+<span id="cb35-7"><a href="#cb35-7"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb35-8"><a href="#cb35-8"></a>  <span class="fu">bold_labels</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<div id="zpawmxptki" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#zpawmxptki table {
+<div id="ellqlpsycy" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#ellqlpsycy table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#zpawmxptki thead, #zpawmxptki tbody, #zpawmxptki tfoot, #zpawmxptki tr, #zpawmxptki td, #zpawmxptki th {
+#ellqlpsycy thead, #ellqlpsycy tbody, #ellqlpsycy tfoot, #ellqlpsycy tr, #ellqlpsycy td, #ellqlpsycy th {
   border-style: none;
 }
 
-#zpawmxptki p {
+#ellqlpsycy p {
   margin: 0;
   padding: 0;
 }
 
-#zpawmxptki .gt_table {
+#ellqlpsycy .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -3668,12 +3670,12 @@ n= 189, number of events= 103
   border-left-color: #D3D3D3;
 }
 
-#zpawmxptki .gt_caption {
+#ellqlpsycy .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#zpawmxptki .gt_title {
+#ellqlpsycy .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -3685,7 +3687,7 @@ n= 189, number of events= 103
   border-bottom-width: 0;
 }
 
-#zpawmxptki .gt_subtitle {
+#ellqlpsycy .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -3697,7 +3699,7 @@ n= 189, number of events= 103
   border-top-width: 0;
 }
 
-#zpawmxptki .gt_heading {
+#ellqlpsycy .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -3709,13 +3711,13 @@ n= 189, number of events= 103
   border-right-color: #D3D3D3;
 }
 
-#zpawmxptki .gt_bottom_border {
+#ellqlpsycy .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#zpawmxptki .gt_col_headings {
+#ellqlpsycy .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -3730,7 +3732,7 @@ n= 189, number of events= 103
   border-right-color: #D3D3D3;
 }
 
-#zpawmxptki .gt_col_heading {
+#ellqlpsycy .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -3750,7 +3752,7 @@ n= 189, number of events= 103
   overflow-x: hidden;
 }
 
-#zpawmxptki .gt_column_spanner_outer {
+#ellqlpsycy .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -3762,15 +3764,15 @@ n= 189, number of events= 103
   padding-right: 4px;
 }
 
-#zpawmxptki .gt_column_spanner_outer:first-child {
+#ellqlpsycy .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#zpawmxptki .gt_column_spanner_outer:last-child {
+#ellqlpsycy .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#zpawmxptki .gt_column_spanner {
+#ellqlpsycy .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -3782,11 +3784,11 @@ n= 189, number of events= 103
   width: 100%;
 }
 
-#zpawmxptki .gt_spanner_row {
+#ellqlpsycy .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#zpawmxptki .gt_group_heading {
+#ellqlpsycy .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -3812,7 +3814,7 @@ n= 189, number of events= 103
   text-align: left;
 }
 
-#zpawmxptki .gt_empty_group_heading {
+#ellqlpsycy .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -3827,15 +3829,15 @@ n= 189, number of events= 103
   vertical-align: middle;
 }
 
-#zpawmxptki .gt_from_md > :first-child {
+#ellqlpsycy .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#zpawmxptki .gt_from_md > :last-child {
+#ellqlpsycy .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#zpawmxptki .gt_row {
+#ellqlpsycy .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -3854,7 +3856,7 @@ n= 189, number of events= 103
   overflow-x: hidden;
 }
 
-#zpawmxptki .gt_stub {
+#ellqlpsycy .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -3867,7 +3869,7 @@ n= 189, number of events= 103
   padding-right: 5px;
 }
 
-#zpawmxptki .gt_stub_row_group {
+#ellqlpsycy .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -3881,15 +3883,15 @@ n= 189, number of events= 103
   vertical-align: top;
 }
 
-#zpawmxptki .gt_row_group_first td {
+#ellqlpsycy .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#zpawmxptki .gt_row_group_first th {
+#ellqlpsycy .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#zpawmxptki .gt_summary_row {
+#ellqlpsycy .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -3899,16 +3901,16 @@ n= 189, number of events= 103
   padding-right: 5px;
 }
 
-#zpawmxptki .gt_first_summary_row {
+#ellqlpsycy .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#zpawmxptki .gt_first_summary_row.thick {
+#ellqlpsycy .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#zpawmxptki .gt_last_summary_row {
+#ellqlpsycy .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -3918,7 +3920,7 @@ n= 189, number of events= 103
   border-bottom-color: #D3D3D3;
 }
 
-#zpawmxptki .gt_grand_summary_row {
+#ellqlpsycy .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -3928,7 +3930,7 @@ n= 189, number of events= 103
   padding-right: 5px;
 }
 
-#zpawmxptki .gt_first_grand_summary_row {
+#ellqlpsycy .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -3938,7 +3940,7 @@ n= 189, number of events= 103
   border-top-color: #D3D3D3;
 }
 
-#zpawmxptki .gt_last_grand_summary_row_top {
+#ellqlpsycy .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -3948,11 +3950,11 @@ n= 189, number of events= 103
   border-bottom-color: #D3D3D3;
 }
 
-#zpawmxptki .gt_striped {
+#ellqlpsycy .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#zpawmxptki .gt_table_body {
+#ellqlpsycy .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -3961,7 +3963,7 @@ n= 189, number of events= 103
   border-bottom-color: #D3D3D3;
 }
 
-#zpawmxptki .gt_footnotes {
+#ellqlpsycy .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -3975,7 +3977,7 @@ n= 189, number of events= 103
   border-right-color: #D3D3D3;
 }
 
-#zpawmxptki .gt_footnote {
+#ellqlpsycy .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -3984,7 +3986,7 @@ n= 189, number of events= 103
   padding-right: 5px;
 }
 
-#zpawmxptki .gt_sourcenotes {
+#ellqlpsycy .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -3998,7 +4000,7 @@ n= 189, number of events= 103
   border-right-color: #D3D3D3;
 }
 
-#zpawmxptki .gt_sourcenote {
+#ellqlpsycy .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -4006,76 +4008,76 @@ n= 189, number of events= 103
   padding-right: 5px;
 }
 
-#zpawmxptki .gt_left {
+#ellqlpsycy .gt_left {
   text-align: left;
 }
 
-#zpawmxptki .gt_center {
+#ellqlpsycy .gt_center {
   text-align: center;
 }
 
-#zpawmxptki .gt_right {
+#ellqlpsycy .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#zpawmxptki .gt_font_normal {
+#ellqlpsycy .gt_font_normal {
   font-weight: normal;
 }
 
-#zpawmxptki .gt_font_bold {
+#ellqlpsycy .gt_font_bold {
   font-weight: bold;
 }
 
-#zpawmxptki .gt_font_italic {
+#ellqlpsycy .gt_font_italic {
   font-style: italic;
 }
 
-#zpawmxptki .gt_super {
+#ellqlpsycy .gt_super {
   font-size: 65%;
 }
 
-#zpawmxptki .gt_footnote_marks {
+#ellqlpsycy .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#zpawmxptki .gt_asterisk {
+#ellqlpsycy .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#zpawmxptki .gt_indent_1 {
+#ellqlpsycy .gt_indent_1 {
   text-indent: 5px;
 }
 
-#zpawmxptki .gt_indent_2 {
+#ellqlpsycy .gt_indent_2 {
   text-indent: 10px;
 }
 
-#zpawmxptki .gt_indent_3 {
+#ellqlpsycy .gt_indent_3 {
   text-indent: 15px;
 }
 
-#zpawmxptki .gt_indent_4 {
+#ellqlpsycy .gt_indent_4 {
   text-indent: 20px;
 }
 
-#zpawmxptki .gt_indent_5 {
+#ellqlpsycy .gt_indent_5 {
   text-indent: 25px;
 }
 
-#zpawmxptki .katex-display {
+#ellqlpsycy .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#zpawmxptki div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#ellqlpsycy div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
-<table class="gt_table table table-sm table-striped small" data-quarto-bootstrap="false">
+<table class="gt_table table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
 <colgroup>
 <col style="width: 20%">
 <col style="width: 20%">
@@ -4155,7 +4157,7 @@ n= 189, number of events= 103
 <td class="gt_row gt_center" headers="p.value">0,3</td>
 </tr>
 </tbody>
-<tfoot><tr class="gt_sourcenotes odd">
+<tfoot class="gt_sourcenotes"><tr class="odd">
 <td colspan="5" class="gt_sourcenote">Abréviations: HR = rapport de risques instantanés, IC = intervalle de confiance</td>
 </tr></tfoot>
 </table>
@@ -4167,7 +4169,7 @@ n= 189, number of events= 103
 <p>Lorsque l’on travaille avec des données pondérées et un plan d’échantillonnage complexe, le plus pertinent est d’avoir recours au package <a href="http://r-survey.r-forge.r-project.org/survey/">survey</a> (cf. <a href="../donnees_ponderees/plan-echantillonnage.html" class="quarto-xref"><span>Chapitre 29</span></a>) qui propose des fonctions adaptées à l’analyse de survie.</p>
 <p>Pour l’exemple, nous allons transformer le jeu de données en objet <code>survey</code> en indiquant simplement des poids uniformes égaux à 1, dans la mesure où ce jeux de données n’a pas de poids.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb34"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1"></a><span class="fu">library</span>(survey)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1"></a><span class="fu">library</span>(survey)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Le chargement a nécessité le package : grid</code></pre>
 </div>
@@ -4183,28 +4185,28 @@ Attachement du package : 'survey'</code></pre>
 
     dotchart</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb39"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1"></a>strial <span class="ot">&lt;-</span> <span class="fu">svydesign</span>(<span class="sc">~</span> <span class="dv">1</span>, <span class="at">data =</span> trial, <span class="at">weights =</span> <span class="sc">~</span> <span class="dv">1</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1"></a>strial <span class="ot">&lt;-</span> <span class="fu">svydesign</span>(<span class="sc">~</span> <span class="dv">1</span>, <span class="at">data =</span> trial, <span class="at">weights =</span> <span class="sc">~</span> <span class="dv">1</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <section id="courbes-de-kaplan-meier" class="level3" data-number="44.5.1"><h3 data-number="44.5.1" class="anchored" data-anchor-id="courbes-de-kaplan-meier">
 <span class="header-section-number">44.5.1</span> Courbes de Kaplan-Meier</h3>
 <p>Pour le calcul d’une courbe de Kaplan-Meier, nous allons utiliser la fonction <code><a href="https://rdrr.io/pkg/survey/man/svykm.html">survey::svykm()</a></code>.</p>
 <p>Il est préférable de préciser <code>se = TRUE</code> pour que les erreurs standards soient calculées, ce qui permettra plus tard de récupérer les intervalles de confiance. <strong>Attention&nbsp;:</strong> sur un gros jeu de données, ce temps de calcul peut être très long (plusieurs minutes ou dizaines de minutes).</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb40"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1"></a>skm <span class="ot">&lt;-</span> <span class="fu">svykm</span>(</span>
-<span id="cb40-2"><a href="#cb40-2"></a>  <span class="fu">Surv</span>(ttdeath, death) <span class="sc">~</span> <span class="dv">1</span>,</span>
-<span id="cb40-3"><a href="#cb40-3"></a>  <span class="at">design =</span> strial,</span>
-<span id="cb40-4"><a href="#cb40-4"></a>  <span class="at">se =</span> <span class="cn">TRUE</span></span>
-<span id="cb40-5"><a href="#cb40-5"></a>)</span>
-<span id="cb40-6"><a href="#cb40-6"></a>skm_trt <span class="ot">&lt;-</span> <span class="fu">svykm</span>(</span>
-<span id="cb40-7"><a href="#cb40-7"></a>  <span class="fu">Surv</span>(ttdeath, death) <span class="sc">~</span> trt,</span>
-<span id="cb40-8"><a href="#cb40-8"></a>  <span class="at">design =</span> strial,</span>
-<span id="cb40-9"><a href="#cb40-9"></a>  <span class="at">se =</span> <span class="cn">TRUE</span></span>
-<span id="cb40-10"><a href="#cb40-10"></a>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1"></a>skm <span class="ot">&lt;-</span> <span class="fu">svykm</span>(</span>
+<span id="cb42-2"><a href="#cb42-2"></a>  <span class="fu">Surv</span>(ttdeath, death) <span class="sc">~</span> <span class="dv">1</span>,</span>
+<span id="cb42-3"><a href="#cb42-3"></a>  <span class="at">design =</span> strial,</span>
+<span id="cb42-4"><a href="#cb42-4"></a>  <span class="at">se =</span> <span class="cn">TRUE</span></span>
+<span id="cb42-5"><a href="#cb42-5"></a>)</span>
+<span id="cb42-6"><a href="#cb42-6"></a>skm_trt <span class="ot">&lt;-</span> <span class="fu">svykm</span>(</span>
+<span id="cb42-7"><a href="#cb42-7"></a>  <span class="fu">Surv</span>(ttdeath, death) <span class="sc">~</span> trt,</span>
+<span id="cb42-8"><a href="#cb42-8"></a>  <span class="at">design =</span> strial,</span>
+<span id="cb42-9"><a href="#cb42-9"></a>  <span class="at">se =</span> <span class="cn">TRUE</span></span>
+<span id="cb42-10"><a href="#cb42-10"></a>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Malheureusement, <code><a href="http://www.danieldsjoberg.com/ggsurvfit/reference/ggsurvfit.html">ggsurvfit::ggsurvfit()</a></code> et <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/tbl_survfit.html">gtsummary::tbl_survfit()</a></code> ne sont pas (encore ?) compatibles avec les courbes de survies créées avec <code><a href="https://rdrr.io/pkg/survey/man/svykm.html">survey::svykm()</a></code>. On devra donc avoir recours aux fonctions de bases.</p>
 <p>Pour un graphique avec affichage des intervalles de confiance&nbsp;:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb41"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1"></a>skm <span class="sc">|&gt;</span>  <span class="fu">plot</span>(<span class="at">ci =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1"></a>skm <span class="sc">|&gt;</span>  <span class="fu">plot</span>(<span class="at">ci =</span> <span class="cn">TRUE</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure"><p><a href="analyse-survie_files/figure-html/unnamed-chunk-25-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-12"><img src="analyse-survie_files/figure-html/unnamed-chunk-25-1.png" class="img-fluid figure-img" width="672"></a></p>
@@ -4213,13 +4215,13 @@ Attachement du package : 'survey'</code></pre>
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb42"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1"></a>skm_trt <span class="sc">|&gt;</span> <span class="fu">plot</span>(</span>
-<span id="cb42-2"><a href="#cb42-2"></a>  <span class="at">ci =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb42-3"><a href="#cb42-3"></a>  <span class="at">pars =</span> <span class="fu">list</span>(</span>
-<span id="cb42-4"><a href="#cb42-4"></a>    <span class="at">col =</span> <span class="fu">c</span>(<span class="st">"red"</span>, <span class="st">"blue"</span>)</span>
-<span id="cb42-5"><a href="#cb42-5"></a>  ),</span>
-<span id="cb42-6"><a href="#cb42-6"></a>  <span class="at">lwd =</span> <span class="dv">2</span></span>
-<span id="cb42-7"><a href="#cb42-7"></a>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1"></a>skm_trt <span class="sc">|&gt;</span> <span class="fu">plot</span>(</span>
+<span id="cb44-2"><a href="#cb44-2"></a>  <span class="at">ci =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb44-3"><a href="#cb44-3"></a>  <span class="at">pars =</span> <span class="fu">list</span>(</span>
+<span id="cb44-4"><a href="#cb44-4"></a>    <span class="at">col =</span> <span class="fu">c</span>(<span class="st">"red"</span>, <span class="st">"blue"</span>)</span>
+<span id="cb44-5"><a href="#cb44-5"></a>  ),</span>
+<span id="cb44-6"><a href="#cb44-6"></a>  <span class="at">lwd =</span> <span class="dv">2</span></span>
+<span id="cb44-7"><a href="#cb44-7"></a>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure"><p><a href="analyse-survie_files/figure-html/unnamed-chunk-26-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-13"><img src="analyse-survie_files/figure-html/unnamed-chunk-26-1.png" class="img-fluid figure-img" width="672"></a></p>
@@ -4229,8 +4231,8 @@ Attachement du package : 'survey'</code></pre>
 </div>
 <p>On pourra aussi avoir recours au package <a href="https://github.com/jinseob2kim/jskm">jskm</a> et sa fonction <code><a href="https://jinseob2kim.github.io/jskm/reference/svyjskm.html">jskm::svyjskm()</a></code>.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb43"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1"></a><span class="fu">library</span>(jskm)</span>
-<span id="cb43-2"><a href="#cb43-2"></a>skm_trt <span class="sc">|&gt;</span> <span class="fu">svyjskm</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1"></a><span class="fu">library</span>(jskm)</span>
+<span id="cb45-2"><a href="#cb45-2"></a>skm_trt <span class="sc">|&gt;</span> <span class="fu">svyjskm</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure"><p><a href="analyse-survie_files/figure-html/unnamed-chunk-27-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-14"><img src="analyse-survie_files/figure-html/unnamed-chunk-27-1.png" class="img-fluid figure-img" width="672"></a></p>
@@ -4239,16 +4241,16 @@ Attachement du package : 'survey'</code></pre>
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb44"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1"></a>skm_trt <span class="sc">|&gt;</span> </span>
-<span id="cb44-2"><a href="#cb44-2"></a>  <span class="fu">svyjskm</span>(</span>
-<span id="cb44-3"><a href="#cb44-3"></a>    <span class="at">pval =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb44-4"><a href="#cb44-4"></a>    <span class="at">xlabs =</span> <span class="st">"Mois depuis le diagnostic"</span>,</span>
-<span id="cb44-5"><a href="#cb44-5"></a>    <span class="at">ylabs =</span> <span class="st">"Probabilité de survie"</span>,</span>
-<span id="cb44-6"><a href="#cb44-6"></a>    <span class="at">surv.scale =</span> <span class="st">"percent"</span>,</span>
-<span id="cb44-7"><a href="#cb44-7"></a>    <span class="at">ci =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb44-8"><a href="#cb44-8"></a>    <span class="at">table =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb44-9"><a href="#cb44-9"></a>    <span class="at">label.nrisk =</span> <span class="st">"Personnes à risque"</span></span>
-<span id="cb44-10"><a href="#cb44-10"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1"></a>skm_trt <span class="sc">|&gt;</span> </span>
+<span id="cb46-2"><a href="#cb46-2"></a>  <span class="fu">svyjskm</span>(</span>
+<span id="cb46-3"><a href="#cb46-3"></a>    <span class="at">pval =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb46-4"><a href="#cb46-4"></a>    <span class="at">xlabs =</span> <span class="st">"Mois depuis le diagnostic"</span>,</span>
+<span id="cb46-5"><a href="#cb46-5"></a>    <span class="at">ylabs =</span> <span class="st">"Probabilité de survie"</span>,</span>
+<span id="cb46-6"><a href="#cb46-6"></a>    <span class="at">surv.scale =</span> <span class="st">"percent"</span>,</span>
+<span id="cb46-7"><a href="#cb46-7"></a>    <span class="at">ci =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb46-8"><a href="#cb46-8"></a>    <span class="at">table =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb46-9"><a href="#cb46-9"></a>    <span class="at">label.nrisk =</span> <span class="st">"Personnes à risque"</span></span>
+<span id="cb46-10"><a href="#cb46-10"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure"><p><a href="analyse-survie_files/figure-html/unnamed-chunk-28-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-15"><img src="analyse-survie_files/figure-html/unnamed-chunk-28-1.png" class="img-fluid figure-img" width="672"></a></p>
@@ -4258,51 +4260,51 @@ Attachement du package : 'survey'</code></pre>
 </div>
 <p>La fonction <code><a href="https://rdrr.io/r/stats/quantile.html">quantile()</a></code> peut-être appliquée à une courbe de survie simple (ici <code>skm</code>) mais dans le cadre d’une courbe de survie stratifiée (ici <code>skm_trt</code>) il faut l’appliquer à chaque sous-élément. On pourra alors s’aider de la petite fonction ci-dessous (utiliser <code>ci_level = NULL</code> pour ne pas calculer les intervalles de confiance.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb45"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1"></a>svykm_probs <span class="ot">&lt;-</span> <span class="cf">function</span>(x,</span>
-<span id="cb45-2"><a href="#cb45-2"></a>                        <span class="at">probs =</span> <span class="fu">c</span>(<span class="dv">1</span>, .<span class="dv">75</span>, <span class="dv">5</span>, .<span class="dv">25</span>),</span>
-<span id="cb45-3"><a href="#cb45-3"></a>                        <span class="at">ci_level =</span> .<span class="dv">95</span>,</span>
-<span id="cb45-4"><a href="#cb45-4"></a>                        <span class="at">strata =</span> <span class="cn">NULL</span>) {</span>
-<span id="cb45-5"><a href="#cb45-5"></a>  <span class="cf">if</span> (<span class="fu">inherits</span>(x, <span class="st">"svykm"</span>)) {</span>
-<span id="cb45-6"><a href="#cb45-6"></a>    <span class="cf">if</span> (<span class="fu">is.null</span>(ci_level) <span class="sc">|</span> <span class="fu">is.null</span>(x<span class="sc">$</span>varlog)) {</span>
-<span id="cb45-7"><a href="#cb45-7"></a>      res <span class="ot">&lt;-</span> <span class="fu">quantile</span>(x, probs, <span class="at">ci =</span> <span class="cn">FALSE</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb45-8"><a href="#cb45-8"></a>        dplyr<span class="sc">::</span><span class="fu">as_tibble</span>(<span class="at">rownames =</span> <span class="st">"prob"</span>)</span>
-<span id="cb45-9"><a href="#cb45-9"></a>    } <span class="cf">else</span> {</span>
-<span id="cb45-10"><a href="#cb45-10"></a>      tmp <span class="ot">&lt;-</span> <span class="fu">quantile</span>(</span>
-<span id="cb45-11"><a href="#cb45-11"></a>        x,</span>
-<span id="cb45-12"><a href="#cb45-12"></a>        probs,</span>
-<span id="cb45-13"><a href="#cb45-13"></a>        <span class="at">ci =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb45-14"><a href="#cb45-14"></a>        <span class="at">level =</span> ci_level</span>
-<span id="cb45-15"><a href="#cb45-15"></a>      )</span>
-<span id="cb45-16"><a href="#cb45-16"></a>      ci <span class="ot">&lt;-</span> <span class="fu">attr</span>(tmp, <span class="st">"ci"</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb45-17"><a href="#cb45-17"></a>        dplyr<span class="sc">::</span><span class="fu">as_tibble</span>(<span class="at">rownames =</span> <span class="st">"prob"</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb45-18"><a href="#cb45-18"></a>        dplyr<span class="sc">::</span><span class="fu">rename</span>(<span class="at">conf.low =</span> <span class="dv">2</span>, <span class="at">conf.high =</span> <span class="dv">3</span>)</span>
-<span id="cb45-19"><a href="#cb45-19"></a>      res <span class="ot">&lt;-</span> tmp <span class="sc">|&gt;</span> </span>
-<span id="cb45-20"><a href="#cb45-20"></a>        dplyr<span class="sc">::</span><span class="fu">as_tibble</span>(<span class="at">rownames =</span> <span class="st">"prob"</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb45-21"><a href="#cb45-21"></a>        dplyr<span class="sc">::</span><span class="fu">left_join</span>(ci, <span class="at">by =</span> <span class="st">"prob"</span>)</span>
-<span id="cb45-22"><a href="#cb45-22"></a>    }</span>
-<span id="cb45-23"><a href="#cb45-23"></a>    <span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(strata))</span>
-<span id="cb45-24"><a href="#cb45-24"></a>      res<span class="sc">$</span>strata <span class="ot">&lt;-</span> strata</span>
-<span id="cb45-25"><a href="#cb45-25"></a>    res</span>
-<span id="cb45-26"><a href="#cb45-26"></a>  } <span class="cf">else</span> {</span>
-<span id="cb45-27"><a href="#cb45-27"></a>    x <span class="sc">|&gt;</span> </span>
-<span id="cb45-28"><a href="#cb45-28"></a>      <span class="fu">seq_along</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb45-29"><a href="#cb45-29"></a>      <span class="fu">lapply</span>(</span>
-<span id="cb45-30"><a href="#cb45-30"></a>        \(i) {</span>
-<span id="cb45-31"><a href="#cb45-31"></a>          <span class="fu">svykm_probs</span>(</span>
-<span id="cb45-32"><a href="#cb45-32"></a>            x[[i]],</span>
-<span id="cb45-33"><a href="#cb45-33"></a>            <span class="at">probs =</span> probs,</span>
-<span id="cb45-34"><a href="#cb45-34"></a>            <span class="at">ci_level =</span> ci_level,</span>
-<span id="cb45-35"><a href="#cb45-35"></a>            <span class="at">strata =</span> <span class="fu">names</span>(x)[[i]]</span>
-<span id="cb45-36"><a href="#cb45-36"></a>          )</span>
-<span id="cb45-37"><a href="#cb45-37"></a>        }</span>
-<span id="cb45-38"><a href="#cb45-38"></a>      ) <span class="sc">|&gt;</span> </span>
-<span id="cb45-39"><a href="#cb45-39"></a>      dplyr<span class="sc">::</span><span class="fu">bind_rows</span>()</span>
-<span id="cb45-40"><a href="#cb45-40"></a>  }</span>
-<span id="cb45-41"><a href="#cb45-41"></a>}</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1"></a>svykm_probs <span class="ot">&lt;-</span> <span class="cf">function</span>(x,</span>
+<span id="cb47-2"><a href="#cb47-2"></a>                        <span class="at">probs =</span> <span class="fu">c</span>(<span class="dv">1</span>, .<span class="dv">75</span>, <span class="dv">5</span>, .<span class="dv">25</span>),</span>
+<span id="cb47-3"><a href="#cb47-3"></a>                        <span class="at">ci_level =</span> .<span class="dv">95</span>,</span>
+<span id="cb47-4"><a href="#cb47-4"></a>                        <span class="at">strata =</span> <span class="cn">NULL</span>) {</span>
+<span id="cb47-5"><a href="#cb47-5"></a>  <span class="cf">if</span> (<span class="fu">inherits</span>(x, <span class="st">"svykm"</span>)) {</span>
+<span id="cb47-6"><a href="#cb47-6"></a>    <span class="cf">if</span> (<span class="fu">is.null</span>(ci_level) <span class="sc">|</span> <span class="fu">is.null</span>(x<span class="sc">$</span>varlog)) {</span>
+<span id="cb47-7"><a href="#cb47-7"></a>      res <span class="ot">&lt;-</span> <span class="fu">quantile</span>(x, probs, <span class="at">ci =</span> <span class="cn">FALSE</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb47-8"><a href="#cb47-8"></a>        dplyr<span class="sc">::</span><span class="fu">as_tibble</span>(<span class="at">rownames =</span> <span class="st">"prob"</span>)</span>
+<span id="cb47-9"><a href="#cb47-9"></a>    } <span class="cf">else</span> {</span>
+<span id="cb47-10"><a href="#cb47-10"></a>      tmp <span class="ot">&lt;-</span> <span class="fu">quantile</span>(</span>
+<span id="cb47-11"><a href="#cb47-11"></a>        x,</span>
+<span id="cb47-12"><a href="#cb47-12"></a>        probs,</span>
+<span id="cb47-13"><a href="#cb47-13"></a>        <span class="at">ci =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb47-14"><a href="#cb47-14"></a>        <span class="at">level =</span> ci_level</span>
+<span id="cb47-15"><a href="#cb47-15"></a>      )</span>
+<span id="cb47-16"><a href="#cb47-16"></a>      ci <span class="ot">&lt;-</span> <span class="fu">attr</span>(tmp, <span class="st">"ci"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb47-17"><a href="#cb47-17"></a>        dplyr<span class="sc">::</span><span class="fu">as_tibble</span>(<span class="at">rownames =</span> <span class="st">"prob"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb47-18"><a href="#cb47-18"></a>        dplyr<span class="sc">::</span><span class="fu">rename</span>(<span class="at">conf.low =</span> <span class="dv">2</span>, <span class="at">conf.high =</span> <span class="dv">3</span>)</span>
+<span id="cb47-19"><a href="#cb47-19"></a>      res <span class="ot">&lt;-</span> tmp <span class="sc">|&gt;</span> </span>
+<span id="cb47-20"><a href="#cb47-20"></a>        dplyr<span class="sc">::</span><span class="fu">as_tibble</span>(<span class="at">rownames =</span> <span class="st">"prob"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb47-21"><a href="#cb47-21"></a>        dplyr<span class="sc">::</span><span class="fu">left_join</span>(ci, <span class="at">by =</span> <span class="st">"prob"</span>)</span>
+<span id="cb47-22"><a href="#cb47-22"></a>    }</span>
+<span id="cb47-23"><a href="#cb47-23"></a>    <span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(strata))</span>
+<span id="cb47-24"><a href="#cb47-24"></a>      res<span class="sc">$</span>strata <span class="ot">&lt;-</span> strata</span>
+<span id="cb47-25"><a href="#cb47-25"></a>    res</span>
+<span id="cb47-26"><a href="#cb47-26"></a>  } <span class="cf">else</span> {</span>
+<span id="cb47-27"><a href="#cb47-27"></a>    x <span class="sc">|&gt;</span> </span>
+<span id="cb47-28"><a href="#cb47-28"></a>      <span class="fu">seq_along</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb47-29"><a href="#cb47-29"></a>      <span class="fu">lapply</span>(</span>
+<span id="cb47-30"><a href="#cb47-30"></a>        \(i) {</span>
+<span id="cb47-31"><a href="#cb47-31"></a>          <span class="fu">svykm_probs</span>(</span>
+<span id="cb47-32"><a href="#cb47-32"></a>            x[[i]],</span>
+<span id="cb47-33"><a href="#cb47-33"></a>            <span class="at">probs =</span> probs,</span>
+<span id="cb47-34"><a href="#cb47-34"></a>            <span class="at">ci_level =</span> ci_level,</span>
+<span id="cb47-35"><a href="#cb47-35"></a>            <span class="at">strata =</span> <span class="fu">names</span>(x)[[i]]</span>
+<span id="cb47-36"><a href="#cb47-36"></a>          )</span>
+<span id="cb47-37"><a href="#cb47-37"></a>        }</span>
+<span id="cb47-38"><a href="#cb47-38"></a>      ) <span class="sc">|&gt;</span> </span>
+<span id="cb47-39"><a href="#cb47-39"></a>      dplyr<span class="sc">::</span><span class="fu">bind_rows</span>()</span>
+<span id="cb47-40"><a href="#cb47-40"></a>  }</span>
+<span id="cb47-41"><a href="#cb47-41"></a>}</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Ainsi&nbsp;:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb46"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1"></a>skm <span class="sc">|&gt;</span> <span class="fu">svykm_probs</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1"></a>skm <span class="sc">|&gt;</span> <span class="fu">svykm_probs</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 4 × 4
   prob   value conf.low conf.high
@@ -4312,7 +4314,7 @@ Attachement du package : 'survey'</code></pre>
 3 5       3.53     3.53      3.53
 4 0.25  Inf      Inf       Inf   </code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb48"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1"></a>skm_trt <span class="sc">|&gt;</span> <span class="fu">svykm_probs</span>(<span class="at">probs =</span> <span class="fu">c</span>(<span class="dv">1</span>, .<span class="dv">8</span>, .<span class="dv">6</span>, .<span class="dv">4</span>))</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1"></a>skm_trt <span class="sc">|&gt;</span> <span class="fu">svykm_probs</span>(<span class="at">probs =</span> <span class="fu">c</span>(<span class="dv">1</span>, .<span class="dv">8</span>, .<span class="dv">6</span>, .<span class="dv">4</span>))</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 8 × 5
   prob   value conf.low conf.high strata
@@ -4329,51 +4331,51 @@ Attachement du package : 'survey'</code></pre>
 </div>
 <p>On ne peut pas facilement accéder aux valeurs de la courbe de survie à certains points de temps. Mais la fonction suivante permets de la faire aisément. Il faut lui passer, via <code>times</code>, une liste de points de temps.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb50"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1"></a>svykm_times <span class="ot">&lt;-</span> <span class="cf">function</span>(x,</span>
-<span id="cb50-2"><a href="#cb50-2"></a>                        times,</span>
-<span id="cb50-3"><a href="#cb50-3"></a>                        <span class="at">ci_level =</span> .<span class="dv">95</span>,</span>
-<span id="cb50-4"><a href="#cb50-4"></a>                        <span class="at">strata =</span> <span class="cn">NULL</span>) {</span>
-<span id="cb50-5"><a href="#cb50-5"></a>  <span class="cf">if</span> (<span class="fu">inherits</span>(x, <span class="st">"svykm"</span>)) {</span>
-<span id="cb50-6"><a href="#cb50-6"></a>    idx <span class="ot">&lt;-</span> <span class="fu">sapply</span>(</span>
-<span id="cb50-7"><a href="#cb50-7"></a>      times,</span>
-<span id="cb50-8"><a href="#cb50-8"></a>      <span class="cf">function</span>(t) <span class="fu">max</span>(<span class="fu">which</span>(x<span class="sc">$</span>time <span class="sc">&lt;=</span> t))</span>
-<span id="cb50-9"><a href="#cb50-9"></a>    )</span>
-<span id="cb50-10"><a href="#cb50-10"></a>    <span class="cf">if</span> (<span class="fu">is.null</span>(ci_level) <span class="sc">|</span> <span class="fu">is.null</span>(x<span class="sc">$</span>varlog)) {</span>
-<span id="cb50-11"><a href="#cb50-11"></a>      res <span class="ot">&lt;-</span> dplyr<span class="sc">::</span><span class="fu">tibble</span>(</span>
-<span id="cb50-12"><a href="#cb50-12"></a>        <span class="at">time =</span> times,</span>
-<span id="cb50-13"><a href="#cb50-13"></a>        <span class="at">value =</span> x<span class="sc">$</span>surv[idx]</span>
-<span id="cb50-14"><a href="#cb50-14"></a>      )</span>
-<span id="cb50-15"><a href="#cb50-15"></a>    } <span class="cf">else</span> {</span>
-<span id="cb50-16"><a href="#cb50-16"></a>      ci <span class="ot">&lt;-</span> <span class="fu">confint</span>(x, <span class="at">parm =</span> times, <span class="at">level =</span> ci_level)</span>
-<span id="cb50-17"><a href="#cb50-17"></a>      res <span class="ot">&lt;-</span> dplyr<span class="sc">::</span><span class="fu">tibble</span>(</span>
-<span id="cb50-18"><a href="#cb50-18"></a>        <span class="at">time =</span> times,</span>
-<span id="cb50-19"><a href="#cb50-19"></a>        <span class="at">value =</span> x<span class="sc">$</span>surv[idx],</span>
-<span id="cb50-20"><a href="#cb50-20"></a>        <span class="at">conf.low =</span> ci[, <span class="dv">1</span>],</span>
-<span id="cb50-21"><a href="#cb50-21"></a>        <span class="at">conf.high =</span> ci[, <span class="dv">2</span>]</span>
-<span id="cb50-22"><a href="#cb50-22"></a>      )</span>
-<span id="cb50-23"><a href="#cb50-23"></a>    }  </span>
-<span id="cb50-24"><a href="#cb50-24"></a>    <span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(strata))</span>
-<span id="cb50-25"><a href="#cb50-25"></a>      res<span class="sc">$</span>strata <span class="ot">&lt;-</span> strata</span>
-<span id="cb50-26"><a href="#cb50-26"></a>    res</span>
-<span id="cb50-27"><a href="#cb50-27"></a>  } <span class="cf">else</span> {</span>
-<span id="cb50-28"><a href="#cb50-28"></a>    x <span class="sc">|&gt;</span> </span>
-<span id="cb50-29"><a href="#cb50-29"></a>      <span class="fu">seq_along</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb50-30"><a href="#cb50-30"></a>      <span class="fu">lapply</span>(</span>
-<span id="cb50-31"><a href="#cb50-31"></a>        \(i) {</span>
-<span id="cb50-32"><a href="#cb50-32"></a>          <span class="fu">svykm_times</span>(</span>
-<span id="cb50-33"><a href="#cb50-33"></a>            x[[i]],</span>
-<span id="cb50-34"><a href="#cb50-34"></a>            <span class="at">times =</span> times,</span>
-<span id="cb50-35"><a href="#cb50-35"></a>            <span class="at">ci_level =</span> ci_level,</span>
-<span id="cb50-36"><a href="#cb50-36"></a>            <span class="at">strata =</span> <span class="fu">names</span>(x)[[i]]</span>
-<span id="cb50-37"><a href="#cb50-37"></a>          )</span>
-<span id="cb50-38"><a href="#cb50-38"></a>        }</span>
-<span id="cb50-39"><a href="#cb50-39"></a>      ) <span class="sc">|&gt;</span> </span>
-<span id="cb50-40"><a href="#cb50-40"></a>      dplyr<span class="sc">::</span><span class="fu">bind_rows</span>()</span>
-<span id="cb50-41"><a href="#cb50-41"></a>  }</span>
-<span id="cb50-42"><a href="#cb50-42"></a>}</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="sourceCode cell-code" id="cb52"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1"></a>svykm_times <span class="ot">&lt;-</span> <span class="cf">function</span>(x,</span>
+<span id="cb52-2"><a href="#cb52-2"></a>                        times,</span>
+<span id="cb52-3"><a href="#cb52-3"></a>                        <span class="at">ci_level =</span> .<span class="dv">95</span>,</span>
+<span id="cb52-4"><a href="#cb52-4"></a>                        <span class="at">strata =</span> <span class="cn">NULL</span>) {</span>
+<span id="cb52-5"><a href="#cb52-5"></a>  <span class="cf">if</span> (<span class="fu">inherits</span>(x, <span class="st">"svykm"</span>)) {</span>
+<span id="cb52-6"><a href="#cb52-6"></a>    idx <span class="ot">&lt;-</span> <span class="fu">sapply</span>(</span>
+<span id="cb52-7"><a href="#cb52-7"></a>      times,</span>
+<span id="cb52-8"><a href="#cb52-8"></a>      <span class="cf">function</span>(t) <span class="fu">max</span>(<span class="fu">which</span>(x<span class="sc">$</span>time <span class="sc">&lt;=</span> t))</span>
+<span id="cb52-9"><a href="#cb52-9"></a>    )</span>
+<span id="cb52-10"><a href="#cb52-10"></a>    <span class="cf">if</span> (<span class="fu">is.null</span>(ci_level) <span class="sc">|</span> <span class="fu">is.null</span>(x<span class="sc">$</span>varlog)) {</span>
+<span id="cb52-11"><a href="#cb52-11"></a>      res <span class="ot">&lt;-</span> dplyr<span class="sc">::</span><span class="fu">tibble</span>(</span>
+<span id="cb52-12"><a href="#cb52-12"></a>        <span class="at">time =</span> times,</span>
+<span id="cb52-13"><a href="#cb52-13"></a>        <span class="at">value =</span> x<span class="sc">$</span>surv[idx]</span>
+<span id="cb52-14"><a href="#cb52-14"></a>      )</span>
+<span id="cb52-15"><a href="#cb52-15"></a>    } <span class="cf">else</span> {</span>
+<span id="cb52-16"><a href="#cb52-16"></a>      ci <span class="ot">&lt;-</span> <span class="fu">confint</span>(x, <span class="at">parm =</span> times, <span class="at">level =</span> ci_level)</span>
+<span id="cb52-17"><a href="#cb52-17"></a>      res <span class="ot">&lt;-</span> dplyr<span class="sc">::</span><span class="fu">tibble</span>(</span>
+<span id="cb52-18"><a href="#cb52-18"></a>        <span class="at">time =</span> times,</span>
+<span id="cb52-19"><a href="#cb52-19"></a>        <span class="at">value =</span> x<span class="sc">$</span>surv[idx],</span>
+<span id="cb52-20"><a href="#cb52-20"></a>        <span class="at">conf.low =</span> ci[, <span class="dv">1</span>],</span>
+<span id="cb52-21"><a href="#cb52-21"></a>        <span class="at">conf.high =</span> ci[, <span class="dv">2</span>]</span>
+<span id="cb52-22"><a href="#cb52-22"></a>      )</span>
+<span id="cb52-23"><a href="#cb52-23"></a>    }  </span>
+<span id="cb52-24"><a href="#cb52-24"></a>    <span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(strata))</span>
+<span id="cb52-25"><a href="#cb52-25"></a>      res<span class="sc">$</span>strata <span class="ot">&lt;-</span> strata</span>
+<span id="cb52-26"><a href="#cb52-26"></a>    res</span>
+<span id="cb52-27"><a href="#cb52-27"></a>  } <span class="cf">else</span> {</span>
+<span id="cb52-28"><a href="#cb52-28"></a>    x <span class="sc">|&gt;</span> </span>
+<span id="cb52-29"><a href="#cb52-29"></a>      <span class="fu">seq_along</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb52-30"><a href="#cb52-30"></a>      <span class="fu">lapply</span>(</span>
+<span id="cb52-31"><a href="#cb52-31"></a>        \(i) {</span>
+<span id="cb52-32"><a href="#cb52-32"></a>          <span class="fu">svykm_times</span>(</span>
+<span id="cb52-33"><a href="#cb52-33"></a>            x[[i]],</span>
+<span id="cb52-34"><a href="#cb52-34"></a>            <span class="at">times =</span> times,</span>
+<span id="cb52-35"><a href="#cb52-35"></a>            <span class="at">ci_level =</span> ci_level,</span>
+<span id="cb52-36"><a href="#cb52-36"></a>            <span class="at">strata =</span> <span class="fu">names</span>(x)[[i]]</span>
+<span id="cb52-37"><a href="#cb52-37"></a>          )</span>
+<span id="cb52-38"><a href="#cb52-38"></a>        }</span>
+<span id="cb52-39"><a href="#cb52-39"></a>      ) <span class="sc">|&gt;</span> </span>
+<span id="cb52-40"><a href="#cb52-40"></a>      dplyr<span class="sc">::</span><span class="fu">bind_rows</span>()</span>
+<span id="cb52-41"><a href="#cb52-41"></a>  }</span>
+<span id="cb52-42"><a href="#cb52-42"></a>}</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb51"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1"></a>skm <span class="sc">|&gt;</span> <span class="fu">svykm_times</span>(<span class="fu">c</span>(<span class="dv">5</span>, <span class="dv">10</span>, <span class="dv">15</span>, <span class="dv">20</span>))</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="sourceCode cell-code" id="cb53"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1"></a>skm <span class="sc">|&gt;</span> <span class="fu">svykm_times</span>(<span class="fu">c</span>(<span class="dv">5</span>, <span class="dv">10</span>, <span class="dv">15</span>, <span class="dv">20</span>))</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 4 × 4
    time value conf.low conf.high
@@ -4383,7 +4385,7 @@ Attachement du package : 'survey'</code></pre>
 3    15 0.791    0.736     0.849
 4    20 0.581    0.517     0.653</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb53"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1"></a>skm_trt <span class="sc">|&gt;</span> <span class="fu">svykm_times</span>(<span class="fu">c</span>(<span class="dv">5</span>, <span class="dv">10</span>, <span class="dv">15</span>, <span class="dv">20</span>))</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="sourceCode cell-code" id="cb55"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1"></a>skm_trt <span class="sc">|&gt;</span> <span class="fu">svykm_times</span>(<span class="fu">c</span>(<span class="dv">5</span>, <span class="dv">10</span>, <span class="dv">15</span>, <span class="dv">20</span>))</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Warning in max(which(x$time &lt;= t)): aucun argument pour max ; -Inf est renvoyé</code></pre>
 </div>
@@ -4409,38 +4411,38 @@ renvoyé</code></pre>
 <span class="header-section-number">44.5.2</span> Modèle de Cox</h3>
 <p>Pour le modèle de Cox, on aura recours à la fonction <code><a href="https://rdrr.io/pkg/survey/man/svycoxph.html">survey::svycoxph()</a></code>.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb57"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb57-1"><a href="#cb57-1"></a>mods <span class="ot">&lt;-</span> <span class="fu">svycoxph</span>(</span>
-<span id="cb57-2"><a href="#cb57-2"></a>  <span class="fu">Surv</span>(ttdeath, death) <span class="sc">~</span> stage <span class="sc">+</span> trt <span class="sc">+</span> age,</span>
-<span id="cb57-3"><a href="#cb57-3"></a>  <span class="at">design =</span> strial</span>
-<span id="cb57-4"><a href="#cb57-4"></a>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="sourceCode cell-code" id="cb59"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb59-1"><a href="#cb59-1"></a>mods <span class="ot">&lt;-</span> <span class="fu">svycoxph</span>(</span>
+<span id="cb59-2"><a href="#cb59-2"></a>  <span class="fu">Surv</span>(ttdeath, death) <span class="sc">~</span> stage <span class="sc">+</span> trt <span class="sc">+</span> age,</span>
+<span id="cb59-3"><a href="#cb59-3"></a>  <span class="at">design =</span> strial</span>
+<span id="cb59-4"><a href="#cb59-4"></a>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Cette fois-ci, il est possible d’utiliser <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/tbl_regression.html">gtsummary::tbl_regression()</a></code> ou <code><a href="https://larmarange.github.io/ggstats/reference/ggcoef_model.html">ggstats::ggcoef_model()</a></code> sans problème.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb58"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb58-1"><a href="#cb58-1"></a>mods <span class="sc">|&gt;</span> </span>
-<span id="cb58-2"><a href="#cb58-2"></a>  <span class="fu">tbl_regression</span>(<span class="at">exponentiate =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb58-3"><a href="#cb58-3"></a>  <span class="fu">bold_labels</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="sourceCode cell-code" id="cb60"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb60-1"><a href="#cb60-1"></a>mods <span class="sc">|&gt;</span> </span>
+<span id="cb60-2"><a href="#cb60-2"></a>  <span class="fu">tbl_regression</span>(<span class="at">exponentiate =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb60-3"><a href="#cb60-3"></a>  <span class="fu">bold_labels</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Independent Sampling design (with replacement)
 svydesign(~1, data = trial, weights = ~1)</code></pre>
 </div>
 <div class="cell-output-display">
-<div id="caxsazxlhs" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#caxsazxlhs table {
+<div id="zbrsfmevgc" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#zbrsfmevgc table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#caxsazxlhs thead, #caxsazxlhs tbody, #caxsazxlhs tfoot, #caxsazxlhs tr, #caxsazxlhs td, #caxsazxlhs th {
+#zbrsfmevgc thead, #zbrsfmevgc tbody, #zbrsfmevgc tfoot, #zbrsfmevgc tr, #zbrsfmevgc td, #zbrsfmevgc th {
   border-style: none;
 }
 
-#caxsazxlhs p {
+#zbrsfmevgc p {
   margin: 0;
   padding: 0;
 }
 
-#caxsazxlhs .gt_table {
+#zbrsfmevgc .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -4466,12 +4468,12 @@ svydesign(~1, data = trial, weights = ~1)</code></pre>
   border-left-color: #D3D3D3;
 }
 
-#caxsazxlhs .gt_caption {
+#zbrsfmevgc .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#caxsazxlhs .gt_title {
+#zbrsfmevgc .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -4483,7 +4485,7 @@ svydesign(~1, data = trial, weights = ~1)</code></pre>
   border-bottom-width: 0;
 }
 
-#caxsazxlhs .gt_subtitle {
+#zbrsfmevgc .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -4495,7 +4497,7 @@ svydesign(~1, data = trial, weights = ~1)</code></pre>
   border-top-width: 0;
 }
 
-#caxsazxlhs .gt_heading {
+#zbrsfmevgc .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -4507,13 +4509,13 @@ svydesign(~1, data = trial, weights = ~1)</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#caxsazxlhs .gt_bottom_border {
+#zbrsfmevgc .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#caxsazxlhs .gt_col_headings {
+#zbrsfmevgc .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -4528,7 +4530,7 @@ svydesign(~1, data = trial, weights = ~1)</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#caxsazxlhs .gt_col_heading {
+#zbrsfmevgc .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -4548,7 +4550,7 @@ svydesign(~1, data = trial, weights = ~1)</code></pre>
   overflow-x: hidden;
 }
 
-#caxsazxlhs .gt_column_spanner_outer {
+#zbrsfmevgc .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -4560,15 +4562,15 @@ svydesign(~1, data = trial, weights = ~1)</code></pre>
   padding-right: 4px;
 }
 
-#caxsazxlhs .gt_column_spanner_outer:first-child {
+#zbrsfmevgc .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#caxsazxlhs .gt_column_spanner_outer:last-child {
+#zbrsfmevgc .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#caxsazxlhs .gt_column_spanner {
+#zbrsfmevgc .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -4580,11 +4582,11 @@ svydesign(~1, data = trial, weights = ~1)</code></pre>
   width: 100%;
 }
 
-#caxsazxlhs .gt_spanner_row {
+#zbrsfmevgc .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#caxsazxlhs .gt_group_heading {
+#zbrsfmevgc .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -4610,7 +4612,7 @@ svydesign(~1, data = trial, weights = ~1)</code></pre>
   text-align: left;
 }
 
-#caxsazxlhs .gt_empty_group_heading {
+#zbrsfmevgc .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -4625,15 +4627,15 @@ svydesign(~1, data = trial, weights = ~1)</code></pre>
   vertical-align: middle;
 }
 
-#caxsazxlhs .gt_from_md > :first-child {
+#zbrsfmevgc .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#caxsazxlhs .gt_from_md > :last-child {
+#zbrsfmevgc .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#caxsazxlhs .gt_row {
+#zbrsfmevgc .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -4652,7 +4654,7 @@ svydesign(~1, data = trial, weights = ~1)</code></pre>
   overflow-x: hidden;
 }
 
-#caxsazxlhs .gt_stub {
+#zbrsfmevgc .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -4665,7 +4667,7 @@ svydesign(~1, data = trial, weights = ~1)</code></pre>
   padding-right: 5px;
 }
 
-#caxsazxlhs .gt_stub_row_group {
+#zbrsfmevgc .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -4679,15 +4681,15 @@ svydesign(~1, data = trial, weights = ~1)</code></pre>
   vertical-align: top;
 }
 
-#caxsazxlhs .gt_row_group_first td {
+#zbrsfmevgc .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#caxsazxlhs .gt_row_group_first th {
+#zbrsfmevgc .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#caxsazxlhs .gt_summary_row {
+#zbrsfmevgc .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -4697,16 +4699,16 @@ svydesign(~1, data = trial, weights = ~1)</code></pre>
   padding-right: 5px;
 }
 
-#caxsazxlhs .gt_first_summary_row {
+#zbrsfmevgc .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#caxsazxlhs .gt_first_summary_row.thick {
+#zbrsfmevgc .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#caxsazxlhs .gt_last_summary_row {
+#zbrsfmevgc .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -4716,7 +4718,7 @@ svydesign(~1, data = trial, weights = ~1)</code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#caxsazxlhs .gt_grand_summary_row {
+#zbrsfmevgc .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -4726,7 +4728,7 @@ svydesign(~1, data = trial, weights = ~1)</code></pre>
   padding-right: 5px;
 }
 
-#caxsazxlhs .gt_first_grand_summary_row {
+#zbrsfmevgc .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -4736,7 +4738,7 @@ svydesign(~1, data = trial, weights = ~1)</code></pre>
   border-top-color: #D3D3D3;
 }
 
-#caxsazxlhs .gt_last_grand_summary_row_top {
+#zbrsfmevgc .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -4746,11 +4748,11 @@ svydesign(~1, data = trial, weights = ~1)</code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#caxsazxlhs .gt_striped {
+#zbrsfmevgc .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#caxsazxlhs .gt_table_body {
+#zbrsfmevgc .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -4759,7 +4761,7 @@ svydesign(~1, data = trial, weights = ~1)</code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#caxsazxlhs .gt_footnotes {
+#zbrsfmevgc .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -4773,7 +4775,7 @@ svydesign(~1, data = trial, weights = ~1)</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#caxsazxlhs .gt_footnote {
+#zbrsfmevgc .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -4782,7 +4784,7 @@ svydesign(~1, data = trial, weights = ~1)</code></pre>
   padding-right: 5px;
 }
 
-#caxsazxlhs .gt_sourcenotes {
+#zbrsfmevgc .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -4796,7 +4798,7 @@ svydesign(~1, data = trial, weights = ~1)</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#caxsazxlhs .gt_sourcenote {
+#zbrsfmevgc .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -4804,76 +4806,76 @@ svydesign(~1, data = trial, weights = ~1)</code></pre>
   padding-right: 5px;
 }
 
-#caxsazxlhs .gt_left {
+#zbrsfmevgc .gt_left {
   text-align: left;
 }
 
-#caxsazxlhs .gt_center {
+#zbrsfmevgc .gt_center {
   text-align: center;
 }
 
-#caxsazxlhs .gt_right {
+#zbrsfmevgc .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#caxsazxlhs .gt_font_normal {
+#zbrsfmevgc .gt_font_normal {
   font-weight: normal;
 }
 
-#caxsazxlhs .gt_font_bold {
+#zbrsfmevgc .gt_font_bold {
   font-weight: bold;
 }
 
-#caxsazxlhs .gt_font_italic {
+#zbrsfmevgc .gt_font_italic {
   font-style: italic;
 }
 
-#caxsazxlhs .gt_super {
+#zbrsfmevgc .gt_super {
   font-size: 65%;
 }
 
-#caxsazxlhs .gt_footnote_marks {
+#zbrsfmevgc .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#caxsazxlhs .gt_asterisk {
+#zbrsfmevgc .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#caxsazxlhs .gt_indent_1 {
+#zbrsfmevgc .gt_indent_1 {
   text-indent: 5px;
 }
 
-#caxsazxlhs .gt_indent_2 {
+#zbrsfmevgc .gt_indent_2 {
   text-indent: 10px;
 }
 
-#caxsazxlhs .gt_indent_3 {
+#zbrsfmevgc .gt_indent_3 {
   text-indent: 15px;
 }
 
-#caxsazxlhs .gt_indent_4 {
+#zbrsfmevgc .gt_indent_4 {
   text-indent: 20px;
 }
 
-#caxsazxlhs .gt_indent_5 {
+#zbrsfmevgc .gt_indent_5 {
   text-indent: 25px;
 }
 
-#caxsazxlhs .katex-display {
+#zbrsfmevgc .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#caxsazxlhs div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#zbrsfmevgc div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
-<table class="gt_table table table-sm table-striped small" data-quarto-bootstrap="false">
+<table class="gt_table table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
 <colgroup>
 <col style="width: 25%">
 <col style="width: 25%">
@@ -4942,7 +4944,7 @@ svydesign(~1, data = trial, weights = ~1)</code></pre>
 <td class="gt_row gt_center" headers="p.value">0,2</td>
 </tr>
 </tbody>
-<tfoot><tr class="gt_sourcenotes odd">
+<tfoot class="gt_sourcenotes"><tr class="odd">
 <td colspan="4" class="gt_sourcenote">Abréviations: HR = rapport de risques instantanés, IC = intervalle de confiance</td>
 </tr></tfoot>
 </table>
@@ -4951,7 +4953,7 @@ svydesign(~1, data = trial, weights = ~1)</code></pre>
 </div>
 <p>Enfin, pour le test de l’hypothèse de proportionnalité des risques, on peut utiliser comme précédemment la fonction <code>cox.zph()</code>.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb60"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb60-1"><a href="#cb60-1"></a>mods <span class="sc">|&gt;</span> <span class="fu">cox.zph</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="sourceCode cell-code" id="cb62"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb62-1"><a href="#cb62-1"></a>mods <span class="sc">|&gt;</span> <span class="fu">cox.zph</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>          chisq df    p
 stage  0.004915  3 1.00
@@ -4987,7 +4989,7 @@ GLOBAL 0.014845  5 1.00</code></pre>
       a.appendChild(i);
       window.document.body.appendChild(a);
     }
-    setColorSchemeToggle(hasAlternateSentinel())
+    window.setColorSchemeToggle(window.hasAlternateSentinel())
     const icon = "";
     const anchorJS = new window.AnchorJS();
     anchorJS.options = {
@@ -5037,14 +5039,13 @@ GLOBAL 0.014845  5 1.00</code></pre>
       e.clearSelection();
     }
     const getTextToCopy = function(trigger) {
-      const outerScaffold = trigger.parentElement.cloneNode(true);
-      const codeEl = outerScaffold.querySelector('code');
-      for (const childEl of codeEl.children) {
-        if (isCodeAnnotation(childEl)) {
-          childEl.remove();
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
         }
-      }
-      return codeEl.innerText;
+        return codeEl.innerText;
     }
     const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
       text: getTextToCopy
@@ -5385,36 +5386,8 @@ GLOBAL 0.014845  5 1.00</code></pre>
       }
     }
   });
-  </script><input type="hidden" id="giscus-base-theme" value="light"><input type="hidden" id="giscus-alt-theme" value="dark"><script>
-  function loadGiscus() {
-    // Function to get the theme based on body class
-    const getTheme = () => {
-      let baseTheme = document.getElementById('giscus-base-theme').value;
-      let altTheme = document.getElementById('giscus-alt-theme').value;
-      if (authorPrefersDark) {
-          [baseTheme, altTheme] = [altTheme, baseTheme];
-      }
-      return document.body.classList.contains('quarto-dark') ? altTheme : baseTheme;
-    };
-    const script = document.createElement("script");
-    script.src = "https://giscus.app/client.js";
-    script.async = true;
-    script.dataset.repo = "larmarange/guide-R";
-    script.dataset.repoId = "R_kgDOH6-xnw";
-    script.dataset.category = "Forum";
-    script.dataset.categoryId = "DIC_kwDOH6-xn84CRLQy";
-    script.dataset.mapping = "pathname";
-    script.dataset.reactionsEnabled = "1";
-    script.dataset.emitMetadata = "0";
-    script.dataset.inputPosition = "top";
-    script.dataset.theme = getTheme();
-    script.dataset.lang = "fr";
-    script.crossOrigin = "anonymous";
-    // Append the script to the desired div instead of at the end of the body
-    document.getElementById("quarto-content").appendChild(script);
-  }
-  loadGiscus();
-</script><nav class="page-navigation"><div class="nav-page nav-page-previous">
+  </script><script src="https://giscus.app/client.js" data-repo="larmarange/guide-R" data-repo-id="R_kgDOH6-xnw" data-category="Forum" data-category-id="DIC_kwDOH6-xn84CRLQy" data-mapping="pathname" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="top" data-theme="light" data-lang="fr" crossorigin="anonymous" data-loading="lazy" async="">
+</script><input type="hidden" id="giscus-base-theme" value="light"><input type="hidden" id="giscus-alt-theme" value="dark"><nav class="page-navigation"><div class="nav-page nav-page-previous">
       <a href="../analyses_avancees/classification-ascendante-hierarchique.html" class="pagination-link" aria-label="Classification ascendante hiérarchique">
         <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">43</span>&nbsp; <span class="chapter-title">Classification ascendante hiérarchique</span></span>
       </a>          

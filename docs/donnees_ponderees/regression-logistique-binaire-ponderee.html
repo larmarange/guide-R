@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="fr" xml:lang="fr"><head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.8.27">
+<meta name="generator" content="quarto-1.7.27">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 <title>33&nbsp; Régression logistique binaire pondérée – guide-R</title>
 <style>
@@ -68,19 +68,18 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../site_libs/cookie-consent/cookie-consent.css" rel="stylesheet">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
-<script src="../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
 <script src="../site_libs/quarto-html/popper.min.js"></script>
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-ed96de9b727972fe78a7b5d16c58bf87.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-4d9afe2b8d18ee9fa5d0d57b5ed4214d.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-ed96de9b727972fe78a7b5d16c58bf87.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-985aa47af68dae11cd4d235c71fb941e.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-6c49c5477b92c77c9eb341f9299c235f.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-985aa47af68dae11cd4d235c71fb941e.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-bd89720b472e789133713356f69e05bb.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../site_libs/bootstrap/bootstrap-dark-19020347c2de3e9282294d0be578f340.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<link href="../site_libs/bootstrap/bootstrap-bd89720b472e789133713356f69e05bb.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-1706ad55a43eb6182cc66969adfb4558.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-e07f40149b440be50f716415da65e4f4.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../site_libs/bootstrap/bootstrap-1706ad55a43eb6182cc66969adfb4558.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <script src="../site_libs/quarto-contrib/glightbox/glightbox.min.js"></script>
 <link href="../site_libs/quarto-contrib/glightbox/glightbox.min.css" rel="stylesheet">
 <link href="../site_libs/quarto-contrib/glightbox/lightbox.css" rel="stylesheet"><script id="quarto-search-options" type="application/json">{
@@ -150,7 +149,7 @@ cookieconsent.run({
         toggleBodyColorMode(bsSheetEl);
       }
     }
-    const setColorSchemeToggle = (alternate) => {
+    window.setColorSchemeToggle = (alternate) => {
       const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
       for (let i=0; i < toggles.length; i++) {
         const toggle = toggles[i];
@@ -183,7 +182,7 @@ cookieconsent.run({
       }
       manageTransitions('#quarto-margin-sidebar .nav-link', true);
       // Switch the toggles
-      setColorSchemeToggle(alternate)
+      window.setColorSchemeToggle(alternate)
       // Hack to workaround the fact that safari doesn't
       // properly recolor the scrollbar when toggling (#1455)
       if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
@@ -223,7 +222,7 @@ cookieconsent.run({
     const isFileUrl = () => {
       return window.location.protocol === 'file:';
     }
-    const hasAlternateSentinel = () => {
+    window.hasAlternateSentinel = () => {
       let styleSentinel = getColorSchemeSentinel();
       if (styleSentinel !== null) {
         return styleSentinel === "alternate";
@@ -251,7 +250,7 @@ cookieconsent.run({
       const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
       const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
       let newTheme = '';
-      if(authorPrefersDark) {
+      if(darkModeDefault) {
         newTheme = isAlternate ? baseTheme : alternateTheme;
       } else {
         newTheme = isAlternate ? alternateTheme : baseTheme;
@@ -274,22 +273,20 @@ cookieconsent.run({
         changeGiscusTheme();
       }
     };
-    const authorPrefersDark = false;
-    const darkModeDefault = authorPrefersDark;
+    const darkModeDefault = false;
       document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
       document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
     let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
     // Dark / light mode switch
     window.quartoToggleColorScheme = () => {
       // Read the current dark / light value
-      let toAlternate = !hasAlternateSentinel();
+      let toAlternate = !window.hasAlternateSentinel();
       toggleColorMode(toAlternate);
       setStyleSentinel(toAlternate);
       toggleGiscusIfUsed(toAlternate, darkModeDefault);
-      window.dispatchEvent(new Event('resize'));
     };
     // Switch to dark mode if need be
-    if (hasAlternateSentinel()) {
+    if (window.hasAlternateSentinel()) {
       toggleColorMode(true);
     } else {
       toggleColorMode(false);
@@ -312,7 +309,7 @@ cookieconsent.run({
 <!-- sidebar -->
   <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto"><div class="pt-lg-2 mt-2 text-left sidebar-header sidebar-header-stacked">
       <a href="../index.html" class="sidebar-logo-link">
-      <img src="../ressources/typewriter.png" alt="" class="sidebar-logo light-content py-0 d-lg-inline d-none"><img src="../ressources/typewriter.png" alt="" class="sidebar-logo dark-content py-0 d-lg-inline d-none"></a>
+      <img src="../ressources/typewriter.png" alt="" class="sidebar-logo py-0 d-lg-inline d-none"></a>
     <div class="sidebar-title mb-0 py-0">
       <a href="../">guide-R</a> 
         <div class="sidebar-tools-main tools-wide">
@@ -761,7 +758,7 @@ cookieconsent.run({
 <span class="header-section-number">33.1</span> Données des exemples</h2>
 <p>Nous allons reprendre les même données issues de l’enquête <em>Histoire de vie 2003</em>, mais en tenant compte cette fois-ci des poids de pondération fourni dans la variable <em>poids</em>.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="fu">library</span>(tidyverse)</span>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="fu">library</span>(tidyverse)</span>
 <span id="cb1-2"><a href="#cb1-2"></a><span class="fu">library</span>(labelled)</span>
 <span id="cb1-3"><a href="#cb1-3"></a><span class="fu">data</span>(hdv2003, <span class="at">package =</span> <span class="st">"questionr"</span>)</span>
 <span id="cb1-4"><a href="#cb1-4"></a>d <span class="ot">&lt;-</span></span>
@@ -797,25 +794,25 @@ cookieconsent.run({
 <span id="cb1-34"><a href="#cb1-34"></a>    <span class="at">relig =</span> <span class="st">"Rapport à la religion"</span>,</span>
 <span id="cb1-35"><a href="#cb1-35"></a>    <span class="at">heures.tv =</span> <span class="st">"Heures de télévision / jour"</span>,</span>
 <span id="cb1-36"><a href="#cb1-36"></a>    <span class="at">poids =</span> <span class="st">"Pondération de l'enquête"</span></span>
-<span id="cb1-37"><a href="#cb1-37"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb1-37"><a href="#cb1-37"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Il ne nous reste qu’à définir notre objet <a href="http://r-survey.r-forge.r-project.org/survey/">survey</a> en spécifiant la pondération fournie avec l’enquête. La documentation ne mentionne ni strates ni grappes.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a><span class="fu">library</span>(srvyr)</span>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a><span class="fu">library</span>(srvyr)</span>
 <span id="cb2-2"><a href="#cb2-2"></a><span class="fu">library</span>(survey)</span>
 <span id="cb2-3"><a href="#cb2-3"></a>dp <span class="ot">&lt;-</span> d <span class="sc">|&gt;</span> </span>
-<span id="cb2-4"><a href="#cb2-4"></a>  <span class="fu">as_survey_design</span>(<span class="at">weights =</span> poids)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb2-4"><a href="#cb2-4"></a>  <span class="fu">as_survey_design</span>(<span class="at">weights =</span> poids)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section><section id="calcul-de-la-régression-logistique-binaire" class="level2 page-columns page-full" data-number="33.2"><h2 data-number="33.2" class="anchored" data-anchor-id="calcul-de-la-régression-logistique-binaire">
 <span class="header-section-number">33.2</span> Calcul de la régression logistique binaire</h2>
 <p>La syntaxe de <code><a href="https://rdrr.io/pkg/survey/man/svyglm.html">survey::svyglm()</a></code> est similaire à celle de <code><a href="https://rdrr.io/r/stats/glm.html">glm()</a></code> sauf qu’elle a un argument <code>design</code> au lieu de <code>data</code>.</p>
 <p>La plupart du temps, les poids de pondération ne sont pas des nombres entiers, mais des nombres décimaux. Or, la famille de modèles binomiaux repose sur des nombres entiers de succès et d’échecs. Avec une version récente<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> de <strong>R</strong>, cela n’est pas problématique. Nous aurons simplement un avertissement.</p>
 <div class="no-row-height column-margin column-container"><div id="fn1"><p><sup>1</sup>&nbsp;Si vous utilisez une version ancienne de <strong>R</strong>, cela n’était tout simplement pas possible. Vous obteniez un message d’erreur et le modèle n’était pas calculé. Si c’est votre cas, optez pour un modèle quasi-binomial ou bien mettez à jour <strong>R.</strong></p></div></div><div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a>mod_binomial <span class="ot">&lt;-</span> <span class="fu">svyglm</span>(</span>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a>mod_binomial <span class="ot">&lt;-</span> <span class="fu">svyglm</span>(</span>
 <span id="cb3-2"><a href="#cb3-2"></a>  sport <span class="sc">~</span> sexe <span class="sc">+</span> groupe_ages <span class="sc">+</span> etudes <span class="sc">+</span> relig <span class="sc">+</span> heures.tv,</span>
 <span id="cb3-3"><a href="#cb3-3"></a>  <span class="at">family =</span> binomial,</span>
 <span id="cb3-4"><a href="#cb3-4"></a>  <span class="at">design =</span> dp</span>
-<span id="cb3-5"><a href="#cb3-5"></a>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb3-5"><a href="#cb3-5"></a>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Warning in eval(family$initialize): nombre de succès non entier dans un glm
 binomial !</code></pre>
@@ -823,18 +820,18 @@ binomial !</code></pre>
 </div>
 <p>Une alternative consiste à avoir recours à la famille quasi-binomiale, que l’on spécifie avec <code>family = quasibinomial</code> et qui constitue une extension de la famille binomiale pouvant gérer des poids non entiers. La distribution quasi-binomiale, bien que similaire à la distribution binomiale, possède un paramètre supplémentaire 𝜙 qui tente de décrire une variance supplémentaire dans les données qui ne peut être expliquée par une distribution binomiale seule (on parle alors de <em>surdispersion</em>). Les coefficients obtenus sont les mêmes, mais les intervalles de confiance peuvent être un peu plus large.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a>mod_quasi <span class="ot">&lt;-</span> <span class="fu">svyglm</span>(</span>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a>mod_quasi <span class="ot">&lt;-</span> <span class="fu">svyglm</span>(</span>
 <span id="cb5-2"><a href="#cb5-2"></a>  sport <span class="sc">~</span> sexe <span class="sc">+</span> groupe_ages <span class="sc">+</span> etudes <span class="sc">+</span> relig <span class="sc">+</span> heures.tv,</span>
 <span id="cb5-3"><a href="#cb5-3"></a>  <span class="at">family =</span> quasibinomial,</span>
 <span id="cb5-4"><a href="#cb5-4"></a>  <span class="at">design =</span> dp</span>
-<span id="cb5-5"><a href="#cb5-5"></a>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb5-5"><a href="#cb5-5"></a>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Simple, non&nbsp;?</p>
 </section><section id="sélection-de-modèle" class="level2" data-number="33.3"><h2 data-number="33.3" class="anchored" data-anchor-id="sélection-de-modèle">
 <span class="header-section-number">33.3</span> Sélection de modèle</h2>
 <p>Comme précédemment (cf. <a href="../analyses/selection-modele-pas-a-pas.html" class="quarto-xref"><span>Chapitre 24</span></a>), il est possible de procéder à une sélection de modèle pas à pas, par minimisation de l’AIC, avec <code><a href="https://rdrr.io/r/stats/step.html">step()</a></code>.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a>mod_quasi2 <span class="ot">&lt;-</span> <span class="fu">step</span>(mod_quasi)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a>mod_quasi2 <span class="ot">&lt;-</span> <span class="fu">step</span>(mod_quasi)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Start:  AIC=2309.89
 sport ~ sexe + groupe_ages + etudes + relig + heures.tv
@@ -864,13 +861,13 @@ sport ~ sexe + groupe_ages + etudes + heures.tv
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Avertissement</span>Sélection pas à pas et valeurs manquantes
+Sélection pas à pas et valeurs manquantes
 </div>
 </div>
 <div class="callout-body-container callout-body">
 <p>Nous avons abordé dans le chapitre sur la sélection de modèle pas à pas la problématique des valeurs manquantes lors d’une sélection pas à pas descendante par minimisation de l’AIC (cf. <a href="../analyses/selection-modele-pas-a-pas.html#sec-step-avec-na" class="quarto-xref"><span>Section 24.8</span></a>). La même approche peut être appliquée avec des données pondérées, à l’aide de la fonction <code><a href="https://larmarange.github.io/guideR/reference/step_with_na.html">guideR::step_with_na()</a></code>, compatible avec les modèles <code><a href="https://rdrr.io/pkg/survey/man/svyglm.html">survey::svyglm()</a></code>. Il faudra néanmoins, dans ce cas là, qu’on lui passe l’objet <a href="http://r-survey.r-forge.r-project.org/survey/">survey</a> ayant servi au calcul du modèle via l’e paramètre’argument <code>design</code>.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a>mod_quasi2 <span class="ot">&lt;-</span> guideR<span class="sc">::</span><span class="fu">step_with_na</span>(mod_quasi, <span class="at">design =</span> dp)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a>mod_quasi2 <span class="ot">&lt;-</span> guideR<span class="sc">::</span><span class="fu">step_with_na</span>(mod_quasi, <span class="at">design =</span> dp)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </div>
 </div>
@@ -878,35 +875,35 @@ sport ~ sexe + groupe_ages + etudes + heures.tv
 <span class="header-section-number">33.4</span> Affichage des résultats</h2>
 <p>Nous pouvons tout à fait utiliser <code>gtsumarry::tbl_regression()</code> avec ce type de modèles. De même, on peut utiliser <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/add_global_p.html">gtsummary::add_global_p()</a></code> pour calculer les p-valeurs globales des variables ou encore <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/add_vif.html">gtsummary::add_vif()</a></code> pour vérifier la multicolinéarité (cf. <a href="../analyses/multicolinearite.html" class="quarto-xref"><span>Chapitre 28</span></a>).</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a><span class="fu">library</span>(gtsummary)</span>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a><span class="fu">library</span>(gtsummary)</span>
 <span id="cb9-2"><a href="#cb9-2"></a><span class="fu">theme_gtsummary_language</span>(<span class="st">"fr"</span>, <span class="at">decimal.mark =</span> <span class="st">","</span>, <span class="at">big.mark =</span> <span class="st">" "</span>)</span>
-<span id="cb9-3"><a href="#cb9-3"></a>guideR<span class="sc">::</span><span class="fu">theme_gtsummary_bold_labels</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb9-3"><a href="#cb9-3"></a>guideR<span class="sc">::</span><span class="fu">theme_gtsummary_bold_labels</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell page-columns page-full">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a>mod_quasi2 <span class="sc">|&gt;</span> </span>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a>mod_quasi2 <span class="sc">|&gt;</span> </span>
 <span id="cb10-2"><a href="#cb10-2"></a>  <span class="fu">tbl_regression</span>(<span class="at">exponentiate =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span> </span>
 <span id="cb10-3"><a href="#cb10-3"></a>  <span class="fu">add_global_p</span>(<span class="at">keep =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb10-4"><a href="#cb10-4"></a>  <span class="fu">add_vif</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb10-4"><a href="#cb10-4"></a>  <span class="fu">add_vif</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div id="tbl-regression-logistique-ponderee" class="cell quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-tbl figure page-columns page-full"><div aria-describedby="tbl-regression-logistique-ponderee-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca" class="page-columns page-full">
 <div class="cell-output-display page-columns page-full">
-<div id="sgwmbmsfvc" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;" class="page-columns page-full">
-<style>#sgwmbmsfvc table {
+<div id="cczqjmwask" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;" class="page-columns page-full">
+<style>#cczqjmwask table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#sgwmbmsfvc thead, #sgwmbmsfvc tbody, #sgwmbmsfvc tfoot, #sgwmbmsfvc tr, #sgwmbmsfvc td, #sgwmbmsfvc th {
+#cczqjmwask thead, #cczqjmwask tbody, #cczqjmwask tfoot, #cczqjmwask tr, #cczqjmwask td, #cczqjmwask th {
   border-style: none;
 }
 
-#sgwmbmsfvc p {
+#cczqjmwask p {
   margin: 0;
   padding: 0;
 }
 
-#sgwmbmsfvc .gt_table {
+#cczqjmwask .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -932,12 +929,12 @@ sport ~ sexe + groupe_ages + etudes + heures.tv
   border-left-color: #D3D3D3;
 }
 
-#sgwmbmsfvc .gt_caption {
+#cczqjmwask .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#sgwmbmsfvc .gt_title {
+#cczqjmwask .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -949,7 +946,7 @@ sport ~ sexe + groupe_ages + etudes + heures.tv
   border-bottom-width: 0;
 }
 
-#sgwmbmsfvc .gt_subtitle {
+#cczqjmwask .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -961,7 +958,7 @@ sport ~ sexe + groupe_ages + etudes + heures.tv
   border-top-width: 0;
 }
 
-#sgwmbmsfvc .gt_heading {
+#cczqjmwask .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -973,13 +970,13 @@ sport ~ sexe + groupe_ages + etudes + heures.tv
   border-right-color: #D3D3D3;
 }
 
-#sgwmbmsfvc .gt_bottom_border {
+#cczqjmwask .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#sgwmbmsfvc .gt_col_headings {
+#cczqjmwask .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -994,7 +991,7 @@ sport ~ sexe + groupe_ages + etudes + heures.tv
   border-right-color: #D3D3D3;
 }
 
-#sgwmbmsfvc .gt_col_heading {
+#cczqjmwask .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1014,7 +1011,7 @@ sport ~ sexe + groupe_ages + etudes + heures.tv
   overflow-x: hidden;
 }
 
-#sgwmbmsfvc .gt_column_spanner_outer {
+#cczqjmwask .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1026,15 +1023,15 @@ sport ~ sexe + groupe_ages + etudes + heures.tv
   padding-right: 4px;
 }
 
-#sgwmbmsfvc .gt_column_spanner_outer:first-child {
+#cczqjmwask .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#sgwmbmsfvc .gt_column_spanner_outer:last-child {
+#cczqjmwask .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#sgwmbmsfvc .gt_column_spanner {
+#cczqjmwask .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -1046,11 +1043,11 @@ sport ~ sexe + groupe_ages + etudes + heures.tv
   width: 100%;
 }
 
-#sgwmbmsfvc .gt_spanner_row {
+#cczqjmwask .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#sgwmbmsfvc .gt_group_heading {
+#cczqjmwask .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1076,7 +1073,7 @@ sport ~ sexe + groupe_ages + etudes + heures.tv
   text-align: left;
 }
 
-#sgwmbmsfvc .gt_empty_group_heading {
+#cczqjmwask .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -1091,15 +1088,15 @@ sport ~ sexe + groupe_ages + etudes + heures.tv
   vertical-align: middle;
 }
 
-#sgwmbmsfvc .gt_from_md > :first-child {
+#cczqjmwask .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#sgwmbmsfvc .gt_from_md > :last-child {
+#cczqjmwask .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#sgwmbmsfvc .gt_row {
+#cczqjmwask .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1118,7 +1115,7 @@ sport ~ sexe + groupe_ages + etudes + heures.tv
   overflow-x: hidden;
 }
 
-#sgwmbmsfvc .gt_stub {
+#cczqjmwask .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1131,7 +1128,7 @@ sport ~ sexe + groupe_ages + etudes + heures.tv
   padding-right: 5px;
 }
 
-#sgwmbmsfvc .gt_stub_row_group {
+#cczqjmwask .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1145,15 +1142,15 @@ sport ~ sexe + groupe_ages + etudes + heures.tv
   vertical-align: top;
 }
 
-#sgwmbmsfvc .gt_row_group_first td {
+#cczqjmwask .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#sgwmbmsfvc .gt_row_group_first th {
+#cczqjmwask .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#sgwmbmsfvc .gt_summary_row {
+#cczqjmwask .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1163,16 +1160,16 @@ sport ~ sexe + groupe_ages + etudes + heures.tv
   padding-right: 5px;
 }
 
-#sgwmbmsfvc .gt_first_summary_row {
+#cczqjmwask .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#sgwmbmsfvc .gt_first_summary_row.thick {
+#cczqjmwask .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#sgwmbmsfvc .gt_last_summary_row {
+#cczqjmwask .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1182,7 +1179,7 @@ sport ~ sexe + groupe_ages + etudes + heures.tv
   border-bottom-color: #D3D3D3;
 }
 
-#sgwmbmsfvc .gt_grand_summary_row {
+#cczqjmwask .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1192,7 +1189,7 @@ sport ~ sexe + groupe_ages + etudes + heures.tv
   padding-right: 5px;
 }
 
-#sgwmbmsfvc .gt_first_grand_summary_row {
+#cczqjmwask .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1202,7 +1199,7 @@ sport ~ sexe + groupe_ages + etudes + heures.tv
   border-top-color: #D3D3D3;
 }
 
-#sgwmbmsfvc .gt_last_grand_summary_row_top {
+#cczqjmwask .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1212,11 +1209,11 @@ sport ~ sexe + groupe_ages + etudes + heures.tv
   border-bottom-color: #D3D3D3;
 }
 
-#sgwmbmsfvc .gt_striped {
+#cczqjmwask .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#sgwmbmsfvc .gt_table_body {
+#cczqjmwask .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1225,7 +1222,7 @@ sport ~ sexe + groupe_ages + etudes + heures.tv
   border-bottom-color: #D3D3D3;
 }
 
-#sgwmbmsfvc .gt_footnotes {
+#cczqjmwask .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1239,7 +1236,7 @@ sport ~ sexe + groupe_ages + etudes + heures.tv
   border-right-color: #D3D3D3;
 }
 
-#sgwmbmsfvc .gt_footnote {
+#cczqjmwask .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -1248,7 +1245,7 @@ sport ~ sexe + groupe_ages + etudes + heures.tv
   padding-right: 5px;
 }
 
-#sgwmbmsfvc .gt_sourcenotes {
+#cczqjmwask .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1262,7 +1259,7 @@ sport ~ sexe + groupe_ages + etudes + heures.tv
   border-right-color: #D3D3D3;
 }
 
-#sgwmbmsfvc .gt_sourcenote {
+#cczqjmwask .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -1270,76 +1267,76 @@ sport ~ sexe + groupe_ages + etudes + heures.tv
   padding-right: 5px;
 }
 
-#sgwmbmsfvc .gt_left {
+#cczqjmwask .gt_left {
   text-align: left;
 }
 
-#sgwmbmsfvc .gt_center {
+#cczqjmwask .gt_center {
   text-align: center;
 }
 
-#sgwmbmsfvc .gt_right {
+#cczqjmwask .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#sgwmbmsfvc .gt_font_normal {
+#cczqjmwask .gt_font_normal {
   font-weight: normal;
 }
 
-#sgwmbmsfvc .gt_font_bold {
+#cczqjmwask .gt_font_bold {
   font-weight: bold;
 }
 
-#sgwmbmsfvc .gt_font_italic {
+#cczqjmwask .gt_font_italic {
   font-style: italic;
 }
 
-#sgwmbmsfvc .gt_super {
+#cczqjmwask .gt_super {
   font-size: 65%;
 }
 
-#sgwmbmsfvc .gt_footnote_marks {
+#cczqjmwask .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#sgwmbmsfvc .gt_asterisk {
+#cczqjmwask .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#sgwmbmsfvc .gt_indent_1 {
+#cczqjmwask .gt_indent_1 {
   text-indent: 5px;
 }
 
-#sgwmbmsfvc .gt_indent_2 {
+#cczqjmwask .gt_indent_2 {
   text-indent: 10px;
 }
 
-#sgwmbmsfvc .gt_indent_3 {
+#cczqjmwask .gt_indent_3 {
   text-indent: 15px;
 }
 
-#sgwmbmsfvc .gt_indent_4 {
+#cczqjmwask .gt_indent_4 {
   text-indent: 20px;
 }
 
-#sgwmbmsfvc .gt_indent_5 {
+#cczqjmwask .gt_indent_5 {
   text-indent: 25px;
 }
 
-#sgwmbmsfvc .katex-display {
+#cczqjmwask .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#sgwmbmsfvc div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#cczqjmwask div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
-<table class="gt_table do-not-create-environment cell table table-sm table-striped small" data-quarto-bootstrap="false">
+<table class="gt_table do-not-create-environment cell table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
 <colgroup>
 <col style="width: 16%">
 <col style="width: 16%">
@@ -1501,8 +1498,8 @@ Table&nbsp;33.1: Facteurs associés à la pratique d’un sport (régression log
 </div>
 <p>Pour un graphique des coefficients, nous pouvons utiliser <code><a href="https://larmarange.github.io/ggstats/reference/ggcoef_model.html">ggstats::ggcoef_model()</a></code>.</p>
 <div class="cell page-columns page-full">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a>mod_quasi2 <span class="sc">|&gt;</span> </span>
-<span id="cb11-2"><a href="#cb11-2"></a>  ggstats<span class="sc">::</span><span class="fu">ggcoef_model</span>(<span class="at">exponentiate =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a>mod_quasi2 <span class="sc">|&gt;</span> </span>
+<span id="cb11-2"><a href="#cb11-2"></a>  ggstats<span class="sc">::</span><span class="fu">ggcoef_model</span>(<span class="at">exponentiate =</span> <span class="cn">TRUE</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display page-columns page-full">
 <div id="fig-forest-plot-regression-logistique-ponderee" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full"><div aria-describedby="fig-forest-plot-regression-logistique-ponderee-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -1518,7 +1515,7 @@ Figure&nbsp;33.1: Facteurs associés à la pratique d’un sport (régression lo
 <span class="header-section-number">33.5</span> Prédictions marginales</h2>
 <p>Pour visualiser les prédictions marginales moyennes du modèle (cf. <a href="../analyses/estimations-marginales.html#sec-predictions-marginales" class="quarto-xref"><span>Section 25.3</span></a>), nous pouvons utiliser <code><a href="https://larmarange.github.io/broom.helpers/reference/tidy_marginal_predictions.html">broom.helpers::plot_marginal_predictions()</a></code>. Il est préférable ici de transmettre également les poids d’échantillonnage pour le calcul de des prédictions marginales moyennes. Pour cela, nous pouvons récupérer les poids du modèle avec <code>weights(mod_quasi2)</code> puis les passer via l’argument <code>wts</code>.</p>
 <div class="cell page-columns page-full">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a>mod_quasi2 <span class="sc">|&gt;</span> </span>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a>mod_quasi2 <span class="sc">|&gt;</span> </span>
 <span id="cb12-2"><a href="#cb12-2"></a>  broom.helpers<span class="sc">::</span><span class="fu">plot_marginal_predictions</span>(</span>
 <span id="cb12-3"><a href="#cb12-3"></a>    <span class="at">type =</span> <span class="st">"response"</span>,</span>
 <span id="cb12-4"><a href="#cb12-4"></a>    <span class="at">wts =</span> <span class="fu">weights</span>(mod_quasi2)</span>
@@ -1527,7 +1524,7 @@ Figure&nbsp;33.1: Facteurs associés à la pratique d’un sport (régression lo
 <span id="cb12-7"><a href="#cb12-7"></a>  <span class="fu">scale_y_continuous</span>(</span>
 <span id="cb12-8"><a href="#cb12-8"></a>    <span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>, .<span class="dv">8</span>),</span>
 <span id="cb12-9"><a href="#cb12-9"></a>    <span class="at">labels =</span> scales<span class="sc">::</span><span class="fu">label_percent</span>()</span>
-<span id="cb12-10"><a href="#cb12-10"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb12-10"><a href="#cb12-10"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display page-columns page-full">
 <div id="fig-predictions-marginales-moyennes-regression-ponderee" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full"><div aria-describedby="fig-predictions-marginales-moyennes-regression-ponderee-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -1541,7 +1538,7 @@ Figure&nbsp;33.2: Prédictions marginales moyennes du modèle pondéré
 </div>
 <p>Et sous forme de tableau&nbsp;:</p>
 <div class="cell page-columns page-full">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a>mod_quasi2 <span class="sc">|&gt;</span> </span>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a>mod_quasi2 <span class="sc">|&gt;</span> </span>
 <span id="cb13-2"><a href="#cb13-2"></a>  <span class="fu">tbl_regression</span>(</span>
 <span id="cb13-3"><a href="#cb13-3"></a>    <span class="at">tidy_fun =</span> broom.helpers<span class="sc">::</span>tidy_marginal_predictions,</span>
 <span id="cb13-4"><a href="#cb13-4"></a>    <span class="at">type =</span> <span class="st">"response"</span>,</span>
@@ -1549,27 +1546,27 @@ Figure&nbsp;33.2: Prédictions marginales moyennes du modèle pondéré
 <span id="cb13-6"><a href="#cb13-6"></a>    <span class="at">wts =</span> <span class="fu">weights</span>(mod_quasi2)</span>
 <span id="cb13-7"><a href="#cb13-7"></a>  ) <span class="sc">|&gt;</span> </span>
 <span id="cb13-8"><a href="#cb13-8"></a>  <span class="fu">bold_labels</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb13-9"><a href="#cb13-9"></a>  <span class="fu">modify_column_hide</span>(<span class="st">"p.value"</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb13-9"><a href="#cb13-9"></a>  <span class="fu">modify_column_hide</span>(<span class="st">"p.value"</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div id="tbl-predictions-marginales-moyennes-regression-ponderee" class="cell quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-tbl figure page-columns page-full"><div aria-describedby="tbl-predictions-marginales-moyennes-regression-ponderee-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
-<div id="vntnheqotf" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#vntnheqotf table {
+<div id="uxdsbgwpzs" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#uxdsbgwpzs table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#vntnheqotf thead, #vntnheqotf tbody, #vntnheqotf tfoot, #vntnheqotf tr, #vntnheqotf td, #vntnheqotf th {
+#uxdsbgwpzs thead, #uxdsbgwpzs tbody, #uxdsbgwpzs tfoot, #uxdsbgwpzs tr, #uxdsbgwpzs td, #uxdsbgwpzs th {
   border-style: none;
 }
 
-#vntnheqotf p {
+#uxdsbgwpzs p {
   margin: 0;
   padding: 0;
 }
 
-#vntnheqotf .gt_table {
+#uxdsbgwpzs .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -1595,12 +1592,12 @@ Figure&nbsp;33.2: Prédictions marginales moyennes du modèle pondéré
   border-left-color: #D3D3D3;
 }
 
-#vntnheqotf .gt_caption {
+#uxdsbgwpzs .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#vntnheqotf .gt_title {
+#uxdsbgwpzs .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -1612,7 +1609,7 @@ Figure&nbsp;33.2: Prédictions marginales moyennes du modèle pondéré
   border-bottom-width: 0;
 }
 
-#vntnheqotf .gt_subtitle {
+#uxdsbgwpzs .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -1624,7 +1621,7 @@ Figure&nbsp;33.2: Prédictions marginales moyennes du modèle pondéré
   border-top-width: 0;
 }
 
-#vntnheqotf .gt_heading {
+#uxdsbgwpzs .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -1636,13 +1633,13 @@ Figure&nbsp;33.2: Prédictions marginales moyennes du modèle pondéré
   border-right-color: #D3D3D3;
 }
 
-#vntnheqotf .gt_bottom_border {
+#uxdsbgwpzs .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#vntnheqotf .gt_col_headings {
+#uxdsbgwpzs .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1657,7 +1654,7 @@ Figure&nbsp;33.2: Prédictions marginales moyennes du modèle pondéré
   border-right-color: #D3D3D3;
 }
 
-#vntnheqotf .gt_col_heading {
+#uxdsbgwpzs .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1677,7 +1674,7 @@ Figure&nbsp;33.2: Prédictions marginales moyennes du modèle pondéré
   overflow-x: hidden;
 }
 
-#vntnheqotf .gt_column_spanner_outer {
+#uxdsbgwpzs .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1689,15 +1686,15 @@ Figure&nbsp;33.2: Prédictions marginales moyennes du modèle pondéré
   padding-right: 4px;
 }
 
-#vntnheqotf .gt_column_spanner_outer:first-child {
+#uxdsbgwpzs .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#vntnheqotf .gt_column_spanner_outer:last-child {
+#uxdsbgwpzs .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#vntnheqotf .gt_column_spanner {
+#uxdsbgwpzs .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -1709,11 +1706,11 @@ Figure&nbsp;33.2: Prédictions marginales moyennes du modèle pondéré
   width: 100%;
 }
 
-#vntnheqotf .gt_spanner_row {
+#uxdsbgwpzs .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#vntnheqotf .gt_group_heading {
+#uxdsbgwpzs .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1739,7 +1736,7 @@ Figure&nbsp;33.2: Prédictions marginales moyennes du modèle pondéré
   text-align: left;
 }
 
-#vntnheqotf .gt_empty_group_heading {
+#uxdsbgwpzs .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -1754,15 +1751,15 @@ Figure&nbsp;33.2: Prédictions marginales moyennes du modèle pondéré
   vertical-align: middle;
 }
 
-#vntnheqotf .gt_from_md > :first-child {
+#uxdsbgwpzs .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#vntnheqotf .gt_from_md > :last-child {
+#uxdsbgwpzs .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#vntnheqotf .gt_row {
+#uxdsbgwpzs .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1781,7 +1778,7 @@ Figure&nbsp;33.2: Prédictions marginales moyennes du modèle pondéré
   overflow-x: hidden;
 }
 
-#vntnheqotf .gt_stub {
+#uxdsbgwpzs .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1794,7 +1791,7 @@ Figure&nbsp;33.2: Prédictions marginales moyennes du modèle pondéré
   padding-right: 5px;
 }
 
-#vntnheqotf .gt_stub_row_group {
+#uxdsbgwpzs .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1808,15 +1805,15 @@ Figure&nbsp;33.2: Prédictions marginales moyennes du modèle pondéré
   vertical-align: top;
 }
 
-#vntnheqotf .gt_row_group_first td {
+#uxdsbgwpzs .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#vntnheqotf .gt_row_group_first th {
+#uxdsbgwpzs .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#vntnheqotf .gt_summary_row {
+#uxdsbgwpzs .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1826,16 +1823,16 @@ Figure&nbsp;33.2: Prédictions marginales moyennes du modèle pondéré
   padding-right: 5px;
 }
 
-#vntnheqotf .gt_first_summary_row {
+#uxdsbgwpzs .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#vntnheqotf .gt_first_summary_row.thick {
+#uxdsbgwpzs .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#vntnheqotf .gt_last_summary_row {
+#uxdsbgwpzs .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1845,7 +1842,7 @@ Figure&nbsp;33.2: Prédictions marginales moyennes du modèle pondéré
   border-bottom-color: #D3D3D3;
 }
 
-#vntnheqotf .gt_grand_summary_row {
+#uxdsbgwpzs .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1855,7 +1852,7 @@ Figure&nbsp;33.2: Prédictions marginales moyennes du modèle pondéré
   padding-right: 5px;
 }
 
-#vntnheqotf .gt_first_grand_summary_row {
+#uxdsbgwpzs .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1865,7 +1862,7 @@ Figure&nbsp;33.2: Prédictions marginales moyennes du modèle pondéré
   border-top-color: #D3D3D3;
 }
 
-#vntnheqotf .gt_last_grand_summary_row_top {
+#uxdsbgwpzs .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1875,11 +1872,11 @@ Figure&nbsp;33.2: Prédictions marginales moyennes du modèle pondéré
   border-bottom-color: #D3D3D3;
 }
 
-#vntnheqotf .gt_striped {
+#uxdsbgwpzs .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#vntnheqotf .gt_table_body {
+#uxdsbgwpzs .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1888,7 +1885,7 @@ Figure&nbsp;33.2: Prédictions marginales moyennes du modèle pondéré
   border-bottom-color: #D3D3D3;
 }
 
-#vntnheqotf .gt_footnotes {
+#uxdsbgwpzs .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1902,7 +1899,7 @@ Figure&nbsp;33.2: Prédictions marginales moyennes du modèle pondéré
   border-right-color: #D3D3D3;
 }
 
-#vntnheqotf .gt_footnote {
+#uxdsbgwpzs .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -1911,7 +1908,7 @@ Figure&nbsp;33.2: Prédictions marginales moyennes du modèle pondéré
   padding-right: 5px;
 }
 
-#vntnheqotf .gt_sourcenotes {
+#uxdsbgwpzs .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1925,7 +1922,7 @@ Figure&nbsp;33.2: Prédictions marginales moyennes du modèle pondéré
   border-right-color: #D3D3D3;
 }
 
-#vntnheqotf .gt_sourcenote {
+#uxdsbgwpzs .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -1933,76 +1930,76 @@ Figure&nbsp;33.2: Prédictions marginales moyennes du modèle pondéré
   padding-right: 5px;
 }
 
-#vntnheqotf .gt_left {
+#uxdsbgwpzs .gt_left {
   text-align: left;
 }
 
-#vntnheqotf .gt_center {
+#uxdsbgwpzs .gt_center {
   text-align: center;
 }
 
-#vntnheqotf .gt_right {
+#uxdsbgwpzs .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#vntnheqotf .gt_font_normal {
+#uxdsbgwpzs .gt_font_normal {
   font-weight: normal;
 }
 
-#vntnheqotf .gt_font_bold {
+#uxdsbgwpzs .gt_font_bold {
   font-weight: bold;
 }
 
-#vntnheqotf .gt_font_italic {
+#uxdsbgwpzs .gt_font_italic {
   font-style: italic;
 }
 
-#vntnheqotf .gt_super {
+#uxdsbgwpzs .gt_super {
   font-size: 65%;
 }
 
-#vntnheqotf .gt_footnote_marks {
+#uxdsbgwpzs .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#vntnheqotf .gt_asterisk {
+#uxdsbgwpzs .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#vntnheqotf .gt_indent_1 {
+#uxdsbgwpzs .gt_indent_1 {
   text-indent: 5px;
 }
 
-#vntnheqotf .gt_indent_2 {
+#uxdsbgwpzs .gt_indent_2 {
   text-indent: 10px;
 }
 
-#vntnheqotf .gt_indent_3 {
+#uxdsbgwpzs .gt_indent_3 {
   text-indent: 15px;
 }
 
-#vntnheqotf .gt_indent_4 {
+#uxdsbgwpzs .gt_indent_4 {
   text-indent: 20px;
 }
 
-#vntnheqotf .gt_indent_5 {
+#uxdsbgwpzs .gt_indent_5 {
   text-indent: 25px;
 }
 
-#vntnheqotf .katex-display {
+#uxdsbgwpzs .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#vntnheqotf div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#uxdsbgwpzs div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
-<table class="gt_table do-not-create-environment cell table table-sm table-striped small" data-quarto-bootstrap="false">
+<table class="gt_table do-not-create-environment cell table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
 <colgroup>
 <col style="width: 33%">
 <col style="width: 33%">
@@ -2143,7 +2140,7 @@ Table&nbsp;33.2: Prédictions marginales moyennes du modèle pondéré
       a.appendChild(i);
       window.document.body.appendChild(a);
     }
-    setColorSchemeToggle(hasAlternateSentinel())
+    window.setColorSchemeToggle(window.hasAlternateSentinel())
     const icon = "";
     const anchorJS = new window.AnchorJS();
     anchorJS.options = {
@@ -2193,14 +2190,13 @@ Table&nbsp;33.2: Prédictions marginales moyennes du modèle pondéré
       e.clearSelection();
     }
     const getTextToCopy = function(trigger) {
-      const outerScaffold = trigger.parentElement.cloneNode(true);
-      const codeEl = outerScaffold.querySelector('code');
-      for (const childEl of codeEl.children) {
-        if (isCodeAnnotation(childEl)) {
-          childEl.remove();
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
         }
-      }
-      return codeEl.innerText;
+        return codeEl.innerText;
     }
     const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
       text: getTextToCopy
@@ -2541,36 +2537,8 @@ Table&nbsp;33.2: Prédictions marginales moyennes du modèle pondéré
       }
     }
   });
-  </script><input type="hidden" id="giscus-base-theme" value="light"><input type="hidden" id="giscus-alt-theme" value="dark"><script>
-  function loadGiscus() {
-    // Function to get the theme based on body class
-    const getTheme = () => {
-      let baseTheme = document.getElementById('giscus-base-theme').value;
-      let altTheme = document.getElementById('giscus-alt-theme').value;
-      if (authorPrefersDark) {
-          [baseTheme, altTheme] = [altTheme, baseTheme];
-      }
-      return document.body.classList.contains('quarto-dark') ? altTheme : baseTheme;
-    };
-    const script = document.createElement("script");
-    script.src = "https://giscus.app/client.js";
-    script.async = true;
-    script.dataset.repo = "larmarange/guide-R";
-    script.dataset.repoId = "R_kgDOH6-xnw";
-    script.dataset.category = "Forum";
-    script.dataset.categoryId = "DIC_kwDOH6-xn84CRLQy";
-    script.dataset.mapping = "pathname";
-    script.dataset.reactionsEnabled = "1";
-    script.dataset.emitMetadata = "0";
-    script.dataset.inputPosition = "top";
-    script.dataset.theme = getTheme();
-    script.dataset.lang = "fr";
-    script.crossOrigin = "anonymous";
-    // Append the script to the desired div instead of at the end of the body
-    document.getElementById("quarto-content").appendChild(script);
-  }
-  loadGiscus();
-</script><nav class="page-navigation"><div class="nav-page nav-page-previous">
+  </script><script src="https://giscus.app/client.js" data-repo="larmarange/guide-R" data-repo-id="R_kgDOH6-xnw" data-category="Forum" data-category-id="DIC_kwDOH6-xn84CRLQy" data-mapping="pathname" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="top" data-theme="light" data-lang="fr" crossorigin="anonymous" data-loading="lazy" async="">
+</script><input type="hidden" id="giscus-base-theme" value="light"><input type="hidden" id="giscus-alt-theme" value="dark"><nav class="page-navigation"><div class="nav-page nav-page-previous">
       <a href="../donnees_ponderees/graphiques-ponderes.html" class="pagination-link" aria-label="Graphiques pondérés">
         <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">32</span>&nbsp; <span class="chapter-title">Graphiques pondérés</span></span>
       </a>          
