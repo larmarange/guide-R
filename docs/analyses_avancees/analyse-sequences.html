@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="fr" xml:lang="fr"><head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.7.27">
+<meta name="generator" content="quarto-1.8.27">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 <title>45&nbsp; Analyse de séquences – guide-R</title>
 <style>
@@ -68,18 +68,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../site_libs/cookie-consent/cookie-consent.css" rel="stylesheet">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
 <script src="../site_libs/quarto-html/popper.min.js"></script>
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-985aa47af68dae11cd4d235c71fb941e.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-6c49c5477b92c77c9eb341f9299c235f.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-985aa47af68dae11cd4d235c71fb941e.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-ed96de9b727972fe78a7b5d16c58bf87.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-4d9afe2b8d18ee9fa5d0d57b5ed4214d.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-ed96de9b727972fe78a7b5d16c58bf87.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-1706ad55a43eb6182cc66969adfb4558.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../site_libs/bootstrap/bootstrap-dark-e07f40149b440be50f716415da65e4f4.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<link href="../site_libs/bootstrap/bootstrap-1706ad55a43eb6182cc66969adfb4558.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-bd89720b472e789133713356f69e05bb.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-19020347c2de3e9282294d0be578f340.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../site_libs/bootstrap/bootstrap-bd89720b472e789133713356f69e05bb.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <script src="../site_libs/quarto-contrib/glightbox/glightbox.min.js"></script>
 <link href="../site_libs/quarto-contrib/glightbox/glightbox.min.css" rel="stylesheet">
 <link href="../site_libs/quarto-contrib/glightbox/lightbox.css" rel="stylesheet"><script id="quarto-search-options" type="application/json">{
@@ -149,7 +150,7 @@ cookieconsent.run({
         toggleBodyColorMode(bsSheetEl);
       }
     }
-    window.setColorSchemeToggle = (alternate) => {
+    const setColorSchemeToggle = (alternate) => {
       const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
       for (let i=0; i < toggles.length; i++) {
         const toggle = toggles[i];
@@ -182,7 +183,7 @@ cookieconsent.run({
       }
       manageTransitions('#quarto-margin-sidebar .nav-link', true);
       // Switch the toggles
-      window.setColorSchemeToggle(alternate)
+      setColorSchemeToggle(alternate)
       // Hack to workaround the fact that safari doesn't
       // properly recolor the scrollbar when toggling (#1455)
       if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
@@ -222,7 +223,7 @@ cookieconsent.run({
     const isFileUrl = () => {
       return window.location.protocol === 'file:';
     }
-    window.hasAlternateSentinel = () => {
+    const hasAlternateSentinel = () => {
       let styleSentinel = getColorSchemeSentinel();
       if (styleSentinel !== null) {
         return styleSentinel === "alternate";
@@ -250,7 +251,7 @@ cookieconsent.run({
       const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
       const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
       let newTheme = '';
-      if(darkModeDefault) {
+      if(authorPrefersDark) {
         newTheme = isAlternate ? baseTheme : alternateTheme;
       } else {
         newTheme = isAlternate ? alternateTheme : baseTheme;
@@ -273,20 +274,22 @@ cookieconsent.run({
         changeGiscusTheme();
       }
     };
-    const darkModeDefault = false;
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
       document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
       document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
     let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
     // Dark / light mode switch
     window.quartoToggleColorScheme = () => {
       // Read the current dark / light value
-      let toAlternate = !window.hasAlternateSentinel();
+      let toAlternate = !hasAlternateSentinel();
       toggleColorMode(toAlternate);
       setStyleSentinel(toAlternate);
       toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
     };
     // Switch to dark mode if need be
-    if (window.hasAlternateSentinel()) {
+    if (hasAlternateSentinel()) {
       toggleColorMode(true);
     } else {
       toggleColorMode(false);
@@ -309,7 +312,7 @@ cookieconsent.run({
 <!-- sidebar -->
   <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto"><div class="pt-lg-2 mt-2 text-left sidebar-header sidebar-header-stacked">
       <a href="../index.html" class="sidebar-logo-link">
-      <img src="../ressources/typewriter.png" alt="" class="sidebar-logo py-0 d-lg-inline d-none"></a>
+      <img src="../ressources/typewriter.png" alt="" class="sidebar-logo light-content py-0 d-lg-inline d-none"><img src="../ressources/typewriter.png" alt="" class="sidebar-logo dark-content py-0 d-lg-inline d-none"></a>
     <div class="sidebar-title mb-0 py-0">
       <a href="../">guide-R</a> 
         <div class="sidebar-tools-main tools-wide">
@@ -770,13 +773,13 @@ cookieconsent.run({
 <span class="header-section-number">45.1</span> Présentation des données de l’exemple</h2>
 <p>Nous allons utiliser le jeu de données <code><a href="https://nicolas-robette.github.io/seqhandbook/reference/trajact.html">seqhandbook::trajact</a></code> fourni par le package <a href="https://framagit.org/nicolas-robette/seqhandbook">seqhandbook</a> et décrivant le statut professionnel entre 14 et 50 ans de 500 personnes interrogées dans le cadre de l’enquête <em>Biographies et entourage</em> réalisée par l’Ined en 2021.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="fu">library</span>(seqhandbook)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="fu">library</span>(seqhandbook)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Le chargement a nécessité le package : TraMineR</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
 <pre><code>
-TraMineR stable version 2.2-12 (Built: 2025-07-03)</code></pre>
+TraMineR stable version 2.2-13 (Built: 2026-02-27)</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Website: http://traminer.unige.ch</code></pre>
@@ -784,14 +787,14 @@ TraMineR stable version 2.2-12 (Built: 2025-07-03)</code></pre>
 <div class="cell-output cell-output-stderr">
 <pre><code>Please type 'citation("TraMineR")' for citation information.</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a><span class="fu">library</span>(tidyverse)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a><span class="fu">library</span>(tidyverse)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
-✔ dplyr     1.1.4     ✔ readr     2.1.6
+✔ dplyr     1.2.0     ✔ readr     2.2.0
 ✔ forcats   1.0.1     ✔ stringr   1.6.0
-✔ ggplot2   4.0.1     ✔ tibble    3.3.0
-✔ lubridate 1.9.4     ✔ tidyr     1.3.1
-✔ purrr     1.2.0     </code></pre>
+✔ ggplot2   4.0.2     ✔ tibble    3.3.1
+✔ lubridate 1.9.5     ✔ tidyr     1.3.2
+✔ purrr     1.2.1     </code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
 <pre><code>── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
@@ -799,7 +802,7 @@ TraMineR stable version 2.2-12 (Built: 2025-07-03)</code></pre>
 ✖ dplyr::lag()    masks stats::lag()
 ℹ Use the conflicted package (&lt;http://conflicted.r-lib.org/&gt;) to force all conflicts to become errors</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a>trajact <span class="sc">|&gt;</span> <span class="fu">glimpse</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a>trajact <span class="sc">|&gt;</span> <span class="fu">glimpse</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Rows: 500
 Columns: 37
@@ -845,7 +848,7 @@ $ sact50 &lt;dbl&gt; 2, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 5, 5, 5, 2, 2, 2, 2, 3, 2,
 <p>Comme nous pouvons le voir, les données sont ici organisées selon un format large&nbsp;: nous avons 500 lignes, correspondant aux 500 personnes enquêtées, et 37 variables, chacune indiquant le statut professionnel à un âge donné.</p>
 <p>Le format large est celui le plus souvent utilisé pour l’analyse de séquences et celui que vous retrouverez dans les différents exemples et tutoriels des références listées en fin de chapitre. Cependant, comme nous l’avons évoqué dans le chapitre sur les données longitudinales (cf. <a href="../manipulation_avancee/donnees-longitudinales.html" class="quarto-xref"><span>Chapitre 41</span></a>), ce format n’est pas pratique si l’on a encore du travail préliminaire (comme des recodages) à effectuer. Ici, nous allons transformer les données dans un format long et nous présenterons plus loin comment créer un objet séquences à partir d’un format long. Nous allons aussi en profiter pour créer un identifiant individu et documenter les variables. Pour cet identifiant, nous allons le préfixer avec <code>"IND_"</code> pour facilement vérifier qu’il est bien conservé tout au long du processus et allons utiliser <code><a href="https://larmarange.github.io/guideR/reference/leading_zeros.html">guideR::leading_zeros()</a></code> pour que tous les identifiants aient le même nombre de chiffres (i.e.&nbsp;<em>IND_001</em> au lieu de <em>IND_1</em>).</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a><span class="fu">library</span>(labelled)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a><span class="fu">library</span>(labelled)</span>
 <span id="cb11-2"><a href="#cb11-2"></a></span>
 <span id="cb11-3"><a href="#cb11-3"></a>trajact <span class="ot">&lt;-</span></span>
 <span id="cb11-4"><a href="#cb11-4"></a>  trajact <span class="sc">|&gt;</span> </span>
@@ -879,29 +882,29 @@ $ sact50 &lt;dbl&gt; 2, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 5, 5, 5, 2, 2, 2, 2, 3, 2,
 <span id="cb11-32"><a href="#cb11-32"></a>      <span class="st">"inactivité"</span> <span class="ot">=</span> <span class="dv">5</span>,</span>
 <span id="cb11-33"><a href="#cb11-33"></a>      <span class="st">"service militaire"</span> <span class="ot">=</span> <span class="dv">6</span></span>
 <span id="cb11-34"><a href="#cb11-34"></a>    )</span>
-<span id="cb11-35"><a href="#cb11-35"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb11-35"><a href="#cb11-35"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Notez ici que le statut professionnel est codé de manière numérique. Nous avons donc ajouté des étiquettes de valeurs (cf. <a href="../manipulation/etiquettes-valeurs.html" class="quarto-xref"><span>Chapitre 12</span></a>). Notre variable <em>statut_pro</em> est donc pour le moment au format numérique labellisé.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a>d <span class="sc">|&gt;</span> <span class="fu">look_for</span>(<span class="at">details =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span> <span class="fu">to_gt</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a>d <span class="sc">|&gt;</span> <span class="fu">look_for</span>(<span class="at">details =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span> <span class="fu">to_gt</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
-<div id="ztzvgrkxnf" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#ztzvgrkxnf table {
+<div id="dhdmhvsiyv" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#dhdmhvsiyv table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#ztzvgrkxnf thead, #ztzvgrkxnf tbody, #ztzvgrkxnf tfoot, #ztzvgrkxnf tr, #ztzvgrkxnf td, #ztzvgrkxnf th {
+#dhdmhvsiyv thead, #dhdmhvsiyv tbody, #dhdmhvsiyv tfoot, #dhdmhvsiyv tr, #dhdmhvsiyv td, #dhdmhvsiyv th {
   border-style: none;
 }
 
-#ztzvgrkxnf p {
+#dhdmhvsiyv p {
   margin: 0;
   padding: 0;
 }
 
-#ztzvgrkxnf .gt_table {
+#dhdmhvsiyv .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -927,12 +930,12 @@ $ sact50 &lt;dbl&gt; 2, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 5, 5, 5, 2, 2, 2, 2, 3, 2,
   border-left-color: #D3D3D3;
 }
 
-#ztzvgrkxnf .gt_caption {
+#dhdmhvsiyv .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#ztzvgrkxnf .gt_title {
+#dhdmhvsiyv .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -944,7 +947,7 @@ $ sact50 &lt;dbl&gt; 2, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 5, 5, 5, 2, 2, 2, 2, 3, 2,
   border-bottom-width: 0;
 }
 
-#ztzvgrkxnf .gt_subtitle {
+#dhdmhvsiyv .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -956,7 +959,7 @@ $ sact50 &lt;dbl&gt; 2, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 5, 5, 5, 2, 2, 2, 2, 3, 2,
   border-top-width: 0;
 }
 
-#ztzvgrkxnf .gt_heading {
+#dhdmhvsiyv .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -968,13 +971,13 @@ $ sact50 &lt;dbl&gt; 2, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 5, 5, 5, 2, 2, 2, 2, 3, 2,
   border-right-color: #D3D3D3;
 }
 
-#ztzvgrkxnf .gt_bottom_border {
+#dhdmhvsiyv .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#ztzvgrkxnf .gt_col_headings {
+#dhdmhvsiyv .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -989,7 +992,7 @@ $ sact50 &lt;dbl&gt; 2, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 5, 5, 5, 2, 2, 2, 2, 3, 2,
   border-right-color: #D3D3D3;
 }
 
-#ztzvgrkxnf .gt_col_heading {
+#dhdmhvsiyv .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1009,7 +1012,7 @@ $ sact50 &lt;dbl&gt; 2, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 5, 5, 5, 2, 2, 2, 2, 3, 2,
   overflow-x: hidden;
 }
 
-#ztzvgrkxnf .gt_column_spanner_outer {
+#dhdmhvsiyv .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1021,15 +1024,15 @@ $ sact50 &lt;dbl&gt; 2, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 5, 5, 5, 2, 2, 2, 2, 3, 2,
   padding-right: 4px;
 }
 
-#ztzvgrkxnf .gt_column_spanner_outer:first-child {
+#dhdmhvsiyv .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#ztzvgrkxnf .gt_column_spanner_outer:last-child {
+#dhdmhvsiyv .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#ztzvgrkxnf .gt_column_spanner {
+#dhdmhvsiyv .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -1041,11 +1044,11 @@ $ sact50 &lt;dbl&gt; 2, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 5, 5, 5, 2, 2, 2, 2, 3, 2,
   width: 100%;
 }
 
-#ztzvgrkxnf .gt_spanner_row {
+#dhdmhvsiyv .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#ztzvgrkxnf .gt_group_heading {
+#dhdmhvsiyv .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1071,7 +1074,7 @@ $ sact50 &lt;dbl&gt; 2, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 5, 5, 5, 2, 2, 2, 2, 3, 2,
   text-align: left;
 }
 
-#ztzvgrkxnf .gt_empty_group_heading {
+#dhdmhvsiyv .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -1086,15 +1089,15 @@ $ sact50 &lt;dbl&gt; 2, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 5, 5, 5, 2, 2, 2, 2, 3, 2,
   vertical-align: middle;
 }
 
-#ztzvgrkxnf .gt_from_md > :first-child {
+#dhdmhvsiyv .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#ztzvgrkxnf .gt_from_md > :last-child {
+#dhdmhvsiyv .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#ztzvgrkxnf .gt_row {
+#dhdmhvsiyv .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1113,7 +1116,7 @@ $ sact50 &lt;dbl&gt; 2, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 5, 5, 5, 2, 2, 2, 2, 3, 2,
   overflow-x: hidden;
 }
 
-#ztzvgrkxnf .gt_stub {
+#dhdmhvsiyv .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1126,7 +1129,7 @@ $ sact50 &lt;dbl&gt; 2, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 5, 5, 5, 2, 2, 2, 2, 3, 2,
   padding-right: 5px;
 }
 
-#ztzvgrkxnf .gt_stub_row_group {
+#dhdmhvsiyv .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1140,15 +1143,15 @@ $ sact50 &lt;dbl&gt; 2, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 5, 5, 5, 2, 2, 2, 2, 3, 2,
   vertical-align: top;
 }
 
-#ztzvgrkxnf .gt_row_group_first td {
+#dhdmhvsiyv .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#ztzvgrkxnf .gt_row_group_first th {
+#dhdmhvsiyv .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#ztzvgrkxnf .gt_summary_row {
+#dhdmhvsiyv .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1158,16 +1161,16 @@ $ sact50 &lt;dbl&gt; 2, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 5, 5, 5, 2, 2, 2, 2, 3, 2,
   padding-right: 5px;
 }
 
-#ztzvgrkxnf .gt_first_summary_row {
+#dhdmhvsiyv .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#ztzvgrkxnf .gt_first_summary_row.thick {
+#dhdmhvsiyv .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#ztzvgrkxnf .gt_last_summary_row {
+#dhdmhvsiyv .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1177,7 +1180,7 @@ $ sact50 &lt;dbl&gt; 2, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 5, 5, 5, 2, 2, 2, 2, 3, 2,
   border-bottom-color: #D3D3D3;
 }
 
-#ztzvgrkxnf .gt_grand_summary_row {
+#dhdmhvsiyv .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1187,7 +1190,7 @@ $ sact50 &lt;dbl&gt; 2, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 5, 5, 5, 2, 2, 2, 2, 3, 2,
   padding-right: 5px;
 }
 
-#ztzvgrkxnf .gt_first_grand_summary_row {
+#dhdmhvsiyv .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1197,7 +1200,7 @@ $ sact50 &lt;dbl&gt; 2, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 5, 5, 5, 2, 2, 2, 2, 3, 2,
   border-top-color: #D3D3D3;
 }
 
-#ztzvgrkxnf .gt_last_grand_summary_row_top {
+#dhdmhvsiyv .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1207,11 +1210,11 @@ $ sact50 &lt;dbl&gt; 2, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 5, 5, 5, 2, 2, 2, 2, 3, 2,
   border-bottom-color: #D3D3D3;
 }
 
-#ztzvgrkxnf .gt_striped {
+#dhdmhvsiyv .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#ztzvgrkxnf .gt_table_body {
+#dhdmhvsiyv .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1220,7 +1223,7 @@ $ sact50 &lt;dbl&gt; 2, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 5, 5, 5, 2, 2, 2, 2, 3, 2,
   border-bottom-color: #D3D3D3;
 }
 
-#ztzvgrkxnf .gt_footnotes {
+#dhdmhvsiyv .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1234,7 +1237,7 @@ $ sact50 &lt;dbl&gt; 2, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 5, 5, 5, 2, 2, 2, 2, 3, 2,
   border-right-color: #D3D3D3;
 }
 
-#ztzvgrkxnf .gt_footnote {
+#dhdmhvsiyv .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -1243,7 +1246,7 @@ $ sact50 &lt;dbl&gt; 2, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 5, 5, 5, 2, 2, 2, 2, 3, 2,
   padding-right: 5px;
 }
 
-#ztzvgrkxnf .gt_sourcenotes {
+#dhdmhvsiyv .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1257,7 +1260,7 @@ $ sact50 &lt;dbl&gt; 2, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 5, 5, 5, 2, 2, 2, 2, 3, 2,
   border-right-color: #D3D3D3;
 }
 
-#ztzvgrkxnf .gt_sourcenote {
+#dhdmhvsiyv .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -1265,76 +1268,76 @@ $ sact50 &lt;dbl&gt; 2, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 5, 5, 5, 2, 2, 2, 2, 3, 2,
   padding-right: 5px;
 }
 
-#ztzvgrkxnf .gt_left {
+#dhdmhvsiyv .gt_left {
   text-align: left;
 }
 
-#ztzvgrkxnf .gt_center {
+#dhdmhvsiyv .gt_center {
   text-align: center;
 }
 
-#ztzvgrkxnf .gt_right {
+#dhdmhvsiyv .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#ztzvgrkxnf .gt_font_normal {
+#dhdmhvsiyv .gt_font_normal {
   font-weight: normal;
 }
 
-#ztzvgrkxnf .gt_font_bold {
+#dhdmhvsiyv .gt_font_bold {
   font-weight: bold;
 }
 
-#ztzvgrkxnf .gt_font_italic {
+#dhdmhvsiyv .gt_font_italic {
   font-style: italic;
 }
 
-#ztzvgrkxnf .gt_super {
+#dhdmhvsiyv .gt_super {
   font-size: 65%;
 }
 
-#ztzvgrkxnf .gt_footnote_marks {
+#dhdmhvsiyv .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#ztzvgrkxnf .gt_asterisk {
+#dhdmhvsiyv .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#ztzvgrkxnf .gt_indent_1 {
+#dhdmhvsiyv .gt_indent_1 {
   text-indent: 5px;
 }
 
-#ztzvgrkxnf .gt_indent_2 {
+#dhdmhvsiyv .gt_indent_2 {
   text-indent: 10px;
 }
 
-#ztzvgrkxnf .gt_indent_3 {
+#dhdmhvsiyv .gt_indent_3 {
   text-indent: 15px;
 }
 
-#ztzvgrkxnf .gt_indent_4 {
+#dhdmhvsiyv .gt_indent_4 {
   text-indent: 20px;
 }
 
-#ztzvgrkxnf .gt_indent_5 {
+#dhdmhvsiyv .gt_indent_5 {
   text-indent: 25px;
 }
 
-#ztzvgrkxnf .katex-display {
+#dhdmhvsiyv .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#ztzvgrkxnf div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#dhdmhvsiyv div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
-<table class="gt_table table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<table class="gt_table table table-sm table-striped small" data-quarto-bootstrap="false">
 <colgroup>
 <col style="width: 14%">
 <col style="width: 14%">
@@ -1397,14 +1400,14 @@ $ sact50 &lt;dbl&gt; 2, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 5, 5, 5, 2, 2, 2, 2, 3, 2,
 </div>
 <p>Pour jeter un œil rapide aux trajectoires individuelles, on pourra utiliser la fonction <code><a href="https://larmarange.github.io/guideR/reference/plot_trajectories.html">guideR::plot_trajectories()</a></code> fournie par <a href="https://larmarange.github.io/guideR/">guideR</a>, le package compagnon de <em>guide-R</em>. À noter, pour cette fonction (comme à chaque fois que l’on fait un graphique ou un tableau), le statut professionnel doit être codé sous forme de facteur. Nous allons donc faire la conversion à la volée avec <code><a href="https://larmarange.github.io/labelled/reference/to_factor.html">labelled::unlabelled()</a></code>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a><span class="fu">library</span>(guideR)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a><span class="fu">library</span>(guideR)</span>
 <span id="cb13-2"><a href="#cb13-2"></a>d <span class="sc">|&gt;</span> </span>
 <span id="cb13-3"><a href="#cb13-3"></a>  <span class="fu">unlabelled</span>() <span class="sc">|&gt;</span> </span>
 <span id="cb13-4"><a href="#cb13-4"></a>  <span class="fu">plot_trajectories</span>(</span>
 <span id="cb13-5"><a href="#cb13-5"></a>    <span class="at">id =</span> id_ind,</span>
 <span id="cb13-6"><a href="#cb13-6"></a>    <span class="at">time =</span> age,</span>
 <span id="cb13-7"><a href="#cb13-7"></a>    <span class="at">fill =</span> statut_pro</span>
-<span id="cb13-8"><a href="#cb13-8"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb13-8"><a href="#cb13-8"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure"><p><a href="analyse-sequences_files/figure-html/unnamed-chunk-4-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-1"><img src="analyse-sequences_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid figure-img" width="672"></a></p>
@@ -1421,7 +1424,7 @@ $ sact50 &lt;dbl&gt; 2, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 5, 5, 5, 2, 2, 2, 2, 3, 2,
 <p>L’argument <code>cname</code> permet de donner une étiquette courte pour les pas de temps, étiquettes réutilisées dans les sorties graphiques. Ici, nous utiliserons directement <code>14:50</code> pour simplement afficher l’âge des individus.</p>
 <p>Enfin, toujours optionnel, on peut également passer un vecteur de couleurs qui seront utilisées par les différentes sorties graphiques. Ici, nous allons utiliser la palette de couleurs <code><a href="https://larmarange.github.io/guideR/reference/safe_pal.html">guideR::safe_pal()</a></code> (voir le chapitre sur les couleurs, cf. <a href="../manipulation/couleurs.html" class="quarto-xref"><span>Chapitre 16</span></a>).</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a>noms_courts <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"Et"</span>, <span class="st">"TPl"</span>, <span class="st">"TPa"</span>, <span class="st">"PB"</span>, <span class="st">"In"</span>, <span class="st">"SM"</span>)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a>noms_courts <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"Et"</span>, <span class="st">"TPl"</span>, <span class="st">"TPa"</span>, <span class="st">"PB"</span>, <span class="st">"In"</span>, <span class="st">"SM"</span>)</span>
 <span id="cb14-2"><a href="#cb14-2"></a>etiquettes <span class="ot">&lt;-</span> d<span class="sc">$</span>statut_pro <span class="sc">|&gt;</span> <span class="fu">get_value_labels</span>() <span class="sc">|&gt;</span> <span class="fu">names</span>()</span>
 <span id="cb14-3"><a href="#cb14-3"></a>palette <span class="ot">&lt;-</span> guideR<span class="sc">::</span><span class="fu">safe_pal</span>()(<span class="dv">6</span>)</span>
 <span id="cb14-4"><a href="#cb14-4"></a></span>
@@ -1450,25 +1453,25 @@ $ sact50 &lt;dbl&gt; 2, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 5, 5, 5, 2, 2, 2, 2, 3, 2,
 <span id="cb14-27"><a href="#cb14-27"></a>  <span class="fu">set_variable_labels</span>(</span>
 <span id="cb14-28"><a href="#cb14-28"></a>    <span class="at">statut_pro2 =</span> <span class="st">"Statut professionnel"</span></span>
 <span id="cb14-29"><a href="#cb14-29"></a>  )</span>
-<span id="cb14-30"><a href="#cb14-30"></a>d <span class="sc">|&gt;</span> <span class="fu">look_for</span>(<span class="st">"statut_pro2"</span>) <span class="sc">|&gt;</span> <span class="fu">to_gt</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb14-30"><a href="#cb14-30"></a>d <span class="sc">|&gt;</span> <span class="fu">look_for</span>(<span class="st">"statut_pro2"</span>) <span class="sc">|&gt;</span> <span class="fu">to_gt</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
-<div id="alknkvygev" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#alknkvygev table {
+<div id="xxirofcjhr" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#xxirofcjhr table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#alknkvygev thead, #alknkvygev tbody, #alknkvygev tfoot, #alknkvygev tr, #alknkvygev td, #alknkvygev th {
+#xxirofcjhr thead, #xxirofcjhr tbody, #xxirofcjhr tfoot, #xxirofcjhr tr, #xxirofcjhr td, #xxirofcjhr th {
   border-style: none;
 }
 
-#alknkvygev p {
+#xxirofcjhr p {
   margin: 0;
   padding: 0;
 }
 
-#alknkvygev .gt_table {
+#xxirofcjhr .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -1494,12 +1497,12 @@ $ sact50 &lt;dbl&gt; 2, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 5, 5, 5, 2, 2, 2, 2, 3, 2,
   border-left-color: #D3D3D3;
 }
 
-#alknkvygev .gt_caption {
+#xxirofcjhr .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#alknkvygev .gt_title {
+#xxirofcjhr .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -1511,7 +1514,7 @@ $ sact50 &lt;dbl&gt; 2, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 5, 5, 5, 2, 2, 2, 2, 3, 2,
   border-bottom-width: 0;
 }
 
-#alknkvygev .gt_subtitle {
+#xxirofcjhr .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -1523,7 +1526,7 @@ $ sact50 &lt;dbl&gt; 2, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 5, 5, 5, 2, 2, 2, 2, 3, 2,
   border-top-width: 0;
 }
 
-#alknkvygev .gt_heading {
+#xxirofcjhr .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -1535,13 +1538,13 @@ $ sact50 &lt;dbl&gt; 2, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 5, 5, 5, 2, 2, 2, 2, 3, 2,
   border-right-color: #D3D3D3;
 }
 
-#alknkvygev .gt_bottom_border {
+#xxirofcjhr .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#alknkvygev .gt_col_headings {
+#xxirofcjhr .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1556,7 +1559,7 @@ $ sact50 &lt;dbl&gt; 2, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 5, 5, 5, 2, 2, 2, 2, 3, 2,
   border-right-color: #D3D3D3;
 }
 
-#alknkvygev .gt_col_heading {
+#xxirofcjhr .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1576,7 +1579,7 @@ $ sact50 &lt;dbl&gt; 2, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 5, 5, 5, 2, 2, 2, 2, 3, 2,
   overflow-x: hidden;
 }
 
-#alknkvygev .gt_column_spanner_outer {
+#xxirofcjhr .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1588,15 +1591,15 @@ $ sact50 &lt;dbl&gt; 2, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 5, 5, 5, 2, 2, 2, 2, 3, 2,
   padding-right: 4px;
 }
 
-#alknkvygev .gt_column_spanner_outer:first-child {
+#xxirofcjhr .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#alknkvygev .gt_column_spanner_outer:last-child {
+#xxirofcjhr .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#alknkvygev .gt_column_spanner {
+#xxirofcjhr .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -1608,11 +1611,11 @@ $ sact50 &lt;dbl&gt; 2, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 5, 5, 5, 2, 2, 2, 2, 3, 2,
   width: 100%;
 }
 
-#alknkvygev .gt_spanner_row {
+#xxirofcjhr .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#alknkvygev .gt_group_heading {
+#xxirofcjhr .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1638,7 +1641,7 @@ $ sact50 &lt;dbl&gt; 2, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 5, 5, 5, 2, 2, 2, 2, 3, 2,
   text-align: left;
 }
 
-#alknkvygev .gt_empty_group_heading {
+#xxirofcjhr .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -1653,15 +1656,15 @@ $ sact50 &lt;dbl&gt; 2, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 5, 5, 5, 2, 2, 2, 2, 3, 2,
   vertical-align: middle;
 }
 
-#alknkvygev .gt_from_md > :first-child {
+#xxirofcjhr .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#alknkvygev .gt_from_md > :last-child {
+#xxirofcjhr .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#alknkvygev .gt_row {
+#xxirofcjhr .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1680,7 +1683,7 @@ $ sact50 &lt;dbl&gt; 2, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 5, 5, 5, 2, 2, 2, 2, 3, 2,
   overflow-x: hidden;
 }
 
-#alknkvygev .gt_stub {
+#xxirofcjhr .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1693,7 +1696,7 @@ $ sact50 &lt;dbl&gt; 2, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 5, 5, 5, 2, 2, 2, 2, 3, 2,
   padding-right: 5px;
 }
 
-#alknkvygev .gt_stub_row_group {
+#xxirofcjhr .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1707,15 +1710,15 @@ $ sact50 &lt;dbl&gt; 2, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 5, 5, 5, 2, 2, 2, 2, 3, 2,
   vertical-align: top;
 }
 
-#alknkvygev .gt_row_group_first td {
+#xxirofcjhr .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#alknkvygev .gt_row_group_first th {
+#xxirofcjhr .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#alknkvygev .gt_summary_row {
+#xxirofcjhr .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1725,16 +1728,16 @@ $ sact50 &lt;dbl&gt; 2, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 5, 5, 5, 2, 2, 2, 2, 3, 2,
   padding-right: 5px;
 }
 
-#alknkvygev .gt_first_summary_row {
+#xxirofcjhr .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#alknkvygev .gt_first_summary_row.thick {
+#xxirofcjhr .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#alknkvygev .gt_last_summary_row {
+#xxirofcjhr .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1744,7 +1747,7 @@ $ sact50 &lt;dbl&gt; 2, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 5, 5, 5, 2, 2, 2, 2, 3, 2,
   border-bottom-color: #D3D3D3;
 }
 
-#alknkvygev .gt_grand_summary_row {
+#xxirofcjhr .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1754,7 +1757,7 @@ $ sact50 &lt;dbl&gt; 2, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 5, 5, 5, 2, 2, 2, 2, 3, 2,
   padding-right: 5px;
 }
 
-#alknkvygev .gt_first_grand_summary_row {
+#xxirofcjhr .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1764,7 +1767,7 @@ $ sact50 &lt;dbl&gt; 2, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 5, 5, 5, 2, 2, 2, 2, 3, 2,
   border-top-color: #D3D3D3;
 }
 
-#alknkvygev .gt_last_grand_summary_row_top {
+#xxirofcjhr .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1774,11 +1777,11 @@ $ sact50 &lt;dbl&gt; 2, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 5, 5, 5, 2, 2, 2, 2, 3, 2,
   border-bottom-color: #D3D3D3;
 }
 
-#alknkvygev .gt_striped {
+#xxirofcjhr .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#alknkvygev .gt_table_body {
+#xxirofcjhr .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1787,7 +1790,7 @@ $ sact50 &lt;dbl&gt; 2, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 5, 5, 5, 2, 2, 2, 2, 3, 2,
   border-bottom-color: #D3D3D3;
 }
 
-#alknkvygev .gt_footnotes {
+#xxirofcjhr .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1801,7 +1804,7 @@ $ sact50 &lt;dbl&gt; 2, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 5, 5, 5, 2, 2, 2, 2, 3, 2,
   border-right-color: #D3D3D3;
 }
 
-#alknkvygev .gt_footnote {
+#xxirofcjhr .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -1810,7 +1813,7 @@ $ sact50 &lt;dbl&gt; 2, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 5, 5, 5, 2, 2, 2, 2, 3, 2,
   padding-right: 5px;
 }
 
-#alknkvygev .gt_sourcenotes {
+#xxirofcjhr .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1824,7 +1827,7 @@ $ sact50 &lt;dbl&gt; 2, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 5, 5, 5, 2, 2, 2, 2, 3, 2,
   border-right-color: #D3D3D3;
 }
 
-#alknkvygev .gt_sourcenote {
+#xxirofcjhr .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -1832,76 +1835,76 @@ $ sact50 &lt;dbl&gt; 2, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 5, 5, 5, 2, 2, 2, 2, 3, 2,
   padding-right: 5px;
 }
 
-#alknkvygev .gt_left {
+#xxirofcjhr .gt_left {
   text-align: left;
 }
 
-#alknkvygev .gt_center {
+#xxirofcjhr .gt_center {
   text-align: center;
 }
 
-#alknkvygev .gt_right {
+#xxirofcjhr .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#alknkvygev .gt_font_normal {
+#xxirofcjhr .gt_font_normal {
   font-weight: normal;
 }
 
-#alknkvygev .gt_font_bold {
+#xxirofcjhr .gt_font_bold {
   font-weight: bold;
 }
 
-#alknkvygev .gt_font_italic {
+#xxirofcjhr .gt_font_italic {
   font-style: italic;
 }
 
-#alknkvygev .gt_super {
+#xxirofcjhr .gt_super {
   font-size: 65%;
 }
 
-#alknkvygev .gt_footnote_marks {
+#xxirofcjhr .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#alknkvygev .gt_asterisk {
+#xxirofcjhr .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#alknkvygev .gt_indent_1 {
+#xxirofcjhr .gt_indent_1 {
   text-indent: 5px;
 }
 
-#alknkvygev .gt_indent_2 {
+#xxirofcjhr .gt_indent_2 {
   text-indent: 10px;
 }
 
-#alknkvygev .gt_indent_3 {
+#xxirofcjhr .gt_indent_3 {
   text-indent: 15px;
 }
 
-#alknkvygev .gt_indent_4 {
+#xxirofcjhr .gt_indent_4 {
   text-indent: 20px;
 }
 
-#alknkvygev .gt_indent_5 {
+#xxirofcjhr .gt_indent_5 {
   text-indent: 25px;
 }
 
-#alknkvygev .katex-display {
+#xxirofcjhr .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#alknkvygev div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#xxirofcjhr div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
-<table class="gt_table table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<table class="gt_table table table-sm table-striped small" data-quarto-bootstrap="false">
 <colgroup>
 <col style="width: 16%">
 <col style="width: 16%">
@@ -1941,7 +1944,7 @@ $ sact50 &lt;dbl&gt; 2, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 5, 5, 5, 2, 2, 2, 2, 3, 2,
 </div>
 <p>Dans de nombreux tutoriels, dont <a href="https://nicolas-robette.github.io/seqhandbook/articles/Tutoriel.html">celui de Nicolas Robette</a> associé à son ouvrage, la création d’un objet séquence est réalisée à partir d’un format large, qui est le format attendu par défaut par <code><a href="https://rdrr.io/pkg/TraMineR/man/seqdef.html">TraMineR::seqdef()</a></code>. Dans cette situation, on passera à la fonction uniquement les colonnes concernées avec les options à considérer. On peut éventuellement définir l’identifiant des individus avec le paramètre <code>id</code>. Cela est <strong>fortement conseillé</strong> car cela permettra, en bout de chaîne, de correctement réidentifier les individus.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1"></a>seq <span class="ot">&lt;-</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1"></a>seq <span class="ot">&lt;-</span></span>
 <span id="cb15-2"><a href="#cb15-2"></a>  <span class="fu">seqdef</span>(</span>
 <span id="cb15-3"><a href="#cb15-3"></a>    <span class="at">data =</span> trajact <span class="sc">|&gt;</span> <span class="fu">select</span>(<span class="sc">-</span>id_ind),</span>
 <span id="cb15-4"><a href="#cb15-4"></a>    <span class="at">id =</span> trajact<span class="sc">$</span>id_ind,</span>
@@ -1949,7 +1952,7 @@ $ sact50 &lt;dbl&gt; 2, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 5, 5, 5, 2, 2, 2, 2, 3, 2,
 <span id="cb15-6"><a href="#cb15-6"></a>    <span class="at">states =</span> noms_courts,</span>
 <span id="cb15-7"><a href="#cb15-7"></a>    <span class="at">cpal =</span> palette,</span>
 <span id="cb15-8"><a href="#cb15-8"></a>    <span class="at">cname =</span> <span class="dv">14</span><span class="sc">:</span><span class="dv">50</span></span>
-<span id="cb15-9"><a href="#cb15-9"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb15-9"><a href="#cb15-9"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
 <pre><code> [&gt;] state coding:</code></pre>
 </div>
@@ -1983,7 +1986,7 @@ $ sact50 &lt;dbl&gt; 2, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 5, 5, 5, 2, 2, 2, 2, 3, 2,
 </div>
 <p>Si, comme nous, nous avons nos données dans un format long, nous pouvons aisément les transformer au format STS attendu par <code><a href="https://rdrr.io/pkg/TraMineR/man/seqdef.html">TraMineR::seqdef()</a></code> grâce à la fonction <code><a href="https://rdrr.io/pkg/TraMineR/man/seqformat.html">TraMineR::seqformat()</a></code>. En effet, notre format long est une variante du format SPELL qui est le nom utilisé par <a href="http://traminer.unige.ch">TraMineR</a> d’un format périodique ou chaque ligne est définie par une variable indiquant le début de la période et une variable indiquant la fin de la période. Il nous suffit en effet d’indiquer la variable <em>age</em> comme correspondant à la fois au début et à la fin de chaque période. Ici, nous allons utiliser notre nouvelle variable <em>statut_pro2</em>, ce qui nous permet de ne plus avoir besoin de noms courts.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1"></a>seq <span class="ot">&lt;-</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1"></a>seq <span class="ot">&lt;-</span></span>
 <span id="cb26-2"><a href="#cb26-2"></a>  d <span class="sc">|&gt;</span> </span>
 <span id="cb26-3"><a href="#cb26-3"></a>  <span class="fu">seqformat</span>(</span>
 <span id="cb26-4"><a href="#cb26-4"></a>    <span class="at">from =</span> <span class="st">"SPELL"</span>,</span>
@@ -1998,7 +2001,7 @@ $ sact50 &lt;dbl&gt; 2, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 5, 5, 5, 2, 2, 2, 2, 3, 2,
 <span id="cb26-13"><a href="#cb26-13"></a>    <span class="at">labels =</span> etiquettes,</span>
 <span id="cb26-14"><a href="#cb26-14"></a>    <span class="at">cpal =</span> palette,</span>
 <span id="cb26-15"><a href="#cb26-15"></a>    <span class="at">cname =</span> <span class="dv">14</span><span class="sc">:</span><span class="dv">50</span></span>
-<span id="cb26-16"><a href="#cb26-16"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb26-16"><a href="#cb26-16"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
 <pre><code> [&gt;] time axis: 14 -&gt; 50</code></pre>
 </div>
@@ -2069,14 +2072,14 @@ Astuce
 <div class="callout-body-container callout-body">
 <p>Cette étape peut être facilitée grâce à la fonction <code><a href="https://larmarange.github.io/guideR/reference/long_to_seq.html">guideR::long_to_seq()</a></code> qui réalise directement la transformation précédente. De plus, si le statut est stocké sous forme de vecteur labellisé, la fonction extrait automatiquement les étiquettes. Enfin, elle utilise <code><a href="https://larmarange.github.io/guideR/reference/safe_pal.html">guideR::safe_pal()</a></code> comme palette de couleur par défaut.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1"></a><span class="fu">library</span>(guideR)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb46"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1"></a><span class="fu">library</span>(guideR)</span>
 <span id="cb46-2"><a href="#cb46-2"></a>seq <span class="ot">&lt;-</span></span>
 <span id="cb46-3"><a href="#cb46-3"></a>  d <span class="sc">|&gt;</span> </span>
 <span id="cb46-4"><a href="#cb46-4"></a>  <span class="fu">long_to_seq</span>(</span>
 <span id="cb46-5"><a href="#cb46-5"></a>    <span class="at">id =</span> id_ind,</span>
 <span id="cb46-6"><a href="#cb46-6"></a>    <span class="at">time =</span> age,</span>
 <span id="cb46-7"><a href="#cb46-7"></a>    <span class="at">outcome =</span> statut_pro2</span>
-<span id="cb46-8"><a href="#cb46-8"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb46-8"><a href="#cb46-8"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
 <pre><code> [&gt;] time axis: 14 -&gt; 50</code></pre>
 </div>
@@ -2164,14 +2167,14 @@ Note
 <p>Avec des coûts de substitution constants et égaux à 2, la solution médiane pour le coût <em>indel</em> est donc de 1,5.</p>
 <p>Le calcul de la matrice des distances s’effectue avec la fonction <code><a href="https://rdrr.io/pkg/TraMineR/man/seqdist.html">TraMineR::seqdist()</a></code>. Nous préciserons <code>method = "OM"</code> pour indiquer le recours à l’<em>optimal matching</em>, <code>sm = "CONSTANT"</code> pour indiquer une matrice de substitution à coûts constants (2 par défaut) et <code>indel = 1.5</code> pour fixer le coût d’insertion/suppression.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb66"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb66-1"><a href="#cb66-1"></a>md <span class="ot">&lt;-</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb66"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb66-1"><a href="#cb66-1"></a>md <span class="ot">&lt;-</span></span>
 <span id="cb66-2"><a href="#cb66-2"></a>  seq <span class="sc">|&gt;</span> </span>
 <span id="cb66-3"><a href="#cb66-3"></a>  <span class="fu">seqdist</span>(</span>
 <span id="cb66-4"><a href="#cb66-4"></a>    <span class="at">method =</span> <span class="st">"OM"</span>,</span>
 <span id="cb66-5"><a href="#cb66-5"></a>    <span class="at">sm =</span> <span class="st">"CONSTANT"</span>,</span>
 <span id="cb66-6"><a href="#cb66-6"></a>    <span class="at">indel =</span> <span class="fl">1.5</span></span>
 <span id="cb66-7"><a href="#cb66-7"></a>  ) <span class="sc">|&gt;</span> </span>
-<span id="cb66-8"><a href="#cb66-8"></a>  <span class="fu">as.dist</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb66-8"><a href="#cb66-8"></a>  <span class="fu">as.dist</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
 <pre><code> [&gt;] 500 sequences with 6 distinct states</code></pre>
 </div>
@@ -2191,7 +2194,7 @@ Note
 <pre><code> [&gt;] computing distances using the OM metric</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code> [&gt;] elapsed time: 0.31 secs</code></pre>
+<pre><code> [&gt;] elapsed time: 0.222 secs</code></pre>
 </div>
 </div>
 <div class="callout callout-style-default callout-important callout-titled">
@@ -2211,14 +2214,14 @@ Important
 <span class="header-section-number">45.3.2</span> Calcul du dendrogramme</h3>
 <p>Maintenant que nous avons une matrice de distances, il nous reste à calculer le dendrogramme, avec <code><a href="https://rdrr.io/r/stats/hclust.html">hclust()</a></code>, comme nous l’avions fait dans le chapitre sur la CAH (cf. <a href="classification-ascendante-hierarchique.html" class="quarto-xref"><span>Chapitre 43</span></a>). Attention&nbsp;: il est impératif d’avoir bien appliqué <code><a href="https://rdrr.io/r/stats/dist.html">as.dist()</a></code> à l’étape précédente pour que <code><a href="https://rdrr.io/r/stats/hclust.html">hclust()</a></code> fonctionne correctement.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb74"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb74-1"><a href="#cb74-1"></a>arbre <span class="ot">&lt;-</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb74"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb74-1"><a href="#cb74-1"></a>arbre <span class="ot">&lt;-</span></span>
 <span id="cb74-2"><a href="#cb74-2"></a>  md <span class="sc">|&gt;</span> </span>
-<span id="cb74-3"><a href="#cb74-3"></a>  <span class="fu">hclust</span>(<span class="at">method =</span> <span class="st">"ward.D2"</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb74-3"><a href="#cb74-3"></a>  <span class="fu">hclust</span>(<span class="at">method =</span> <span class="st">"ward.D2"</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Nous pouvons maintenant représenter graphique notre dendrogramme.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb75"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb75-1"><a href="#cb75-1"></a>arbre <span class="sc">|&gt;</span> </span>
-<span id="cb75-2"><a href="#cb75-2"></a>  factoextra<span class="sc">::</span><span class="fu">fviz_dend</span>(<span class="at">show_labels =</span> <span class="cn">FALSE</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb75"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb75-1"><a href="#cb75-1"></a>arbre <span class="sc">|&gt;</span> </span>
+<span id="cb75-2"><a href="#cb75-2"></a>  factoextra<span class="sc">::</span><span class="fu">fviz_dend</span>(<span class="at">show_labels =</span> <span class="cn">FALSE</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure"><p><a href="analyse-sequences_files/figure-html/unnamed-chunk-11-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-2"><img src="analyse-sequences_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid figure-img" width="672"></a></p>
@@ -2228,7 +2231,7 @@ Important
 </div>
 <p>Le package <a href="https://framagit.org/nicolas-robette/seqhandbook">seqhandbook</a> propose une fonction intéressante <code><a href="https://nicolas-robette.github.io/seqhandbook/reference/seq_heatmap.html">seqhandbook::seq_heatmap()</a></code> permettant de combiner le dendrogramme avec un tapis de séquence.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb76"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb76-1"><a href="#cb76-1"></a>seqhandbook<span class="sc">::</span><span class="fu">seq_heatmap</span>(seq, arbre)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb76"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb76-1"><a href="#cb76-1"></a>seqhandbook<span class="sc">::</span><span class="fu">seq_heatmap</span>(seq, arbre)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure"><p><a href="analyse-sequences_files/figure-html/unnamed-chunk-12-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-3"><img src="analyse-sequences_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid figure-img" width="672"></a></p>
@@ -2240,8 +2243,8 @@ Important
 <span class="header-section-number">45.3.3</span> Découpage en classes</h3>
 <p>Comme dans le cadre de la CAH, la question est de déterminer un nombre pertinent de classes à retenir. En premier lieu, nous pouvons regarder les sauts d’inertie avec la fonction <code><a href="https://larmarange.github.io/guideR/reference/plot_inertia_from_tree.html">guideR::plot_inertia_from_tree()</a></code>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb77"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb77-1"><a href="#cb77-1"></a>arbre <span class="sc">|&gt;</span> </span>
-<span id="cb77-2"><a href="#cb77-2"></a>  guideR<span class="sc">::</span><span class="fu">plot_inertia_from_tree</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb77"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb77-1"><a href="#cb77-1"></a>arbre <span class="sc">|&gt;</span> </span>
+<span id="cb77-2"><a href="#cb77-2"></a>  guideR<span class="sc">::</span><span class="fu">plot_inertia_from_tree</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure"><p><a href="analyse-sequences_files/figure-html/unnamed-chunk-13-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-4"><img src="analyse-sequences_files/figure-html/unnamed-chunk-13-1.png" class="img-fluid figure-img" width="672"></a></p>
@@ -2251,9 +2254,9 @@ Important
 </div>
 <p>L’un des auteurs de <a href="http://traminer.unige.ch">TraMineR</a>, Mathias Studer, a développé le package <a href="http://mephisto.unige.ch/weightedcluster/">WeightedCluster</a> proposant plusieurs indicateurs pour comparer différents partitionnement. Pour cela, on aura recours à la fonction <code><a href="https://rdrr.io/pkg/WeightedCluster/man/as.clustrange.html">WeightedCluster::as.clustrange()</a></code>. La fonction <code><a href="https://rdrr.io/r/base/summary.html">summary()</a></code> permet d’avoir une synthèse des résultats.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb78"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb78-1"><a href="#cb78-1"></a>clusters <span class="ot">&lt;-</span> </span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb78"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb78-1"><a href="#cb78-1"></a>clusters <span class="ot">&lt;-</span> </span>
 <span id="cb78-2"><a href="#cb78-2"></a>  WeightedCluster<span class="sc">::</span><span class="fu">as.clustrange</span>(arbre, md, <span class="at">ncluster =</span> <span class="dv">15</span>)</span>
-<span id="cb78-3"><a href="#cb78-3"></a><span class="fu">summary</span>(clusters, <span class="at">max.rank =</span> <span class="dv">3</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb78-3"><a href="#cb78-3"></a><span class="fu">summary</span>(clusters, <span class="at">max.rank =</span> <span class="dv">3</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>     1. N groups     1.  stat 2. N groups     2.  stat 3. N groups     3.  stat
 PBC            3   0.76239822           2   0.73248726           9   0.64722580
@@ -2270,11 +2273,11 @@ HC             3   0.06073121          11   0.06157277          15   0.06641912<
 </div>
 <p>Une représentation graphique est également possible en appliquant <code><a href="https://rdrr.io/r/graphics/plot.default.html">plot()</a></code> aux résultats. L’option <code>norm = "zscore"</code> permet de normaliser les valeurs des différents indicateurs afin de faciliter les comparaisons.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb80"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb80-1"><a href="#cb80-1"></a>clusters <span class="sc">|&gt;</span> </span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb80"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb80-1"><a href="#cb80-1"></a>clusters <span class="sc">|&gt;</span> </span>
 <span id="cb80-2"><a href="#cb80-2"></a>  <span class="fu">plot</span>(</span>
 <span id="cb80-3"><a href="#cb80-3"></a>    <span class="at">norm =</span> <span class="st">"zscore"</span>,</span>
 <span id="cb80-4"><a href="#cb80-4"></a>    <span class="at">lwd =</span> <span class="dv">2</span></span>
-<span id="cb80-5"><a href="#cb80-5"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb80-5"><a href="#cb80-5"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure"><p><a href="analyse-sequences_files/figure-html/unnamed-chunk-15-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-5"><img src="analyse-sequences_files/figure-html/unnamed-chunk-15-1.png" class="img-fluid figure-img" width="672"></a></p>
@@ -2284,8 +2287,8 @@ HC             3   0.06073121          11   0.06157277          15   0.06641912<
 </div>
 <p>Plusieurs indicateurs suggèrent ici un découpage en 3 classes.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb81"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb81-1"><a href="#cb81-1"></a>arbre <span class="sc">|&gt;</span> </span>
-<span id="cb81-2"><a href="#cb81-2"></a>  factoextra<span class="sc">::</span><span class="fu">fviz_dend</span>(<span class="at">show_labels =</span> <span class="cn">FALSE</span>, <span class="at">k =</span> <span class="dv">3</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb81"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb81-1"><a href="#cb81-1"></a>arbre <span class="sc">|&gt;</span> </span>
+<span id="cb81-2"><a href="#cb81-2"></a>  factoextra<span class="sc">::</span><span class="fu">fviz_dend</span>(<span class="at">show_labels =</span> <span class="cn">FALSE</span>, <span class="at">k =</span> <span class="dv">3</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure"><p><a href="analyse-sequences_files/figure-html/unnamed-chunk-16-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-6"><img src="analyse-sequences_files/figure-html/unnamed-chunk-16-1.png" class="img-fluid figure-img" width="672"></a></p>
@@ -2295,8 +2298,8 @@ HC             3   0.06073121          11   0.06157277          15   0.06641912<
 </div>
 <p>Cependant, cela aboutirait à une très grande classe majoritaire (en rouge sur le graphique précédent) et nous perdrions en finesse d’analyse. Le graphique des sauts d’inertie suggère que les deux découpages suivants et pertinents seraient en 4 ou 6 classes. Le découpage en 6 classes aboutirait à certaines classes avec peu d’effectifs. Nous décidons donc de conserver 4 classes.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb82"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb82-1"><a href="#cb82-1"></a>arbre <span class="sc">|&gt;</span> </span>
-<span id="cb82-2"><a href="#cb82-2"></a>  factoextra<span class="sc">::</span><span class="fu">fviz_dend</span>(<span class="at">show_labels =</span> <span class="cn">FALSE</span>, <span class="at">k =</span> <span class="dv">4</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb82"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb82-1"><a href="#cb82-1"></a>arbre <span class="sc">|&gt;</span> </span>
+<span id="cb82-2"><a href="#cb82-2"></a>  factoextra<span class="sc">::</span><span class="fu">fviz_dend</span>(<span class="at">show_labels =</span> <span class="cn">FALSE</span>, <span class="at">k =</span> <span class="dv">4</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure"><p><a href="analyse-sequences_files/figure-html/unnamed-chunk-17-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-7"><img src="analyse-sequences_files/figure-html/unnamed-chunk-17-1.png" class="img-fluid figure-img" width="672"></a></p>
@@ -2306,8 +2309,8 @@ HC             3   0.06073121          11   0.06157277          15   0.06641912<
 </div>
 <p>Nous pouvons récupérer notre typologie avec <code><a href="https://rdrr.io/r/stats/cutree.html">cutree()</a></code>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb83"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb83-1"><a href="#cb83-1"></a>typo <span class="ot">&lt;-</span> arbre <span class="sc">|&gt;</span> <span class="fu">cutree</span>(<span class="dv">4</span>)</span>
-<span id="cb83-2"><a href="#cb83-2"></a>typo <span class="sc">|&gt;</span> <span class="fu">head</span>(<span class="dv">5</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb83"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb83-1"><a href="#cb83-1"></a>typo <span class="ot">&lt;-</span> arbre <span class="sc">|&gt;</span> <span class="fu">cutree</span>(<span class="dv">4</span>)</span>
+<span id="cb83-2"><a href="#cb83-2"></a>typo <span class="sc">|&gt;</span> <span class="fu">head</span>(<span class="dv">5</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>IND_001 IND_002 IND_003 IND_004 IND_005 
       1       2       3       1       1 </code></pre>
@@ -2316,12 +2319,12 @@ HC             3   0.06073121          11   0.06157277          15   0.06641912<
 <p>Le résultat est un vecteur numérique nommé. Les valeurs correspondent aux classes d’appartenance et les noms à l’identifiant des séquences. Cet identifiant a bien été conservé tout au long du processus car, au moment de la création de l’objet <code>seq</code>, nous avons soit passé cet identifiant à <code><a href="https://rdrr.io/pkg/TraMineR/man/seqdef.html">TraMineR::seqdef()</a></code> soit utilisé <code><a href="https://larmarange.github.io/guideR/reference/long_to_seq.html">guideR::long_to_seq()</a></code>.</p>
 <p>Nous pouvons donc facilement faire un petit tableau de résultats avec une colonne pour la typologie obtenue et une colonne avec l’identifiant.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb85"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb85-1"><a href="#cb85-1"></a>res <span class="ot">&lt;-</span> </span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb85"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb85-1"><a href="#cb85-1"></a>res <span class="ot">&lt;-</span> </span>
 <span id="cb85-2"><a href="#cb85-2"></a>  dplyr<span class="sc">::</span><span class="fu">tibble</span>(</span>
 <span id="cb85-3"><a href="#cb85-3"></a>    <span class="at">id_ind =</span> <span class="fu">names</span>(typo),</span>
 <span id="cb85-4"><a href="#cb85-4"></a>    <span class="at">typo =</span> typo</span>
 <span id="cb85-5"><a href="#cb85-5"></a>  )</span>
-<span id="cb85-6"><a href="#cb85-6"></a>res</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb85-6"><a href="#cb85-6"></a>res</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 500 × 2
    id_ind   typo
@@ -2341,17 +2344,17 @@ HC             3   0.06073121          11   0.06157277          15   0.06641912<
 </div>
 <p>Cela nous permet de récupérer, proprement, notre typologie dans notre fichier long.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb87"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb87-1"><a href="#cb87-1"></a>d <span class="ot">&lt;-</span> </span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb87"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb87-1"><a href="#cb87-1"></a>d <span class="ot">&lt;-</span> </span>
 <span id="cb87-2"><a href="#cb87-2"></a>  d <span class="sc">|&gt;</span> </span>
-<span id="cb87-3"><a href="#cb87-3"></a>  <span class="fu">left_join</span>(res, <span class="at">by =</span> <span class="st">"id_ind"</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb87-3"><a href="#cb87-3"></a>  <span class="fu">left_join</span>(res, <span class="at">by =</span> <span class="st">"id_ind"</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section></section><section id="représentation-graphiques" class="level2" data-number="45.4"><h2 data-number="45.4" class="anchored" data-anchor-id="représentation-graphiques">
 <span class="header-section-number">45.4</span> Représentation graphiques</h2>
 <p>Le package <a href="http://traminer.unige.ch">TraMineR</a> fournit plusieurs fonctions graphiques pour décrire les différentes séquences. Le package <a href="https://maraab23.github.io/ggseqplot/">ggseqplot</a> propose les mêmes représentations graphiques mais en ayant recours à <a href="https://ggplot2.tidyverse.org">ggplot2</a>, permettant ainsi des personnalisations additionnelles des graphiques après leur génération.</p>
 <p>Les chronogrammes (<em>state distribution plots</em>) présentent une série de coupes transversales&nbsp;: pour chaque âge, on a les proportions d’individus de la classe dans les différentes situations. Ce graphique s’obtient avec <code><a href="https://rdrr.io/pkg/TraMineR/man/seqplot.html">TraMineR::seqdplot()</a></code> ou <code><a href="https://maraab23.github.io/ggseqplot/reference/ggseqdplot.html">ggseqplot::ggseqdplot()</a></code>. Il est possible de lui passer nos classes via l’argument <code>group</code> afin de générer un graphique par sous-groupe.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb88"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb88-1"><a href="#cb88-1"></a>seq <span class="sc">|&gt;</span> </span>
-<span id="cb88-2"><a href="#cb88-2"></a>  <span class="fu">seqdplot</span>(<span class="at">group =</span> typo)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb88"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb88-1"><a href="#cb88-1"></a>seq <span class="sc">|&gt;</span> </span>
+<span id="cb88-2"><a href="#cb88-2"></a>  <span class="fu">seqdplot</span>(<span class="at">group =</span> typo)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure"><p><a href="analyse-sequences_files/figure-html/unnamed-chunk-21-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-8"><img src="analyse-sequences_files/figure-html/unnamed-chunk-21-1.png" class="img-fluid figure-img" width="672"></a></p>
@@ -2360,14 +2363,14 @@ HC             3   0.06073121          11   0.06157277          15   0.06641912<
 </div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb89"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb89-1"><a href="#cb89-1"></a><span class="fu">library</span>(ggseqplot, <span class="at">quietly =</span> <span class="cn">TRUE</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb89"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb89-1"><a href="#cb89-1"></a><span class="fu">library</span>(ggseqplot, <span class="at">quietly =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>ℹ ggseqplot version 0.8.9 loaded
   Website: &lt;https://maraab23.github.io/ggseqplot/&gt;
   Citation: `citation("ggseqplot")`</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb91"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb91-1"><a href="#cb91-1"></a>seq <span class="sc">|&gt;</span> </span>
-<span id="cb91-2"><a href="#cb91-2"></a>  <span class="fu">ggseqdplot</span>(<span class="at">group =</span> typo)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb91"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb91-1"><a href="#cb91-1"></a>seq <span class="sc">|&gt;</span> </span>
+<span id="cb91-2"><a href="#cb91-2"></a>  <span class="fu">ggseqdplot</span>(<span class="at">group =</span> typo)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure"><p><a href="analyse-sequences_files/figure-html/unnamed-chunk-22-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-9"><img src="analyse-sequences_files/figure-html/unnamed-chunk-22-1.png" class="img-fluid figure-img" width="672"></a></p>
@@ -2378,14 +2381,14 @@ HC             3   0.06073121          11   0.06157277          15   0.06641912<
 <p>Nous pouvons voir que la première classe est marquée par des études courtes et une carrière principalement à temps plein. La seconde classe se démarque par des études plus longues. La troisième est marquée par l’inactivité (par exemple des mères <q>au foyer</q>) et la quatrième par des emplois à temps partiels et/ou des petits boulots.</p>
 <p>Les tapis de séquences (<em>index plot</em>) s’obtiennent avec <code><a href="https://rdrr.io/pkg/TraMineR/man/seqplot.html">TraMineR::seqIplot()</a></code> ou <code><a href="https://maraab23.github.io/ggseqplot/reference/ggseqiplot.html">ggseqplot::ggseqiplot()</a></code>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb92"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb92-1"><a href="#cb92-1"></a>seq <span class="sc">|&gt;</span> <span class="fu">seqIplot</span>(<span class="at">group =</span> typo)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb92"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb92-1"><a href="#cb92-1"></a>seq <span class="sc">|&gt;</span> <span class="fu">seqIplot</span>(<span class="at">group =</span> typo)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure"><p><a href="analyse-sequences_files/figure-html/unnamed-chunk-23-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-10"><img src="analyse-sequences_files/figure-html/unnamed-chunk-23-1.png" class="img-fluid figure-img" width="672"></a></p>
 </figure>
 </div>
 </div>
-<div class="sourceCode cell-code" id="cb93"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb93-1"><a href="#cb93-1"></a>seq <span class="sc">|&gt;</span> <span class="fu">ggseqiplot</span>(<span class="at">group =</span> typo)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb93"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb93-1"><a href="#cb93-1"></a>seq <span class="sc">|&gt;</span> <span class="fu">ggseqiplot</span>(<span class="at">group =</span> typo)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure"><p><a href="analyse-sequences_files/figure-html/unnamed-chunk-23-2.png" class="lightbox" data-gallery="quarto-lightbox-gallery-11"><img src="analyse-sequences_files/figure-html/unnamed-chunk-23-2.png" class="img-fluid figure-img" width="672"></a></p>
@@ -2395,8 +2398,8 @@ HC             3   0.06073121          11   0.06157277          15   0.06641912<
 </div>
 <p>Il est possible de trier les séquences pour rendre les tapis plus lisibles, par exemple par <em>multidimensional scaling</em> à l’aide de la fonction <code><a href="https://rdrr.io/r/stats/cmdscale.html">stats::cmdscale()</a></code> appliquée à notre matrice de distance.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb94"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb94-1"><a href="#cb94-1"></a>ordre <span class="ot">&lt;-</span> <span class="fu">cmdscale</span>(md, <span class="at">k =</span> <span class="dv">1</span>)[, <span class="dv">1</span>]</span>
-<span id="cb94-2"><a href="#cb94-2"></a>seq <span class="sc">|&gt;</span> <span class="fu">ggseqiplot</span>(<span class="at">group =</span> typo, <span class="at">sortv =</span> ordre)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb94"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb94-1"><a href="#cb94-1"></a>ordre <span class="ot">&lt;-</span> <span class="fu">cmdscale</span>(md, <span class="at">k =</span> <span class="dv">1</span>)[, <span class="dv">1</span>]</span>
+<span id="cb94-2"><a href="#cb94-2"></a>seq <span class="sc">|&gt;</span> <span class="fu">ggseqiplot</span>(<span class="at">group =</span> typo, <span class="at">sortv =</span> ordre)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure"><p><a href="analyse-sequences_files/figure-html/unnamed-chunk-24-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-12"><img src="analyse-sequences_files/figure-html/unnamed-chunk-24-1.png" class="img-fluid figure-img" width="672"></a></p>
@@ -2407,16 +2410,16 @@ HC             3   0.06073121          11   0.06157277          15   0.06641912<
 <p>Cette représentation des tapis de séquence accorde la même superficie à chaque classe, indépendamment du nombre d’observations.</p>
 <p>Une alternative consiste à avoir recours à <code><a href="https://larmarange.github.io/guideR/reference/plot_trajectories.html">guideR::plot_trajectories()</a></code> où chaque trajectoire a la même <q>hauteur</q>, permettant ainsi de mieux visualiser les différences d’effectifs entre classes. En amont, nous allons récupérer la variable d’ordonnancement dans notre fichier long.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb95"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb95-1"><a href="#cb95-1"></a>tmp <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb95"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb95-1"><a href="#cb95-1"></a>tmp <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
 <span id="cb95-2"><a href="#cb95-2"></a>  <span class="at">id_ind =</span> <span class="fu">names</span>(ordre),</span>
 <span id="cb95-3"><a href="#cb95-3"></a>  <span class="at">ordre =</span> ordre</span>
 <span id="cb95-4"><a href="#cb95-4"></a>)</span>
 <span id="cb95-5"><a href="#cb95-5"></a>d <span class="ot">&lt;-</span> </span>
 <span id="cb95-6"><a href="#cb95-6"></a>  d <span class="sc">|&gt;</span> </span>
-<span id="cb95-7"><a href="#cb95-7"></a>  <span class="fu">left_join</span>(tmp, <span class="at">by =</span> <span class="st">"id_ind"</span>) </span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb95-7"><a href="#cb95-7"></a>  <span class="fu">left_join</span>(tmp, <span class="at">by =</span> <span class="st">"id_ind"</span>) </span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb96"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb96-1"><a href="#cb96-1"></a>d <span class="sc">|&gt;</span> </span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb96"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb96-1"><a href="#cb96-1"></a>d <span class="sc">|&gt;</span> </span>
 <span id="cb96-2"><a href="#cb96-2"></a>  <span class="fu">unlabelled</span>() <span class="sc">|&gt;</span> </span>
 <span id="cb96-3"><a href="#cb96-3"></a>  <span class="fu">plot_trajectories</span>(</span>
 <span id="cb96-4"><a href="#cb96-4"></a>    <span class="at">id =</span> id_ind,</span>
@@ -2424,7 +2427,7 @@ HC             3   0.06073121          11   0.06157277          15   0.06641912<
 <span id="cb96-6"><a href="#cb96-6"></a>    <span class="at">fill =</span> statut_pro2,</span>
 <span id="cb96-7"><a href="#cb96-7"></a>    <span class="at">by =</span> typo,</span>
 <span id="cb96-8"><a href="#cb96-8"></a>    <span class="at">sort_by =</span> ordre</span>
-<span id="cb96-9"><a href="#cb96-9"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb96-9"><a href="#cb96-9"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure"><p><a href="analyse-sequences_files/figure-html/unnamed-chunk-26-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-13"><img src="analyse-sequences_files/figure-html/unnamed-chunk-26-1.png" class="img-fluid figure-img" width="576"></a></p>
@@ -2434,7 +2437,7 @@ HC             3   0.06073121          11   0.06157277          15   0.06641912<
 </div>
 <p>On peut aussi visualiser avec <code><a href="https://rdrr.io/pkg/TraMineR/man/seqplot.html">TraMineR::seqmsplot()</a></code> ou <code><a href="https://maraab23.github.io/ggseqplot/reference/ggseqmsplot.html">ggseqplot::ggseqmsplot()</a></code> l’état modal ou <em>modal state</em> (celui qui correspond au plus grand nombre de séquences de la classe) à chaque âge, la hauteur des barres correspondant à la fréquence de l’état modal à chaque âge.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb97"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb97-1"><a href="#cb97-1"></a>seq <span class="sc">|&gt;</span> <span class="fu">ggseqmsplot</span>(<span class="at">group =</span> typo)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb97"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb97-1"><a href="#cb97-1"></a>seq <span class="sc">|&gt;</span> <span class="fu">ggseqmsplot</span>(<span class="at">group =</span> typo)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure"><p><a href="analyse-sequences_files/figure-html/unnamed-chunk-27-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-14"><img src="analyse-sequences_files/figure-html/unnamed-chunk-27-1.png" class="img-fluid figure-img" width="672"></a></p>
@@ -2444,7 +2447,7 @@ HC             3   0.06073121          11   0.06157277          15   0.06641912<
 </div>
 <p>On peut également représenter avec <code><a href="https://rdrr.io/pkg/TraMineR/man/seqplot.html">TraMineR::seqmtplot()</a></code> ou <code><a href="https://maraab23.github.io/ggseqplot/reference/ggseqmtplot.html">ggseqplot::ggseqmtplot()</a></code> les durées moyennes (<em>mean time</em>) passées dans les différents états.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb98"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb98-1"><a href="#cb98-1"></a>seq <span class="sc">|&gt;</span> <span class="fu">ggseqmtplot</span>(<span class="at">group =</span> typo)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb98"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb98-1"><a href="#cb98-1"></a>seq <span class="sc">|&gt;</span> <span class="fu">ggseqmtplot</span>(<span class="at">group =</span> typo)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure"><p><a href="analyse-sequences_files/figure-html/unnamed-chunk-28-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-15"><img src="analyse-sequences_files/figure-html/unnamed-chunk-28-1.png" class="img-fluid figure-img" width="672"></a></p>
@@ -2454,12 +2457,12 @@ HC             3   0.06073121          11   0.06157277          15   0.06641912<
 </div>
 <p>La distance des séquences d’une classe au centre de cette classe s’obtient avec <code><a href="https://rdrr.io/pkg/TraMineR/man/disscenter.html">TraMineR::disscenter()</a></code>. En calculant la moyenne par classe, cela nous permet de mesurer plus précisément l’homogénéité des classes. Une classe plus homogène aura en moyenne une distance au centre de la classe plus faible.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb99"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb99-1"><a href="#cb99-1"></a><span class="fu">tibble</span>(</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb99"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb99-1"><a href="#cb99-1"></a><span class="fu">tibble</span>(</span>
 <span id="cb99-2"><a href="#cb99-2"></a>  <span class="at">diss_center =</span> <span class="fu">disscenter</span>(md, <span class="at">group =</span> typo),</span>
 <span id="cb99-3"><a href="#cb99-3"></a>  <span class="at">typo =</span> typo</span>
 <span id="cb99-4"><a href="#cb99-4"></a>) <span class="sc">|&gt;</span> </span>
 <span id="cb99-5"><a href="#cb99-5"></a>  <span class="fu">group_by</span>(typo) <span class="sc">|&gt;</span> </span>
-<span id="cb99-6"><a href="#cb99-6"></a>  <span class="fu">summarise</span>(<span class="at">mean_diss =</span> <span class="fu">mean</span>(diss_center))</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb99-6"><a href="#cb99-6"></a>  <span class="fu">summarise</span>(<span class="at">mean_diss =</span> <span class="fu">mean</span>(diss_center))</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 4 × 2
    typo mean_diss
@@ -2473,7 +2476,7 @@ HC             3   0.06073121          11   0.06157277          15   0.06641912<
 <p>Ici, nous voyons que la classe 1 est la plus homogène à l’inverse de la classe 4 qui est la plus hétérogène.</p>
 <p>Les mêmes moyennes peuvent s’obtenir plus facilement avec <code><a href="https://rdrr.io/pkg/TraMineR/man/dissassoc.html">TraMineR::dissassoc()</a></code> (section <em>Discrepancy per level</em> dans les résultats).</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb101"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb101-1"><a href="#cb101-1"></a><span class="fu">dissassoc</span>(md, typo)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb101"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb101-1"><a href="#cb101-1"></a><span class="fu">dissassoc</span>(md, typo)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Pseudo ANOVA table:
             SS  df       MSE
@@ -2504,14 +2507,14 @@ Total 500   15.876208</code></pre>
 </div>
 <p>L’entropie transversale décrit l’évolution de l’homogénéité de la classe. Pour un âge donné, une entropie proche de 0 signifie que tous les individus de la classe (ou presque) sont dans la même situation. À l’inverse, l’entropie est de 1 si les individus sont dispersés dans toutes les situations. Ce type de graphique produit par <code><a href="https://rdrr.io/pkg/TraMineR/man/seqplot.html">TraMineR::seqHtplot()</a></code> ou <code><a href="https://maraab23.github.io/ggseqplot/reference/ggseqeplot.html">ggseqplot::ggseqeplot()</a></code> peut être pratique pour localiser les moments de transition.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb103"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb103-1"><a href="#cb103-1"></a>seq <span class="sc">|&gt;</span> <span class="fu">seqHtplot</span>(<span class="at">group =</span> typo)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb103"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb103-1"><a href="#cb103-1"></a>seq <span class="sc">|&gt;</span> <span class="fu">seqHtplot</span>(<span class="at">group =</span> typo)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure"><p><a href="analyse-sequences_files/figure-html/unnamed-chunk-31-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-16"><img src="analyse-sequences_files/figure-html/unnamed-chunk-31-1.png" class="img-fluid figure-img" width="672"></a></p>
 </figure>
 </div>
 </div>
-<div class="sourceCode cell-code" id="cb104"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb104-1"><a href="#cb104-1"></a>seq <span class="sc">|&gt;</span> <span class="fu">ggseqeplot</span>(<span class="at">group =</span> typo)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb104"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb104-1"><a href="#cb104-1"></a>seq <span class="sc">|&gt;</span> <span class="fu">ggseqeplot</span>(<span class="at">group =</span> typo)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure"><p><a href="analyse-sequences_files/figure-html/unnamed-chunk-31-2.png" class="lightbox" data-gallery="quarto-lightbox-gallery-17"><img src="analyse-sequences_files/figure-html/unnamed-chunk-31-2.png" class="img-fluid figure-img" width="672"></a></p>
@@ -2553,7 +2556,7 @@ Total 500   15.876208</code></pre>
       a.appendChild(i);
       window.document.body.appendChild(a);
     }
-    window.setColorSchemeToggle(window.hasAlternateSentinel())
+    setColorSchemeToggle(hasAlternateSentinel())
     const icon = "";
     const anchorJS = new window.AnchorJS();
     anchorJS.options = {
@@ -2603,13 +2606,14 @@ Total 500   15.876208</code></pre>
       e.clearSelection();
     }
     const getTextToCopy = function(trigger) {
-        const codeEl = trigger.previousElementSibling.cloneNode(true);
-        for (const childEl of codeEl.children) {
-          if (isCodeAnnotation(childEl)) {
-            childEl.remove();
-          }
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
         }
-        return codeEl.innerText;
+      }
+      return codeEl.innerText;
     }
     const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
       text: getTextToCopy
@@ -2950,8 +2954,36 @@ Total 500   15.876208</code></pre>
       }
     }
   });
-  </script><script src="https://giscus.app/client.js" data-repo="larmarange/guide-R" data-repo-id="R_kgDOH6-xnw" data-category="Forum" data-category-id="DIC_kwDOH6-xn84CRLQy" data-mapping="pathname" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="top" data-theme="light" data-lang="fr" crossorigin="anonymous" data-loading="lazy" async="">
-</script><input type="hidden" id="giscus-base-theme" value="light"><input type="hidden" id="giscus-alt-theme" value="dark"><nav class="page-navigation"><div class="nav-page nav-page-previous">
+  </script><input type="hidden" id="giscus-base-theme" value="light"><input type="hidden" id="giscus-alt-theme" value="dark"><script>
+  function loadGiscus() {
+    // Function to get the theme based on body class
+    const getTheme = () => {
+      let baseTheme = document.getElementById('giscus-base-theme').value;
+      let altTheme = document.getElementById('giscus-alt-theme').value;
+      if (authorPrefersDark) {
+          [baseTheme, altTheme] = [altTheme, baseTheme];
+      }
+      return document.body.classList.contains('quarto-dark') ? altTheme : baseTheme;
+    };
+    const script = document.createElement("script");
+    script.src = "https://giscus.app/client.js";
+    script.async = true;
+    script.dataset.repo = "larmarange/guide-R";
+    script.dataset.repoId = "R_kgDOH6-xnw";
+    script.dataset.category = "Forum";
+    script.dataset.categoryId = "DIC_kwDOH6-xn84CRLQy";
+    script.dataset.mapping = "pathname";
+    script.dataset.reactionsEnabled = "1";
+    script.dataset.emitMetadata = "0";
+    script.dataset.inputPosition = "top";
+    script.dataset.theme = getTheme();
+    script.dataset.lang = "fr";
+    script.crossOrigin = "anonymous";
+    // Append the script to the desired div instead of at the end of the body
+    document.getElementById("quarto-content").appendChild(script);
+  }
+  loadGiscus();
+</script><nav class="page-navigation"><div class="nav-page nav-page-previous">
       <a href="../analyses_avancees/analyse-survie.html" class="pagination-link" aria-label="Analyse de survie">
         <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">44</span>&nbsp; <span class="chapter-title">Analyse de survie</span></span>
       </a>          

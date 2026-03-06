@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="fr" xml:lang="fr"><head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.7.27">
+<meta name="generator" content="quarto-1.8.27">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 <title>13&nbsp; Valeurs manquantes – guide-R</title>
 <style>
@@ -68,18 +68,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../site_libs/cookie-consent/cookie-consent.css" rel="stylesheet">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
 <script src="../site_libs/quarto-html/popper.min.js"></script>
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-985aa47af68dae11cd4d235c71fb941e.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-6c49c5477b92c77c9eb341f9299c235f.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-985aa47af68dae11cd4d235c71fb941e.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-ed96de9b727972fe78a7b5d16c58bf87.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-4d9afe2b8d18ee9fa5d0d57b5ed4214d.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-ed96de9b727972fe78a7b5d16c58bf87.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-1706ad55a43eb6182cc66969adfb4558.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../site_libs/bootstrap/bootstrap-dark-e07f40149b440be50f716415da65e4f4.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<link href="../site_libs/bootstrap/bootstrap-1706ad55a43eb6182cc66969adfb4558.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light"><script id="quarto-search-options" type="application/json">{
+<link href="../site_libs/bootstrap/bootstrap-bd89720b472e789133713356f69e05bb.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-19020347c2de3e9282294d0be578f340.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../site_libs/bootstrap/bootstrap-bd89720b472e789133713356f69e05bb.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light"><script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
   "collapse-after": 3,
@@ -146,7 +147,7 @@ cookieconsent.run({
         toggleBodyColorMode(bsSheetEl);
       }
     }
-    window.setColorSchemeToggle = (alternate) => {
+    const setColorSchemeToggle = (alternate) => {
       const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
       for (let i=0; i < toggles.length; i++) {
         const toggle = toggles[i];
@@ -179,7 +180,7 @@ cookieconsent.run({
       }
       manageTransitions('#quarto-margin-sidebar .nav-link', true);
       // Switch the toggles
-      window.setColorSchemeToggle(alternate)
+      setColorSchemeToggle(alternate)
       // Hack to workaround the fact that safari doesn't
       // properly recolor the scrollbar when toggling (#1455)
       if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
@@ -219,7 +220,7 @@ cookieconsent.run({
     const isFileUrl = () => {
       return window.location.protocol === 'file:';
     }
-    window.hasAlternateSentinel = () => {
+    const hasAlternateSentinel = () => {
       let styleSentinel = getColorSchemeSentinel();
       if (styleSentinel !== null) {
         return styleSentinel === "alternate";
@@ -247,7 +248,7 @@ cookieconsent.run({
       const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
       const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
       let newTheme = '';
-      if(darkModeDefault) {
+      if(authorPrefersDark) {
         newTheme = isAlternate ? baseTheme : alternateTheme;
       } else {
         newTheme = isAlternate ? alternateTheme : baseTheme;
@@ -270,20 +271,22 @@ cookieconsent.run({
         changeGiscusTheme();
       }
     };
-    const darkModeDefault = false;
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
       document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
       document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
     let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
     // Dark / light mode switch
     window.quartoToggleColorScheme = () => {
       // Read the current dark / light value
-      let toAlternate = !window.hasAlternateSentinel();
+      let toAlternate = !hasAlternateSentinel();
       toggleColorMode(toAlternate);
       setStyleSentinel(toAlternate);
       toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
     };
     // Switch to dark mode if need be
-    if (window.hasAlternateSentinel()) {
+    if (hasAlternateSentinel()) {
       toggleColorMode(true);
     } else {
       toggleColorMode(false);
@@ -306,7 +309,7 @@ cookieconsent.run({
 <!-- sidebar -->
   <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto"><div class="pt-lg-2 mt-2 text-left sidebar-header sidebar-header-stacked">
       <a href="../index.html" class="sidebar-logo-link">
-      <img src="../ressources/typewriter.png" alt="" class="sidebar-logo py-0 d-lg-inline d-none"></a>
+      <img src="../ressources/typewriter.png" alt="" class="sidebar-logo light-content py-0 d-lg-inline d-none"><img src="../ressources/typewriter.png" alt="" class="sidebar-logo dark-content py-0 d-lg-inline d-none"></a>
     <div class="sidebar-title mb-0 py-0">
       <a href="../">guide-R</a> 
         <div class="sidebar-tools-main tools-wide">
@@ -768,7 +771,7 @@ cookieconsent.run({
 <p>Dans tous les cas, il appartient à l’analyste de décider au cas par cas comment ces valeurs manquantes doivent être traitées. Dans le cadre d’une variable numérique, il est essentiel d’exclure ces valeurs manquantes pour le calcul de statistiques telles que la moyenne ou l’écart-type. Pour des variables catégorielles, les pourcentages peuvent être calculées sur l’ensemble de l’échantillon (les valeurs manquantes étant alors traitées comme des modalités à part entière) ou bien uniquement sur les réponses valides, en fonction du besoin de l’analyse et de ce que l’on cherche à montrer.</p>
 <p>Afin d’éviter toute perte d’informations lors d’un import de données depuis <strong>Stata</strong>, <strong>SAS</strong> et <strong>SPSS</strong>, le package <a href="https://haven.tidyverse.org">haven</a> propose une implémentation sous <strong>R</strong> des <em>tagged NAs</em> et des <em>user NAs</em>. Le package <a href="https://larmarange.github.io/labelled/">labelled</a> fournit quant à lui différentes fonctions pour les manipuler aisément.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="fu">library</span>(labelled)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="fu">library</span>(labelled)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <section id="sec-tagged-na" class="level2" data-number="13.1"><h2 data-number="13.1" class="anchored" data-anchor-id="sec-tagged-na">
 <span class="header-section-number">13.1</span> Valeurs manquantes étiquetées (<em>tagged NAs</em>)</h2>
@@ -776,52 +779,52 @@ cookieconsent.run({
 <span class="header-section-number">13.1.1</span> Création et test</h3>
 <p>Les <em>tagged NAs</em> sont de véritables valeurs manquantes (<code>NA</code>) au sens de <strong>R</strong>, auxquelles a été attachées sur étiquette, une lettre unique minuscule (a-z) ou majuscule (A-Z). On peut les créer avec <code><a href="https://haven.tidyverse.org/reference/tagged_na.html">labelled::tagged_na()</a></code>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a>x <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>, <span class="fu">tagged_na</span>(<span class="st">"a"</span>), <span class="fu">tagged_na</span>(<span class="st">"z"</span>), <span class="cn">NA</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a>x <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>, <span class="fu">tagged_na</span>(<span class="st">"a"</span>), <span class="fu">tagged_na</span>(<span class="st">"z"</span>), <span class="cn">NA</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Pour la plupart des fonctions de <strong>R</strong>, les <em>tagged NAs</em> sont juste considérées comme des valeurs manquantes régulières (<em>regular</em> <em>NAs</em>). Dès lors, par défaut, elles sont justes affichées à l’écran comme n’importe quelle valeur manquante et la fonction <code><a href="https://rdrr.io/r/base/NA.html">is.na()</a></code> renvoie <code>TRUE</code>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a>x</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a>x</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1]  1  2  3 NA NA NA</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a><span class="fu">is.na</span>(x)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a><span class="fu">is.na</span>(x)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] FALSE FALSE FALSE  TRUE  TRUE  TRUE</code></pre>
 </div>
 </div>
 <p>Pour afficher les étiquettes associées à ces valeurs manquantes, il faut avoir recours à <code><a href="https://haven.tidyverse.org/reference/tagged_na.html">labelled::na_tag()</a></code>, <code><a href="https://haven.tidyverse.org/reference/tagged_na.html">labelled::print_tagged_na()</a></code> ou encore <code><a href="https://haven.tidyverse.org/reference/tagged_na.html">labelled::format_tagged_na()</a></code>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a><span class="fu">na_tag</span>(x)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a><span class="fu">na_tag</span>(x)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] NA  NA  NA  "a" "z" NA </code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a><span class="fu">print_tagged_na</span>(x)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a><span class="fu">print_tagged_na</span>(x)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1]     1     2     3 NA(a) NA(z)    NA</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a><span class="fu">format_tagged_na</span>(x)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a><span class="fu">format_tagged_na</span>(x)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] "    1" "    2" "    3" "NA(a)" "NA(z)" "   NA"</code></pre>
 </div>
 </div>
 <p>Pour tester si une certaine valeur manquante est une <em>regular NA</em> ou une <em>tagged NA</em>, on aura recours à <code><a href="https://larmarange.github.io/labelled/reference/na_values.html">labelled::is_regular_na()</a></code> et à <code><a href="https://haven.tidyverse.org/reference/tagged_na.html">labelled::is_tagged_na()</a></code>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a><span class="fu">is.na</span>(x)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a><span class="fu">is.na</span>(x)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] FALSE FALSE FALSE  TRUE  TRUE  TRUE</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1"></a><span class="fu">is_regular_na</span>(x)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1"></a><span class="fu">is_regular_na</span>(x)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] FALSE FALSE FALSE FALSE FALSE  TRUE</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1"></a><span class="fu">is_tagged_na</span>(x)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1"></a><span class="fu">is_tagged_na</span>(x)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] FALSE FALSE FALSE  TRUE  TRUE FALSE</code></pre>
 </div>
 </div>
 <p>Il est possible de tester une étiquette particulière en passant un deuxième argument à <code><a href="https://haven.tidyverse.org/reference/tagged_na.html">labelled::is_tagged_na()</a></code>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1"></a><span class="fu">is_tagged_na</span>(x, <span class="st">"a"</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1"></a><span class="fu">is_tagged_na</span>(x, <span class="st">"a"</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] FALSE FALSE FALSE  TRUE FALSE FALSE</code></pre>
 </div>
@@ -838,25 +841,26 @@ Note
 <div class="callout-body-container callout-body">
 <p>Il n’est possible de définir des <em>tagged NAs</em> seulement pour des vecteurs numériques (<em>double</em>). Si l’on ajoute une <em>tagged NA</em> à un vecteur d’entiers, ce vecteur sera converti en vecteur numérique. Si on l’ajoute à un vecteur textuel, la valeur manquante sera convertie en <em>regular NA</em>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1"></a>y <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"a"</span>, <span class="st">"b"</span>, <span class="fu">tagged_na</span>(<span class="st">"z"</span>))</span>
-<span id="cb21-2"><a href="#cb21-2"></a>y</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1"></a>y <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"a"</span>, <span class="st">"b"</span>, <span class="fu">tagged_na</span>(<span class="st">"z"</span>))</span>
+<span id="cb21-2"><a href="#cb21-2"></a>y</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] "a" "b" NA </code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1"></a><span class="fu">is_tagged_na</span>(y)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1"></a><span class="fu">is_tagged_na</span>(y)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] FALSE FALSE FALSE</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1"></a><span class="fu">format_tagged_na</span>(y)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1"></a><span class="fu">format_tagged_na</span>(y)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-error">
-<pre><code>Error: `x` must be a double vector</code></pre>
+<pre><code>Error:
+! `x` must be a double vector</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1"></a>z <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">1</span>L, <span class="dv">2</span>L, <span class="fu">tagged_na</span>(<span class="st">"a"</span>))</span>
-<span id="cb27-2"><a href="#cb27-2"></a><span class="fu">typeof</span>(z)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1"></a>z <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">1</span>L, <span class="dv">2</span>L, <span class="fu">tagged_na</span>(<span class="st">"a"</span>))</span>
+<span id="cb27-2"><a href="#cb27-2"></a><span class="fu">typeof</span>(z)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] "double"</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1"></a><span class="fu">format_tagged_na</span>(z)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1"></a><span class="fu">format_tagged_na</span>(z)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] "    1" "    2" "NA(a)"</code></pre>
 </div>
@@ -868,43 +872,43 @@ Note
 <p>Par défaut, les fonctions classiques de <strong>R</strong> <code><a href="https://rdrr.io/r/base/unique.html">unique()</a></code>, <code><a href="https://rdrr.io/r/base/duplicated.html">duplicated()</a></code>, <code><a href="https://rdrr.io/r/base/factor.html">ordered()</a></code> ou encore <code><a href="https://rdrr.io/r/base/sort.html">sort()</a></code> traiteront les <em>tagged NAs</em> comme des valeurs manquantes tout ce qu’il y a de plus classique, et ne feront pas de différences entre des <em>tagged NAs</em> ayant des étiquettes différentes.</p>
 <p>Pour traiter des <em>tagged NAs</em> ayant des étiquettes différentes comme des valeurs différentes, on aura recours aux fonctions <code><a href="https://larmarange.github.io/labelled/reference/unique_tagged_na.html">labelled::unique_tagged_na()</a></code>, <code><a href="https://larmarange.github.io/labelled/reference/unique_tagged_na.html">labelled::duplicated_tagged_na()</a></code>, <code><a href="https://larmarange.github.io/labelled/reference/unique_tagged_na.html">labelled::order_tagged_na()</a></code> ou encore <code><a href="https://larmarange.github.io/labelled/reference/unique_tagged_na.html">labelled::sort_tagged_na()</a></code>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1"></a>x <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="fu">tagged_na</span>(<span class="st">"a"</span>), <span class="dv">1</span>, <span class="fu">tagged_na</span>(<span class="st">"z"</span>), <span class="dv">2</span>, <span class="fu">tagged_na</span>(<span class="st">"a"</span>), <span class="cn">NA</span>)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb31"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1"></a>x <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="fu">tagged_na</span>(<span class="st">"a"</span>), <span class="dv">1</span>, <span class="fu">tagged_na</span>(<span class="st">"z"</span>), <span class="dv">2</span>, <span class="fu">tagged_na</span>(<span class="st">"a"</span>), <span class="cn">NA</span>)</span>
 <span id="cb31-2"><a href="#cb31-2"></a>x <span class="sc">|&gt;</span> </span>
-<span id="cb31-3"><a href="#cb31-3"></a>  <span class="fu">print_tagged_na</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb31-3"><a href="#cb31-3"></a>  <span class="fu">print_tagged_na</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1]     1     2 NA(a)     1 NA(z)     2 NA(a)    NA</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1"></a>x <span class="sc">|&gt;</span> </span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb33"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1"></a>x <span class="sc">|&gt;</span> </span>
 <span id="cb33-2"><a href="#cb33-2"></a>  <span class="fu">unique</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb33-3"><a href="#cb33-3"></a>  <span class="fu">print_tagged_na</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb33-3"><a href="#cb33-3"></a>  <span class="fu">print_tagged_na</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1]     1     2 NA(a)</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1"></a>x <span class="sc">|&gt;</span> </span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb35"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1"></a>x <span class="sc">|&gt;</span> </span>
 <span id="cb35-2"><a href="#cb35-2"></a>  <span class="fu">unique_tagged_na</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb35-3"><a href="#cb35-3"></a>  <span class="fu">print_tagged_na</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb35-3"><a href="#cb35-3"></a>  <span class="fu">print_tagged_na</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1]     1     2 NA(a) NA(z)    NA</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1"></a>x <span class="sc">|&gt;</span> </span>
-<span id="cb37-2"><a href="#cb37-2"></a>  <span class="fu">duplicated</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb37"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1"></a>x <span class="sc">|&gt;</span> </span>
+<span id="cb37-2"><a href="#cb37-2"></a>  <span class="fu">duplicated</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] FALSE FALSE FALSE  TRUE  TRUE  TRUE  TRUE  TRUE</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1"></a>x <span class="sc">|&gt;</span> </span>
-<span id="cb39-2"><a href="#cb39-2"></a>  <span class="fu">duplicated_tagged_na</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb39"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1"></a>x <span class="sc">|&gt;</span> </span>
+<span id="cb39-2"><a href="#cb39-2"></a>  <span class="fu">duplicated_tagged_na</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] FALSE FALSE FALSE  TRUE FALSE  TRUE  TRUE FALSE</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1"></a>x <span class="sc">|&gt;</span> </span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb41"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1"></a>x <span class="sc">|&gt;</span> </span>
 <span id="cb41-2"><a href="#cb41-2"></a>  <span class="fu">sort</span>(<span class="at">na.last =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb41-3"><a href="#cb41-3"></a>  <span class="fu">print_tagged_na</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb41-3"><a href="#cb41-3"></a>  <span class="fu">print_tagged_na</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1]     1     1     2     2 NA(a) NA(z) NA(a)    NA</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1"></a>x <span class="sc">|&gt;</span> </span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb43"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1"></a>x <span class="sc">|&gt;</span> </span>
 <span id="cb43-2"><a href="#cb43-2"></a>  <span class="fu">sort_tagged_na</span>()  <span class="sc">|&gt;</span> </span>
-<span id="cb43-3"><a href="#cb43-3"></a>  <span class="fu">print_tagged_na</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb43-3"><a href="#cb43-3"></a>  <span class="fu">print_tagged_na</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1]     1     1     2     2 NA(a) NA(a) NA(z)    NA</code></pre>
 </div>
@@ -913,7 +917,7 @@ Note
 <span class="header-section-number">13.1.3</span> Tagged NAs et étiquettes de valeurs</h3>
 <p>Il est tout à fait possible d’associer une étiquette de valeurs (cf.&nbsp;<a href="etiquettes-valeurs.html" class="quarto-xref"><span>Chapitre 12</span></a>) à des <em>tagged NAs</em>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1"></a>x <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb45"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1"></a>x <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
 <span id="cb45-2"><a href="#cb45-2"></a>  <span class="dv">1</span>, <span class="dv">0</span>, </span>
 <span id="cb45-3"><a href="#cb45-3"></a>  <span class="dv">1</span>, <span class="fu">tagged_na</span>(<span class="st">"r"</span>), </span>
 <span id="cb45-4"><a href="#cb45-4"></a>  <span class="dv">0</span>, <span class="fu">tagged_na</span>(<span class="st">"d"</span>), </span>
@@ -925,7 +929,7 @@ Note
 <span id="cb45-10"><a href="#cb45-10"></a>  <span class="st">"don't know"</span> <span class="ot">=</span> <span class="fu">tagged_na</span>(<span class="st">"d"</span>),</span>
 <span id="cb45-11"><a href="#cb45-11"></a>  <span class="at">refusal =</span> <span class="fu">tagged_na</span>(<span class="st">"r"</span>)</span>
 <span id="cb45-12"><a href="#cb45-12"></a>)</span>
-<span id="cb45-13"><a href="#cb45-13"></a>x</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb45-13"><a href="#cb45-13"></a>x</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>&lt;labelled&lt;double&gt;[8]&gt;
 [1]     1     0     1 NA(r)     0 NA(d) NA(z)    NA
@@ -940,7 +944,7 @@ Labels:
 </div>
 <p>Lorsqu’un vecteur labellisé est converti en facteur avec <code><a href="https://larmarange.github.io/labelled/reference/to_factor.html">labelled::to_factor()</a></code>, les <em>tagged NAs</em> sont, par défaut convertis en en valeurs manquantes classiques (<em>regular NAs</em>). Il n’est pas possible de définir des <em>tagged NAs</em> pour des facteurs.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1"></a>x <span class="sc">|&gt;</span> <span class="fu">to_factor</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb47"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1"></a>x <span class="sc">|&gt;</span> <span class="fu">to_factor</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] yes  no   yes  &lt;NA&gt; no   &lt;NA&gt; &lt;NA&gt; &lt;NA&gt;
 Levels: no yes</code></pre>
@@ -948,18 +952,18 @@ Levels: no yes</code></pre>
 </div>
 <p>L’option <code>explicit_tagged_na</code> de <code><a href="https://larmarange.github.io/labelled/reference/to_factor.html">labelled::to_factor()</a></code> permets de convertir les <em>tagged NAs</em> en modalités explicites du facteur.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb49"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1"></a>x <span class="sc">|&gt;</span> </span>
-<span id="cb49-2"><a href="#cb49-2"></a>  <span class="fu">to_factor</span>(<span class="at">explicit_tagged_na =</span> <span class="cn">TRUE</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb49"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1"></a>x <span class="sc">|&gt;</span> </span>
+<span id="cb49-2"><a href="#cb49-2"></a>  <span class="fu">to_factor</span>(<span class="at">explicit_tagged_na =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] yes        no         yes        refusal    no         don't know NA(z)     
 [8] &lt;NA&gt;      
 Levels: no yes don't know refusal NA(z)</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1"></a>x <span class="sc">|&gt;</span> </span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb51"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1"></a>x <span class="sc">|&gt;</span> </span>
 <span id="cb51-2"><a href="#cb51-2"></a>  <span class="fu">to_factor</span>(</span>
 <span id="cb51-3"><a href="#cb51-3"></a>    <span class="at">levels =</span> <span class="st">"prefixed"</span>, </span>
 <span id="cb51-4"><a href="#cb51-4"></a>    <span class="at">explicit_tagged_na =</span> <span class="cn">TRUE</span></span>
-<span id="cb51-5"><a href="#cb51-5"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb51-5"><a href="#cb51-5"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] [1] yes            [0] no             [1] yes            [NA(r)] refusal   
 [5] [0] no             [NA(d)] don't know [NA(z)] NA(z)      &lt;NA&gt;              
@@ -970,8 +974,8 @@ Levels: [0] no [1] yes [NA(d)] don't know [NA(r)] refusal [NA(z)] NA(z)</code></
 <span class="header-section-number">13.1.4</span> Conversion en user NAs</h3>
 <p>La fonction <code><a href="https://larmarange.github.io/labelled/reference/tagged_na_to_user_na.html">labelled::tagged_na_to_user_na()</a></code> permets de convertir des <em>tagged NAs</em> en <em>user NAs</em>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb53"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1"></a>x <span class="sc">|&gt;</span> </span>
-<span id="cb53-2"><a href="#cb53-2"></a>  <span class="fu">tagged_na_to_user_na</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb53"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1"></a>x <span class="sc">|&gt;</span> </span>
+<span id="cb53-2"><a href="#cb53-2"></a>  <span class="fu">tagged_na_to_user_na</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>&lt;labelled_spss&lt;double&gt;[8]&gt;
 [1]  1  0  1  3  0  2  4 NA
@@ -985,8 +989,8 @@ Labels:
      3    refusal
      4      NA(z)</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb55"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1"></a>x <span class="sc">|&gt;</span> </span>
-<span id="cb55-2"><a href="#cb55-2"></a>  <span class="fu">tagged_na_to_user_na</span>(<span class="at">user_na_start =</span> <span class="dv">10</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb55"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1"></a>x <span class="sc">|&gt;</span> </span>
+<span id="cb55-2"><a href="#cb55-2"></a>  <span class="fu">tagged_na_to_user_na</span>(<span class="at">user_na_start =</span> <span class="dv">10</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>&lt;labelled_spss&lt;double&gt;[8]&gt;
 [1]  1  0  1 11  0 10 12 NA
@@ -1003,8 +1007,8 @@ Labels:
 </div>
 <p>La fonction <code><a href="https://larmarange.github.io/labelled/reference/tagged_na_to_user_na.html">labelled::tagged_na_to_regular_na()</a></code> convertit les <em>tagged NAs</em> en valeurs manquantes classiques (<em>regular NAs</em>).</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb57"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb57-1"><a href="#cb57-1"></a>x <span class="sc">|&gt;</span> </span>
-<span id="cb57-2"><a href="#cb57-2"></a>  <span class="fu">tagged_na_to_regular_na</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb57"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb57-1"><a href="#cb57-1"></a>x <span class="sc">|&gt;</span> </span>
+<span id="cb57-2"><a href="#cb57-2"></a>  <span class="fu">tagged_na_to_regular_na</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>&lt;labelled&lt;double&gt;[8]&gt;
 [1]  1  0  1 NA  0 NA NA NA
@@ -1014,9 +1018,9 @@ Labels:
      0    no
      1   yes</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb59"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb59-1"><a href="#cb59-1"></a>x <span class="sc">|&gt;</span> </span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb59"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb59-1"><a href="#cb59-1"></a>x <span class="sc">|&gt;</span> </span>
 <span id="cb59-2"><a href="#cb59-2"></a>  <span class="fu">tagged_na_to_regular_na</span>() <span class="sc">|&gt;</span></span>
-<span id="cb59-3"><a href="#cb59-3"></a>  <span class="fu">is_tagged_na</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb59-3"><a href="#cb59-3"></a>  <span class="fu">is_tagged_na</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE</code></pre>
 </div>
@@ -1046,14 +1050,14 @@ Important
 <li>soit en indiquant deux valeurs représentant une plage de valeurs à considérées comme manquantes avec <code><a href="https://larmarange.github.io/labelled/reference/na_values.html">labelled::na_range()</a></code> (seront considérées comme manquantes toutes les valeurs supérieures ou égale au premier chiffre et inférieures ou égales au second chiffre<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>).</li>
 </ul>
 <div class="no-row-height column-margin column-container"><div id="fn1"><p><sup>1</sup>&nbsp;On peut utiler <code>-Inf</code> et <code>Inf</code> qui représentent respectivement <q>moins l’infini</q> et <q>l’infini</q>.</p></div></div><div class="cell">
-<div class="sourceCode cell-code" id="cb61"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb61-1"><a href="#cb61-1"></a>v <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">9</span>, <span class="dv">1</span>, <span class="dv">3</span>, <span class="dv">2</span>, <span class="cn">NA</span>)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb61"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb61-1"><a href="#cb61-1"></a>v <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">9</span>, <span class="dv">1</span>, <span class="dv">3</span>, <span class="dv">2</span>, <span class="cn">NA</span>)</span>
 <span id="cb61-2"><a href="#cb61-2"></a><span class="fu">val_labels</span>(v) <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
 <span id="cb61-3"><a href="#cb61-3"></a>  <span class="at">faible =</span> <span class="dv">1</span>, </span>
 <span id="cb61-4"><a href="#cb61-4"></a>  <span class="at">fort =</span> <span class="dv">3</span>, </span>
 <span id="cb61-5"><a href="#cb61-5"></a>  <span class="st">"ne sait pas"</span> <span class="ot">=</span> <span class="dv">9</span></span>
 <span id="cb61-6"><a href="#cb61-6"></a>)</span>
 <span id="cb61-7"><a href="#cb61-7"></a><span class="fu">na_values</span>(v) <span class="ot">&lt;-</span> <span class="dv">9</span></span>
-<span id="cb61-8"><a href="#cb61-8"></a>v</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb61-8"><a href="#cb61-8"></a>v</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>&lt;labelled_spss&lt;double&gt;[8]&gt;
 [1]  1  2  3  9  1  3  2 NA
@@ -1065,8 +1069,8 @@ Labels:
      3        fort
      9 ne sait pas</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb63"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb63-1"><a href="#cb63-1"></a><span class="fu">na_values</span>(v) <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
-<span id="cb63-2"><a href="#cb63-2"></a>v</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb63"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb63-1"><a href="#cb63-1"></a><span class="fu">na_values</span>(v) <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
+<span id="cb63-2"><a href="#cb63-2"></a>v</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>&lt;labelled&lt;double&gt;[8]&gt;
 [1]  1  2  3  9  1  3  2 NA
@@ -1077,8 +1081,8 @@ Labels:
      3        fort
      9 ne sait pas</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb65"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb65-1"><a href="#cb65-1"></a><span class="fu">na_range</span>(v) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">5</span>, <span class="cn">Inf</span>)</span>
-<span id="cb65-2"><a href="#cb65-2"></a>v</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb65"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb65-1"><a href="#cb65-1"></a><span class="fu">na_range</span>(v) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">5</span>, <span class="cn">Inf</span>)</span>
+<span id="cb65-2"><a href="#cb65-2"></a>v</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>&lt;labelled_spss&lt;double&gt;[8]&gt;
 [1]  1  2  3  9  1  3  2 NA
@@ -1094,22 +1098,22 @@ Labels:
 <p>On peut noter que les <em>user NAs</em> peuvent cohabiter avec des <em>regular NAs</em> ainsi qu’avec des étiquettes de valeurs (<em>value labels</em>, cf. <a href="etiquettes-valeurs.html" class="quarto-xref"><span>Chapitre 12</span></a>).</p>
 <p>Pour manipuler les variables d’un tableau de données, on peut également avoir recours à <code><a href="https://larmarange.github.io/labelled/reference/na_values.html">labelled::set_na_values()</a></code> et <code><a href="https://larmarange.github.io/labelled/reference/na_values.html">labelled::set_na_range()</a></code>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb67"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb67-1"><a href="#cb67-1"></a>df <span class="ot">&lt;-</span> </span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb67"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb67-1"><a href="#cb67-1"></a>df <span class="ot">&lt;-</span> </span>
 <span id="cb67-2"><a href="#cb67-2"></a>  dplyr<span class="sc">::</span><span class="fu">tibble</span>(</span>
 <span id="cb67-3"><a href="#cb67-3"></a>    <span class="at">s1 =</span> <span class="fu">c</span>(<span class="st">"M"</span>, <span class="st">"M"</span>, <span class="st">"F"</span>, <span class="st">"F"</span>), </span>
 <span id="cb67-4"><a href="#cb67-4"></a>    <span class="at">s2 =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">9</span>)</span>
 <span id="cb67-5"><a href="#cb67-5"></a>  ) <span class="sc">|&gt;</span> </span>
 <span id="cb67-6"><a href="#cb67-6"></a>  <span class="fu">set_na_values</span>(<span class="at">s2 =</span> <span class="dv">9</span>)</span>
-<span id="cb67-7"><a href="#cb67-7"></a>df<span class="sc">$</span>s2</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb67-7"><a href="#cb67-7"></a>df<span class="sc">$</span>s2</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>&lt;labelled_spss&lt;double&gt;[4]&gt;
 [1] 1 1 2 9
 Missing values: 9</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb69"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb69-1"><a href="#cb69-1"></a>df <span class="ot">&lt;-</span> </span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb69"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb69-1"><a href="#cb69-1"></a>df <span class="ot">&lt;-</span> </span>
 <span id="cb69-2"><a href="#cb69-2"></a>  df <span class="sc">|&gt;</span> </span>
 <span id="cb69-3"><a href="#cb69-3"></a>  <span class="fu">set_na_values</span>(<span class="at">s2 =</span> <span class="cn">NULL</span>)</span>
-<span id="cb69-4"><a href="#cb69-4"></a>df<span class="sc">$</span>s2</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb69-4"><a href="#cb69-4"></a>df<span class="sc">$</span>s2</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>&lt;labelled&lt;double&gt;[4]&gt;
 [1] 1 1 2 9</code></pre>
@@ -1119,7 +1123,7 @@ Missing values: 9</code></pre>
 <span class="header-section-number">13.2.2</span> Tests</h3>
 <p>La fonction <code><a href="https://rdrr.io/r/base/NA.html">is.na()</a></code> est l’une des rares fonctions de base <strong>R</strong> à reconnaître les <em>user NAs</em> et donc à renvoyer <code>TRUE</code> dans ce cas. Pour des tests plus spécifiques, on aura recours à <code><a href="https://larmarange.github.io/labelled/reference/na_values.html">labelled::is_user_na()</a></code> et <code><a href="https://larmarange.github.io/labelled/reference/na_values.html">labelled::is_regular_na()</a></code>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb71"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb71-1"><a href="#cb71-1"></a>v</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb71"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb71-1"><a href="#cb71-1"></a>v</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>&lt;labelled_spss&lt;double&gt;[8]&gt;
 [1]  1  2  3  9  1  3  2 NA
@@ -1131,15 +1135,15 @@ Labels:
      3        fort
      9 ne sait pas</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb73"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb73-1"><a href="#cb73-1"></a>v <span class="sc">|&gt;</span> <span class="fu">is.na</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb73"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb73-1"><a href="#cb73-1"></a>v <span class="sc">|&gt;</span> <span class="fu">is.na</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] FALSE FALSE FALSE  TRUE FALSE FALSE FALSE  TRUE</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb75"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb75-1"><a href="#cb75-1"></a>v <span class="sc">|&gt;</span> <span class="fu">is_user_na</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb75"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb75-1"><a href="#cb75-1"></a>v <span class="sc">|&gt;</span> <span class="fu">is_user_na</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] FALSE FALSE FALSE  TRUE FALSE FALSE FALSE FALSE</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb77"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb77-1"><a href="#cb77-1"></a>v <span class="sc">|&gt;</span> <span class="fu">is_regular_na</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb77"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb77-1"><a href="#cb77-1"></a>v <span class="sc">|&gt;</span> <span class="fu">is_regular_na</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] FALSE FALSE FALSE FALSE FALSE FALSE FALSE  TRUE</code></pre>
 </div>
@@ -1148,48 +1152,48 @@ Labels:
 <span class="header-section-number">13.2.3</span> Conversion</h3>
 <p>Comme dit précédemment, pour la plupart des fonctions de <strong>R</strong>, les <em>users NAs</em> sont toujours des valeurs valides.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb79"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb79-1"><a href="#cb79-1"></a>x <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>, <span class="dv">11</span><span class="sc">:</span><span class="dv">15</span>)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb79"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb79-1"><a href="#cb79-1"></a>x <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>, <span class="dv">11</span><span class="sc">:</span><span class="dv">15</span>)</span>
 <span id="cb79-2"><a href="#cb79-2"></a><span class="fu">na_range</span>(x) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">10</span>, <span class="cn">Inf</span>)</span>
-<span id="cb79-3"><a href="#cb79-3"></a>x</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb79-3"><a href="#cb79-3"></a>x</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>&lt;labelled_spss&lt;integer&gt;[10]&gt;
  [1]  1  2  3  4  5 11 12 13 14 15
 Missing range:  [10, Inf]</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb81"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb81-1"><a href="#cb81-1"></a><span class="fu">mean</span>(x)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb81"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb81-1"><a href="#cb81-1"></a><span class="fu">mean</span>(x)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 8</code></pre>
 </div>
 </div>
 <p>On aura alors recours à <code><a href="https://larmarange.github.io/labelled/reference/na_values.html">labelled::user_na_to_regular_na()</a></code> pour convertir les <em>users NAs</em> en véritables valeurs manquantes avant de procéder à un calcul statistique.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb83"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb83-1"><a href="#cb83-1"></a>x <span class="sc">|&gt;</span> </span>
-<span id="cb83-2"><a href="#cb83-2"></a>  <span class="fu">user_na_to_na</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb83"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb83-1"><a href="#cb83-1"></a>x <span class="sc">|&gt;</span> </span>
+<span id="cb83-2"><a href="#cb83-2"></a>  <span class="fu">user_na_to_na</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>&lt;labelled&lt;integer&gt;[10]&gt;
  [1]  1  2  3  4  5 NA NA NA NA NA</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb85"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb85-1"><a href="#cb85-1"></a>x <span class="sc">|&gt;</span> </span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb85"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb85-1"><a href="#cb85-1"></a>x <span class="sc">|&gt;</span> </span>
 <span id="cb85-2"><a href="#cb85-2"></a>  <span class="fu">user_na_to_na</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb85-3"><a href="#cb85-3"></a>  <span class="fu">mean</span>(<span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb85-3"><a href="#cb85-3"></a>  <span class="fu">mean</span>(<span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 3</code></pre>
 </div>
 </div>
 <p>Une alternative consiste à transformer les <em>user NAs</em> en <em>tagged NAs</em> avec <code><a href="https://larmarange.github.io/labelled/reference/na_values.html">labelled::user_na_to_tagged_na()</a></code>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb87"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb87-1"><a href="#cb87-1"></a>x <span class="sc">|&gt;</span> </span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb87"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb87-1"><a href="#cb87-1"></a>x <span class="sc">|&gt;</span> </span>
 <span id="cb87-2"><a href="#cb87-2"></a>  <span class="fu">user_na_to_tagged_na</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb87-3"><a href="#cb87-3"></a>  <span class="fu">print_tagged_na</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb87-3"><a href="#cb87-3"></a>  <span class="fu">print_tagged_na</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>ℹ `x` has been converted into a double vector.</code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
 <pre><code> [1]     1     2     3     4     5 NA(a) NA(b) NA(c) NA(d) NA(e)</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb90"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb90-1"><a href="#cb90-1"></a>x <span class="sc">|&gt;</span> </span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb90"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb90-1"><a href="#cb90-1"></a>x <span class="sc">|&gt;</span> </span>
 <span id="cb90-2"><a href="#cb90-2"></a>  <span class="fu">user_na_to_tagged_na</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb90-3"><a href="#cb90-3"></a>  <span class="fu">mean</span>(<span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb90-3"><a href="#cb90-3"></a>  <span class="fu">mean</span>(<span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>ℹ `x` has been converted into a double vector.</code></pre>
 </div>
@@ -1199,32 +1203,32 @@ Missing range:  [10, Inf]</code></pre>
 </div>
 <p>Pour supprimer les métadonnées relatives aux <em>user NAs</em> sans les convertir en valeurs manquantes, on aura recours à <code><a href="https://larmarange.github.io/labelled/reference/remove_labels.html">labelled::remove_user_na()</a></code>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb93"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb93-1"><a href="#cb93-1"></a>x <span class="sc">|&gt;</span></span>
-<span id="cb93-2"><a href="#cb93-2"></a>  <span class="fu">remove_user_na</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb93"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb93-1"><a href="#cb93-1"></a>x <span class="sc">|&gt;</span></span>
+<span id="cb93-2"><a href="#cb93-2"></a>  <span class="fu">remove_user_na</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>&lt;labelled&lt;integer&gt;[10]&gt;
  [1]  1  2  3  4  5 11 12 13 14 15</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb95"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb95-1"><a href="#cb95-1"></a>x <span class="sc">|&gt;</span> </span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb95"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb95-1"><a href="#cb95-1"></a>x <span class="sc">|&gt;</span> </span>
 <span id="cb95-2"><a href="#cb95-2"></a>  <span class="fu">remove_user_na</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb95-3"><a href="#cb95-3"></a>  <span class="fu">mean</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb95-3"><a href="#cb95-3"></a>  <span class="fu">mean</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 8</code></pre>
 </div>
 </div>
 <p>Enfin, lorsque l’on convertit un vecteur labellisé en facteur avec <code><a href="https://larmarange.github.io/labelled/reference/to_factor.html">labelled::to_factor()</a></code>, on pourra utiliser l’argument <code>user_na_to_na</code> pour indiquer si les <em>users NAs</em> doivent être convertis ou non en valeurs manquantes classiques (<code>NA</code>).</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb97"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb97-1"><a href="#cb97-1"></a>x <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">9</span>, <span class="dv">2</span>)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb97"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb97-1"><a href="#cb97-1"></a>x <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">9</span>, <span class="dv">2</span>)</span>
 <span id="cb97-2"><a href="#cb97-2"></a><span class="fu">val_labels</span>(x) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="at">oui =</span> <span class="dv">1</span>, <span class="at">non =</span> <span class="dv">2</span>, <span class="at">refus =</span> <span class="dv">9</span>)</span>
 <span id="cb97-3"><a href="#cb97-3"></a><span class="fu">na_values</span>(x) <span class="ot">&lt;-</span> <span class="dv">9</span></span>
 <span id="cb97-4"><a href="#cb97-4"></a>x <span class="sc">|&gt;</span></span>
-<span id="cb97-5"><a href="#cb97-5"></a>  <span class="fu">to_factor</span>(<span class="at">user_na_to_na =</span> <span class="cn">TRUE</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb97-5"><a href="#cb97-5"></a>  <span class="fu">to_factor</span>(<span class="at">user_na_to_na =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] oui  non  &lt;NA&gt; non 
 Levels: oui non</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb99"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb99-1"><a href="#cb99-1"></a>x <span class="sc">|&gt;</span></span>
-<span id="cb99-2"><a href="#cb99-2"></a>  <span class="fu">to_factor</span>(<span class="at">user_na_to_na =</span> <span class="cn">FALSE</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb99"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb99-1"><a href="#cb99-1"></a>x <span class="sc">|&gt;</span></span>
+<span id="cb99-2"><a href="#cb99-2"></a>  <span class="fu">to_factor</span>(<span class="at">user_na_to_na =</span> <span class="cn">FALSE</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] oui   non   refus non  
 Levels: oui non refus</code></pre>
@@ -1246,7 +1250,7 @@ Levels: oui non refus</code></pre>
       a.appendChild(i);
       window.document.body.appendChild(a);
     }
-    window.setColorSchemeToggle(window.hasAlternateSentinel())
+    setColorSchemeToggle(hasAlternateSentinel())
     const icon = "";
     const anchorJS = new window.AnchorJS();
     anchorJS.options = {
@@ -1296,13 +1300,14 @@ Levels: oui non refus</code></pre>
       e.clearSelection();
     }
     const getTextToCopy = function(trigger) {
-        const codeEl = trigger.previousElementSibling.cloneNode(true);
-        for (const childEl of codeEl.children) {
-          if (isCodeAnnotation(childEl)) {
-            childEl.remove();
-          }
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
         }
-        return codeEl.innerText;
+      }
+      return codeEl.innerText;
     }
     const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
       text: getTextToCopy
@@ -1643,8 +1648,36 @@ Levels: oui non refus</code></pre>
       }
     }
   });
-  </script><script src="https://giscus.app/client.js" data-repo="larmarange/guide-R" data-repo-id="R_kgDOH6-xnw" data-category="Forum" data-category-id="DIC_kwDOH6-xn84CRLQy" data-mapping="pathname" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="top" data-theme="light" data-lang="fr" crossorigin="anonymous" data-loading="lazy" async="">
-</script><input type="hidden" id="giscus-base-theme" value="light"><input type="hidden" id="giscus-alt-theme" value="dark"><nav class="page-navigation"><div class="nav-page nav-page-previous">
+  </script><input type="hidden" id="giscus-base-theme" value="light"><input type="hidden" id="giscus-alt-theme" value="dark"><script>
+  function loadGiscus() {
+    // Function to get the theme based on body class
+    const getTheme = () => {
+      let baseTheme = document.getElementById('giscus-base-theme').value;
+      let altTheme = document.getElementById('giscus-alt-theme').value;
+      if (authorPrefersDark) {
+          [baseTheme, altTheme] = [altTheme, baseTheme];
+      }
+      return document.body.classList.contains('quarto-dark') ? altTheme : baseTheme;
+    };
+    const script = document.createElement("script");
+    script.src = "https://giscus.app/client.js";
+    script.async = true;
+    script.dataset.repo = "larmarange/guide-R";
+    script.dataset.repoId = "R_kgDOH6-xnw";
+    script.dataset.category = "Forum";
+    script.dataset.categoryId = "DIC_kwDOH6-xn84CRLQy";
+    script.dataset.mapping = "pathname";
+    script.dataset.reactionsEnabled = "1";
+    script.dataset.emitMetadata = "0";
+    script.dataset.inputPosition = "top";
+    script.dataset.theme = getTheme();
+    script.dataset.lang = "fr";
+    script.crossOrigin = "anonymous";
+    // Append the script to the desired div instead of at the end of the body
+    document.getElementById("quarto-content").appendChild(script);
+  }
+  loadGiscus();
+</script><nav class="page-navigation"><div class="nav-page nav-page-previous">
       <a href="../manipulation/etiquettes-valeurs.html" class="pagination-link" aria-label="Étiquettes de valeurs">
         <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Étiquettes de valeurs</span></span>
       </a>          

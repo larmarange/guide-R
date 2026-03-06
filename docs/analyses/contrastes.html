@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="fr" xml:lang="fr"><head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.7.27">
+<meta name="generator" content="quarto-1.8.27">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 <title>26&nbsp; Contrastes (variables catégorielles) – guide-R</title>
 <style>
@@ -68,18 +68,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../site_libs/cookie-consent/cookie-consent.css" rel="stylesheet">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
 <script src="../site_libs/quarto-html/popper.min.js"></script>
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-985aa47af68dae11cd4d235c71fb941e.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-6c49c5477b92c77c9eb341f9299c235f.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-985aa47af68dae11cd4d235c71fb941e.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-ed96de9b727972fe78a7b5d16c58bf87.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-4d9afe2b8d18ee9fa5d0d57b5ed4214d.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-ed96de9b727972fe78a7b5d16c58bf87.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-1706ad55a43eb6182cc66969adfb4558.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../site_libs/bootstrap/bootstrap-dark-e07f40149b440be50f716415da65e4f4.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<link href="../site_libs/bootstrap/bootstrap-1706ad55a43eb6182cc66969adfb4558.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-bd89720b472e789133713356f69e05bb.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-19020347c2de3e9282294d0be578f340.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../site_libs/bootstrap/bootstrap-bd89720b472e789133713356f69e05bb.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <script src="../site_libs/quarto-contrib/glightbox/glightbox.min.js"></script>
 <link href="../site_libs/quarto-contrib/glightbox/glightbox.min.css" rel="stylesheet">
 <link href="../site_libs/quarto-contrib/glightbox/lightbox.css" rel="stylesheet"><script id="quarto-search-options" type="application/json">{
@@ -149,7 +150,7 @@ cookieconsent.run({
         toggleBodyColorMode(bsSheetEl);
       }
     }
-    window.setColorSchemeToggle = (alternate) => {
+    const setColorSchemeToggle = (alternate) => {
       const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
       for (let i=0; i < toggles.length; i++) {
         const toggle = toggles[i];
@@ -182,7 +183,7 @@ cookieconsent.run({
       }
       manageTransitions('#quarto-margin-sidebar .nav-link', true);
       // Switch the toggles
-      window.setColorSchemeToggle(alternate)
+      setColorSchemeToggle(alternate)
       // Hack to workaround the fact that safari doesn't
       // properly recolor the scrollbar when toggling (#1455)
       if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
@@ -222,7 +223,7 @@ cookieconsent.run({
     const isFileUrl = () => {
       return window.location.protocol === 'file:';
     }
-    window.hasAlternateSentinel = () => {
+    const hasAlternateSentinel = () => {
       let styleSentinel = getColorSchemeSentinel();
       if (styleSentinel !== null) {
         return styleSentinel === "alternate";
@@ -250,7 +251,7 @@ cookieconsent.run({
       const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
       const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
       let newTheme = '';
-      if(darkModeDefault) {
+      if(authorPrefersDark) {
         newTheme = isAlternate ? baseTheme : alternateTheme;
       } else {
         newTheme = isAlternate ? alternateTheme : baseTheme;
@@ -273,20 +274,22 @@ cookieconsent.run({
         changeGiscusTheme();
       }
     };
-    const darkModeDefault = false;
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
       document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
       document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
     let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
     // Dark / light mode switch
     window.quartoToggleColorScheme = () => {
       // Read the current dark / light value
-      let toAlternate = !window.hasAlternateSentinel();
+      let toAlternate = !hasAlternateSentinel();
       toggleColorMode(toAlternate);
       setStyleSentinel(toAlternate);
       toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
     };
     // Switch to dark mode if need be
-    if (window.hasAlternateSentinel()) {
+    if (hasAlternateSentinel()) {
       toggleColorMode(true);
     } else {
       toggleColorMode(false);
@@ -309,7 +312,7 @@ cookieconsent.run({
 <!-- sidebar -->
   <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto"><div class="pt-lg-2 mt-2 text-left sidebar-header sidebar-header-stacked">
       <a href="../index.html" class="sidebar-logo-link">
-      <img src="../ressources/typewriter.png" alt="" class="sidebar-logo py-0 d-lg-inline d-none"></a>
+      <img src="../ressources/typewriter.png" alt="" class="sidebar-logo light-content py-0 d-lg-inline d-none"><img src="../ressources/typewriter.png" alt="" class="sidebar-logo dark-content py-0 d-lg-inline d-none"></a>
     <div class="sidebar-title mb-0 py-0">
       <a href="../">guide-R</a> 
         <div class="sidebar-tools-main tools-wide">
@@ -787,7 +790,7 @@ cookieconsent.run({
 <p>Commençons avec un premier exemple que nous allons calculer avec le jeu de données <em>trial</em> chargé en mémoire lorsque l’on appelle l’extension <a href="https://github.com/ddsjoberg/gtsummary">gtsummary</a>. Ce jeu de données contient les observations de 200 patients. Nous nous intéressons à deux variables en particulier : <em>marker</em> une variable numérique correspondant à un marqueur biologique et <em>grade</em> un facteur à trois modalités correspondant à différent groupes de patients.</p>
 <p>Regardons la moyenne de <em>marker</em> pour chaque valeur de <em>grade</em>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="fu">library</span>(tidyverse)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="fu">library</span>(tidyverse)</span>
 <span id="cb1-2"><a href="#cb1-2"></a><span class="fu">library</span>(gtsummary)</span>
 <span id="cb1-3"><a href="#cb1-3"></a>trial <span class="sc">|&gt;</span></span>
 <span id="cb1-4"><a href="#cb1-4"></a>  <span class="fu">select</span>(marker, grade) <span class="sc">|&gt;</span></span>
@@ -796,25 +799,25 @@ cookieconsent.run({
 <span id="cb1-7"><a href="#cb1-7"></a>    <span class="at">statistic =</span> marker <span class="sc">~</span> <span class="st">"{mean}"</span>,</span>
 <span id="cb1-8"><a href="#cb1-8"></a>    <span class="at">digits =</span> marker <span class="sc">~</span> <span class="dv">4</span></span>
 <span id="cb1-9"><a href="#cb1-9"></a>  ) <span class="sc">|&gt;</span></span>
-<span id="cb1-10"><a href="#cb1-10"></a>  <span class="fu">add_overall</span>(<span class="at">last =</span> <span class="cn">TRUE</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-10"><a href="#cb1-10"></a>  <span class="fu">add_overall</span>(<span class="at">last =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
-<div id="lmywwdtizw" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#lmywwdtizw table {
+<div id="jhiehsrokp" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#jhiehsrokp table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#lmywwdtizw thead, #lmywwdtizw tbody, #lmywwdtizw tfoot, #lmywwdtizw tr, #lmywwdtizw td, #lmywwdtizw th {
+#jhiehsrokp thead, #jhiehsrokp tbody, #jhiehsrokp tfoot, #jhiehsrokp tr, #jhiehsrokp td, #jhiehsrokp th {
   border-style: none;
 }
 
-#lmywwdtizw p {
+#jhiehsrokp p {
   margin: 0;
   padding: 0;
 }
 
-#lmywwdtizw .gt_table {
+#jhiehsrokp .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -840,12 +843,12 @@ cookieconsent.run({
   border-left-color: #D3D3D3;
 }
 
-#lmywwdtizw .gt_caption {
+#jhiehsrokp .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#lmywwdtizw .gt_title {
+#jhiehsrokp .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -857,7 +860,7 @@ cookieconsent.run({
   border-bottom-width: 0;
 }
 
-#lmywwdtizw .gt_subtitle {
+#jhiehsrokp .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -869,7 +872,7 @@ cookieconsent.run({
   border-top-width: 0;
 }
 
-#lmywwdtizw .gt_heading {
+#jhiehsrokp .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -881,13 +884,13 @@ cookieconsent.run({
   border-right-color: #D3D3D3;
 }
 
-#lmywwdtizw .gt_bottom_border {
+#jhiehsrokp .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#lmywwdtizw .gt_col_headings {
+#jhiehsrokp .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -902,7 +905,7 @@ cookieconsent.run({
   border-right-color: #D3D3D3;
 }
 
-#lmywwdtizw .gt_col_heading {
+#jhiehsrokp .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -922,7 +925,7 @@ cookieconsent.run({
   overflow-x: hidden;
 }
 
-#lmywwdtizw .gt_column_spanner_outer {
+#jhiehsrokp .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -934,15 +937,15 @@ cookieconsent.run({
   padding-right: 4px;
 }
 
-#lmywwdtizw .gt_column_spanner_outer:first-child {
+#jhiehsrokp .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#lmywwdtizw .gt_column_spanner_outer:last-child {
+#jhiehsrokp .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#lmywwdtizw .gt_column_spanner {
+#jhiehsrokp .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -954,11 +957,11 @@ cookieconsent.run({
   width: 100%;
 }
 
-#lmywwdtizw .gt_spanner_row {
+#jhiehsrokp .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#lmywwdtizw .gt_group_heading {
+#jhiehsrokp .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -984,7 +987,7 @@ cookieconsent.run({
   text-align: left;
 }
 
-#lmywwdtizw .gt_empty_group_heading {
+#jhiehsrokp .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -999,15 +1002,15 @@ cookieconsent.run({
   vertical-align: middle;
 }
 
-#lmywwdtizw .gt_from_md > :first-child {
+#jhiehsrokp .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#lmywwdtizw .gt_from_md > :last-child {
+#jhiehsrokp .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#lmywwdtizw .gt_row {
+#jhiehsrokp .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1026,7 +1029,7 @@ cookieconsent.run({
   overflow-x: hidden;
 }
 
-#lmywwdtizw .gt_stub {
+#jhiehsrokp .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1039,7 +1042,7 @@ cookieconsent.run({
   padding-right: 5px;
 }
 
-#lmywwdtizw .gt_stub_row_group {
+#jhiehsrokp .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1053,15 +1056,15 @@ cookieconsent.run({
   vertical-align: top;
 }
 
-#lmywwdtizw .gt_row_group_first td {
+#jhiehsrokp .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#lmywwdtizw .gt_row_group_first th {
+#jhiehsrokp .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#lmywwdtizw .gt_summary_row {
+#jhiehsrokp .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1071,16 +1074,16 @@ cookieconsent.run({
   padding-right: 5px;
 }
 
-#lmywwdtizw .gt_first_summary_row {
+#jhiehsrokp .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#lmywwdtizw .gt_first_summary_row.thick {
+#jhiehsrokp .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#lmywwdtizw .gt_last_summary_row {
+#jhiehsrokp .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1090,7 +1093,7 @@ cookieconsent.run({
   border-bottom-color: #D3D3D3;
 }
 
-#lmywwdtizw .gt_grand_summary_row {
+#jhiehsrokp .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1100,7 +1103,7 @@ cookieconsent.run({
   padding-right: 5px;
 }
 
-#lmywwdtizw .gt_first_grand_summary_row {
+#jhiehsrokp .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1110,7 +1113,7 @@ cookieconsent.run({
   border-top-color: #D3D3D3;
 }
 
-#lmywwdtizw .gt_last_grand_summary_row_top {
+#jhiehsrokp .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1120,11 +1123,11 @@ cookieconsent.run({
   border-bottom-color: #D3D3D3;
 }
 
-#lmywwdtizw .gt_striped {
+#jhiehsrokp .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#lmywwdtizw .gt_table_body {
+#jhiehsrokp .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1133,7 +1136,7 @@ cookieconsent.run({
   border-bottom-color: #D3D3D3;
 }
 
-#lmywwdtizw .gt_footnotes {
+#jhiehsrokp .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1147,7 +1150,7 @@ cookieconsent.run({
   border-right-color: #D3D3D3;
 }
 
-#lmywwdtizw .gt_footnote {
+#jhiehsrokp .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -1156,7 +1159,7 @@ cookieconsent.run({
   padding-right: 5px;
 }
 
-#lmywwdtizw .gt_sourcenotes {
+#jhiehsrokp .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1170,7 +1173,7 @@ cookieconsent.run({
   border-right-color: #D3D3D3;
 }
 
-#lmywwdtizw .gt_sourcenote {
+#jhiehsrokp .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -1178,76 +1181,76 @@ cookieconsent.run({
   padding-right: 5px;
 }
 
-#lmywwdtizw .gt_left {
+#jhiehsrokp .gt_left {
   text-align: left;
 }
 
-#lmywwdtizw .gt_center {
+#jhiehsrokp .gt_center {
   text-align: center;
 }
 
-#lmywwdtizw .gt_right {
+#jhiehsrokp .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#lmywwdtizw .gt_font_normal {
+#jhiehsrokp .gt_font_normal {
   font-weight: normal;
 }
 
-#lmywwdtizw .gt_font_bold {
+#jhiehsrokp .gt_font_bold {
   font-weight: bold;
 }
 
-#lmywwdtizw .gt_font_italic {
+#jhiehsrokp .gt_font_italic {
   font-style: italic;
 }
 
-#lmywwdtizw .gt_super {
+#jhiehsrokp .gt_super {
   font-size: 65%;
 }
 
-#lmywwdtizw .gt_footnote_marks {
+#jhiehsrokp .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#lmywwdtizw .gt_asterisk {
+#jhiehsrokp .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#lmywwdtizw .gt_indent_1 {
+#jhiehsrokp .gt_indent_1 {
   text-indent: 5px;
 }
 
-#lmywwdtizw .gt_indent_2 {
+#jhiehsrokp .gt_indent_2 {
   text-indent: 10px;
 }
 
-#lmywwdtizw .gt_indent_3 {
+#jhiehsrokp .gt_indent_3 {
   text-indent: 15px;
 }
 
-#lmywwdtizw .gt_indent_4 {
+#jhiehsrokp .gt_indent_4 {
   text-indent: 20px;
 }
 
-#lmywwdtizw .gt_indent_5 {
+#jhiehsrokp .gt_indent_5 {
   text-indent: 25px;
 }
 
-#lmywwdtizw .katex-display {
+#jhiehsrokp .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#lmywwdtizw div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#jhiehsrokp div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
-<table class="gt_table table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<table class="gt_table table table-sm table-striped small" data-quarto-bootstrap="false">
 <colgroup>
 <col style="width: 20%">
 <col style="width: 20%">
@@ -1290,7 +1293,7 @@ N = 200<span class="gt_footnote_marks" style="white-space:nowrap;font-style:ital
 <td class="gt_row gt_center" headers="stat_0">10</td>
 </tr>
 </tbody>
-<tfoot class="gt_footnotes"><tr class="odd">
+<tfoot><tr class="gt_footnotes odd">
 <td colspan="5" class="gt_footnote">
 <span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;"><sup>1</sup></span> Mean</td>
 </tr></tfoot>
@@ -1300,8 +1303,8 @@ N = 200<span class="gt_footnote_marks" style="white-space:nowrap;font-style:ital
 </div>
 <p>Utilisons maintenant une régression linaire pour modéliser la valeur de <em>marker</em> en fonction de <em>grade</em>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a>mod1_trt <span class="ot">&lt;-</span> <span class="fu">lm</span>(marker <span class="sc">~</span> grade, <span class="at">data =</span> trial)</span>
-<span id="cb2-2"><a href="#cb2-2"></a>mod1_trt</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a>mod1_trt <span class="ot">&lt;-</span> <span class="fu">lm</span>(marker <span class="sc">~</span> grade, <span class="at">data =</span> trial)</span>
+<span id="cb2-2"><a href="#cb2-2"></a>mod1_trt</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 Call:
@@ -1315,7 +1318,7 @@ Coefficients:
 <p>Le modèle obtenu contient trois coefficients ou termes : un intercept et deux termes associés à la variable <em>grade</em>.</p>
 <p>Pour bien interpréter ces coefficients, il faut comprendre comment la variable <em>grade</em> a été transformée avant d’être inclue dans le modèle. Nous pouvons voir cela avec la fonction <code><a href="https://rdrr.io/r/stats/contrasts.html">contrasts()</a></code>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a><span class="fu">contrasts</span>(trial<span class="sc">$</span>grade)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a><span class="fu">contrasts</span>(trial<span class="sc">$</span>grade)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>    II III
 I    0   0
@@ -1329,29 +1332,29 @@ III  0   1</code></pre>
 <p>La valeur du coefficient associé à <em>markerII</em> correspond à l’écart par rapport à la référence lorsque <em>marker</em> est égal à <em>II</em>. Autrement dit, la moyenne de <em>marker</em> pour la modalité <em>II</em> correspond à la somme de l’intercept et du coefficient <em>markerII</em>. Et nous retrouvons bien la relation suivante : <code>0.6805 = 1.0669 + -0.3864</code>. De même, la moyenne de <em>marker</em> lorsque <em>grade</em> vaut <em>III</em> est égale à la somme de l’intercept et du terme <em>markerIII</em>.</p>
 <p>Lorsqu’on utilise des contrastes de type traitement, chaque terme du modèle peut être associé à une et une seule modalité d’origine de la variable catégorielle. Dès lors, il est possible de rajouter la modalité de référence lorsque l’on présente les résultats et on peut même lui associer la valeurs 0, ce qui peut être fait avec <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/tbl_regression.html">gtsummary::tbl_regression()</a></code> avec l’option <code>add_estimate_to_reference_rows = TRUE</code>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a>mod1_trt <span class="sc">|&gt;</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a>mod1_trt <span class="sc">|&gt;</span></span>
 <span id="cb6-2"><a href="#cb6-2"></a>  <span class="fu">tbl_regression</span>(</span>
 <span id="cb6-3"><a href="#cb6-3"></a>    <span class="at">intercept =</span> <span class="cn">TRUE</span>, </span>
 <span id="cb6-4"><a href="#cb6-4"></a>    <span class="at">add_estimate_to_reference_rows =</span> <span class="cn">TRUE</span></span>
-<span id="cb6-5"><a href="#cb6-5"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb6-5"><a href="#cb6-5"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
-<div id="ohdhobbufz" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#ohdhobbufz table {
+<div id="goflmnzjpv" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#goflmnzjpv table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#ohdhobbufz thead, #ohdhobbufz tbody, #ohdhobbufz tfoot, #ohdhobbufz tr, #ohdhobbufz td, #ohdhobbufz th {
+#goflmnzjpv thead, #goflmnzjpv tbody, #goflmnzjpv tfoot, #goflmnzjpv tr, #goflmnzjpv td, #goflmnzjpv th {
   border-style: none;
 }
 
-#ohdhobbufz p {
+#goflmnzjpv p {
   margin: 0;
   padding: 0;
 }
 
-#ohdhobbufz .gt_table {
+#goflmnzjpv .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -1377,12 +1380,12 @@ III  0   1</code></pre>
   border-left-color: #D3D3D3;
 }
 
-#ohdhobbufz .gt_caption {
+#goflmnzjpv .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#ohdhobbufz .gt_title {
+#goflmnzjpv .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -1394,7 +1397,7 @@ III  0   1</code></pre>
   border-bottom-width: 0;
 }
 
-#ohdhobbufz .gt_subtitle {
+#goflmnzjpv .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -1406,7 +1409,7 @@ III  0   1</code></pre>
   border-top-width: 0;
 }
 
-#ohdhobbufz .gt_heading {
+#goflmnzjpv .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -1418,13 +1421,13 @@ III  0   1</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#ohdhobbufz .gt_bottom_border {
+#goflmnzjpv .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#ohdhobbufz .gt_col_headings {
+#goflmnzjpv .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1439,7 +1442,7 @@ III  0   1</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#ohdhobbufz .gt_col_heading {
+#goflmnzjpv .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1459,7 +1462,7 @@ III  0   1</code></pre>
   overflow-x: hidden;
 }
 
-#ohdhobbufz .gt_column_spanner_outer {
+#goflmnzjpv .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1471,15 +1474,15 @@ III  0   1</code></pre>
   padding-right: 4px;
 }
 
-#ohdhobbufz .gt_column_spanner_outer:first-child {
+#goflmnzjpv .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#ohdhobbufz .gt_column_spanner_outer:last-child {
+#goflmnzjpv .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#ohdhobbufz .gt_column_spanner {
+#goflmnzjpv .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -1491,11 +1494,11 @@ III  0   1</code></pre>
   width: 100%;
 }
 
-#ohdhobbufz .gt_spanner_row {
+#goflmnzjpv .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#ohdhobbufz .gt_group_heading {
+#goflmnzjpv .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1521,7 +1524,7 @@ III  0   1</code></pre>
   text-align: left;
 }
 
-#ohdhobbufz .gt_empty_group_heading {
+#goflmnzjpv .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -1536,15 +1539,15 @@ III  0   1</code></pre>
   vertical-align: middle;
 }
 
-#ohdhobbufz .gt_from_md > :first-child {
+#goflmnzjpv .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#ohdhobbufz .gt_from_md > :last-child {
+#goflmnzjpv .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#ohdhobbufz .gt_row {
+#goflmnzjpv .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1563,7 +1566,7 @@ III  0   1</code></pre>
   overflow-x: hidden;
 }
 
-#ohdhobbufz .gt_stub {
+#goflmnzjpv .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1576,7 +1579,7 @@ III  0   1</code></pre>
   padding-right: 5px;
 }
 
-#ohdhobbufz .gt_stub_row_group {
+#goflmnzjpv .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1590,15 +1593,15 @@ III  0   1</code></pre>
   vertical-align: top;
 }
 
-#ohdhobbufz .gt_row_group_first td {
+#goflmnzjpv .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#ohdhobbufz .gt_row_group_first th {
+#goflmnzjpv .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#ohdhobbufz .gt_summary_row {
+#goflmnzjpv .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1608,16 +1611,16 @@ III  0   1</code></pre>
   padding-right: 5px;
 }
 
-#ohdhobbufz .gt_first_summary_row {
+#goflmnzjpv .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#ohdhobbufz .gt_first_summary_row.thick {
+#goflmnzjpv .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#ohdhobbufz .gt_last_summary_row {
+#goflmnzjpv .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1627,7 +1630,7 @@ III  0   1</code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#ohdhobbufz .gt_grand_summary_row {
+#goflmnzjpv .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1637,7 +1640,7 @@ III  0   1</code></pre>
   padding-right: 5px;
 }
 
-#ohdhobbufz .gt_first_grand_summary_row {
+#goflmnzjpv .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1647,7 +1650,7 @@ III  0   1</code></pre>
   border-top-color: #D3D3D3;
 }
 
-#ohdhobbufz .gt_last_grand_summary_row_top {
+#goflmnzjpv .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1657,11 +1660,11 @@ III  0   1</code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#ohdhobbufz .gt_striped {
+#goflmnzjpv .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#ohdhobbufz .gt_table_body {
+#goflmnzjpv .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1670,7 +1673,7 @@ III  0   1</code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#ohdhobbufz .gt_footnotes {
+#goflmnzjpv .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1684,7 +1687,7 @@ III  0   1</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#ohdhobbufz .gt_footnote {
+#goflmnzjpv .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -1693,7 +1696,7 @@ III  0   1</code></pre>
   padding-right: 5px;
 }
 
-#ohdhobbufz .gt_sourcenotes {
+#goflmnzjpv .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1707,7 +1710,7 @@ III  0   1</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#ohdhobbufz .gt_sourcenote {
+#goflmnzjpv .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -1715,76 +1718,76 @@ III  0   1</code></pre>
   padding-right: 5px;
 }
 
-#ohdhobbufz .gt_left {
+#goflmnzjpv .gt_left {
   text-align: left;
 }
 
-#ohdhobbufz .gt_center {
+#goflmnzjpv .gt_center {
   text-align: center;
 }
 
-#ohdhobbufz .gt_right {
+#goflmnzjpv .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#ohdhobbufz .gt_font_normal {
+#goflmnzjpv .gt_font_normal {
   font-weight: normal;
 }
 
-#ohdhobbufz .gt_font_bold {
+#goflmnzjpv .gt_font_bold {
   font-weight: bold;
 }
 
-#ohdhobbufz .gt_font_italic {
+#goflmnzjpv .gt_font_italic {
   font-style: italic;
 }
 
-#ohdhobbufz .gt_super {
+#goflmnzjpv .gt_super {
   font-size: 65%;
 }
 
-#ohdhobbufz .gt_footnote_marks {
+#goflmnzjpv .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#ohdhobbufz .gt_asterisk {
+#goflmnzjpv .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#ohdhobbufz .gt_indent_1 {
+#goflmnzjpv .gt_indent_1 {
   text-indent: 5px;
 }
 
-#ohdhobbufz .gt_indent_2 {
+#goflmnzjpv .gt_indent_2 {
   text-indent: 10px;
 }
 
-#ohdhobbufz .gt_indent_3 {
+#goflmnzjpv .gt_indent_3 {
   text-indent: 15px;
 }
 
-#ohdhobbufz .gt_indent_4 {
+#goflmnzjpv .gt_indent_4 {
   text-indent: 20px;
 }
 
-#ohdhobbufz .gt_indent_5 {
+#goflmnzjpv .gt_indent_5 {
   text-indent: 25px;
 }
 
-#ohdhobbufz .katex-display {
+#goflmnzjpv .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#ohdhobbufz div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#goflmnzjpv div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
-<table class="gt_table table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<table class="gt_table table table-sm table-striped small" data-quarto-bootstrap="false">
 <colgroup>
 <col style="width: 25%">
 <col style="width: 25%">
@@ -1829,7 +1832,7 @@ III  0   1</code></pre>
 <td class="gt_row gt_center" headers="p.value">0.6</td>
 </tr>
 </tbody>
-<tfoot class="gt_sourcenotes"><tr class="odd">
+<tfoot><tr class="gt_sourcenotes odd">
 <td colspan="4" class="gt_sourcenote">Abbreviation: CI = Confidence Interval</td>
 </tr></tfoot>
 </table>
@@ -1840,13 +1843,13 @@ III  0   1</code></pre>
 <span class="header-section-number">26.1.2</span> Exemple 2 : une régression logistique avec deux variables catégorielles</h3>
 <p>Pour ce deuxième exemple, nous allons utiliser le jeu de données <em>hdv2003</em> fourni par l’extension <a href="https://juba.github.io/questionr/">questionr</a> et recoder la variable <em>age</em> en groupes d’âges à 4 modalités.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a><span class="fu">library</span>(questionr)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a><span class="fu">library</span>(questionr)</span>
 <span id="cb7-2"><a href="#cb7-2"></a><span class="fu">data</span>(<span class="st">"hdv2003"</span>)</span>
 <span id="cb7-3"><a href="#cb7-3"></a></span>
-<span id="cb7-4"><a href="#cb7-4"></a><span class="fu">library</span>(tidyverse)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb7-4"><a href="#cb7-4"></a><span class="fu">library</span>(tidyverse)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a>hdv2003 <span class="ot">&lt;-</span> hdv2003 <span class="sc">|&gt;</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a>hdv2003 <span class="ot">&lt;-</span> hdv2003 <span class="sc">|&gt;</span></span>
 <span id="cb8-2"><a href="#cb8-2"></a>  <span class="fu">mutate</span>(</span>
 <span id="cb8-3"><a href="#cb8-3"></a>    <span class="at">groupe_ages =</span> <span class="fu">cut</span>(</span>
 <span id="cb8-4"><a href="#cb8-4"></a>      age, </span>
@@ -1864,16 +1867,16 @@ III  0   1</code></pre>
 <span id="cb8-16"><a href="#cb8-16"></a>  labelled<span class="sc">::</span><span class="fu">set_variable_labels</span>(</span>
 <span id="cb8-17"><a href="#cb8-17"></a>    <span class="at">groupe_ages =</span> <span class="st">"Groupe d'âges"</span>,</span>
 <span id="cb8-18"><a href="#cb8-18"></a>    <span class="at">sexe =</span> <span class="st">"Sexe"</span></span>
-<span id="cb8-19"><a href="#cb8-19"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb8-19"><a href="#cb8-19"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Nous allons faire une régression logistique binaire pour investiguer l’effet du <em>sexe</em> (variable à 2 modalités) et du <em>groupe d’âges</em> (variable à 4 modalités) sur la pratique du <em>sport</em>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a>mod2_trt <span class="ot">&lt;-</span> <span class="fu">glm</span>(</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a>mod2_trt <span class="ot">&lt;-</span> <span class="fu">glm</span>(</span>
 <span id="cb9-2"><a href="#cb9-2"></a>  sport <span class="sc">~</span> sexe <span class="sc">+</span> groupe_ages,</span>
 <span id="cb9-3"><a href="#cb9-3"></a>  <span class="at">family =</span> binomial,</span>
 <span id="cb9-4"><a href="#cb9-4"></a>  <span class="at">data =</span> hdv2003</span>
 <span id="cb9-5"><a href="#cb9-5"></a>)</span>
-<span id="cb9-6"><a href="#cb9-6"></a>mod2_trt</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb9-6"><a href="#cb9-6"></a>mod2_trt</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 Call:  glm(formula = sport ~ sexe + groupe_ages, family = binomial, 
@@ -1892,13 +1895,13 @@ Residual Deviance: 2385     AIC: 2395</code></pre>
 </div>
 <p>Le modèle contient 5 termes : 1 intercept, 1 coefficient pour la variable <em>sexe</em> et 3 coefficients pour la variable <em>groupe_ages</em>. Comme précédemment, nous pouvons constater que les variables à <em>n</em> modalités sont remplacées par défaut (contrastes de type traitement) par <em>n-1</em> variables binaires, la première modalité jouant à chaque fois le rôle de modalité de référence.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a><span class="fu">contrasts</span>(hdv2003<span class="sc">$</span>sexe)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a><span class="fu">contrasts</span>(hdv2003<span class="sc">$</span>sexe)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>      Femme
 Homme     0
 Femme     1</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a><span class="fu">contrasts</span>(hdv2003<span class="sc">$</span>groupe_ages)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a><span class="fu">contrasts</span>(hdv2003<span class="sc">$</span>groupe_ages)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>      25-44 45-64 65+
 16-24     0     0   0
@@ -1910,8 +1913,8 @@ Femme     1</code></pre>
 <p>L’intercept correspond donc à la situation à la référence, c’est-à-dire à la prédiction du modèle pour les hommes (référence de <em>sexe</em>) âgés de 16 à 24 ans (référence de <em>groupe_ages</em>).</p>
 <p>Il est possible d’exprimer cela en termes de probabilité en utilisant l’inverse de la fonction <em>logit</em> (puisque nous avons utilisé un modèle <em>logit</em>).</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1"></a>inv_logit <span class="ot">&lt;-</span> <span class="fu">binomial</span>(<span class="st">"logit"</span>)<span class="sc">$</span>linkinv</span>
-<span id="cb15-2"><a href="#cb15-2"></a><span class="fu">inv_logit</span>(<span class="fl">0.9021</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1"></a>inv_logit <span class="ot">&lt;-</span> <span class="fu">binomial</span>(<span class="st">"logit"</span>)<span class="sc">$</span>linkinv</span>
+<span id="cb15-2"><a href="#cb15-2"></a><span class="fu">inv_logit</span>(<span class="fl">0.9021</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 0.7113809</code></pre>
 </div>
@@ -1919,15 +1922,15 @@ Femme     1</code></pre>
 <p>Selon le modèle, les hommes âgés de 16 à 24 ans ont donc 71% de chance de pratiquer du sport.</p>
 <p>Regardons maintenant le coefficient associé à <em>sexeFemme</em> (-0.4455) : il représente (pour la modalité de référence des autres variables, soit pour les 16-24 ans ici) la correction à appliquer à l’intercept pour obtenir la probabilité de faire du sport. Il s’agit donc de la différence entre les femmes et les hommes pour le groupe des 16-24 ans.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1"></a><span class="fu">inv_logit</span>(<span class="fl">0.9021</span> <span class="sc">-</span> <span class="fl">0.4455</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1"></a><span class="fu">inv_logit</span>(<span class="fl">0.9021</span> <span class="sc">-</span> <span class="fl">0.4455</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 0.6122073</code></pre>
 </div>
 </div>
 <p>Autrement dit, selon le modèle, la probabilité de faire du sport pour une femme âgée de 16 à 24 ans est de 61%. On peut représenter cela avec la fonction <code><a href="https://strengejacke.github.io/ggeffects/reference/ggpredict.html">ggeffects::ggpredict()</a></code> de <a href="https://strengejacke.github.io/ggeffects/">ggeffects</a>, qui représente les prédictions d’une variable <q>toutes les autres variables étant à la référence</q>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1"></a><span class="fu">library</span>(ggeffects)</span>
-<span id="cb19-2"><a href="#cb19-2"></a><span class="fu">ggpredict</span>(mod2_trt, <span class="st">"sexe"</span>) <span class="sc">|&gt;</span> <span class="fu">plot</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1"></a><span class="fu">library</span>(ggeffects)</span>
+<span id="cb19-2"><a href="#cb19-2"></a><span class="fu">ggpredict</span>(mod2_trt, <span class="st">"sexe"</span>) <span class="sc">|&gt;</span> <span class="fu">plot</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure"><p><a href="contrastes_files/figure-html/unnamed-chunk-11-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-1"><img src="contrastes_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid figure-img" width="672"></a></p>
@@ -1937,31 +1940,31 @@ Femme     1</code></pre>
 </div>
 <p>Bien souvent, pour une régression logistique, on préfère représenter les exponentielles des coefficients qui correspondent à des <em>odds ratios</em>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1"></a>mod2_trt <span class="sc">|&gt;</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1"></a>mod2_trt <span class="sc">|&gt;</span></span>
 <span id="cb20-2"><a href="#cb20-2"></a>  <span class="fu">tbl_regression</span>(</span>
 <span id="cb20-3"><a href="#cb20-3"></a>    <span class="at">exponentiate =</span> <span class="cn">TRUE</span>,</span>
 <span id="cb20-4"><a href="#cb20-4"></a>    <span class="at">intercept =</span> <span class="cn">TRUE</span>, </span>
 <span id="cb20-5"><a href="#cb20-5"></a>    <span class="at">add_estimate_to_reference_rows =</span> <span class="cn">TRUE</span></span>
 <span id="cb20-6"><a href="#cb20-6"></a>  ) <span class="sc">|&gt;</span> </span>
-<span id="cb20-7"><a href="#cb20-7"></a>  <span class="fu">bold_labels</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb20-7"><a href="#cb20-7"></a>  <span class="fu">bold_labels</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
-<div id="qjvmhlsjpt" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#qjvmhlsjpt table {
+<div id="geuocqhffq" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#geuocqhffq table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#qjvmhlsjpt thead, #qjvmhlsjpt tbody, #qjvmhlsjpt tfoot, #qjvmhlsjpt tr, #qjvmhlsjpt td, #qjvmhlsjpt th {
+#geuocqhffq thead, #geuocqhffq tbody, #geuocqhffq tfoot, #geuocqhffq tr, #geuocqhffq td, #geuocqhffq th {
   border-style: none;
 }
 
-#qjvmhlsjpt p {
+#geuocqhffq p {
   margin: 0;
   padding: 0;
 }
 
-#qjvmhlsjpt .gt_table {
+#geuocqhffq .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -1987,12 +1990,12 @@ Femme     1</code></pre>
   border-left-color: #D3D3D3;
 }
 
-#qjvmhlsjpt .gt_caption {
+#geuocqhffq .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#qjvmhlsjpt .gt_title {
+#geuocqhffq .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -2004,7 +2007,7 @@ Femme     1</code></pre>
   border-bottom-width: 0;
 }
 
-#qjvmhlsjpt .gt_subtitle {
+#geuocqhffq .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -2016,7 +2019,7 @@ Femme     1</code></pre>
   border-top-width: 0;
 }
 
-#qjvmhlsjpt .gt_heading {
+#geuocqhffq .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -2028,13 +2031,13 @@ Femme     1</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#qjvmhlsjpt .gt_bottom_border {
+#geuocqhffq .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#qjvmhlsjpt .gt_col_headings {
+#geuocqhffq .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -2049,7 +2052,7 @@ Femme     1</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#qjvmhlsjpt .gt_col_heading {
+#geuocqhffq .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2069,7 +2072,7 @@ Femme     1</code></pre>
   overflow-x: hidden;
 }
 
-#qjvmhlsjpt .gt_column_spanner_outer {
+#geuocqhffq .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2081,15 +2084,15 @@ Femme     1</code></pre>
   padding-right: 4px;
 }
 
-#qjvmhlsjpt .gt_column_spanner_outer:first-child {
+#geuocqhffq .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#qjvmhlsjpt .gt_column_spanner_outer:last-child {
+#geuocqhffq .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#qjvmhlsjpt .gt_column_spanner {
+#geuocqhffq .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -2101,11 +2104,11 @@ Femme     1</code></pre>
   width: 100%;
 }
 
-#qjvmhlsjpt .gt_spanner_row {
+#geuocqhffq .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#qjvmhlsjpt .gt_group_heading {
+#geuocqhffq .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2131,7 +2134,7 @@ Femme     1</code></pre>
   text-align: left;
 }
 
-#qjvmhlsjpt .gt_empty_group_heading {
+#geuocqhffq .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -2146,15 +2149,15 @@ Femme     1</code></pre>
   vertical-align: middle;
 }
 
-#qjvmhlsjpt .gt_from_md > :first-child {
+#geuocqhffq .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#qjvmhlsjpt .gt_from_md > :last-child {
+#geuocqhffq .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#qjvmhlsjpt .gt_row {
+#geuocqhffq .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2173,7 +2176,7 @@ Femme     1</code></pre>
   overflow-x: hidden;
 }
 
-#qjvmhlsjpt .gt_stub {
+#geuocqhffq .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2186,7 +2189,7 @@ Femme     1</code></pre>
   padding-right: 5px;
 }
 
-#qjvmhlsjpt .gt_stub_row_group {
+#geuocqhffq .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2200,15 +2203,15 @@ Femme     1</code></pre>
   vertical-align: top;
 }
 
-#qjvmhlsjpt .gt_row_group_first td {
+#geuocqhffq .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#qjvmhlsjpt .gt_row_group_first th {
+#geuocqhffq .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#qjvmhlsjpt .gt_summary_row {
+#geuocqhffq .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -2218,16 +2221,16 @@ Femme     1</code></pre>
   padding-right: 5px;
 }
 
-#qjvmhlsjpt .gt_first_summary_row {
+#geuocqhffq .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#qjvmhlsjpt .gt_first_summary_row.thick {
+#geuocqhffq .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#qjvmhlsjpt .gt_last_summary_row {
+#geuocqhffq .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2237,7 +2240,7 @@ Femme     1</code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#qjvmhlsjpt .gt_grand_summary_row {
+#geuocqhffq .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -2247,7 +2250,7 @@ Femme     1</code></pre>
   padding-right: 5px;
 }
 
-#qjvmhlsjpt .gt_first_grand_summary_row {
+#geuocqhffq .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2257,7 +2260,7 @@ Femme     1</code></pre>
   border-top-color: #D3D3D3;
 }
 
-#qjvmhlsjpt .gt_last_grand_summary_row_top {
+#geuocqhffq .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2267,11 +2270,11 @@ Femme     1</code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#qjvmhlsjpt .gt_striped {
+#geuocqhffq .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#qjvmhlsjpt .gt_table_body {
+#geuocqhffq .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -2280,7 +2283,7 @@ Femme     1</code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#qjvmhlsjpt .gt_footnotes {
+#geuocqhffq .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -2294,7 +2297,7 @@ Femme     1</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#qjvmhlsjpt .gt_footnote {
+#geuocqhffq .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -2303,7 +2306,7 @@ Femme     1</code></pre>
   padding-right: 5px;
 }
 
-#qjvmhlsjpt .gt_sourcenotes {
+#geuocqhffq .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -2317,7 +2320,7 @@ Femme     1</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#qjvmhlsjpt .gt_sourcenote {
+#geuocqhffq .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -2325,76 +2328,76 @@ Femme     1</code></pre>
   padding-right: 5px;
 }
 
-#qjvmhlsjpt .gt_left {
+#geuocqhffq .gt_left {
   text-align: left;
 }
 
-#qjvmhlsjpt .gt_center {
+#geuocqhffq .gt_center {
   text-align: center;
 }
 
-#qjvmhlsjpt .gt_right {
+#geuocqhffq .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#qjvmhlsjpt .gt_font_normal {
+#geuocqhffq .gt_font_normal {
   font-weight: normal;
 }
 
-#qjvmhlsjpt .gt_font_bold {
+#geuocqhffq .gt_font_bold {
   font-weight: bold;
 }
 
-#qjvmhlsjpt .gt_font_italic {
+#geuocqhffq .gt_font_italic {
   font-style: italic;
 }
 
-#qjvmhlsjpt .gt_super {
+#geuocqhffq .gt_super {
   font-size: 65%;
 }
 
-#qjvmhlsjpt .gt_footnote_marks {
+#geuocqhffq .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#qjvmhlsjpt .gt_asterisk {
+#geuocqhffq .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#qjvmhlsjpt .gt_indent_1 {
+#geuocqhffq .gt_indent_1 {
   text-indent: 5px;
 }
 
-#qjvmhlsjpt .gt_indent_2 {
+#geuocqhffq .gt_indent_2 {
   text-indent: 10px;
 }
 
-#qjvmhlsjpt .gt_indent_3 {
+#geuocqhffq .gt_indent_3 {
   text-indent: 15px;
 }
 
-#qjvmhlsjpt .gt_indent_4 {
+#geuocqhffq .gt_indent_4 {
   text-indent: 20px;
 }
 
-#qjvmhlsjpt .gt_indent_5 {
+#geuocqhffq .gt_indent_5 {
   text-indent: 25px;
 }
 
-#qjvmhlsjpt .katex-display {
+#geuocqhffq .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#qjvmhlsjpt div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#geuocqhffq div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
-<table class="gt_table table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<table class="gt_table table table-sm table-striped small" data-quarto-bootstrap="false">
 <colgroup>
 <col style="width: 25%">
 <col style="width: 25%">
@@ -2463,7 +2466,7 @@ Femme     1</code></pre>
 <td class="gt_row gt_center" headers="p.value">&lt;0.001</td>
 </tr>
 </tbody>
-<tfoot class="gt_sourcenotes"><tr class="odd">
+<tfoot><tr class="gt_sourcenotes odd">
 <td colspan="4" class="gt_sourcenote">Abbreviations: CI = Confidence Interval, OR = Odds Ratio</td>
 </tr></tfoot>
 </table>
@@ -2472,7 +2475,7 @@ Femme     1</code></pre>
 </div>
 <p>Or, 0,64 correspond bien à l’<em>odds ratio</em> entre 61% et 71% (que l’on peut calculer avec <code><a href="https://juba.github.io/questionr/reference/odds.ratio.html">questionr::odds.ratio()</a></code>).</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1"></a>questionr<span class="sc">::</span><span class="fu">odds.ratio</span>(<span class="fl">0.6122</span>, <span class="fl">0.7114</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1"></a>questionr<span class="sc">::</span><span class="fu">odds.ratio</span>(<span class="fl">0.6122</span>, <span class="fl">0.7114</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 0.6404246</code></pre>
 </div>
@@ -2480,7 +2483,7 @@ Femme     1</code></pre>
 <p>De la même manière, les différents coefficients associés à <em>groupe_ages</em> correspondent à la différence entre chaque groupe d’âges et sa modalité de référence (ici 16-24 ans), quand les autres variables (ici le <em>sexe</em>) sont à leur référence (ici les hommes).</p>
 <p>Pour prédire la probabilité de faire du sport pour un profil particulier, il faut prendre en compte toutes les termes qui s’appliquent et qui s’ajoutent à l’intercept. Par exemple, pour une femme de 50 ans il faut considérer l’intercept (0.9021), le coefficient <em>sexeFemme</em> (-0.4455) et le coefficient <em>groupe_ages45</em><strong>-64</strong> (-1.6535). Sa probabilité de faire du sport est donc de 23%.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1"></a><span class="fu">inv_logit</span>(<span class="fl">0.9021</span> <span class="sc">-</span> <span class="fl">0.4455</span> <span class="sc">-</span> <span class="fl">1.6535</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1"></a><span class="fu">inv_logit</span>(<span class="fl">0.9021</span> <span class="sc">-</span> <span class="fl">0.4455</span> <span class="sc">-</span> <span class="fl">1.6535</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 0.2320271</code></pre>
 </div>
@@ -2489,7 +2492,7 @@ Femme     1</code></pre>
 <span class="header-section-number">26.1.3</span> Changer la modalité de référence</h3>
 <p>Il est possible de personnaliser les contrastes à utiliser et avoir un recours à un contraste de type <q>traitement</q> mais en utilisant une autre modalité que la première comme référence, avec la fonction <code><a href="https://rdrr.io/r/stats/contrast.html">contr.treatment()</a></code>. Le premier argument de la fonction corresponds au nombre de modalités de la variable et le paramètre <code>base</code> permets de spécifier la modalité de référence (1 par défaut).</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1"></a><span class="fu">contr.treatment</span>(<span class="dv">4</span>, <span class="at">base =</span> <span class="dv">2</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1"></a><span class="fu">contr.treatment</span>(<span class="dv">4</span>, <span class="at">base =</span> <span class="dv">2</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>  1 3 4
 1 1 0 0
@@ -2500,7 +2503,7 @@ Femme     1</code></pre>
 </div>
 <p><code><a href="https://rdrr.io/r/stats/contrast.html">contr.SAS()</a></code> permets de spécifier un contraste de type <q>traitement</q> dont la modalité de référence est la dernière.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1"></a><span class="fu">contr.SAS</span>(<span class="dv">4</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1"></a><span class="fu">contr.SAS</span>(<span class="dv">4</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>  1 2 3
 1 1 0 0
@@ -2511,7 +2514,7 @@ Femme     1</code></pre>
 </div>
 <p>Les contrastes peuvent être modifiés de deux manières : au moment de la construction du modèle (via l’option <code>contrasts</code>) ou comme attribut des variables (via la fonction <code><a href="https://rdrr.io/r/stats/contrasts.html">contrasts()</a></code>).</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1"></a><span class="fu">contrasts</span>(hdv2003<span class="sc">$</span>sexe) <span class="ot">&lt;-</span> <span class="fu">contr.SAS</span>(<span class="dv">2</span>)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1"></a><span class="fu">contrasts</span>(hdv2003<span class="sc">$</span>sexe) <span class="ot">&lt;-</span> <span class="fu">contr.SAS</span>(<span class="dv">2</span>)</span>
 <span id="cb29-2"><a href="#cb29-2"></a>mod2_trt_bis <span class="ot">&lt;-</span> <span class="fu">glm</span>(</span>
 <span id="cb29-3"><a href="#cb29-3"></a>  sport <span class="sc">~</span> sexe <span class="sc">+</span> groupe_ages, </span>
 <span id="cb29-4"><a href="#cb29-4"></a>  <span class="at">family =</span> binomial, </span>
@@ -2520,25 +2523,25 @@ Femme     1</code></pre>
 <span id="cb29-7"><a href="#cb29-7"></a>)</span>
 <span id="cb29-8"><a href="#cb29-8"></a>mod2_trt_bis <span class="sc">|&gt;</span></span>
 <span id="cb29-9"><a href="#cb29-9"></a>  <span class="fu">tbl_regression</span>(<span class="at">exponentiate =</span> <span class="cn">TRUE</span>, <span class="at">intercept =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb29-10"><a href="#cb29-10"></a>  <span class="fu">bold_labels</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb29-10"><a href="#cb29-10"></a>  <span class="fu">bold_labels</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
-<div id="aaoolmotym" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#aaoolmotym table {
+<div id="rlnrbzswwr" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#rlnrbzswwr table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#aaoolmotym thead, #aaoolmotym tbody, #aaoolmotym tfoot, #aaoolmotym tr, #aaoolmotym td, #aaoolmotym th {
+#rlnrbzswwr thead, #rlnrbzswwr tbody, #rlnrbzswwr tfoot, #rlnrbzswwr tr, #rlnrbzswwr td, #rlnrbzswwr th {
   border-style: none;
 }
 
-#aaoolmotym p {
+#rlnrbzswwr p {
   margin: 0;
   padding: 0;
 }
 
-#aaoolmotym .gt_table {
+#rlnrbzswwr .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -2564,12 +2567,12 @@ Femme     1</code></pre>
   border-left-color: #D3D3D3;
 }
 
-#aaoolmotym .gt_caption {
+#rlnrbzswwr .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#aaoolmotym .gt_title {
+#rlnrbzswwr .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -2581,7 +2584,7 @@ Femme     1</code></pre>
   border-bottom-width: 0;
 }
 
-#aaoolmotym .gt_subtitle {
+#rlnrbzswwr .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -2593,7 +2596,7 @@ Femme     1</code></pre>
   border-top-width: 0;
 }
 
-#aaoolmotym .gt_heading {
+#rlnrbzswwr .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -2605,13 +2608,13 @@ Femme     1</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#aaoolmotym .gt_bottom_border {
+#rlnrbzswwr .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#aaoolmotym .gt_col_headings {
+#rlnrbzswwr .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -2626,7 +2629,7 @@ Femme     1</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#aaoolmotym .gt_col_heading {
+#rlnrbzswwr .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2646,7 +2649,7 @@ Femme     1</code></pre>
   overflow-x: hidden;
 }
 
-#aaoolmotym .gt_column_spanner_outer {
+#rlnrbzswwr .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2658,15 +2661,15 @@ Femme     1</code></pre>
   padding-right: 4px;
 }
 
-#aaoolmotym .gt_column_spanner_outer:first-child {
+#rlnrbzswwr .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#aaoolmotym .gt_column_spanner_outer:last-child {
+#rlnrbzswwr .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#aaoolmotym .gt_column_spanner {
+#rlnrbzswwr .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -2678,11 +2681,11 @@ Femme     1</code></pre>
   width: 100%;
 }
 
-#aaoolmotym .gt_spanner_row {
+#rlnrbzswwr .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#aaoolmotym .gt_group_heading {
+#rlnrbzswwr .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2708,7 +2711,7 @@ Femme     1</code></pre>
   text-align: left;
 }
 
-#aaoolmotym .gt_empty_group_heading {
+#rlnrbzswwr .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -2723,15 +2726,15 @@ Femme     1</code></pre>
   vertical-align: middle;
 }
 
-#aaoolmotym .gt_from_md > :first-child {
+#rlnrbzswwr .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#aaoolmotym .gt_from_md > :last-child {
+#rlnrbzswwr .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#aaoolmotym .gt_row {
+#rlnrbzswwr .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2750,7 +2753,7 @@ Femme     1</code></pre>
   overflow-x: hidden;
 }
 
-#aaoolmotym .gt_stub {
+#rlnrbzswwr .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2763,7 +2766,7 @@ Femme     1</code></pre>
   padding-right: 5px;
 }
 
-#aaoolmotym .gt_stub_row_group {
+#rlnrbzswwr .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2777,15 +2780,15 @@ Femme     1</code></pre>
   vertical-align: top;
 }
 
-#aaoolmotym .gt_row_group_first td {
+#rlnrbzswwr .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#aaoolmotym .gt_row_group_first th {
+#rlnrbzswwr .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#aaoolmotym .gt_summary_row {
+#rlnrbzswwr .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -2795,16 +2798,16 @@ Femme     1</code></pre>
   padding-right: 5px;
 }
 
-#aaoolmotym .gt_first_summary_row {
+#rlnrbzswwr .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#aaoolmotym .gt_first_summary_row.thick {
+#rlnrbzswwr .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#aaoolmotym .gt_last_summary_row {
+#rlnrbzswwr .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2814,7 +2817,7 @@ Femme     1</code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#aaoolmotym .gt_grand_summary_row {
+#rlnrbzswwr .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -2824,7 +2827,7 @@ Femme     1</code></pre>
   padding-right: 5px;
 }
 
-#aaoolmotym .gt_first_grand_summary_row {
+#rlnrbzswwr .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2834,7 +2837,7 @@ Femme     1</code></pre>
   border-top-color: #D3D3D3;
 }
 
-#aaoolmotym .gt_last_grand_summary_row_top {
+#rlnrbzswwr .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2844,11 +2847,11 @@ Femme     1</code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#aaoolmotym .gt_striped {
+#rlnrbzswwr .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#aaoolmotym .gt_table_body {
+#rlnrbzswwr .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -2857,7 +2860,7 @@ Femme     1</code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#aaoolmotym .gt_footnotes {
+#rlnrbzswwr .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -2871,7 +2874,7 @@ Femme     1</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#aaoolmotym .gt_footnote {
+#rlnrbzswwr .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -2880,7 +2883,7 @@ Femme     1</code></pre>
   padding-right: 5px;
 }
 
-#aaoolmotym .gt_sourcenotes {
+#rlnrbzswwr .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -2894,7 +2897,7 @@ Femme     1</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#aaoolmotym .gt_sourcenote {
+#rlnrbzswwr .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -2902,76 +2905,76 @@ Femme     1</code></pre>
   padding-right: 5px;
 }
 
-#aaoolmotym .gt_left {
+#rlnrbzswwr .gt_left {
   text-align: left;
 }
 
-#aaoolmotym .gt_center {
+#rlnrbzswwr .gt_center {
   text-align: center;
 }
 
-#aaoolmotym .gt_right {
+#rlnrbzswwr .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#aaoolmotym .gt_font_normal {
+#rlnrbzswwr .gt_font_normal {
   font-weight: normal;
 }
 
-#aaoolmotym .gt_font_bold {
+#rlnrbzswwr .gt_font_bold {
   font-weight: bold;
 }
 
-#aaoolmotym .gt_font_italic {
+#rlnrbzswwr .gt_font_italic {
   font-style: italic;
 }
 
-#aaoolmotym .gt_super {
+#rlnrbzswwr .gt_super {
   font-size: 65%;
 }
 
-#aaoolmotym .gt_footnote_marks {
+#rlnrbzswwr .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#aaoolmotym .gt_asterisk {
+#rlnrbzswwr .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#aaoolmotym .gt_indent_1 {
+#rlnrbzswwr .gt_indent_1 {
   text-indent: 5px;
 }
 
-#aaoolmotym .gt_indent_2 {
+#rlnrbzswwr .gt_indent_2 {
   text-indent: 10px;
 }
 
-#aaoolmotym .gt_indent_3 {
+#rlnrbzswwr .gt_indent_3 {
   text-indent: 15px;
 }
 
-#aaoolmotym .gt_indent_4 {
+#rlnrbzswwr .gt_indent_4 {
   text-indent: 20px;
 }
 
-#aaoolmotym .gt_indent_5 {
+#rlnrbzswwr .gt_indent_5 {
   text-indent: 25px;
 }
 
-#aaoolmotym .katex-display {
+#rlnrbzswwr .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#aaoolmotym div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#rlnrbzswwr div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
-<table class="gt_table table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<table class="gt_table table table-sm table-striped small" data-quarto-bootstrap="false">
 <colgroup>
 <col style="width: 25%">
 <col style="width: 25%">
@@ -3040,7 +3043,7 @@ Femme     1</code></pre>
 <td class="gt_row gt_center" headers="p.value">&lt;0.001</td>
 </tr>
 </tbody>
-<tfoot class="gt_sourcenotes"><tr class="odd">
+<tfoot><tr class="gt_sourcenotes odd">
 <td colspan="4" class="gt_sourcenote">Abbreviations: CI = Confidence Interval, OR = Odds Ratio</td>
 </tr></tfoot>
 </table>
@@ -3049,14 +3052,11 @@ Femme     1</code></pre>
 </div>
 <p>Comme les modalités de référence ont changé, l’intercept et les différents termes ont également changé (puisque l’on ne compare plus à la même référence).</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1"></a>ggstats<span class="sc">::</span><span class="fu">ggcoef_compare</span>(</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb30"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1"></a>ggstats<span class="sc">::</span><span class="fu">ggcoef_compare</span>(</span>
 <span id="cb30-2"><a href="#cb30-2"></a>  <span class="fu">list</span>(mod2_trt, mod2_trt_bis),</span>
 <span id="cb30-3"><a href="#cb30-3"></a>  <span class="at">exponentiate =</span> <span class="cn">TRUE</span>,</span>
 <span id="cb30-4"><a href="#cb30-4"></a>  <span class="at">type =</span> <span class="st">"faceted"</span></span>
-<span id="cb30-5"><a href="#cb30-5"></a>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>`height` was translated to `width`.</code></pre>
-</div>
+<span id="cb30-5"><a href="#cb30-5"></a>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure"><p><a href="contrastes_files/figure-html/unnamed-chunk-18-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-2"><img src="contrastes_files/figure-html/unnamed-chunk-18-1.png" class="img-fluid figure-img" width="672"></a></p>
@@ -3066,7 +3066,7 @@ Femme     1</code></pre>
 </div>
 <p>Cependant, du point de vue explicatif et prédictif, les deux modèles sont rigoureusement identiques.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1"></a><span class="fu">anova</span>(mod2_trt, mod2_trt_bis, <span class="at">test =</span> <span class="st">"Chisq"</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb31"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1"></a><span class="fu">anova</span>(mod2_trt, mod2_trt_bis, <span class="at">test =</span> <span class="st">"Chisq"</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Analysis of Deviance Table
 
@@ -3079,15 +3079,12 @@ Model 2: sport ~ sexe + groupe_ages
 </div>
 <p>De même, leurs prédictions marginales (cf. <a href="estimations-marginales.html" class="quarto-xref"><span>Chapitre 25</span></a>) sont identiques.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1"></a>ggstats<span class="sc">::</span><span class="fu">ggcoef_compare</span>(</span>
-<span id="cb34-2"><a href="#cb34-2"></a>  <span class="fu">list</span>(mod2_trt, mod2_trt_bis),</span>
-<span id="cb34-3"><a href="#cb34-3"></a>  <span class="at">tidy_fun =</span> broom.helpers<span class="sc">::</span>tidy_marginal_predictions,</span>
-<span id="cb34-4"><a href="#cb34-4"></a>  <span class="at">type =</span> <span class="st">"dodge"</span>,</span>
-<span id="cb34-5"><a href="#cb34-5"></a>  <span class="at">vline =</span> <span class="cn">FALSE</span></span>
-<span id="cb34-6"><a href="#cb34-6"></a>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>`height` was translated to `width`.</code></pre>
-</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb33"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1"></a>ggstats<span class="sc">::</span><span class="fu">ggcoef_compare</span>(</span>
+<span id="cb33-2"><a href="#cb33-2"></a>  <span class="fu">list</span>(mod2_trt, mod2_trt_bis),</span>
+<span id="cb33-3"><a href="#cb33-3"></a>  <span class="at">tidy_fun =</span> broom.helpers<span class="sc">::</span>tidy_marginal_predictions,</span>
+<span id="cb33-4"><a href="#cb33-4"></a>  <span class="at">type =</span> <span class="st">"dodge"</span>,</span>
+<span id="cb33-5"><a href="#cb33-5"></a>  <span class="at">vline =</span> <span class="cn">FALSE</span></span>
+<span id="cb33-6"><a href="#cb33-6"></a>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure"><p><a href="contrastes_files/figure-html/unnamed-chunk-20-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-3"><img src="contrastes_files/figure-html/unnamed-chunk-20-1.png" class="img-fluid figure-img" width="672"></a></p>
@@ -3102,12 +3099,12 @@ Model 2: sport ~ sexe + groupe_ages
 <span class="header-section-number">26.2.1</span> Exemple 1 : un modèle linéaire avec une variable catégorielle</h3>
 <p>Reprenons notre premier exemple de tout à l’heure et modifions seulement le contraste.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1"></a><span class="fu">contrasts</span>(trial<span class="sc">$</span>grade) <span class="ot">&lt;-</span> contr.sum</span>
-<span id="cb36-2"><a href="#cb36-2"></a>mod1_sum <span class="ot">&lt;-</span> <span class="fu">lm</span>(</span>
-<span id="cb36-3"><a href="#cb36-3"></a>  marker <span class="sc">~</span> grade,</span>
-<span id="cb36-4"><a href="#cb36-4"></a>  <span class="at">data =</span> trial</span>
-<span id="cb36-5"><a href="#cb36-5"></a>)</span>
-<span id="cb36-6"><a href="#cb36-6"></a>mod1_sum</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb34"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1"></a><span class="fu">contrasts</span>(trial<span class="sc">$</span>grade) <span class="ot">&lt;-</span> contr.sum</span>
+<span id="cb34-2"><a href="#cb34-2"></a>mod1_sum <span class="ot">&lt;-</span> <span class="fu">lm</span>(</span>
+<span id="cb34-3"><a href="#cb34-3"></a>  marker <span class="sc">~</span> grade,</span>
+<span id="cb34-4"><a href="#cb34-4"></a>  <span class="at">data =</span> trial</span>
+<span id="cb34-5"><a href="#cb34-5"></a>)</span>
+<span id="cb34-6"><a href="#cb34-6"></a>mod1_sum</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 Call:
@@ -3120,15 +3117,15 @@ Coefficients:
 </div>
 <p>L’<em>intercept</em> correspond à ce qu’on appelle parfois la <q>grande moyenne</q> (ou <em>great average</em> en anglais). Il ne s’agit pas de la moyenne observée de <em>marker</em> mais de la moyenne des moyennes de chaque sous-groupe. Cela va constituer la situation de référence de notre modèle, en quelque sorte indépendante des effets de la variable <em>grade</em>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1"></a><span class="fu">mean</span>(trial<span class="sc">$</span>marker, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb36"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1"></a><span class="fu">mean</span>(trial<span class="sc">$</span>marker, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 0.9159895</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1"></a>moy_groupe <span class="ot">&lt;-</span></span>
-<span id="cb40-2"><a href="#cb40-2"></a>  trial <span class="sc">|&gt;</span> </span>
-<span id="cb40-3"><a href="#cb40-3"></a>  dplyr<span class="sc">::</span><span class="fu">group_by</span>(grade) <span class="sc">|&gt;</span> </span>
-<span id="cb40-4"><a href="#cb40-4"></a>  dplyr<span class="sc">::</span><span class="fu">summarise</span>(<span class="at">moyenne_marker =</span> <span class="fu">mean</span>(marker, <span class="at">na.rm =</span> <span class="cn">TRUE</span>))</span>
-<span id="cb40-5"><a href="#cb40-5"></a>moy_groupe</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb38"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1"></a>moy_groupe <span class="ot">&lt;-</span></span>
+<span id="cb38-2"><a href="#cb38-2"></a>  trial <span class="sc">|&gt;</span> </span>
+<span id="cb38-3"><a href="#cb38-3"></a>  dplyr<span class="sc">::</span><span class="fu">group_by</span>(grade) <span class="sc">|&gt;</span> </span>
+<span id="cb38-4"><a href="#cb38-4"></a>  dplyr<span class="sc">::</span><span class="fu">summarise</span>(<span class="at">moyenne_marker =</span> <span class="fu">mean</span>(marker, <span class="at">na.rm =</span> <span class="cn">TRUE</span>))</span>
+<span id="cb38-5"><a href="#cb38-5"></a>moy_groupe</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 3 × 2
   grade moyenne_marker
@@ -3137,7 +3134,7 @@ Coefficients:
 2 II             0.681
 3 III            0.996</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1"></a><span class="fu">mean</span>(moy_groupe<span class="sc">$</span>moyenne_marker)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb40"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1"></a><span class="fu">mean</span>(moy_groupe<span class="sc">$</span>moyenne_marker)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 0.9144384</code></pre>
 </div>
@@ -3146,7 +3143,7 @@ Coefficients:
 <p>De même, le terme <em>grade2</em> correspond à l’écart pour la modalité <em>II</em> par rapport à la grande moyenne&nbsp;: <code>0.6805 - 0.9144 = -0.2339</code>.</p>
 <p>Qu’en est-il de l’écart à la grande moyenne pour la modalité <em>III</em>&nbsp;? Pour cela, voyons tout d’abord comment la variable <em>grade</em> a été codée&nbsp;:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1"></a><span class="fu">contrasts</span>(trial<span class="sc">$</span>grade)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb42"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1"></a><span class="fu">contrasts</span>(trial<span class="sc">$</span>grade)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>    [,1] [,2]
 I      1    0
@@ -3158,30 +3155,30 @@ III   -1   -1</code></pre>
 <p>L’écart à la grande moyenne pour la troisième modalité s’obtient donc en faisant la somme des autres termes et en l’inversant&nbsp;: <code>(0.1525 - 0.2339) * -1 = 0.0814 = 0.9958 - 0.9144</code>.</p>
 <p>On peut calculer / afficher la valeur associée à la dernière modalité en précisant <code>add_estimate_to_reference_rows = TRUE</code> lorsque l’on appelle <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/tbl_regression.html">gtsummary::tbl_regression()</a></code>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1"></a>mod1_sum <span class="sc">|&gt;</span></span>
-<span id="cb46-2"><a href="#cb46-2"></a>  <span class="fu">tbl_regression</span>(</span>
-<span id="cb46-3"><a href="#cb46-3"></a>    <span class="at">intercept =</span> <span class="cn">TRUE</span>, </span>
-<span id="cb46-4"><a href="#cb46-4"></a>    <span class="at">add_estimate_to_reference_rows =</span> <span class="cn">TRUE</span></span>
-<span id="cb46-5"><a href="#cb46-5"></a>  ) <span class="sc">|&gt;</span> </span>
-<span id="cb46-6"><a href="#cb46-6"></a>  <span class="fu">bold_labels</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb44"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1"></a>mod1_sum <span class="sc">|&gt;</span></span>
+<span id="cb44-2"><a href="#cb44-2"></a>  <span class="fu">tbl_regression</span>(</span>
+<span id="cb44-3"><a href="#cb44-3"></a>    <span class="at">intercept =</span> <span class="cn">TRUE</span>, </span>
+<span id="cb44-4"><a href="#cb44-4"></a>    <span class="at">add_estimate_to_reference_rows =</span> <span class="cn">TRUE</span></span>
+<span id="cb44-5"><a href="#cb44-5"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb44-6"><a href="#cb44-6"></a>  <span class="fu">bold_labels</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
-<div id="ewsdayeitm" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#ewsdayeitm table {
+<div id="tvyrepwdzr" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#tvyrepwdzr table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#ewsdayeitm thead, #ewsdayeitm tbody, #ewsdayeitm tfoot, #ewsdayeitm tr, #ewsdayeitm td, #ewsdayeitm th {
+#tvyrepwdzr thead, #tvyrepwdzr tbody, #tvyrepwdzr tfoot, #tvyrepwdzr tr, #tvyrepwdzr td, #tvyrepwdzr th {
   border-style: none;
 }
 
-#ewsdayeitm p {
+#tvyrepwdzr p {
   margin: 0;
   padding: 0;
 }
 
-#ewsdayeitm .gt_table {
+#tvyrepwdzr .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -3207,12 +3204,12 @@ III   -1   -1</code></pre>
   border-left-color: #D3D3D3;
 }
 
-#ewsdayeitm .gt_caption {
+#tvyrepwdzr .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#ewsdayeitm .gt_title {
+#tvyrepwdzr .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -3224,7 +3221,7 @@ III   -1   -1</code></pre>
   border-bottom-width: 0;
 }
 
-#ewsdayeitm .gt_subtitle {
+#tvyrepwdzr .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -3236,7 +3233,7 @@ III   -1   -1</code></pre>
   border-top-width: 0;
 }
 
-#ewsdayeitm .gt_heading {
+#tvyrepwdzr .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -3248,13 +3245,13 @@ III   -1   -1</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#ewsdayeitm .gt_bottom_border {
+#tvyrepwdzr .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#ewsdayeitm .gt_col_headings {
+#tvyrepwdzr .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -3269,7 +3266,7 @@ III   -1   -1</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#ewsdayeitm .gt_col_heading {
+#tvyrepwdzr .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -3289,7 +3286,7 @@ III   -1   -1</code></pre>
   overflow-x: hidden;
 }
 
-#ewsdayeitm .gt_column_spanner_outer {
+#tvyrepwdzr .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -3301,15 +3298,15 @@ III   -1   -1</code></pre>
   padding-right: 4px;
 }
 
-#ewsdayeitm .gt_column_spanner_outer:first-child {
+#tvyrepwdzr .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#ewsdayeitm .gt_column_spanner_outer:last-child {
+#tvyrepwdzr .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#ewsdayeitm .gt_column_spanner {
+#tvyrepwdzr .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -3321,11 +3318,11 @@ III   -1   -1</code></pre>
   width: 100%;
 }
 
-#ewsdayeitm .gt_spanner_row {
+#tvyrepwdzr .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#ewsdayeitm .gt_group_heading {
+#tvyrepwdzr .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -3351,7 +3348,7 @@ III   -1   -1</code></pre>
   text-align: left;
 }
 
-#ewsdayeitm .gt_empty_group_heading {
+#tvyrepwdzr .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -3366,15 +3363,15 @@ III   -1   -1</code></pre>
   vertical-align: middle;
 }
 
-#ewsdayeitm .gt_from_md > :first-child {
+#tvyrepwdzr .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#ewsdayeitm .gt_from_md > :last-child {
+#tvyrepwdzr .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#ewsdayeitm .gt_row {
+#tvyrepwdzr .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -3393,7 +3390,7 @@ III   -1   -1</code></pre>
   overflow-x: hidden;
 }
 
-#ewsdayeitm .gt_stub {
+#tvyrepwdzr .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -3406,7 +3403,7 @@ III   -1   -1</code></pre>
   padding-right: 5px;
 }
 
-#ewsdayeitm .gt_stub_row_group {
+#tvyrepwdzr .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -3420,15 +3417,15 @@ III   -1   -1</code></pre>
   vertical-align: top;
 }
 
-#ewsdayeitm .gt_row_group_first td {
+#tvyrepwdzr .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#ewsdayeitm .gt_row_group_first th {
+#tvyrepwdzr .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#ewsdayeitm .gt_summary_row {
+#tvyrepwdzr .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -3438,16 +3435,16 @@ III   -1   -1</code></pre>
   padding-right: 5px;
 }
 
-#ewsdayeitm .gt_first_summary_row {
+#tvyrepwdzr .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#ewsdayeitm .gt_first_summary_row.thick {
+#tvyrepwdzr .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#ewsdayeitm .gt_last_summary_row {
+#tvyrepwdzr .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -3457,7 +3454,7 @@ III   -1   -1</code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#ewsdayeitm .gt_grand_summary_row {
+#tvyrepwdzr .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -3467,7 +3464,7 @@ III   -1   -1</code></pre>
   padding-right: 5px;
 }
 
-#ewsdayeitm .gt_first_grand_summary_row {
+#tvyrepwdzr .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -3477,7 +3474,7 @@ III   -1   -1</code></pre>
   border-top-color: #D3D3D3;
 }
 
-#ewsdayeitm .gt_last_grand_summary_row_top {
+#tvyrepwdzr .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -3487,11 +3484,11 @@ III   -1   -1</code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#ewsdayeitm .gt_striped {
+#tvyrepwdzr .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#ewsdayeitm .gt_table_body {
+#tvyrepwdzr .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -3500,7 +3497,7 @@ III   -1   -1</code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#ewsdayeitm .gt_footnotes {
+#tvyrepwdzr .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -3514,7 +3511,7 @@ III   -1   -1</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#ewsdayeitm .gt_footnote {
+#tvyrepwdzr .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -3523,7 +3520,7 @@ III   -1   -1</code></pre>
   padding-right: 5px;
 }
 
-#ewsdayeitm .gt_sourcenotes {
+#tvyrepwdzr .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -3537,7 +3534,7 @@ III   -1   -1</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#ewsdayeitm .gt_sourcenote {
+#tvyrepwdzr .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -3545,76 +3542,76 @@ III   -1   -1</code></pre>
   padding-right: 5px;
 }
 
-#ewsdayeitm .gt_left {
+#tvyrepwdzr .gt_left {
   text-align: left;
 }
 
-#ewsdayeitm .gt_center {
+#tvyrepwdzr .gt_center {
   text-align: center;
 }
 
-#ewsdayeitm .gt_right {
+#tvyrepwdzr .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#ewsdayeitm .gt_font_normal {
+#tvyrepwdzr .gt_font_normal {
   font-weight: normal;
 }
 
-#ewsdayeitm .gt_font_bold {
+#tvyrepwdzr .gt_font_bold {
   font-weight: bold;
 }
 
-#ewsdayeitm .gt_font_italic {
+#tvyrepwdzr .gt_font_italic {
   font-style: italic;
 }
 
-#ewsdayeitm .gt_super {
+#tvyrepwdzr .gt_super {
   font-size: 65%;
 }
 
-#ewsdayeitm .gt_footnote_marks {
+#tvyrepwdzr .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#ewsdayeitm .gt_asterisk {
+#tvyrepwdzr .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#ewsdayeitm .gt_indent_1 {
+#tvyrepwdzr .gt_indent_1 {
   text-indent: 5px;
 }
 
-#ewsdayeitm .gt_indent_2 {
+#tvyrepwdzr .gt_indent_2 {
   text-indent: 10px;
 }
 
-#ewsdayeitm .gt_indent_3 {
+#tvyrepwdzr .gt_indent_3 {
   text-indent: 15px;
 }
 
-#ewsdayeitm .gt_indent_4 {
+#tvyrepwdzr .gt_indent_4 {
   text-indent: 20px;
 }
 
-#ewsdayeitm .gt_indent_5 {
+#tvyrepwdzr .gt_indent_5 {
   text-indent: 25px;
 }
 
-#ewsdayeitm .katex-display {
+#tvyrepwdzr .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#ewsdayeitm div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#tvyrepwdzr div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
-<table class="gt_table table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<table class="gt_table table table-sm table-striped small" data-quarto-bootstrap="false">
 <colgroup>
 <col style="width: 25%">
 <col style="width: 25%">
@@ -3659,7 +3656,7 @@ III   -1   -1</code></pre>
 <td class="gt_row gt_center" headers="p.value">0.4</td>
 </tr>
 </tbody>
-<tfoot class="gt_sourcenotes"><tr class="odd">
+<tfoot><tr class="gt_sourcenotes odd">
 <td colspan="4" class="gt_sourcenote">Abbreviation: CI = Confidence Interval</td>
 </tr></tfoot>
 </table>
@@ -3668,10 +3665,7 @@ III   -1   -1</code></pre>
 </div>
 <p>De même, cette valeur est correctement affichée par <code><a href="https://larmarange.github.io/ggstats/reference/ggcoef_model.html">ggstats::ggcoef_model()</a></code>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1"></a>ggstats<span class="sc">::</span><span class="fu">ggcoef_model</span>(mod1_sum)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>`height` was translated to `width`.</code></pre>
-</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb45"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1"></a>ggstats<span class="sc">::</span><span class="fu">ggcoef_model</span>(mod1_sum)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure"><p><a href="contrastes_files/figure-html/unnamed-chunk-25-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-4"><img src="contrastes_files/figure-html/unnamed-chunk-25-1.png" class="img-fluid figure-img" width="672"></a></p>
@@ -3681,7 +3675,7 @@ III   -1   -1</code></pre>
 </div>
 <p>Le fait d’utiliser des contrastes de type <q>traitement</q> ou <q>somme</q> n’a aucun impact sur la valeur prédictive du modèle. La quantité de variance expliquée, la somme des résidus ou encore l’AIC sont identiques. En un sens, il s’agit du même modèle. C’est seulement la manière d’interpréter les coefficients du modèle qui change.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb49"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1"></a><span class="fu">anova</span>(mod1_trt, mod1_sum, <span class="at">test =</span> <span class="st">"Chisq"</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb46"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1"></a><span class="fu">anova</span>(mod1_trt, mod1_sum, <span class="at">test =</span> <span class="st">"Chisq"</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Analysis of Variance Table
 
@@ -3696,37 +3690,37 @@ Model 2: marker ~ grade
 <span class="header-section-number">26.2.2</span> Exemple 2 : une régression logistique avec deux variables catégorielles</h3>
 <p>Reprenons notre second exemple et codons les variables catégorielles avec un traitement de type <q>somme</q>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1"></a>mod2_sum <span class="ot">&lt;-</span> <span class="fu">glm</span>(</span>
-<span id="cb51-2"><a href="#cb51-2"></a>  sport <span class="sc">~</span> sexe <span class="sc">+</span> groupe_ages,</span>
-<span id="cb51-3"><a href="#cb51-3"></a>  <span class="at">family =</span> binomial,</span>
-<span id="cb51-4"><a href="#cb51-4"></a>  <span class="at">data =</span> hdv2003,</span>
-<span id="cb51-5"><a href="#cb51-5"></a>  <span class="at">contrasts =</span> <span class="fu">list</span>(<span class="at">sexe =</span> contr.sum, <span class="at">groupe_ages =</span> contr.sum)</span>
-<span id="cb51-6"><a href="#cb51-6"></a>)</span>
-<span id="cb51-7"><a href="#cb51-7"></a>mod2_sum <span class="sc">|&gt;</span></span>
-<span id="cb51-8"><a href="#cb51-8"></a>  <span class="fu">tbl_regression</span>(</span>
-<span id="cb51-9"><a href="#cb51-9"></a>    <span class="at">exponentiate =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb51-10"><a href="#cb51-10"></a>    <span class="at">intercept =</span> <span class="cn">TRUE</span>, </span>
-<span id="cb51-11"><a href="#cb51-11"></a>    <span class="at">add_estimate_to_reference_rows =</span> <span class="cn">TRUE</span></span>
-<span id="cb51-12"><a href="#cb51-12"></a>  ) <span class="sc">|&gt;</span> </span>
-<span id="cb51-13"><a href="#cb51-13"></a>  <span class="fu">bold_labels</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb48"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1"></a>mod2_sum <span class="ot">&lt;-</span> <span class="fu">glm</span>(</span>
+<span id="cb48-2"><a href="#cb48-2"></a>  sport <span class="sc">~</span> sexe <span class="sc">+</span> groupe_ages,</span>
+<span id="cb48-3"><a href="#cb48-3"></a>  <span class="at">family =</span> binomial,</span>
+<span id="cb48-4"><a href="#cb48-4"></a>  <span class="at">data =</span> hdv2003,</span>
+<span id="cb48-5"><a href="#cb48-5"></a>  <span class="at">contrasts =</span> <span class="fu">list</span>(<span class="at">sexe =</span> contr.sum, <span class="at">groupe_ages =</span> contr.sum)</span>
+<span id="cb48-6"><a href="#cb48-6"></a>)</span>
+<span id="cb48-7"><a href="#cb48-7"></a>mod2_sum <span class="sc">|&gt;</span></span>
+<span id="cb48-8"><a href="#cb48-8"></a>  <span class="fu">tbl_regression</span>(</span>
+<span id="cb48-9"><a href="#cb48-9"></a>    <span class="at">exponentiate =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb48-10"><a href="#cb48-10"></a>    <span class="at">intercept =</span> <span class="cn">TRUE</span>, </span>
+<span id="cb48-11"><a href="#cb48-11"></a>    <span class="at">add_estimate_to_reference_rows =</span> <span class="cn">TRUE</span></span>
+<span id="cb48-12"><a href="#cb48-12"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb48-13"><a href="#cb48-13"></a>  <span class="fu">bold_labels</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
-<div id="mbsazjnsdb" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#mbsazjnsdb table {
+<div id="wwdjmuxhjq" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#wwdjmuxhjq table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#mbsazjnsdb thead, #mbsazjnsdb tbody, #mbsazjnsdb tfoot, #mbsazjnsdb tr, #mbsazjnsdb td, #mbsazjnsdb th {
+#wwdjmuxhjq thead, #wwdjmuxhjq tbody, #wwdjmuxhjq tfoot, #wwdjmuxhjq tr, #wwdjmuxhjq td, #wwdjmuxhjq th {
   border-style: none;
 }
 
-#mbsazjnsdb p {
+#wwdjmuxhjq p {
   margin: 0;
   padding: 0;
 }
 
-#mbsazjnsdb .gt_table {
+#wwdjmuxhjq .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -3752,12 +3746,12 @@ Model 2: marker ~ grade
   border-left-color: #D3D3D3;
 }
 
-#mbsazjnsdb .gt_caption {
+#wwdjmuxhjq .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#mbsazjnsdb .gt_title {
+#wwdjmuxhjq .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -3769,7 +3763,7 @@ Model 2: marker ~ grade
   border-bottom-width: 0;
 }
 
-#mbsazjnsdb .gt_subtitle {
+#wwdjmuxhjq .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -3781,7 +3775,7 @@ Model 2: marker ~ grade
   border-top-width: 0;
 }
 
-#mbsazjnsdb .gt_heading {
+#wwdjmuxhjq .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -3793,13 +3787,13 @@ Model 2: marker ~ grade
   border-right-color: #D3D3D3;
 }
 
-#mbsazjnsdb .gt_bottom_border {
+#wwdjmuxhjq .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#mbsazjnsdb .gt_col_headings {
+#wwdjmuxhjq .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -3814,7 +3808,7 @@ Model 2: marker ~ grade
   border-right-color: #D3D3D3;
 }
 
-#mbsazjnsdb .gt_col_heading {
+#wwdjmuxhjq .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -3834,7 +3828,7 @@ Model 2: marker ~ grade
   overflow-x: hidden;
 }
 
-#mbsazjnsdb .gt_column_spanner_outer {
+#wwdjmuxhjq .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -3846,15 +3840,15 @@ Model 2: marker ~ grade
   padding-right: 4px;
 }
 
-#mbsazjnsdb .gt_column_spanner_outer:first-child {
+#wwdjmuxhjq .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#mbsazjnsdb .gt_column_spanner_outer:last-child {
+#wwdjmuxhjq .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#mbsazjnsdb .gt_column_spanner {
+#wwdjmuxhjq .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -3866,11 +3860,11 @@ Model 2: marker ~ grade
   width: 100%;
 }
 
-#mbsazjnsdb .gt_spanner_row {
+#wwdjmuxhjq .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#mbsazjnsdb .gt_group_heading {
+#wwdjmuxhjq .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -3896,7 +3890,7 @@ Model 2: marker ~ grade
   text-align: left;
 }
 
-#mbsazjnsdb .gt_empty_group_heading {
+#wwdjmuxhjq .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -3911,15 +3905,15 @@ Model 2: marker ~ grade
   vertical-align: middle;
 }
 
-#mbsazjnsdb .gt_from_md > :first-child {
+#wwdjmuxhjq .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#mbsazjnsdb .gt_from_md > :last-child {
+#wwdjmuxhjq .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#mbsazjnsdb .gt_row {
+#wwdjmuxhjq .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -3938,7 +3932,7 @@ Model 2: marker ~ grade
   overflow-x: hidden;
 }
 
-#mbsazjnsdb .gt_stub {
+#wwdjmuxhjq .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -3951,7 +3945,7 @@ Model 2: marker ~ grade
   padding-right: 5px;
 }
 
-#mbsazjnsdb .gt_stub_row_group {
+#wwdjmuxhjq .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -3965,15 +3959,15 @@ Model 2: marker ~ grade
   vertical-align: top;
 }
 
-#mbsazjnsdb .gt_row_group_first td {
+#wwdjmuxhjq .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#mbsazjnsdb .gt_row_group_first th {
+#wwdjmuxhjq .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#mbsazjnsdb .gt_summary_row {
+#wwdjmuxhjq .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -3983,16 +3977,16 @@ Model 2: marker ~ grade
   padding-right: 5px;
 }
 
-#mbsazjnsdb .gt_first_summary_row {
+#wwdjmuxhjq .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#mbsazjnsdb .gt_first_summary_row.thick {
+#wwdjmuxhjq .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#mbsazjnsdb .gt_last_summary_row {
+#wwdjmuxhjq .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -4002,7 +3996,7 @@ Model 2: marker ~ grade
   border-bottom-color: #D3D3D3;
 }
 
-#mbsazjnsdb .gt_grand_summary_row {
+#wwdjmuxhjq .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -4012,7 +4006,7 @@ Model 2: marker ~ grade
   padding-right: 5px;
 }
 
-#mbsazjnsdb .gt_first_grand_summary_row {
+#wwdjmuxhjq .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -4022,7 +4016,7 @@ Model 2: marker ~ grade
   border-top-color: #D3D3D3;
 }
 
-#mbsazjnsdb .gt_last_grand_summary_row_top {
+#wwdjmuxhjq .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -4032,11 +4026,11 @@ Model 2: marker ~ grade
   border-bottom-color: #D3D3D3;
 }
 
-#mbsazjnsdb .gt_striped {
+#wwdjmuxhjq .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#mbsazjnsdb .gt_table_body {
+#wwdjmuxhjq .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -4045,7 +4039,7 @@ Model 2: marker ~ grade
   border-bottom-color: #D3D3D3;
 }
 
-#mbsazjnsdb .gt_footnotes {
+#wwdjmuxhjq .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -4059,7 +4053,7 @@ Model 2: marker ~ grade
   border-right-color: #D3D3D3;
 }
 
-#mbsazjnsdb .gt_footnote {
+#wwdjmuxhjq .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -4068,7 +4062,7 @@ Model 2: marker ~ grade
   padding-right: 5px;
 }
 
-#mbsazjnsdb .gt_sourcenotes {
+#wwdjmuxhjq .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -4082,7 +4076,7 @@ Model 2: marker ~ grade
   border-right-color: #D3D3D3;
 }
 
-#mbsazjnsdb .gt_sourcenote {
+#wwdjmuxhjq .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -4090,76 +4084,76 @@ Model 2: marker ~ grade
   padding-right: 5px;
 }
 
-#mbsazjnsdb .gt_left {
+#wwdjmuxhjq .gt_left {
   text-align: left;
 }
 
-#mbsazjnsdb .gt_center {
+#wwdjmuxhjq .gt_center {
   text-align: center;
 }
 
-#mbsazjnsdb .gt_right {
+#wwdjmuxhjq .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#mbsazjnsdb .gt_font_normal {
+#wwdjmuxhjq .gt_font_normal {
   font-weight: normal;
 }
 
-#mbsazjnsdb .gt_font_bold {
+#wwdjmuxhjq .gt_font_bold {
   font-weight: bold;
 }
 
-#mbsazjnsdb .gt_font_italic {
+#wwdjmuxhjq .gt_font_italic {
   font-style: italic;
 }
 
-#mbsazjnsdb .gt_super {
+#wwdjmuxhjq .gt_super {
   font-size: 65%;
 }
 
-#mbsazjnsdb .gt_footnote_marks {
+#wwdjmuxhjq .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#mbsazjnsdb .gt_asterisk {
+#wwdjmuxhjq .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#mbsazjnsdb .gt_indent_1 {
+#wwdjmuxhjq .gt_indent_1 {
   text-indent: 5px;
 }
 
-#mbsazjnsdb .gt_indent_2 {
+#wwdjmuxhjq .gt_indent_2 {
   text-indent: 10px;
 }
 
-#mbsazjnsdb .gt_indent_3 {
+#wwdjmuxhjq .gt_indent_3 {
   text-indent: 15px;
 }
 
-#mbsazjnsdb .gt_indent_4 {
+#wwdjmuxhjq .gt_indent_4 {
   text-indent: 20px;
 }
 
-#mbsazjnsdb .gt_indent_5 {
+#wwdjmuxhjq .gt_indent_5 {
   text-indent: 25px;
 }
 
-#mbsazjnsdb .katex-display {
+#wwdjmuxhjq .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#mbsazjnsdb div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#wwdjmuxhjq div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
-<table class="gt_table table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<table class="gt_table table table-sm table-striped small" data-quarto-bootstrap="false">
 <colgroup>
 <col style="width: 25%">
 <col style="width: 25%">
@@ -4228,7 +4222,7 @@ Model 2: marker ~ grade
 <td class="gt_row gt_center" headers="p.value">&lt;0.001</td>
 </tr>
 </tbody>
-<tfoot class="gt_sourcenotes"><tr class="odd">
+<tfoot><tr class="gt_sourcenotes odd">
 <td colspan="4" class="gt_sourcenote">Abbreviations: CI = Confidence Interval, OR = Odds Ratio</td>
 </tr></tfoot>
 </table>
@@ -4236,10 +4230,7 @@ Model 2: marker ~ grade
 </div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb52"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1"></a>ggstats<span class="sc">::</span><span class="fu">ggcoef_model</span>(mod2_sum, <span class="at">exponentiate =</span> <span class="cn">TRUE</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>`height` was translated to `width`.</code></pre>
-</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb49"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1"></a>ggstats<span class="sc">::</span><span class="fu">ggcoef_model</span>(mod2_sum, <span class="at">exponentiate =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure"><p><a href="contrastes_files/figure-html/unnamed-chunk-28-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-5"><img src="contrastes_files/figure-html/unnamed-chunk-28-1.png" class="img-fluid figure-img" width="672"></a></p>
@@ -4250,7 +4241,7 @@ Model 2: marker ~ grade
 <p>Cette fois-ci, l’<em>intercept</em> capture la situation à la <q>grande moyenne</q> à la fois du sexe et du groupe d’âges, et les coefficients s’interprètent donc comme modificateurs de chaque modalité par rapport à cette <q>grande moyenne</q>. En ce sens, les contrastes de type <q>somme</q> permettent donc de capturer l’effet de chaque modalité.</p>
 <p>Du point de vue explicatif et prédictif, le fait d’avoir recours à des contrastes de type somme ou traitement n’a aucun impact&nbsp;: les deux modèles sont rigoureusement identiques. Il n’y a que la manière d’interpréter les coefficients qui change.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb54"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1"></a><span class="fu">anova</span>(mod2_trt, mod2_sum, <span class="at">test =</span> <span class="st">"Chisq"</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb50"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1"></a><span class="fu">anova</span>(mod2_trt, mod2_sum, <span class="at">test =</span> <span class="st">"Chisq"</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Analysis of Deviance Table
 
@@ -4263,15 +4254,12 @@ Model 2: sport ~ sexe + groupe_ages
 </div>
 <p>Les prédictions marginales (cf. <a href="estimations-marginales.html" class="quarto-xref"><span>Chapitre 25</span></a>) sont identiques.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb56"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1"></a>ggstats<span class="sc">::</span><span class="fu">ggcoef_compare</span>(</span>
-<span id="cb56-2"><a href="#cb56-2"></a>  <span class="fu">list</span>(mod2_trt, mod2_sum),</span>
-<span id="cb56-3"><a href="#cb56-3"></a>  <span class="at">tidy_fun =</span> broom.helpers<span class="sc">::</span>tidy_marginal_predictions,</span>
-<span id="cb56-4"><a href="#cb56-4"></a>  <span class="at">type =</span> <span class="st">"dodge"</span>,</span>
-<span id="cb56-5"><a href="#cb56-5"></a>  <span class="at">vline =</span> <span class="cn">FALSE</span></span>
-<span id="cb56-6"><a href="#cb56-6"></a>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>`height` was translated to `width`.</code></pre>
-</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb52"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1"></a>ggstats<span class="sc">::</span><span class="fu">ggcoef_compare</span>(</span>
+<span id="cb52-2"><a href="#cb52-2"></a>  <span class="fu">list</span>(mod2_trt, mod2_sum),</span>
+<span id="cb52-3"><a href="#cb52-3"></a>  <span class="at">tidy_fun =</span> broom.helpers<span class="sc">::</span>tidy_marginal_predictions,</span>
+<span id="cb52-4"><a href="#cb52-4"></a>  <span class="at">type =</span> <span class="st">"dodge"</span>,</span>
+<span id="cb52-5"><a href="#cb52-5"></a>  <span class="at">vline =</span> <span class="cn">FALSE</span></span>
+<span id="cb52-6"><a href="#cb52-6"></a>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure"><p><a href="contrastes_files/figure-html/unnamed-chunk-30-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-6"><img src="contrastes_files/figure-html/unnamed-chunk-30-1.png" class="img-fluid figure-img" width="672"></a></p>
@@ -4286,32 +4274,32 @@ Model 2: sport ~ sexe + groupe_ages
 <section id="exemple-1-un-modèle-linéaire-avec-une-variable-catégorielle-2" class="level3 page-columns page-full" data-number="26.3.1"><h3 data-number="26.3.1" class="anchored" data-anchor-id="exemple-1-un-modèle-linéaire-avec-une-variable-catégorielle-2">
 <span class="header-section-number">26.3.1</span> Exemple 1 : un modèle linéaire avec une variable catégorielle</h3>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb58"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb58-1"><a href="#cb58-1"></a>mod1_sdif <span class="ot">&lt;-</span> <span class="fu">lm</span>(</span>
-<span id="cb58-2"><a href="#cb58-2"></a>  marker <span class="sc">~</span> grade,</span>
-<span id="cb58-3"><a href="#cb58-3"></a>  <span class="at">data =</span> trial,</span>
-<span id="cb58-4"><a href="#cb58-4"></a>  <span class="at">contrasts =</span> <span class="fu">list</span>(<span class="at">grade =</span> MASS<span class="sc">::</span>contr.sdif)</span>
-<span id="cb58-5"><a href="#cb58-5"></a>)</span>
-<span id="cb58-6"><a href="#cb58-6"></a>mod1_sdif <span class="sc">|&gt;</span> </span>
-<span id="cb58-7"><a href="#cb58-7"></a>  <span class="fu">tbl_regression</span>(<span class="at">intercept =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb58-8"><a href="#cb58-8"></a>  <span class="fu">bold_labels</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb53"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1"></a>mod1_sdif <span class="ot">&lt;-</span> <span class="fu">lm</span>(</span>
+<span id="cb53-2"><a href="#cb53-2"></a>  marker <span class="sc">~</span> grade,</span>
+<span id="cb53-3"><a href="#cb53-3"></a>  <span class="at">data =</span> trial,</span>
+<span id="cb53-4"><a href="#cb53-4"></a>  <span class="at">contrasts =</span> <span class="fu">list</span>(<span class="at">grade =</span> MASS<span class="sc">::</span>contr.sdif)</span>
+<span id="cb53-5"><a href="#cb53-5"></a>)</span>
+<span id="cb53-6"><a href="#cb53-6"></a>mod1_sdif <span class="sc">|&gt;</span> </span>
+<span id="cb53-7"><a href="#cb53-7"></a>  <span class="fu">tbl_regression</span>(<span class="at">intercept =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb53-8"><a href="#cb53-8"></a>  <span class="fu">bold_labels</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
-<div id="ftijdybjni" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#ftijdybjni table {
+<div id="hufcteoknr" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#hufcteoknr table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#ftijdybjni thead, #ftijdybjni tbody, #ftijdybjni tfoot, #ftijdybjni tr, #ftijdybjni td, #ftijdybjni th {
+#hufcteoknr thead, #hufcteoknr tbody, #hufcteoknr tfoot, #hufcteoknr tr, #hufcteoknr td, #hufcteoknr th {
   border-style: none;
 }
 
-#ftijdybjni p {
+#hufcteoknr p {
   margin: 0;
   padding: 0;
 }
 
-#ftijdybjni .gt_table {
+#hufcteoknr .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -4337,12 +4325,12 @@ Model 2: sport ~ sexe + groupe_ages
   border-left-color: #D3D3D3;
 }
 
-#ftijdybjni .gt_caption {
+#hufcteoknr .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#ftijdybjni .gt_title {
+#hufcteoknr .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -4354,7 +4342,7 @@ Model 2: sport ~ sexe + groupe_ages
   border-bottom-width: 0;
 }
 
-#ftijdybjni .gt_subtitle {
+#hufcteoknr .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -4366,7 +4354,7 @@ Model 2: sport ~ sexe + groupe_ages
   border-top-width: 0;
 }
 
-#ftijdybjni .gt_heading {
+#hufcteoknr .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -4378,13 +4366,13 @@ Model 2: sport ~ sexe + groupe_ages
   border-right-color: #D3D3D3;
 }
 
-#ftijdybjni .gt_bottom_border {
+#hufcteoknr .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#ftijdybjni .gt_col_headings {
+#hufcteoknr .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -4399,7 +4387,7 @@ Model 2: sport ~ sexe + groupe_ages
   border-right-color: #D3D3D3;
 }
 
-#ftijdybjni .gt_col_heading {
+#hufcteoknr .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -4419,7 +4407,7 @@ Model 2: sport ~ sexe + groupe_ages
   overflow-x: hidden;
 }
 
-#ftijdybjni .gt_column_spanner_outer {
+#hufcteoknr .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -4431,15 +4419,15 @@ Model 2: sport ~ sexe + groupe_ages
   padding-right: 4px;
 }
 
-#ftijdybjni .gt_column_spanner_outer:first-child {
+#hufcteoknr .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#ftijdybjni .gt_column_spanner_outer:last-child {
+#hufcteoknr .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#ftijdybjni .gt_column_spanner {
+#hufcteoknr .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -4451,11 +4439,11 @@ Model 2: sport ~ sexe + groupe_ages
   width: 100%;
 }
 
-#ftijdybjni .gt_spanner_row {
+#hufcteoknr .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#ftijdybjni .gt_group_heading {
+#hufcteoknr .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -4481,7 +4469,7 @@ Model 2: sport ~ sexe + groupe_ages
   text-align: left;
 }
 
-#ftijdybjni .gt_empty_group_heading {
+#hufcteoknr .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -4496,15 +4484,15 @@ Model 2: sport ~ sexe + groupe_ages
   vertical-align: middle;
 }
 
-#ftijdybjni .gt_from_md > :first-child {
+#hufcteoknr .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#ftijdybjni .gt_from_md > :last-child {
+#hufcteoknr .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#ftijdybjni .gt_row {
+#hufcteoknr .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -4523,7 +4511,7 @@ Model 2: sport ~ sexe + groupe_ages
   overflow-x: hidden;
 }
 
-#ftijdybjni .gt_stub {
+#hufcteoknr .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -4536,7 +4524,7 @@ Model 2: sport ~ sexe + groupe_ages
   padding-right: 5px;
 }
 
-#ftijdybjni .gt_stub_row_group {
+#hufcteoknr .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -4550,15 +4538,15 @@ Model 2: sport ~ sexe + groupe_ages
   vertical-align: top;
 }
 
-#ftijdybjni .gt_row_group_first td {
+#hufcteoknr .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#ftijdybjni .gt_row_group_first th {
+#hufcteoknr .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#ftijdybjni .gt_summary_row {
+#hufcteoknr .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -4568,16 +4556,16 @@ Model 2: sport ~ sexe + groupe_ages
   padding-right: 5px;
 }
 
-#ftijdybjni .gt_first_summary_row {
+#hufcteoknr .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#ftijdybjni .gt_first_summary_row.thick {
+#hufcteoknr .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#ftijdybjni .gt_last_summary_row {
+#hufcteoknr .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -4587,7 +4575,7 @@ Model 2: sport ~ sexe + groupe_ages
   border-bottom-color: #D3D3D3;
 }
 
-#ftijdybjni .gt_grand_summary_row {
+#hufcteoknr .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -4597,7 +4585,7 @@ Model 2: sport ~ sexe + groupe_ages
   padding-right: 5px;
 }
 
-#ftijdybjni .gt_first_grand_summary_row {
+#hufcteoknr .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -4607,7 +4595,7 @@ Model 2: sport ~ sexe + groupe_ages
   border-top-color: #D3D3D3;
 }
 
-#ftijdybjni .gt_last_grand_summary_row_top {
+#hufcteoknr .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -4617,11 +4605,11 @@ Model 2: sport ~ sexe + groupe_ages
   border-bottom-color: #D3D3D3;
 }
 
-#ftijdybjni .gt_striped {
+#hufcteoknr .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#ftijdybjni .gt_table_body {
+#hufcteoknr .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -4630,7 +4618,7 @@ Model 2: sport ~ sexe + groupe_ages
   border-bottom-color: #D3D3D3;
 }
 
-#ftijdybjni .gt_footnotes {
+#hufcteoknr .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -4644,7 +4632,7 @@ Model 2: sport ~ sexe + groupe_ages
   border-right-color: #D3D3D3;
 }
 
-#ftijdybjni .gt_footnote {
+#hufcteoknr .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -4653,7 +4641,7 @@ Model 2: sport ~ sexe + groupe_ages
   padding-right: 5px;
 }
 
-#ftijdybjni .gt_sourcenotes {
+#hufcteoknr .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -4667,7 +4655,7 @@ Model 2: sport ~ sexe + groupe_ages
   border-right-color: #D3D3D3;
 }
 
-#ftijdybjni .gt_sourcenote {
+#hufcteoknr .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -4675,76 +4663,76 @@ Model 2: sport ~ sexe + groupe_ages
   padding-right: 5px;
 }
 
-#ftijdybjni .gt_left {
+#hufcteoknr .gt_left {
   text-align: left;
 }
 
-#ftijdybjni .gt_center {
+#hufcteoknr .gt_center {
   text-align: center;
 }
 
-#ftijdybjni .gt_right {
+#hufcteoknr .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#ftijdybjni .gt_font_normal {
+#hufcteoknr .gt_font_normal {
   font-weight: normal;
 }
 
-#ftijdybjni .gt_font_bold {
+#hufcteoknr .gt_font_bold {
   font-weight: bold;
 }
 
-#ftijdybjni .gt_font_italic {
+#hufcteoknr .gt_font_italic {
   font-style: italic;
 }
 
-#ftijdybjni .gt_super {
+#hufcteoknr .gt_super {
   font-size: 65%;
 }
 
-#ftijdybjni .gt_footnote_marks {
+#hufcteoknr .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#ftijdybjni .gt_asterisk {
+#hufcteoknr .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#ftijdybjni .gt_indent_1 {
+#hufcteoknr .gt_indent_1 {
   text-indent: 5px;
 }
 
-#ftijdybjni .gt_indent_2 {
+#hufcteoknr .gt_indent_2 {
   text-indent: 10px;
 }
 
-#ftijdybjni .gt_indent_3 {
+#hufcteoknr .gt_indent_3 {
   text-indent: 15px;
 }
 
-#ftijdybjni .gt_indent_4 {
+#hufcteoknr .gt_indent_4 {
   text-indent: 20px;
 }
 
-#ftijdybjni .gt_indent_5 {
+#hufcteoknr .gt_indent_5 {
   text-indent: 25px;
 }
 
-#ftijdybjni .katex-display {
+#hufcteoknr .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#ftijdybjni div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#hufcteoknr div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
-<table class="gt_table table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<table class="gt_table table table-sm table-striped small" data-quarto-bootstrap="false">
 <colgroup>
 <col style="width: 25%">
 <col style="width: 25%">
@@ -4783,7 +4771,7 @@ Model 2: sport ~ sexe + groupe_ages
 <td class="gt_row gt_center" headers="p.value">0.040</td>
 </tr>
 </tbody>
-<tfoot class="gt_sourcenotes"><tr class="odd">
+<tfoot><tr class="gt_sourcenotes odd">
 <td colspan="4" class="gt_sourcenote">Abbreviation: CI = Confidence Interval</td>
 </tr></tfoot>
 </table>
@@ -4792,14 +4780,14 @@ Model 2: sport ~ sexe + groupe_ages
 </div>
 <p>En premier lieu, on notera que l’<em>intercept</em>, comme avec les contrastes de type somme, correspond ici à la grande moyenne.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb59"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb59-1"><a href="#cb59-1"></a><span class="fu">mean</span>(moy_groupe<span class="sc">$</span>moyenne_marker)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb54"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1"></a><span class="fu">mean</span>(moy_groupe<span class="sc">$</span>moyenne_marker)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 0.9144384</code></pre>
 </div>
 </div>
 <p>Cela est lié au fait que la somme des coefficients dans ce type de contrastes est égale à 0.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb61"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb61-1"><a href="#cb61-1"></a>MASS<span class="sc">::</span><span class="fu">contr.sdif</span>(<span class="dv">3</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb56"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1"></a>MASS<span class="sc">::</span><span class="fu">contr.sdif</span>(<span class="dv">3</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>         2-1        3-2
 1 -0.6666667 -0.3333333
@@ -4810,14 +4798,14 @@ Model 2: sport ~ sexe + groupe_ages
 <p>De plus, la matrice de contrastes est calculée de telle manière que l’écart entre les deux premières modalités vaut 1 pour le premier terme, et l’écart entre la seconde et la troisième modalité vaut également 1 pour le deuxième terme.</p>
 <p>Ainsi, le terme <code>gradeII-I</code> correspond à la différence entre la moyenne du grade de niveau II et celle du niveau I<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>.</p>
 <div class="no-row-height column-margin column-container"><div id="fn1"><p><sup>1</sup>&nbsp;On peut remarquer que la même valeur était obtenue avec un contraste de type traitement où toutes les modalités étaient comparées à la modalité de référence I.</p></div></div><div class="cell">
-<div class="sourceCode cell-code" id="cb63"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb63-1"><a href="#cb63-1"></a>moy_groupe<span class="sc">$</span>moyenne_marker[<span class="dv">2</span>] <span class="sc">-</span> moy_groupe<span class="sc">$</span>moyenne_marker[<span class="dv">1</span>]</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb58"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb58-1"><a href="#cb58-1"></a>moy_groupe<span class="sc">$</span>moyenne_marker[<span class="dv">2</span>] <span class="sc">-</span> moy_groupe<span class="sc">$</span>moyenne_marker[<span class="dv">1</span>]</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] -0.3863997</code></pre>
 </div>
 </div>
 <p>Et le coefficient <code>gradeIII-II</code> à l’écart entre la moyenne du niveau III et celle du niveau II.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb65"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb65-1"><a href="#cb65-1"></a>moy_groupe<span class="sc">$</span>moyenne_marker[<span class="dv">3</span>] <span class="sc">-</span> moy_groupe<span class="sc">$</span>moyenne_marker[<span class="dv">2</span>]</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb60"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb60-1"><a href="#cb60-1"></a>moy_groupe<span class="sc">$</span>moyenne_marker[<span class="dv">3</span>] <span class="sc">-</span> moy_groupe<span class="sc">$</span>moyenne_marker[<span class="dv">2</span>]</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 0.3152964</code></pre>
 </div>
@@ -4826,39 +4814,39 @@ Model 2: sport ~ sexe + groupe_ages
 <span class="header-section-number">26.3.2</span> Exemple 2 : une régression logistique avec deux variables catégorielles</h3>
 <p>La même approche peut être appliquée à une régression logistique.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb67"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb67-1"><a href="#cb67-1"></a>mod2_sdif <span class="ot">&lt;-</span> <span class="fu">glm</span>(</span>
-<span id="cb67-2"><a href="#cb67-2"></a>  sport <span class="sc">~</span> sexe <span class="sc">+</span> groupe_ages,</span>
-<span id="cb67-3"><a href="#cb67-3"></a>  <span class="at">family =</span> binomial,</span>
-<span id="cb67-4"><a href="#cb67-4"></a>  <span class="at">data =</span> hdv2003,</span>
-<span id="cb67-5"><a href="#cb67-5"></a>  <span class="at">contrasts =</span> <span class="fu">list</span>(</span>
-<span id="cb67-6"><a href="#cb67-6"></a>    <span class="at">sexe =</span> MASS<span class="sc">::</span>contr.sdif,</span>
-<span id="cb67-7"><a href="#cb67-7"></a>    <span class="at">groupe_ages =</span> MASS<span class="sc">::</span>contr.sdif</span>
-<span id="cb67-8"><a href="#cb67-8"></a>  )</span>
-<span id="cb67-9"><a href="#cb67-9"></a>)</span>
-<span id="cb67-10"><a href="#cb67-10"></a>mod2_sdif <span class="sc">|&gt;</span></span>
-<span id="cb67-11"><a href="#cb67-11"></a>  <span class="fu">tbl_regression</span>(</span>
-<span id="cb67-12"><a href="#cb67-12"></a>    <span class="at">exponentiate =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb67-13"><a href="#cb67-13"></a>    <span class="at">intercept =</span> <span class="cn">TRUE</span></span>
-<span id="cb67-14"><a href="#cb67-14"></a>  ) <span class="sc">|&gt;</span> </span>
-<span id="cb67-15"><a href="#cb67-15"></a>  <span class="fu">bold_labels</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb62"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb62-1"><a href="#cb62-1"></a>mod2_sdif <span class="ot">&lt;-</span> <span class="fu">glm</span>(</span>
+<span id="cb62-2"><a href="#cb62-2"></a>  sport <span class="sc">~</span> sexe <span class="sc">+</span> groupe_ages,</span>
+<span id="cb62-3"><a href="#cb62-3"></a>  <span class="at">family =</span> binomial,</span>
+<span id="cb62-4"><a href="#cb62-4"></a>  <span class="at">data =</span> hdv2003,</span>
+<span id="cb62-5"><a href="#cb62-5"></a>  <span class="at">contrasts =</span> <span class="fu">list</span>(</span>
+<span id="cb62-6"><a href="#cb62-6"></a>    <span class="at">sexe =</span> MASS<span class="sc">::</span>contr.sdif,</span>
+<span id="cb62-7"><a href="#cb62-7"></a>    <span class="at">groupe_ages =</span> MASS<span class="sc">::</span>contr.sdif</span>
+<span id="cb62-8"><a href="#cb62-8"></a>  )</span>
+<span id="cb62-9"><a href="#cb62-9"></a>)</span>
+<span id="cb62-10"><a href="#cb62-10"></a>mod2_sdif <span class="sc">|&gt;</span></span>
+<span id="cb62-11"><a href="#cb62-11"></a>  <span class="fu">tbl_regression</span>(</span>
+<span id="cb62-12"><a href="#cb62-12"></a>    <span class="at">exponentiate =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb62-13"><a href="#cb62-13"></a>    <span class="at">intercept =</span> <span class="cn">TRUE</span></span>
+<span id="cb62-14"><a href="#cb62-14"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb62-15"><a href="#cb62-15"></a>  <span class="fu">bold_labels</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
-<div id="coroguvcaa" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#coroguvcaa table {
+<div id="jyktqrlpoh" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#jyktqrlpoh table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#coroguvcaa thead, #coroguvcaa tbody, #coroguvcaa tfoot, #coroguvcaa tr, #coroguvcaa td, #coroguvcaa th {
+#jyktqrlpoh thead, #jyktqrlpoh tbody, #jyktqrlpoh tfoot, #jyktqrlpoh tr, #jyktqrlpoh td, #jyktqrlpoh th {
   border-style: none;
 }
 
-#coroguvcaa p {
+#jyktqrlpoh p {
   margin: 0;
   padding: 0;
 }
 
-#coroguvcaa .gt_table {
+#jyktqrlpoh .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -4884,12 +4872,12 @@ Model 2: sport ~ sexe + groupe_ages
   border-left-color: #D3D3D3;
 }
 
-#coroguvcaa .gt_caption {
+#jyktqrlpoh .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#coroguvcaa .gt_title {
+#jyktqrlpoh .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -4901,7 +4889,7 @@ Model 2: sport ~ sexe + groupe_ages
   border-bottom-width: 0;
 }
 
-#coroguvcaa .gt_subtitle {
+#jyktqrlpoh .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -4913,7 +4901,7 @@ Model 2: sport ~ sexe + groupe_ages
   border-top-width: 0;
 }
 
-#coroguvcaa .gt_heading {
+#jyktqrlpoh .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -4925,13 +4913,13 @@ Model 2: sport ~ sexe + groupe_ages
   border-right-color: #D3D3D3;
 }
 
-#coroguvcaa .gt_bottom_border {
+#jyktqrlpoh .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#coroguvcaa .gt_col_headings {
+#jyktqrlpoh .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -4946,7 +4934,7 @@ Model 2: sport ~ sexe + groupe_ages
   border-right-color: #D3D3D3;
 }
 
-#coroguvcaa .gt_col_heading {
+#jyktqrlpoh .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -4966,7 +4954,7 @@ Model 2: sport ~ sexe + groupe_ages
   overflow-x: hidden;
 }
 
-#coroguvcaa .gt_column_spanner_outer {
+#jyktqrlpoh .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -4978,15 +4966,15 @@ Model 2: sport ~ sexe + groupe_ages
   padding-right: 4px;
 }
 
-#coroguvcaa .gt_column_spanner_outer:first-child {
+#jyktqrlpoh .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#coroguvcaa .gt_column_spanner_outer:last-child {
+#jyktqrlpoh .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#coroguvcaa .gt_column_spanner {
+#jyktqrlpoh .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -4998,11 +4986,11 @@ Model 2: sport ~ sexe + groupe_ages
   width: 100%;
 }
 
-#coroguvcaa .gt_spanner_row {
+#jyktqrlpoh .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#coroguvcaa .gt_group_heading {
+#jyktqrlpoh .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -5028,7 +5016,7 @@ Model 2: sport ~ sexe + groupe_ages
   text-align: left;
 }
 
-#coroguvcaa .gt_empty_group_heading {
+#jyktqrlpoh .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -5043,15 +5031,15 @@ Model 2: sport ~ sexe + groupe_ages
   vertical-align: middle;
 }
 
-#coroguvcaa .gt_from_md > :first-child {
+#jyktqrlpoh .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#coroguvcaa .gt_from_md > :last-child {
+#jyktqrlpoh .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#coroguvcaa .gt_row {
+#jyktqrlpoh .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -5070,7 +5058,7 @@ Model 2: sport ~ sexe + groupe_ages
   overflow-x: hidden;
 }
 
-#coroguvcaa .gt_stub {
+#jyktqrlpoh .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -5083,7 +5071,7 @@ Model 2: sport ~ sexe + groupe_ages
   padding-right: 5px;
 }
 
-#coroguvcaa .gt_stub_row_group {
+#jyktqrlpoh .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -5097,15 +5085,15 @@ Model 2: sport ~ sexe + groupe_ages
   vertical-align: top;
 }
 
-#coroguvcaa .gt_row_group_first td {
+#jyktqrlpoh .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#coroguvcaa .gt_row_group_first th {
+#jyktqrlpoh .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#coroguvcaa .gt_summary_row {
+#jyktqrlpoh .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -5115,16 +5103,16 @@ Model 2: sport ~ sexe + groupe_ages
   padding-right: 5px;
 }
 
-#coroguvcaa .gt_first_summary_row {
+#jyktqrlpoh .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#coroguvcaa .gt_first_summary_row.thick {
+#jyktqrlpoh .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#coroguvcaa .gt_last_summary_row {
+#jyktqrlpoh .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -5134,7 +5122,7 @@ Model 2: sport ~ sexe + groupe_ages
   border-bottom-color: #D3D3D3;
 }
 
-#coroguvcaa .gt_grand_summary_row {
+#jyktqrlpoh .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -5144,7 +5132,7 @@ Model 2: sport ~ sexe + groupe_ages
   padding-right: 5px;
 }
 
-#coroguvcaa .gt_first_grand_summary_row {
+#jyktqrlpoh .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -5154,7 +5142,7 @@ Model 2: sport ~ sexe + groupe_ages
   border-top-color: #D3D3D3;
 }
 
-#coroguvcaa .gt_last_grand_summary_row_top {
+#jyktqrlpoh .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -5164,11 +5152,11 @@ Model 2: sport ~ sexe + groupe_ages
   border-bottom-color: #D3D3D3;
 }
 
-#coroguvcaa .gt_striped {
+#jyktqrlpoh .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#coroguvcaa .gt_table_body {
+#jyktqrlpoh .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -5177,7 +5165,7 @@ Model 2: sport ~ sexe + groupe_ages
   border-bottom-color: #D3D3D3;
 }
 
-#coroguvcaa .gt_footnotes {
+#jyktqrlpoh .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -5191,7 +5179,7 @@ Model 2: sport ~ sexe + groupe_ages
   border-right-color: #D3D3D3;
 }
 
-#coroguvcaa .gt_footnote {
+#jyktqrlpoh .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -5200,7 +5188,7 @@ Model 2: sport ~ sexe + groupe_ages
   padding-right: 5px;
 }
 
-#coroguvcaa .gt_sourcenotes {
+#jyktqrlpoh .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -5214,7 +5202,7 @@ Model 2: sport ~ sexe + groupe_ages
   border-right-color: #D3D3D3;
 }
 
-#coroguvcaa .gt_sourcenote {
+#jyktqrlpoh .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -5222,76 +5210,76 @@ Model 2: sport ~ sexe + groupe_ages
   padding-right: 5px;
 }
 
-#coroguvcaa .gt_left {
+#jyktqrlpoh .gt_left {
   text-align: left;
 }
 
-#coroguvcaa .gt_center {
+#jyktqrlpoh .gt_center {
   text-align: center;
 }
 
-#coroguvcaa .gt_right {
+#jyktqrlpoh .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#coroguvcaa .gt_font_normal {
+#jyktqrlpoh .gt_font_normal {
   font-weight: normal;
 }
 
-#coroguvcaa .gt_font_bold {
+#jyktqrlpoh .gt_font_bold {
   font-weight: bold;
 }
 
-#coroguvcaa .gt_font_italic {
+#jyktqrlpoh .gt_font_italic {
   font-style: italic;
 }
 
-#coroguvcaa .gt_super {
+#jyktqrlpoh .gt_super {
   font-size: 65%;
 }
 
-#coroguvcaa .gt_footnote_marks {
+#jyktqrlpoh .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#coroguvcaa .gt_asterisk {
+#jyktqrlpoh .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#coroguvcaa .gt_indent_1 {
+#jyktqrlpoh .gt_indent_1 {
   text-indent: 5px;
 }
 
-#coroguvcaa .gt_indent_2 {
+#jyktqrlpoh .gt_indent_2 {
   text-indent: 10px;
 }
 
-#coroguvcaa .gt_indent_3 {
+#jyktqrlpoh .gt_indent_3 {
   text-indent: 15px;
 }
 
-#coroguvcaa .gt_indent_4 {
+#jyktqrlpoh .gt_indent_4 {
   text-indent: 20px;
 }
 
-#coroguvcaa .gt_indent_5 {
+#jyktqrlpoh .gt_indent_5 {
   text-indent: 25px;
 }
 
-#coroguvcaa .katex-display {
+#jyktqrlpoh .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#coroguvcaa div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#jyktqrlpoh div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
-<table class="gt_table table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<table class="gt_table table table-sm table-striped small" data-quarto-bootstrap="false">
 <colgroup>
 <col style="width: 25%">
 <col style="width: 25%">
@@ -5348,7 +5336,7 @@ Model 2: sport ~ sexe + groupe_ages
 <td class="gt_row gt_center" headers="p.value">&lt;0.001</td>
 </tr>
 </tbody>
-<tfoot class="gt_sourcenotes"><tr class="odd">
+<tfoot><tr class="gt_sourcenotes odd">
 <td colspan="4" class="gt_sourcenote">Abbreviations: CI = Confidence Interval, OR = Odds Ratio</td>
 </tr></tfoot>
 </table>
@@ -5369,30 +5357,30 @@ Astuce
 <div class="callout-body-container callout-body">
 <p>De manière générale, et quels que soient les contrastes utilisés pour le calcul du modèle, il est toujours possible de recalculer <em>a posteriori</em> les différences entre chaque combinaison de modalités deux à deux avec <code><a href="https://rvlenth.github.io/emmeans/reference/emmeans.html">emmeans::emmeans()</a></code>. Cela peut même se faire directement en passant l’argument <code>add_pairwise_contrasts = TRUE</code> à <code>tbl_regression()</code>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb68"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb68-1"><a href="#cb68-1"></a>mod2_trt <span class="sc">|&gt;</span> </span>
-<span id="cb68-2"><a href="#cb68-2"></a>  <span class="fu">tbl_regression</span>(</span>
-<span id="cb68-3"><a href="#cb68-3"></a>    <span class="at">exponentiate =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb68-4"><a href="#cb68-4"></a>    <span class="at">add_pairwise_contrasts =</span> <span class="cn">TRUE</span></span>
-<span id="cb68-5"><a href="#cb68-5"></a>  ) <span class="sc">|&gt;</span> </span>
-<span id="cb68-6"><a href="#cb68-6"></a>  <span class="fu">bold_labels</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb63"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb63-1"><a href="#cb63-1"></a>mod2_trt <span class="sc">|&gt;</span> </span>
+<span id="cb63-2"><a href="#cb63-2"></a>  <span class="fu">tbl_regression</span>(</span>
+<span id="cb63-3"><a href="#cb63-3"></a>    <span class="at">exponentiate =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb63-4"><a href="#cb63-4"></a>    <span class="at">add_pairwise_contrasts =</span> <span class="cn">TRUE</span></span>
+<span id="cb63-5"><a href="#cb63-5"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb63-6"><a href="#cb63-6"></a>  <span class="fu">bold_labels</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
-<div id="suhzixgzyj" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#suhzixgzyj table {
+<div id="rsersmgjom" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#rsersmgjom table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#suhzixgzyj thead, #suhzixgzyj tbody, #suhzixgzyj tfoot, #suhzixgzyj tr, #suhzixgzyj td, #suhzixgzyj th {
+#rsersmgjom thead, #rsersmgjom tbody, #rsersmgjom tfoot, #rsersmgjom tr, #rsersmgjom td, #rsersmgjom th {
   border-style: none;
 }
 
-#suhzixgzyj p {
+#rsersmgjom p {
   margin: 0;
   padding: 0;
 }
 
-#suhzixgzyj .gt_table {
+#rsersmgjom .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -5418,12 +5406,12 @@ Astuce
   border-left-color: #D3D3D3;
 }
 
-#suhzixgzyj .gt_caption {
+#rsersmgjom .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#suhzixgzyj .gt_title {
+#rsersmgjom .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -5435,7 +5423,7 @@ Astuce
   border-bottom-width: 0;
 }
 
-#suhzixgzyj .gt_subtitle {
+#rsersmgjom .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -5447,7 +5435,7 @@ Astuce
   border-top-width: 0;
 }
 
-#suhzixgzyj .gt_heading {
+#rsersmgjom .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -5459,13 +5447,13 @@ Astuce
   border-right-color: #D3D3D3;
 }
 
-#suhzixgzyj .gt_bottom_border {
+#rsersmgjom .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#suhzixgzyj .gt_col_headings {
+#rsersmgjom .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -5480,7 +5468,7 @@ Astuce
   border-right-color: #D3D3D3;
 }
 
-#suhzixgzyj .gt_col_heading {
+#rsersmgjom .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -5500,7 +5488,7 @@ Astuce
   overflow-x: hidden;
 }
 
-#suhzixgzyj .gt_column_spanner_outer {
+#rsersmgjom .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -5512,15 +5500,15 @@ Astuce
   padding-right: 4px;
 }
 
-#suhzixgzyj .gt_column_spanner_outer:first-child {
+#rsersmgjom .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#suhzixgzyj .gt_column_spanner_outer:last-child {
+#rsersmgjom .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#suhzixgzyj .gt_column_spanner {
+#rsersmgjom .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -5532,11 +5520,11 @@ Astuce
   width: 100%;
 }
 
-#suhzixgzyj .gt_spanner_row {
+#rsersmgjom .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#suhzixgzyj .gt_group_heading {
+#rsersmgjom .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -5562,7 +5550,7 @@ Astuce
   text-align: left;
 }
 
-#suhzixgzyj .gt_empty_group_heading {
+#rsersmgjom .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -5577,15 +5565,15 @@ Astuce
   vertical-align: middle;
 }
 
-#suhzixgzyj .gt_from_md > :first-child {
+#rsersmgjom .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#suhzixgzyj .gt_from_md > :last-child {
+#rsersmgjom .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#suhzixgzyj .gt_row {
+#rsersmgjom .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -5604,7 +5592,7 @@ Astuce
   overflow-x: hidden;
 }
 
-#suhzixgzyj .gt_stub {
+#rsersmgjom .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -5617,7 +5605,7 @@ Astuce
   padding-right: 5px;
 }
 
-#suhzixgzyj .gt_stub_row_group {
+#rsersmgjom .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -5631,15 +5619,15 @@ Astuce
   vertical-align: top;
 }
 
-#suhzixgzyj .gt_row_group_first td {
+#rsersmgjom .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#suhzixgzyj .gt_row_group_first th {
+#rsersmgjom .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#suhzixgzyj .gt_summary_row {
+#rsersmgjom .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -5649,16 +5637,16 @@ Astuce
   padding-right: 5px;
 }
 
-#suhzixgzyj .gt_first_summary_row {
+#rsersmgjom .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#suhzixgzyj .gt_first_summary_row.thick {
+#rsersmgjom .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#suhzixgzyj .gt_last_summary_row {
+#rsersmgjom .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -5668,7 +5656,7 @@ Astuce
   border-bottom-color: #D3D3D3;
 }
 
-#suhzixgzyj .gt_grand_summary_row {
+#rsersmgjom .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -5678,7 +5666,7 @@ Astuce
   padding-right: 5px;
 }
 
-#suhzixgzyj .gt_first_grand_summary_row {
+#rsersmgjom .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -5688,7 +5676,7 @@ Astuce
   border-top-color: #D3D3D3;
 }
 
-#suhzixgzyj .gt_last_grand_summary_row_top {
+#rsersmgjom .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -5698,11 +5686,11 @@ Astuce
   border-bottom-color: #D3D3D3;
 }
 
-#suhzixgzyj .gt_striped {
+#rsersmgjom .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#suhzixgzyj .gt_table_body {
+#rsersmgjom .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -5711,7 +5699,7 @@ Astuce
   border-bottom-color: #D3D3D3;
 }
 
-#suhzixgzyj .gt_footnotes {
+#rsersmgjom .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -5725,7 +5713,7 @@ Astuce
   border-right-color: #D3D3D3;
 }
 
-#suhzixgzyj .gt_footnote {
+#rsersmgjom .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -5734,7 +5722,7 @@ Astuce
   padding-right: 5px;
 }
 
-#suhzixgzyj .gt_sourcenotes {
+#rsersmgjom .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -5748,7 +5736,7 @@ Astuce
   border-right-color: #D3D3D3;
 }
 
-#suhzixgzyj .gt_sourcenote {
+#rsersmgjom .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -5756,76 +5744,76 @@ Astuce
   padding-right: 5px;
 }
 
-#suhzixgzyj .gt_left {
+#rsersmgjom .gt_left {
   text-align: left;
 }
 
-#suhzixgzyj .gt_center {
+#rsersmgjom .gt_center {
   text-align: center;
 }
 
-#suhzixgzyj .gt_right {
+#rsersmgjom .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#suhzixgzyj .gt_font_normal {
+#rsersmgjom .gt_font_normal {
   font-weight: normal;
 }
 
-#suhzixgzyj .gt_font_bold {
+#rsersmgjom .gt_font_bold {
   font-weight: bold;
 }
 
-#suhzixgzyj .gt_font_italic {
+#rsersmgjom .gt_font_italic {
   font-style: italic;
 }
 
-#suhzixgzyj .gt_super {
+#rsersmgjom .gt_super {
   font-size: 65%;
 }
 
-#suhzixgzyj .gt_footnote_marks {
+#rsersmgjom .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#suhzixgzyj .gt_asterisk {
+#rsersmgjom .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#suhzixgzyj .gt_indent_1 {
+#rsersmgjom .gt_indent_1 {
   text-indent: 5px;
 }
 
-#suhzixgzyj .gt_indent_2 {
+#rsersmgjom .gt_indent_2 {
   text-indent: 10px;
 }
 
-#suhzixgzyj .gt_indent_3 {
+#rsersmgjom .gt_indent_3 {
   text-indent: 15px;
 }
 
-#suhzixgzyj .gt_indent_4 {
+#rsersmgjom .gt_indent_4 {
   text-indent: 20px;
 }
 
-#suhzixgzyj .gt_indent_5 {
+#rsersmgjom .gt_indent_5 {
   text-indent: 25px;
 }
 
-#suhzixgzyj .katex-display {
+#rsersmgjom .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#suhzixgzyj div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#rsersmgjom div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
-<table class="gt_table table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<table class="gt_table table table-sm table-striped small" data-quarto-bootstrap="false">
 <colgroup>
 <col style="width: 25%">
 <col style="width: 25%">
@@ -5894,7 +5882,7 @@ Astuce
 <td class="gt_row gt_center" headers="p.value">&lt;0.001</td>
 </tr>
 </tbody>
-<tfoot class="gt_sourcenotes"><tr class="odd">
+<tfoot><tr class="gt_sourcenotes odd">
 <td colspan="4" class="gt_sourcenote">Abbreviations: CI = Confidence Interval, OR = Odds Ratio</td>
 </tr></tfoot>
 </table>
@@ -5910,8 +5898,8 @@ Astuce
 <p>Les contrastes de Helmert sont un peu plus complexes&nbsp;: ils visent à comparer la seconde modalité à la première, la troisième à la moyenne des deux premières, la quatrième à la moyenne des trois premières, etc.</p>
 <p>Prenons un exemple avec une variable catégorielle à quatre modalités.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb69"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb69-1"><a href="#cb69-1"></a><span class="fu">contrasts</span>(trial<span class="sc">$</span>stage) <span class="ot">&lt;-</span> contr.helmert</span>
-<span id="cb69-2"><a href="#cb69-2"></a><span class="fu">contrasts</span>(trial<span class="sc">$</span>stage)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb64"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb64-1"><a href="#cb64-1"></a><span class="fu">contrasts</span>(trial<span class="sc">$</span>stage) <span class="ot">&lt;-</span> contr.helmert</span>
+<span id="cb64-2"><a href="#cb64-2"></a><span class="fu">contrasts</span>(trial<span class="sc">$</span>stage)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   [,1] [,2] [,3]
 T1   -1   -1   -1
@@ -5919,11 +5907,11 @@ T2    1   -1   -1
 T3    0    2   -1
 T4    0    0    3</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb71"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb71-1"><a href="#cb71-1"></a>mod_helmert <span class="ot">&lt;-</span> <span class="fu">lm</span>(</span>
-<span id="cb71-2"><a href="#cb71-2"></a>  marker <span class="sc">~</span> stage,</span>
-<span id="cb71-3"><a href="#cb71-3"></a>  <span class="at">data =</span> trial</span>
-<span id="cb71-4"><a href="#cb71-4"></a>)</span>
-<span id="cb71-5"><a href="#cb71-5"></a>mod_helmert</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb66"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb66-1"><a href="#cb66-1"></a>mod_helmert <span class="ot">&lt;-</span> <span class="fu">lm</span>(</span>
+<span id="cb66-2"><a href="#cb66-2"></a>  marker <span class="sc">~</span> stage,</span>
+<span id="cb66-3"><a href="#cb66-3"></a>  <span class="at">data =</span> trial</span>
+<span id="cb66-4"><a href="#cb66-4"></a>)</span>
+<span id="cb66-5"><a href="#cb66-5"></a>mod_helmert</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 Call:
@@ -5936,10 +5924,10 @@ Coefficients:
 </div>
 <p>Pour bien comprendre comment interpréter ces coefficients, calculons déjà la <q>grande moyenne</q>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb73"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb73-1"><a href="#cb73-1"></a>m <span class="ot">&lt;-</span> trial <span class="sc">|&gt;</span> </span>
-<span id="cb73-2"><a href="#cb73-2"></a>  dplyr<span class="sc">::</span><span class="fu">group_by</span>(stage) <span class="sc">|&gt;</span> </span>
-<span id="cb73-3"><a href="#cb73-3"></a>  dplyr<span class="sc">::</span><span class="fu">summarise</span>(<span class="at">moy =</span> <span class="fu">mean</span>(marker, <span class="at">na.rm =</span> <span class="cn">TRUE</span>))</span>
-<span id="cb73-4"><a href="#cb73-4"></a><span class="fu">mean</span>(m<span class="sc">$</span>moy)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb68"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb68-1"><a href="#cb68-1"></a>m <span class="ot">&lt;-</span> trial <span class="sc">|&gt;</span> </span>
+<span id="cb68-2"><a href="#cb68-2"></a>  dplyr<span class="sc">::</span><span class="fu">group_by</span>(stage) <span class="sc">|&gt;</span> </span>
+<span id="cb68-3"><a href="#cb68-3"></a>  dplyr<span class="sc">::</span><span class="fu">summarise</span>(<span class="at">moy =</span> <span class="fu">mean</span>(marker, <span class="at">na.rm =</span> <span class="cn">TRUE</span>))</span>
+<span id="cb68-4"><a href="#cb68-4"></a><span class="fu">mean</span>(m<span class="sc">$</span>moy)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 0.9166073</code></pre>
 </div>
@@ -5947,13 +5935,13 @@ Coefficients:
 <p>On le voit, l’<em>intercept</em> (<code>0.9166</code>) capture ici cette <q>grande moyenne</q>, à savoir la moyenne des moyennes de chaque sous-groupe.</p>
 <p>Maintenant, pour interpréter les coefficients, regardons comment évolue la moyenne à chaque fois que l’on ajoute une modalité. La fonction <code><a href="https://dplyr.tidyverse.org/reference/cumall.html">dplyr::cummean()</a></code> nous permet de calculer la moyenne cumulée, c’est-à-dire la moyenne de la valeur actuelle et des valeurs des lignes précédentes. Avec <code><a href="https://dplyr.tidyverse.org/reference/lead-lag.html">dplyr::lag()</a></code> nous pouvons obtenir la moyenne cumulée de la ligne précédente. Il nous est alors possible de calculer l’écart entre les deux, et donc de voir comment la moyenne a changé avec l’ajout d’une modalité.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb75"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb75-1"><a href="#cb75-1"></a>m <span class="ot">&lt;-</span> m <span class="sc">|&gt;</span> </span>
-<span id="cb75-2"><a href="#cb75-2"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(</span>
-<span id="cb75-3"><a href="#cb75-3"></a>    <span class="at">moy_cum =</span> dplyr<span class="sc">::</span><span class="fu">cummean</span>(moy),</span>
-<span id="cb75-4"><a href="#cb75-4"></a>    <span class="at">moy_cum_prec =</span> dplyr<span class="sc">::</span><span class="fu">lag</span>(moy_cum),</span>
-<span id="cb75-5"><a href="#cb75-5"></a>    <span class="at">ecart =</span> moy_cum <span class="sc">-</span> moy_cum_prec</span>
-<span id="cb75-6"><a href="#cb75-6"></a>  )</span>
-<span id="cb75-7"><a href="#cb75-7"></a>m</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb70"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb70-1"><a href="#cb70-1"></a>m <span class="ot">&lt;-</span> m <span class="sc">|&gt;</span> </span>
+<span id="cb70-2"><a href="#cb70-2"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(</span>
+<span id="cb70-3"><a href="#cb70-3"></a>    <span class="at">moy_cum =</span> dplyr<span class="sc">::</span><span class="fu">cummean</span>(moy),</span>
+<span id="cb70-4"><a href="#cb70-4"></a>    <span class="at">moy_cum_prec =</span> dplyr<span class="sc">::</span><span class="fu">lag</span>(moy_cum),</span>
+<span id="cb70-5"><a href="#cb70-5"></a>    <span class="at">ecart =</span> moy_cum <span class="sc">-</span> moy_cum_prec</span>
+<span id="cb70-6"><a href="#cb70-6"></a>  )</span>
+<span id="cb70-7"><a href="#cb70-7"></a>m</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 4 × 5
   stage   moy moy_cum moy_cum_prec   ecart
@@ -5973,8 +5961,8 @@ Coefficients:
 <span class="header-section-number">26.4.2</span> Contrastes polynomiaux</h3>
 <p>Les contrastes polynomiaux, définis avec <code><a href="https://rdrr.io/r/stats/contrast.html">contr.poly()</a></code>, sont utilisés par défaut pour les variables catégorielles ordonnées. Ils permettent de décomposer les effets selon une composante linéaire, une composante quadratique, une composante cubique, voire des composantes de degrés supérieurs.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb77"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb77-1"><a href="#cb77-1"></a><span class="fu">contrasts</span>(trial<span class="sc">$</span>stage) <span class="ot">&lt;-</span> contr.poly</span>
-<span id="cb77-2"><a href="#cb77-2"></a><span class="fu">contrasts</span>(trial<span class="sc">$</span>stage)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb72"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb72-1"><a href="#cb72-1"></a><span class="fu">contrasts</span>(trial<span class="sc">$</span>stage) <span class="ot">&lt;-</span> contr.poly</span>
+<span id="cb72-2"><a href="#cb72-2"></a><span class="fu">contrasts</span>(trial<span class="sc">$</span>stage)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>           .L   .Q         .C
 T1 -0.6708204  0.5 -0.2236068
@@ -5982,11 +5970,11 @@ T2 -0.2236068 -0.5  0.6708204
 T3  0.2236068 -0.5 -0.6708204
 T4  0.6708204  0.5  0.2236068</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb79"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb79-1"><a href="#cb79-1"></a>mod_poly <span class="ot">&lt;-</span> <span class="fu">lm</span>(</span>
-<span id="cb79-2"><a href="#cb79-2"></a>  marker <span class="sc">~</span> stage,</span>
-<span id="cb79-3"><a href="#cb79-3"></a>  <span class="at">data =</span> trial</span>
-<span id="cb79-4"><a href="#cb79-4"></a>)</span>
-<span id="cb79-5"><a href="#cb79-5"></a>mod_poly</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb74"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb74-1"><a href="#cb74-1"></a>mod_poly <span class="ot">&lt;-</span> <span class="fu">lm</span>(</span>
+<span id="cb74-2"><a href="#cb74-2"></a>  marker <span class="sc">~</span> stage,</span>
+<span id="cb74-3"><a href="#cb74-3"></a>  <span class="at">data =</span> trial</span>
+<span id="cb74-4"><a href="#cb74-4"></a>)</span>
+<span id="cb74-5"><a href="#cb74-5"></a>mod_poly</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 Call:
@@ -6024,7 +6012,7 @@ Coefficients:
       a.appendChild(i);
       window.document.body.appendChild(a);
     }
-    window.setColorSchemeToggle(window.hasAlternateSentinel())
+    setColorSchemeToggle(hasAlternateSentinel())
     const icon = "";
     const anchorJS = new window.AnchorJS();
     anchorJS.options = {
@@ -6074,13 +6062,14 @@ Coefficients:
       e.clearSelection();
     }
     const getTextToCopy = function(trigger) {
-        const codeEl = trigger.previousElementSibling.cloneNode(true);
-        for (const childEl of codeEl.children) {
-          if (isCodeAnnotation(childEl)) {
-            childEl.remove();
-          }
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
         }
-        return codeEl.innerText;
+      }
+      return codeEl.innerText;
     }
     const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
       text: getTextToCopy
@@ -6421,8 +6410,36 @@ Coefficients:
       }
     }
   });
-  </script><script src="https://giscus.app/client.js" data-repo="larmarange/guide-R" data-repo-id="R_kgDOH6-xnw" data-category="Forum" data-category-id="DIC_kwDOH6-xn84CRLQy" data-mapping="pathname" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="top" data-theme="light" data-lang="fr" crossorigin="anonymous" data-loading="lazy" async="">
-</script><input type="hidden" id="giscus-base-theme" value="light"><input type="hidden" id="giscus-alt-theme" value="dark"><nav class="page-navigation"><div class="nav-page nav-page-previous">
+  </script><input type="hidden" id="giscus-base-theme" value="light"><input type="hidden" id="giscus-alt-theme" value="dark"><script>
+  function loadGiscus() {
+    // Function to get the theme based on body class
+    const getTheme = () => {
+      let baseTheme = document.getElementById('giscus-base-theme').value;
+      let altTheme = document.getElementById('giscus-alt-theme').value;
+      if (authorPrefersDark) {
+          [baseTheme, altTheme] = [altTheme, baseTheme];
+      }
+      return document.body.classList.contains('quarto-dark') ? altTheme : baseTheme;
+    };
+    const script = document.createElement("script");
+    script.src = "https://giscus.app/client.js";
+    script.async = true;
+    script.dataset.repo = "larmarange/guide-R";
+    script.dataset.repoId = "R_kgDOH6-xnw";
+    script.dataset.category = "Forum";
+    script.dataset.categoryId = "DIC_kwDOH6-xn84CRLQy";
+    script.dataset.mapping = "pathname";
+    script.dataset.reactionsEnabled = "1";
+    script.dataset.emitMetadata = "0";
+    script.dataset.inputPosition = "top";
+    script.dataset.theme = getTheme();
+    script.dataset.lang = "fr";
+    script.crossOrigin = "anonymous";
+    // Append the script to the desired div instead of at the end of the body
+    document.getElementById("quarto-content").appendChild(script);
+  }
+  loadGiscus();
+</script><nav class="page-navigation"><div class="nav-page nav-page-previous">
       <a href="../analyses/estimations-marginales.html" class="pagination-link" aria-label="Prédictions marginales, contrastes marginaux &amp; effets marginaux">
         <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">25</span>&nbsp; <span class="chapter-title">Prédictions marginales, contrastes marginaux &amp; effets marginaux</span></span>
       </a>          
