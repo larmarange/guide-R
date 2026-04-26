@@ -2,10 +2,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="fr" xml:lang="fr"><head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.7.27">
+<meta name="generator" content="quarto-1.9.37">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 <title>44&nbsp; Analyse de survie – guide-R</title>
 <style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
 div.columns{display: flex; gap: min(4vw, 1.5em);}
@@ -72,14 +75,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-985aa47af68dae11cd4d235c71fb941e.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-6c49c5477b92c77c9eb341f9299c235f.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-985aa47af68dae11cd4d235c71fb941e.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-7f8f88aac4f3542376d5c11b86a4c14d.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-d0ae9245876894da5ac7e18953ecc5cc.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-7f8f88aac4f3542376d5c11b86a4c14d.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-1706ad55a43eb6182cc66969adfb4558.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../site_libs/bootstrap/bootstrap-dark-e07f40149b440be50f716415da65e4f4.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<link href="../site_libs/bootstrap/bootstrap-1706ad55a43eb6182cc66969adfb4558.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-fad85691bd79911de0320b982f671d9d.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-f68506c574928121fec95fb329006eac.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../site_libs/bootstrap/bootstrap-fad85691bd79911de0320b982f671d9d.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <script src="../site_libs/quarto-contrib/glightbox/glightbox.min.js"></script>
 <link href="../site_libs/quarto-contrib/glightbox/glightbox.min.css" rel="stylesheet">
 <link href="../site_libs/quarto-contrib/glightbox/lightbox.css" rel="stylesheet"><script id="quarto-search-options" type="application/json">{
@@ -117,10 +120,10 @@ gtag('config', 'G-8BT7D9P85Y', { 'anonymize_ip': true});
 document.addEventListener('DOMContentLoaded', function () {
 cookieconsent.run({
   "notice_banner_type":"simple",
-  "consent_type":"implied",
+  "consent_type":"express",
   "palette":"light",
   "language":"en",
-  "page_load_consent_levels":["strictly-necessary","functionality","tracking","targeting"],
+  "page_load_consent_levels":["strictly-necessary"],
   "notice_banner_reject_button_hide":false,
   "preferences_center_close_button_hide":false,
   "website_name":""
@@ -149,7 +152,7 @@ cookieconsent.run({
         toggleBodyColorMode(bsSheetEl);
       }
     }
-    window.setColorSchemeToggle = (alternate) => {
+    const setColorSchemeToggle = (alternate) => {
       const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
       for (let i=0; i < toggles.length; i++) {
         const toggle = toggles[i];
@@ -182,7 +185,7 @@ cookieconsent.run({
       }
       manageTransitions('#quarto-margin-sidebar .nav-link', true);
       // Switch the toggles
-      window.setColorSchemeToggle(alternate)
+      setColorSchemeToggle(alternate)
       // Hack to workaround the fact that safari doesn't
       // properly recolor the scrollbar when toggling (#1455)
       if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
@@ -222,7 +225,7 @@ cookieconsent.run({
     const isFileUrl = () => {
       return window.location.protocol === 'file:';
     }
-    window.hasAlternateSentinel = () => {
+    const hasAlternateSentinel = () => {
       let styleSentinel = getColorSchemeSentinel();
       if (styleSentinel !== null) {
         return styleSentinel === "alternate";
@@ -250,7 +253,7 @@ cookieconsent.run({
       const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
       const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
       let newTheme = '';
-      if(darkModeDefault) {
+      if(authorPrefersDark) {
         newTheme = isAlternate ? baseTheme : alternateTheme;
       } else {
         newTheme = isAlternate ? alternateTheme : baseTheme;
@@ -273,20 +276,22 @@ cookieconsent.run({
         changeGiscusTheme();
       }
     };
-    const darkModeDefault = false;
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
       document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
       document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
     let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
     // Dark / light mode switch
     window.quartoToggleColorScheme = () => {
       // Read the current dark / light value
-      let toAlternate = !window.hasAlternateSentinel();
+      let toAlternate = !hasAlternateSentinel();
       toggleColorMode(toAlternate);
       setStyleSentinel(toAlternate);
       toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
     };
     // Switch to dark mode if need be
-    if (window.hasAlternateSentinel()) {
+    if (hasAlternateSentinel()) {
       toggleColorMode(true);
     } else {
       toggleColorMode(false);
@@ -309,7 +314,7 @@ cookieconsent.run({
 <!-- sidebar -->
   <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto"><div class="pt-lg-2 mt-2 text-left sidebar-header sidebar-header-stacked">
       <a href="../index.html" class="sidebar-logo-link">
-      <img src="../ressources/typewriter.png" alt="" class="sidebar-logo py-0 d-lg-inline d-none"></a>
+      <img src="../ressources/typewriter.png" alt="" class="sidebar-logo light-content py-0 d-lg-inline d-none"><img src="../ressources/typewriter.png" alt="" class="sidebar-logo dark-content py-0 d-lg-inline d-none"></a>
     <div class="sidebar-title mb-0 py-0">
       <a href="../">guide-R</a> 
         <div class="sidebar-tools-main tools-wide">
@@ -793,13 +798,13 @@ cookieconsent.run({
 <p>La courbe de survie de <strong>Kaplan-Meier</strong> permet de décrire la probabilité de survie au cours du temps tout en tenant compte des éventuelles censures à droite.</p>
 <p>Elle se calcule avec la fonction <code><a href="https://rdrr.io/pkg/survival/man/survfit.html">survival::survfit()</a></code> à laquelle nous allons décrire notre <em>outcome</em> à l’aide de <code><a href="https://rdrr.io/pkg/survival/man/Surv.html">survival::Surv()</a></code> en lui indiquant d’abord la variable temps puis la variable évènement.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="fu">library</span>(gtsummary)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="fu">library</span>(gtsummary)</span>
 <span id="cb1-2"><a href="#cb1-2"></a><span class="fu">library</span>(survival)</span>
-<span id="cb1-3"><a href="#cb1-3"></a>km <span class="ot">&lt;-</span> <span class="fu">survfit</span>(<span class="fu">Surv</span>(ttdeath, death) <span class="sc">~</span> <span class="dv">1</span>, <span class="at">data =</span> trial)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-3"><a href="#cb1-3"></a>km <span class="ot">&lt;-</span> <span class="fu">survfit</span>(<span class="fu">Surv</span>(ttdeath, death) <span class="sc">~</span> <span class="dv">1</span>, <span class="at">data =</span> trial)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Pour un graphique rapide, on peut utiliser <code><a href="https://rdrr.io/r/graphics/plot.default.html">plot()</a></code>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a>km <span class="sc">|&gt;</span> <span class="fu">plot</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a>km <span class="sc">|&gt;</span> <span class="fu">plot</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure"><p><a href="analyse-survie_files/figure-html/unnamed-chunk-2-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-1"><img src="analyse-survie_files/figure-html/unnamed-chunk-2-1.png" class="img-fluid figure-img" width="672"></a></p>
@@ -809,11 +814,11 @@ cookieconsent.run({
 </div>
 <p>Cependant, il est préférable d’avoir recours au package {ggsurvfit}, développé par le même auteur que <a href="https://github.com/ddsjoberg/gtsummary">gtsummary</a>, et sa fonction homonyme <code><a href="http://www.danieldsjoberg.com/ggsurvfit/reference/ggsurvfit.html">ggsurvfit::ggsurvfit()</a></code>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a><span class="fu">library</span>(ggsurvfit)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a><span class="fu">library</span>(ggsurvfit)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Loading required package: ggplot2</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a>km <span class="sc">|&gt;</span> <span class="fu">ggsurvfit</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a>km <span class="sc">|&gt;</span> <span class="fu">ggsurvfit</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure"><p><a href="analyse-survie_files/figure-html/unnamed-chunk-3-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-2"><img src="analyse-survie_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid figure-img" width="672"></a></p>
@@ -834,7 +839,7 @@ cookieconsent.run({
 </ul>
 <p>Le graphique renvoyé est un objet <a href="https://ggplot2.tidyverse.org">ggplot2</a> et l’on peut appliquer toute fonction graphique additionnelle.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a><span class="fu">library</span>(ggplot2)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a><span class="fu">library</span>(ggplot2)</span>
 <span id="cb6-2"><a href="#cb6-2"></a>km <span class="sc">|&gt;</span> </span>
 <span id="cb6-3"><a href="#cb6-3"></a>  <span class="fu">ggsurvfit</span>() <span class="sc">+</span></span>
 <span id="cb6-4"><a href="#cb6-4"></a>  <span class="fu">add_confidence_interval</span>() <span class="sc">+</span></span>
@@ -852,7 +857,7 @@ cookieconsent.run({
 <span id="cb6-16"><a href="#cb6-16"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">breaks =</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">4</span><span class="sc">*</span><span class="dv">6</span>) <span class="sc">+</span></span>
 <span id="cb6-17"><a href="#cb6-17"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">labels =</span> scales<span class="sc">::</span>percent) <span class="sc">+</span></span>
 <span id="cb6-18"><a href="#cb6-18"></a>  <span class="fu">xlab</span>(<span class="st">"Mois depuis le diagnostic"</span>) <span class="sc">+</span></span>
-<span id="cb6-19"><a href="#cb6-19"></a>  <span class="fu">ylab</span>(<span class="st">"Proportion toujours en vie"</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb6-19"><a href="#cb6-19"></a>  <span class="fu">ylab</span>(<span class="st">"Proportion toujours en vie"</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure"><p><a href="analyse-survie_files/figure-html/unnamed-chunk-4-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-3"><img src="analyse-survie_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid figure-img" width="672"></a></p>
@@ -862,12 +867,12 @@ cookieconsent.run({
 </div>
 <p>Il est également possible de représenter la proportion de personnes ayant vécu l’évènement plutôt que celle ne l’ayant toujours pas vécu.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a>km <span class="sc">|&gt;</span> </span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a>km <span class="sc">|&gt;</span> </span>
 <span id="cb7-2"><a href="#cb7-2"></a>  <span class="fu">ggsurvfit</span>(<span class="at">type =</span> <span class="st">"risk"</span>) <span class="sc">+</span></span>
 <span id="cb7-3"><a href="#cb7-3"></a>  <span class="fu">add_confidence_interval</span>() <span class="sc">+</span></span>
 <span id="cb7-4"><a href="#cb7-4"></a>  <span class="fu">scale_ggsurvfit</span>() <span class="sc">+</span></span>
 <span id="cb7-5"><a href="#cb7-5"></a>  <span class="fu">xlab</span>(<span class="st">"Mois depuis le diagnostic"</span>) <span class="sc">+</span></span>
-<span id="cb7-6"><a href="#cb7-6"></a>  <span class="fu">ylab</span>(<span class="st">"Proportion décédée"</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb7-6"><a href="#cb7-6"></a>  <span class="fu">ylab</span>(<span class="st">"Proportion décédée"</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure"><p><a href="analyse-survie_files/figure-html/unnamed-chunk-5-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-4"><img src="analyse-survie_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid figure-img" width="672"></a></p>
@@ -877,16 +882,16 @@ cookieconsent.run({
 </div>
 <p>Pour un tableau des résultats, on fera appel à <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/tbl_survfit.html">gtsummary::tbl_survfit()</a></code> à laquelle on indiquera soit des points dans le temps, soit une série de quantiles. Par défaut, cela affiche la valeur de la courbe et les intervalles de confiance à 95%.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a><span class="co"># affichage des résultats en français</span></span>
-<span id="cb8-2"><a href="#cb8-2"></a><span class="fu">theme_gtsummary_language</span>(<span class="st">"fr"</span>, <span class="at">decimal.mark =</span> <span class="st">","</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a><span class="co"># affichage des résultats en français</span></span>
+<span id="cb8-2"><a href="#cb8-2"></a><span class="fu">theme_gtsummary_language</span>(<span class="st">"fr"</span>, <span class="at">decimal.mark =</span> <span class="st">","</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Setting theme "language: fr"</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a>km <span class="sc">|&gt;</span> </span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a>km <span class="sc">|&gt;</span> </span>
 <span id="cb10-2"><a href="#cb10-2"></a>  <span class="fu">tbl_survfit</span>(</span>
 <span id="cb10-3"><a href="#cb10-3"></a>    <span class="at">times =</span> <span class="fu">c</span>(<span class="dv">6</span>, <span class="dv">12</span>, <span class="dv">18</span>, <span class="dv">24</span>),</span>
 <span id="cb10-4"><a href="#cb10-4"></a>    <span class="at">label_header =</span> <span class="st">"**Mois {time}**"</span></span>
-<span id="cb10-5"><a href="#cb10-5"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb10-5"><a href="#cb10-5"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div id="tkjxznkugp" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>#tkjxznkugp table {
@@ -1337,7 +1342,7 @@ cookieconsent.run({
   height: 0px !important;
 }
 </style>
-<table class="gt_table table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<table class="gt_table table table-sm table-striped small" data-quarto-bootstrap="false">
 <thead><tr class="gt_col_headings header">
 <th id="label" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col"><strong>Caractéristique</strong></th>
 <th id="stat_1" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col"><strong>Mois 6</strong></th>
@@ -1355,13 +1360,13 @@ cookieconsent.run({
 </table>
 </div>
 </div>
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a>km <span class="sc">|&gt;</span> </span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a>km <span class="sc">|&gt;</span> </span>
 <span id="cb11-2"><a href="#cb11-2"></a>  <span class="fu">tbl_survfit</span>(</span>
 <span id="cb11-3"><a href="#cb11-3"></a>    <span class="at">probs =</span> <span class="fu">c</span>(.<span class="dv">25</span>, .<span class="dv">5</span>, .<span class="dv">75</span>)</span>
 <span id="cb11-4"><a href="#cb11-4"></a>  ) <span class="sc">|&gt;</span> </span>
 <span id="cb11-5"><a href="#cb11-5"></a>  <span class="fu">modify_spanning_header</span>(</span>
 <span id="cb11-6"><a href="#cb11-6"></a>    <span class="fu">all_stat_cols</span>() <span class="sc">~</span> <span class="st">"**Proportion décédée**"</span></span>
-<span id="cb11-7"><a href="#cb11-7"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb11-7"><a href="#cb11-7"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div id="kmtfoxvmnt" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>#kmtfoxvmnt table {
@@ -1812,7 +1817,7 @@ cookieconsent.run({
   height: 0px !important;
 }
 </style>
-<table class="gt_table table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<table class="gt_table table table-sm table-striped small" data-quarto-bootstrap="false">
 <colgroup>
 <col style="width: 25%">
 <col style="width: 25%">
@@ -1846,11 +1851,11 @@ cookieconsent.run({
 <span class="header-section-number">44.3</span> Analyse bivariée (Kaplan-Meier)</h2>
 <p>Il est possible de calculer des courbes de Kaplan-Meier selon une variable catégorielle (analyse stratifiée). Par exemple, pour voir comment varie la survie en fonction du stade au diagnostic.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a>km_stade <span class="ot">&lt;-</span> <span class="fu">survfit</span>(</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a>km_stade <span class="ot">&lt;-</span> <span class="fu">survfit</span>(</span>
 <span id="cb12-2"><a href="#cb12-2"></a>  <span class="fu">Surv</span>(ttdeath, death) <span class="sc">~</span> stage,</span>
 <span id="cb12-3"><a href="#cb12-3"></a>  <span class="at">data =</span> trial</span>
 <span id="cb12-4"><a href="#cb12-4"></a>)</span>
-<span id="cb12-5"><a href="#cb12-5"></a>km_stade <span class="sc">|&gt;</span> <span class="fu">ggsurvfit</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb12-5"><a href="#cb12-5"></a>km_stade <span class="sc">|&gt;</span> <span class="fu">ggsurvfit</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure"><p><a href="analyse-survie_files/figure-html/unnamed-chunk-7-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-5"><img src="analyse-survie_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid figure-img" width="672"></a></p>
@@ -1860,13 +1865,13 @@ cookieconsent.run({
 </div>
 <p>Nous pouvons facilement améliorer le rendu du graphique en utilisant <code>ggsurvfit::surfit2()</code> à la place de <code><a href="https://rdrr.io/pkg/survival/man/survfit.html">survival::survfit()</a></code>. Les deux fonctions sont équivalentes à l’exception du fait que la version fournie par <a href="https://github.com/pharmaverse/ggsurvfit">ggsurvfit</a> concerne certaines informations, comme les étiquettes de variables, afin d’améliorer le rendu visuel par défaut du graphique.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a>km_stade <span class="ot">&lt;-</span> <span class="fu">survfit2</span>(</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a>km_stade <span class="ot">&lt;-</span> <span class="fu">survfit2</span>(</span>
 <span id="cb13-2"><a href="#cb13-2"></a>  <span class="fu">Surv</span>(ttdeath, death) <span class="sc">~</span> stage,</span>
 <span id="cb13-3"><a href="#cb13-3"></a>  <span class="at">data =</span> trial</span>
 <span id="cb13-4"><a href="#cb13-4"></a>)</span>
 <span id="cb13-5"><a href="#cb13-5"></a>km_stade <span class="sc">|&gt;</span> </span>
 <span id="cb13-6"><a href="#cb13-6"></a>  <span class="fu">ggsurvfit</span>() <span class="sc">+</span></span>
-<span id="cb13-7"><a href="#cb13-7"></a>  <span class="fu">scale_ggsurvfit</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb13-7"><a href="#cb13-7"></a>  <span class="fu">scale_ggsurvfit</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure"><p><a href="analyse-survie_files/figure-html/unnamed-chunk-8-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-6"><img src="analyse-survie_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid figure-img" width="672"></a></p>
@@ -1876,10 +1881,10 @@ cookieconsent.run({
 </div>
 <p>Il est possible de faire un test statistique pour déterminer si les courbes de survie diffèrent selon les stades avec la fonction <code><a href="https://rdrr.io/pkg/survival/man/survdiff.html">survival::survdiff()</a></code> qui implémente le test du <em>log-rank</em> ou de Mantel-Haenszel (par défaut).</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a><span class="fu">survdiff</span>(</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a><span class="fu">survdiff</span>(</span>
 <span id="cb14-2"><a href="#cb14-2"></a>  <span class="fu">Surv</span>(ttdeath, death) <span class="sc">~</span> stage,</span>
 <span id="cb14-3"><a href="#cb14-3"></a>  <span class="at">data =</span> trial</span>
-<span id="cb14-4"><a href="#cb14-4"></a>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb14-4"><a href="#cb14-4"></a>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Call:
 survdiff(formula = Surv(ttdeath, death) ~ stage, data = trial)
@@ -1895,11 +1900,11 @@ stage=T4 50       39     22.0    13.223     16.56
 </div>
 <p>Il est possible de calculer et d’afficher directement ce résultat sur le graphique (en bas à droite) avec <code><a href="http://www.danieldsjoberg.com/ggsurvfit/reference/add_pvalue.html">ggsurvfit::add_pvalue()</a></code>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1"></a>km_stade <span class="sc">|&gt;</span> </span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1"></a>km_stade <span class="sc">|&gt;</span> </span>
 <span id="cb16-2"><a href="#cb16-2"></a>  <span class="fu">ggsurvfit</span>() <span class="sc">+</span></span>
 <span id="cb16-3"><a href="#cb16-3"></a>  <span class="fu">add_confidence_interval</span>() <span class="sc">+</span></span>
 <span id="cb16-4"><a href="#cb16-4"></a>  <span class="fu">add_pvalue</span>() <span class="sc">+</span></span>
-<span id="cb16-5"><a href="#cb16-5"></a>  <span class="fu">scale_ggsurvfit</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb16-5"><a href="#cb16-5"></a>  <span class="fu">scale_ggsurvfit</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure"><p><a href="analyse-survie_files/figure-html/unnamed-chunk-10-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-7"><img src="analyse-survie_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid figure-img" width="672"></a></p>
@@ -1909,10 +1914,10 @@ stage=T4 50       39     22.0    13.223     16.56
 </div>
 <p>Dans un tableau, on aura recours à <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/add_p.html">gtsummary::add_p()</a></code>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1"></a>km_stade <span class="sc">|&gt;</span> </span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1"></a>km_stade <span class="sc">|&gt;</span> </span>
 <span id="cb17-2"><a href="#cb17-2"></a>  <span class="fu">tbl_survfit</span>(<span class="at">times =</span> <span class="fu">c</span>(<span class="dv">12</span>, <span class="dv">24</span>)) <span class="sc">|&gt;</span> </span>
 <span id="cb17-3"><a href="#cb17-3"></a>  <span class="fu">add_p</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb17-4"><a href="#cb17-4"></a>  <span class="fu">bold_labels</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb17-4"><a href="#cb17-4"></a>  <span class="fu">bold_labels</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div id="ieqnmjsfzu" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>#ieqnmjsfzu table {
@@ -2363,7 +2368,7 @@ stage=T4 50       39     22.0    13.223     16.56
   height: 0px !important;
 }
 </style>
-<table class="gt_table table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<table class="gt_table table table-sm table-striped small" data-quarto-bootstrap="false">
 <colgroup>
 <col style="width: 25%">
 <col style="width: 25%">
@@ -2427,14 +2432,14 @@ stage=T4 50       39     22.0    13.223     16.56
 <span class="header-section-number">44.3.1</span> Courbes de survie bivariées répétées</h3>
 <p>Il est possible de réaliser simultanément plusieurs analyses de survie bivariées avec <code>tbl_survfit()</code>. La syntaxe est juste un peu différente. Au lieu de passer un objet <code>survfit()</code> à <code>tbl_survfit()</code>, on lui passera le jeu de données et on utilisera <code>y</code> et <code>include</code> pour indiquer comment calculer les courbes de survies.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1"></a>trial <span class="sc">|&gt;</span> </span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1"></a>trial <span class="sc">|&gt;</span> </span>
 <span id="cb18-2"><a href="#cb18-2"></a>  <span class="fu">tbl_survfit</span>(</span>
 <span id="cb18-3"><a href="#cb18-3"></a>    <span class="at">y =</span> <span class="fu">Surv</span>(ttdeath, death),</span>
 <span id="cb18-4"><a href="#cb18-4"></a>    <span class="at">include =</span> <span class="fu">c</span>(stage, trt),</span>
 <span id="cb18-5"><a href="#cb18-5"></a>    <span class="at">times =</span> <span class="fu">c</span>(<span class="dv">12</span>, <span class="dv">24</span>)</span>
 <span id="cb18-6"><a href="#cb18-6"></a>  ) <span class="sc">|&gt;</span> </span>
 <span id="cb18-7"><a href="#cb18-7"></a>  <span class="fu">add_p</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb18-8"><a href="#cb18-8"></a>  <span class="fu">bold_labels</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb18-8"><a href="#cb18-8"></a>  <span class="fu">bold_labels</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div id="zbczubqzhj" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>#zbczubqzhj table {
@@ -2885,7 +2890,7 @@ stage=T4 50       39     22.0    13.223     16.56
   height: 0px !important;
 }
 </style>
-<table class="gt_table table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<table class="gt_table table table-sm table-striped small" data-quarto-bootstrap="false">
 <colgroup>
 <col style="width: 25%">
 <col style="width: 25%">
@@ -2963,20 +2968,20 @@ stage=T4 50       39     22.0    13.223     16.56
 <p>Pour une analyse multivariable, on aura recours à un modèle de Cox. Il est tout à fait possible d’inclure des variables continues, par exemple l’âge des patients. Ici, nous n’abordons qu’un modèle avec des variables fixes au cours du temps. Mais il est possible de calculer un modèle de Cox avec des variables explicatives pouvant changer au cours du temps.</p>
 <p>Le modèle de Cox se calcule avec <code><a href="https://rdrr.io/pkg/survival/man/coxph.html">survival::coxph()</a></code>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1"></a>mod <span class="ot">&lt;-</span> <span class="fu">coxph</span>(</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1"></a>mod <span class="ot">&lt;-</span> <span class="fu">coxph</span>(</span>
 <span id="cb19-2"><a href="#cb19-2"></a>  <span class="fu">Surv</span>(ttdeath, death) <span class="sc">~</span> stage <span class="sc">+</span> trt <span class="sc">+</span> age,</span>
 <span id="cb19-3"><a href="#cb19-3"></a>  <span class="at">data =</span> trial</span>
-<span id="cb19-4"><a href="#cb19-4"></a>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb19-4"><a href="#cb19-4"></a>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <section id="visualisation-des-résultats" class="level3" data-number="44.4.1"><h3 data-number="44.4.1" class="anchored" data-anchor-id="visualisation-des-résultats">
 <span class="header-section-number">44.4.1</span> Visualisation des résultats</h3>
 <p>Comme pour la régression logistique (cf. <a href="../analyses/regression-logistique-binaire.html" class="quarto-xref"><span>Chapitre 23</span></a>), nous pouvons utiliser <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/tbl_regression.html">gtsummary::tbl_regression()</a></code>, <code><a href="https://larmarange.github.io/ggstats/reference/ggcoef_model.html">ggstats::ggcoef_model()</a></code> et <code><a href="https://larmarange.github.io/ggstats/reference/ggcoef_model.html">ggstats::ggcoef_table()</a></code> pour afficher les coefficients du modèle.</p>
 <p>Il est pertinent d’afficher l’exponentielle des coefficients car il s’interprètent comme des risque relatifs ou <em>hazard ratios</em>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1"></a>mod <span class="sc">|&gt;</span> </span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1"></a>mod <span class="sc">|&gt;</span> </span>
 <span id="cb20-2"><a href="#cb20-2"></a>  <span class="fu">tbl_regression</span>(<span class="at">exponentiate =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span> </span>
 <span id="cb20-3"><a href="#cb20-3"></a>  <span class="fu">add_global_p</span>(<span class="at">keep =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb20-4"><a href="#cb20-4"></a>  <span class="fu">bold_labels</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb20-4"><a href="#cb20-4"></a>  <span class="fu">bold_labels</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div id="zxirpoydzs" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>#zxirpoydzs table {
@@ -3427,7 +3432,7 @@ stage=T4 50       39     22.0    13.223     16.56
   height: 0px !important;
 }
 </style>
-<table class="gt_table table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<table class="gt_table table table-sm table-striped small" data-quarto-bootstrap="false">
 <colgroup>
 <col style="width: 25%">
 <col style="width: 25%">
@@ -3504,9 +3509,9 @@ stage=T4 50       39     22.0    13.223     16.56
 </div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1"></a><span class="fu">library</span>(ggstats)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1"></a><span class="fu">library</span>(ggstats)</span>
 <span id="cb21-2"><a href="#cb21-2"></a>mod <span class="sc">|&gt;</span> </span>
-<span id="cb21-3"><a href="#cb21-3"></a>  <span class="fu">ggcoef_model</span>(<span class="at">exponentiate =</span> <span class="cn">TRUE</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb21-3"><a href="#cb21-3"></a>  <span class="fu">ggcoef_model</span>(<span class="at">exponentiate =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>`height` was translated to `width`.</code></pre>
 </div>
@@ -3518,8 +3523,8 @@ stage=T4 50       39     22.0    13.223     16.56
 </div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1"></a>mod <span class="sc">|&gt;</span> </span>
-<span id="cb23-2"><a href="#cb23-2"></a>  <span class="fu">ggcoef_table</span>(<span class="at">exponentiate =</span> <span class="cn">TRUE</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1"></a>mod <span class="sc">|&gt;</span> </span>
+<span id="cb23-2"><a href="#cb23-2"></a>  <span class="fu">ggcoef_table</span>(<span class="at">exponentiate =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>`height` was translated to `width`.</code></pre>
 </div>
@@ -3535,7 +3540,7 @@ stage=T4 50       39     22.0    13.223     16.56
 <span class="header-section-number">44.4.2</span> Vérification des hypothèses</h3>
 <p>Le modèle de Cox considère que, bien que le risque de décès évolue au cours du temps, les risques relatifs restent quant à eux identiques. Il s’agit de l’hypothèse de la proportionnalité des risques relatifs. Selon cette hypothèse les résidus de Schoenfeld ne dépendent pas du temps. Cette hypothèse peut être testée avec la fonction <code>cox.zph()</code>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1"></a>mod <span class="sc">|&gt;</span> <span class="fu">cox.zph</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1"></a>mod <span class="sc">|&gt;</span> <span class="fu">cox.zph</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>       chisq df    p
 stage  0.983  3 0.81
@@ -3547,7 +3552,7 @@ GLOBAL 2.969  5 0.70</code></pre>
 <p>Un test est ici effectué globalement et pour chaque variable individuellement. Une valeur de p inférieure à 5% indique un problème potentiel en termes de proportionnalité des risques.</p>
 <p>La fonction <code><a href="https://rdrr.io/pkg/survminer/man/ggcoxzph.html">survminer::ggcoxzph()</a></code> du package <a href="https://rpkgs.datanovia.com/survminer/index.html">survminer</a> permet de représenter les résidus de Schoenfeld et de visualiser si leur répartition est relativement stable au cours du temps (visuellement <q>horizontale</q> autour de 0) ou bien s’ils suivent une autre distribution.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1"></a>mod <span class="sc">|&gt;</span> <span class="fu">cox.zph</span>() <span class="sc">|&gt;</span> survminer<span class="sc">::</span><span class="fu">ggcoxzph</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1"></a>mod <span class="sc">|&gt;</span> <span class="fu">cox.zph</span>() <span class="sc">|&gt;</span> survminer<span class="sc">::</span><span class="fu">ggcoxzph</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure"><p><a href="analyse-survie_files/figure-html/unnamed-chunk-18-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-10"><img src="analyse-survie_files/figure-html/unnamed-chunk-18-1.png" class="img-fluid figure-img" width="576"></a></p>
@@ -3559,13 +3564,13 @@ GLOBAL 2.969  5 0.70</code></pre>
 <span class="header-section-number">44.4.3</span> Représentation graphique d’une courbe de survie ajustée</h3>
 <p>Il est possible de calculer, avec <code>survfit2()</code>, des courbes de survie ajustées à partir d’un modèle de Cox. Cependant, pour indiquer la variable de stratification des courbes, il est nécessaire de l’inclure avec <code>strata()</code> dans l’appel du modèle de Cox.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1"></a>trial <span class="sc">|&gt;</span> </span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1"></a>trial <span class="sc">|&gt;</span> </span>
 <span id="cb28-2"><a href="#cb28-2"></a>  <span class="fu">coxph</span>(</span>
 <span id="cb28-3"><a href="#cb28-3"></a>    <span class="fu">Surv</span>(ttdeath, death) <span class="sc">~</span> <span class="fu">strata</span>(stage) <span class="sc">+</span> trt <span class="sc">+</span> age,</span>
 <span id="cb28-4"><a href="#cb28-4"></a>    <span class="at">data =</span> _</span>
 <span id="cb28-5"><a href="#cb28-5"></a>  ) <span class="sc">|&gt;</span> </span>
 <span id="cb28-6"><a href="#cb28-6"></a>  <span class="fu">survfit2</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb28-7"><a href="#cb28-7"></a>  <span class="fu">ggsurvfit</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb28-7"><a href="#cb28-7"></a>  <span class="fu">ggsurvfit</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure"><p><a href="analyse-survie_files/figure-html/unnamed-chunk-19-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-11"><img src="analyse-survie_files/figure-html/unnamed-chunk-19-1.png" class="img-fluid figure-img" width="672"></a></p>
@@ -3577,7 +3582,7 @@ GLOBAL 2.969  5 0.70</code></pre>
 <span class="header-section-number">44.4.4</span> Sélection pas à pas d’un modèle réduit</h3>
 <p>Pour réduire le modèle (voir <a href="../analyses/selection-modele-pas-a-pas.html" class="quarto-xref"><span>Chapitre 24</span></a>), il est possible d’utiliser la fonction <code><a href="https://rdrr.io/r/stats/step.html">step()</a></code>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1"></a>mod <span class="sc">|&gt;</span> <span class="fu">step</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1"></a>mod <span class="sc">|&gt;</span> <span class="fu">step</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Start:  AIC=1002.04
 Surv(ttdeath, death) ~ stage + trt + age</code></pre>
@@ -3588,7 +3593,7 @@ Surv(ttdeath, death) ~ stage + trt + age</code></pre>
 </div>
 <p>Dans notre exemple, nous rencontrons une erreur liée à des valeurs manquantes pour l’une des variables explicatives. Comme abordé précédemment (cf. <a href="../analyses/selection-modele-pas-a-pas.html#sec-step-avec-na" class="quarto-xref"><span>Section 24.8</span></a>), nous pouvons avoir recours à la fonction <code><a href="https://larmarange.github.io/guideR/reference/step_with_na.html">guideR::step_with_na()</a></code>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1"></a>mod <span class="sc">|&gt;</span> guideR<span class="sc">::</span><span class="fu">step_with_na</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb32"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1"></a>mod <span class="sc">|&gt;</span> guideR<span class="sc">::</span><span class="fu">step_with_na</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Start:  AIC=1002.04
 Surv(ttdeath, death) ~ stage + trt + age
@@ -3619,14 +3624,14 @@ n= 189, number of events= 103
 <span class="header-section-number">44.4.5</span> Modèles de Cox univariables</h3>
 <p>Comme déjà abordé dans le chapitre sur la régression logistique binaire, il est possible d’effectuer en une fois plusieurs modèles univariables avec <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/tbl_uvregression.html">gtsummary::tbl_uvregression()</a></code> (cf. <a href="../analyses/regression-logistique-binaire.html#sec-regressions-logistiques-univariables" class="quarto-xref"><span>Section 23.9</span></a>).</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1"></a>trial <span class="sc">|&gt;</span> </span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb35"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1"></a>trial <span class="sc">|&gt;</span> </span>
 <span id="cb35-2"><a href="#cb35-2"></a>  <span class="fu">tbl_uvregression</span>(</span>
 <span id="cb35-3"><a href="#cb35-3"></a>    <span class="at">method =</span> coxph,</span>
 <span id="cb35-4"><a href="#cb35-4"></a>    <span class="at">y =</span> <span class="fu">Surv</span>(ttdeath, death),</span>
 <span id="cb35-5"><a href="#cb35-5"></a>    <span class="at">include =</span> <span class="fu">c</span>(stage, trt, age),</span>
 <span id="cb35-6"><a href="#cb35-6"></a>    <span class="at">exponentiate =</span> <span class="cn">TRUE</span></span>
 <span id="cb35-7"><a href="#cb35-7"></a>  ) <span class="sc">|&gt;</span> </span>
-<span id="cb35-8"><a href="#cb35-8"></a>  <span class="fu">bold_labels</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb35-8"><a href="#cb35-8"></a>  <span class="fu">bold_labels</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div id="ellqlpsycy" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>#ellqlpsycy table {
@@ -4077,7 +4082,7 @@ n= 189, number of events= 103
   height: 0px !important;
 }
 </style>
-<table class="gt_table table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<table class="gt_table table table-sm table-striped small" data-quarto-bootstrap="false">
 <colgroup>
 <col style="width: 20%">
 <col style="width: 20%">
@@ -4169,7 +4174,7 @@ n= 189, number of events= 103
 <p>Lorsque l’on travaille avec des données pondérées et un plan d’échantillonnage complexe, le plus pertinent est d’avoir recours au package <a href="http://r-survey.r-forge.r-project.org/survey/">survey</a> (cf. <a href="../donnees_ponderees/plan-echantillonnage.html" class="quarto-xref"><span>Chapitre 29</span></a>) qui propose des fonctions adaptées à l’analyse de survie.</p>
 <p>Pour l’exemple, nous allons transformer le jeu de données en objet <code>survey</code> en indiquant simplement des poids uniformes égaux à 1, dans la mesure où ce jeux de données n’a pas de poids.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1"></a><span class="fu">library</span>(survey)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb36"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1"></a><span class="fu">library</span>(survey)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Le chargement a nécessité le package : grid</code></pre>
 </div>
@@ -4185,14 +4190,14 @@ Attachement du package : 'survey'</code></pre>
 
     dotchart</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1"></a>strial <span class="ot">&lt;-</span> <span class="fu">svydesign</span>(<span class="sc">~</span> <span class="dv">1</span>, <span class="at">data =</span> trial, <span class="at">weights =</span> <span class="sc">~</span> <span class="dv">1</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb41"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1"></a>strial <span class="ot">&lt;-</span> <span class="fu">svydesign</span>(<span class="sc">~</span> <span class="dv">1</span>, <span class="at">data =</span> trial, <span class="at">weights =</span> <span class="sc">~</span> <span class="dv">1</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <section id="courbes-de-kaplan-meier" class="level3" data-number="44.5.1"><h3 data-number="44.5.1" class="anchored" data-anchor-id="courbes-de-kaplan-meier">
 <span class="header-section-number">44.5.1</span> Courbes de Kaplan-Meier</h3>
 <p>Pour le calcul d’une courbe de Kaplan-Meier, nous allons utiliser la fonction <code><a href="https://rdrr.io/pkg/survey/man/svykm.html">survey::svykm()</a></code>.</p>
 <p>Il est préférable de préciser <code>se = TRUE</code> pour que les erreurs standards soient calculées, ce qui permettra plus tard de récupérer les intervalles de confiance. <strong>Attention&nbsp;:</strong> sur un gros jeu de données, ce temps de calcul peut être très long (plusieurs minutes ou dizaines de minutes).</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1"></a>skm <span class="ot">&lt;-</span> <span class="fu">svykm</span>(</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb42"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1"></a>skm <span class="ot">&lt;-</span> <span class="fu">svykm</span>(</span>
 <span id="cb42-2"><a href="#cb42-2"></a>  <span class="fu">Surv</span>(ttdeath, death) <span class="sc">~</span> <span class="dv">1</span>,</span>
 <span id="cb42-3"><a href="#cb42-3"></a>  <span class="at">design =</span> strial,</span>
 <span id="cb42-4"><a href="#cb42-4"></a>  <span class="at">se =</span> <span class="cn">TRUE</span></span>
@@ -4201,12 +4206,12 @@ Attachement du package : 'survey'</code></pre>
 <span id="cb42-7"><a href="#cb42-7"></a>  <span class="fu">Surv</span>(ttdeath, death) <span class="sc">~</span> trt,</span>
 <span id="cb42-8"><a href="#cb42-8"></a>  <span class="at">design =</span> strial,</span>
 <span id="cb42-9"><a href="#cb42-9"></a>  <span class="at">se =</span> <span class="cn">TRUE</span></span>
-<span id="cb42-10"><a href="#cb42-10"></a>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb42-10"><a href="#cb42-10"></a>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Malheureusement, <code><a href="http://www.danieldsjoberg.com/ggsurvfit/reference/ggsurvfit.html">ggsurvfit::ggsurvfit()</a></code> et <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/tbl_survfit.html">gtsummary::tbl_survfit()</a></code> ne sont pas (encore ?) compatibles avec les courbes de survies créées avec <code><a href="https://rdrr.io/pkg/survey/man/svykm.html">survey::svykm()</a></code>. On devra donc avoir recours aux fonctions de bases.</p>
 <p>Pour un graphique avec affichage des intervalles de confiance&nbsp;:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1"></a>skm <span class="sc">|&gt;</span>  <span class="fu">plot</span>(<span class="at">ci =</span> <span class="cn">TRUE</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb43"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1"></a>skm <span class="sc">|&gt;</span>  <span class="fu">plot</span>(<span class="at">ci =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure"><p><a href="analyse-survie_files/figure-html/unnamed-chunk-25-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-12"><img src="analyse-survie_files/figure-html/unnamed-chunk-25-1.png" class="img-fluid figure-img" width="672"></a></p>
@@ -4215,13 +4220,13 @@ Attachement du package : 'survey'</code></pre>
 </div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1"></a>skm_trt <span class="sc">|&gt;</span> <span class="fu">plot</span>(</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb44"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1"></a>skm_trt <span class="sc">|&gt;</span> <span class="fu">plot</span>(</span>
 <span id="cb44-2"><a href="#cb44-2"></a>  <span class="at">ci =</span> <span class="cn">TRUE</span>,</span>
 <span id="cb44-3"><a href="#cb44-3"></a>  <span class="at">pars =</span> <span class="fu">list</span>(</span>
 <span id="cb44-4"><a href="#cb44-4"></a>    <span class="at">col =</span> <span class="fu">c</span>(<span class="st">"red"</span>, <span class="st">"blue"</span>)</span>
 <span id="cb44-5"><a href="#cb44-5"></a>  ),</span>
 <span id="cb44-6"><a href="#cb44-6"></a>  <span class="at">lwd =</span> <span class="dv">2</span></span>
-<span id="cb44-7"><a href="#cb44-7"></a>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb44-7"><a href="#cb44-7"></a>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure"><p><a href="analyse-survie_files/figure-html/unnamed-chunk-26-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-13"><img src="analyse-survie_files/figure-html/unnamed-chunk-26-1.png" class="img-fluid figure-img" width="672"></a></p>
@@ -4231,8 +4236,8 @@ Attachement du package : 'survey'</code></pre>
 </div>
 <p>On pourra aussi avoir recours au package <a href="https://github.com/jinseob2kim/jskm">jskm</a> et sa fonction <code><a href="https://jinseob2kim.github.io/jskm/reference/svyjskm.html">jskm::svyjskm()</a></code>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1"></a><span class="fu">library</span>(jskm)</span>
-<span id="cb45-2"><a href="#cb45-2"></a>skm_trt <span class="sc">|&gt;</span> <span class="fu">svyjskm</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb45"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1"></a><span class="fu">library</span>(jskm)</span>
+<span id="cb45-2"><a href="#cb45-2"></a>skm_trt <span class="sc">|&gt;</span> <span class="fu">svyjskm</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure"><p><a href="analyse-survie_files/figure-html/unnamed-chunk-27-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-14"><img src="analyse-survie_files/figure-html/unnamed-chunk-27-1.png" class="img-fluid figure-img" width="672"></a></p>
@@ -4241,7 +4246,7 @@ Attachement du package : 'survey'</code></pre>
 </div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1"></a>skm_trt <span class="sc">|&gt;</span> </span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb46"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1"></a>skm_trt <span class="sc">|&gt;</span> </span>
 <span id="cb46-2"><a href="#cb46-2"></a>  <span class="fu">svyjskm</span>(</span>
 <span id="cb46-3"><a href="#cb46-3"></a>    <span class="at">pval =</span> <span class="cn">TRUE</span>,</span>
 <span id="cb46-4"><a href="#cb46-4"></a>    <span class="at">xlabs =</span> <span class="st">"Mois depuis le diagnostic"</span>,</span>
@@ -4250,7 +4255,7 @@ Attachement du package : 'survey'</code></pre>
 <span id="cb46-7"><a href="#cb46-7"></a>    <span class="at">ci =</span> <span class="cn">TRUE</span>,</span>
 <span id="cb46-8"><a href="#cb46-8"></a>    <span class="at">table =</span> <span class="cn">TRUE</span>,</span>
 <span id="cb46-9"><a href="#cb46-9"></a>    <span class="at">label.nrisk =</span> <span class="st">"Personnes à risque"</span></span>
-<span id="cb46-10"><a href="#cb46-10"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb46-10"><a href="#cb46-10"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure"><p><a href="analyse-survie_files/figure-html/unnamed-chunk-28-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-15"><img src="analyse-survie_files/figure-html/unnamed-chunk-28-1.png" class="img-fluid figure-img" width="672"></a></p>
@@ -4260,7 +4265,7 @@ Attachement du package : 'survey'</code></pre>
 </div>
 <p>La fonction <code><a href="https://rdrr.io/r/stats/quantile.html">quantile()</a></code> peut-être appliquée à une courbe de survie simple (ici <code>skm</code>) mais dans le cadre d’une courbe de survie stratifiée (ici <code>skm_trt</code>) il faut l’appliquer à chaque sous-élément. On pourra alors s’aider de la petite fonction ci-dessous (utiliser <code>ci_level = NULL</code> pour ne pas calculer les intervalles de confiance.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1"></a>svykm_probs <span class="ot">&lt;-</span> <span class="cf">function</span>(x,</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb47"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1"></a>svykm_probs <span class="ot">&lt;-</span> <span class="cf">function</span>(x,</span>
 <span id="cb47-2"><a href="#cb47-2"></a>                        <span class="at">probs =</span> <span class="fu">c</span>(<span class="dv">1</span>, .<span class="dv">75</span>, <span class="dv">5</span>, .<span class="dv">25</span>),</span>
 <span id="cb47-3"><a href="#cb47-3"></a>                        <span class="at">ci_level =</span> .<span class="dv">95</span>,</span>
 <span id="cb47-4"><a href="#cb47-4"></a>                        <span class="at">strata =</span> <span class="cn">NULL</span>) {</span>
@@ -4300,11 +4305,11 @@ Attachement du package : 'survey'</code></pre>
 <span id="cb47-38"><a href="#cb47-38"></a>      ) <span class="sc">|&gt;</span> </span>
 <span id="cb47-39"><a href="#cb47-39"></a>      dplyr<span class="sc">::</span><span class="fu">bind_rows</span>()</span>
 <span id="cb47-40"><a href="#cb47-40"></a>  }</span>
-<span id="cb47-41"><a href="#cb47-41"></a>}</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb47-41"><a href="#cb47-41"></a>}</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Ainsi&nbsp;:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1"></a>skm <span class="sc">|&gt;</span> <span class="fu">svykm_probs</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb48"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1"></a>skm <span class="sc">|&gt;</span> <span class="fu">svykm_probs</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 4 × 4
   prob   value conf.low conf.high
@@ -4314,7 +4319,7 @@ Attachement du package : 'survey'</code></pre>
 3 5       3.53     3.53      3.53
 4 0.25  Inf      Inf       Inf   </code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1"></a>skm_trt <span class="sc">|&gt;</span> <span class="fu">svykm_probs</span>(<span class="at">probs =</span> <span class="fu">c</span>(<span class="dv">1</span>, .<span class="dv">8</span>, .<span class="dv">6</span>, .<span class="dv">4</span>))</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb50"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1"></a>skm_trt <span class="sc">|&gt;</span> <span class="fu">svykm_probs</span>(<span class="at">probs =</span> <span class="fu">c</span>(<span class="dv">1</span>, .<span class="dv">8</span>, .<span class="dv">6</span>, .<span class="dv">4</span>))</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 8 × 5
   prob   value conf.low conf.high strata
@@ -4331,7 +4336,7 @@ Attachement du package : 'survey'</code></pre>
 </div>
 <p>On ne peut pas facilement accéder aux valeurs de la courbe de survie à certains points de temps. Mais la fonction suivante permets de la faire aisément. Il faut lui passer, via <code>times</code>, une liste de points de temps.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb52"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1"></a>svykm_times <span class="ot">&lt;-</span> <span class="cf">function</span>(x,</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb52"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1"></a>svykm_times <span class="ot">&lt;-</span> <span class="cf">function</span>(x,</span>
 <span id="cb52-2"><a href="#cb52-2"></a>                        times,</span>
 <span id="cb52-3"><a href="#cb52-3"></a>                        <span class="at">ci_level =</span> .<span class="dv">95</span>,</span>
 <span id="cb52-4"><a href="#cb52-4"></a>                        <span class="at">strata =</span> <span class="cn">NULL</span>) {</span>
@@ -4372,10 +4377,10 @@ Attachement du package : 'survey'</code></pre>
 <span id="cb52-39"><a href="#cb52-39"></a>      ) <span class="sc">|&gt;</span> </span>
 <span id="cb52-40"><a href="#cb52-40"></a>      dplyr<span class="sc">::</span><span class="fu">bind_rows</span>()</span>
 <span id="cb52-41"><a href="#cb52-41"></a>  }</span>
-<span id="cb52-42"><a href="#cb52-42"></a>}</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb52-42"><a href="#cb52-42"></a>}</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb53"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1"></a>skm <span class="sc">|&gt;</span> <span class="fu">svykm_times</span>(<span class="fu">c</span>(<span class="dv">5</span>, <span class="dv">10</span>, <span class="dv">15</span>, <span class="dv">20</span>))</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb53"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1"></a>skm <span class="sc">|&gt;</span> <span class="fu">svykm_times</span>(<span class="fu">c</span>(<span class="dv">5</span>, <span class="dv">10</span>, <span class="dv">15</span>, <span class="dv">20</span>))</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 4 × 4
    time value conf.low conf.high
@@ -4385,7 +4390,7 @@ Attachement du package : 'survey'</code></pre>
 3    15 0.791    0.736     0.849
 4    20 0.581    0.517     0.653</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb55"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1"></a>skm_trt <span class="sc">|&gt;</span> <span class="fu">svykm_times</span>(<span class="fu">c</span>(<span class="dv">5</span>, <span class="dv">10</span>, <span class="dv">15</span>, <span class="dv">20</span>))</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb55"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1"></a>skm_trt <span class="sc">|&gt;</span> <span class="fu">svykm_times</span>(<span class="fu">c</span>(<span class="dv">5</span>, <span class="dv">10</span>, <span class="dv">15</span>, <span class="dv">20</span>))</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Warning in max(which(x$time &lt;= t)): aucun argument pour max ; -Inf est renvoyé</code></pre>
 </div>
@@ -4411,16 +4416,16 @@ renvoyé</code></pre>
 <span class="header-section-number">44.5.2</span> Modèle de Cox</h3>
 <p>Pour le modèle de Cox, on aura recours à la fonction <code><a href="https://rdrr.io/pkg/survey/man/svycoxph.html">survey::svycoxph()</a></code>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb59"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb59-1"><a href="#cb59-1"></a>mods <span class="ot">&lt;-</span> <span class="fu">svycoxph</span>(</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb59"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb59-1"><a href="#cb59-1"></a>mods <span class="ot">&lt;-</span> <span class="fu">svycoxph</span>(</span>
 <span id="cb59-2"><a href="#cb59-2"></a>  <span class="fu">Surv</span>(ttdeath, death) <span class="sc">~</span> stage <span class="sc">+</span> trt <span class="sc">+</span> age,</span>
 <span id="cb59-3"><a href="#cb59-3"></a>  <span class="at">design =</span> strial</span>
-<span id="cb59-4"><a href="#cb59-4"></a>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb59-4"><a href="#cb59-4"></a>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Cette fois-ci, il est possible d’utiliser <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/tbl_regression.html">gtsummary::tbl_regression()</a></code> ou <code><a href="https://larmarange.github.io/ggstats/reference/ggcoef_model.html">ggstats::ggcoef_model()</a></code> sans problème.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb60"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb60-1"><a href="#cb60-1"></a>mods <span class="sc">|&gt;</span> </span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb60"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb60-1"><a href="#cb60-1"></a>mods <span class="sc">|&gt;</span> </span>
 <span id="cb60-2"><a href="#cb60-2"></a>  <span class="fu">tbl_regression</span>(<span class="at">exponentiate =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb60-3"><a href="#cb60-3"></a>  <span class="fu">bold_labels</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb60-3"><a href="#cb60-3"></a>  <span class="fu">bold_labels</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Independent Sampling design (with replacement)
 svydesign(~1, data = trial, weights = ~1)</code></pre>
@@ -4875,7 +4880,7 @@ svydesign(~1, data = trial, weights = ~1)</code></pre>
   height: 0px !important;
 }
 </style>
-<table class="gt_table table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<table class="gt_table table table-sm table-striped small" data-quarto-bootstrap="false">
 <colgroup>
 <col style="width: 25%">
 <col style="width: 25%">
@@ -4953,7 +4958,7 @@ svydesign(~1, data = trial, weights = ~1)</code></pre>
 </div>
 <p>Enfin, pour le test de l’hypothèse de proportionnalité des risques, on peut utiliser comme précédemment la fonction <code>cox.zph()</code>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb62"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb62-1"><a href="#cb62-1"></a>mods <span class="sc">|&gt;</span> <span class="fu">cox.zph</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb62"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb62-1"><a href="#cb62-1"></a>mods <span class="sc">|&gt;</span> <span class="fu">cox.zph</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>          chisq df    p
 stage  0.004915  3 1.00
@@ -4989,7 +4994,7 @@ GLOBAL 0.014845  5 1.00</code></pre>
       a.appendChild(i);
       window.document.body.appendChild(a);
     }
-    window.setColorSchemeToggle(window.hasAlternateSentinel())
+    setColorSchemeToggle(hasAlternateSentinel())
     const icon = "";
     const anchorJS = new window.AnchorJS();
     anchorJS.options = {
@@ -5039,13 +5044,14 @@ GLOBAL 0.014845  5 1.00</code></pre>
       e.clearSelection();
     }
     const getTextToCopy = function(trigger) {
-        const codeEl = trigger.previousElementSibling.cloneNode(true);
-        for (const childEl of codeEl.children) {
-          if (isCodeAnnotation(childEl)) {
-            childEl.remove();
-          }
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
         }
-        return codeEl.innerText;
+      }
+      return codeEl.innerText;
     }
     const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
       text: getTextToCopy
@@ -5386,8 +5392,36 @@ GLOBAL 0.014845  5 1.00</code></pre>
       }
     }
   });
-  </script><script src="https://giscus.app/client.js" data-repo="larmarange/guide-R" data-repo-id="R_kgDOH6-xnw" data-category="Forum" data-category-id="DIC_kwDOH6-xn84CRLQy" data-mapping="pathname" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="top" data-theme="light" data-lang="fr" crossorigin="anonymous" data-loading="lazy" async="">
-</script><input type="hidden" id="giscus-base-theme" value="light"><input type="hidden" id="giscus-alt-theme" value="dark"><nav class="page-navigation"><div class="nav-page nav-page-previous">
+  </script><input type="hidden" id="giscus-base-theme" value="light"><input type="hidden" id="giscus-alt-theme" value="dark"><script>
+  function loadGiscus() {
+    // Function to get the theme based on body class
+    const getTheme = () => {
+      let baseTheme = document.getElementById('giscus-base-theme').value;
+      let altTheme = document.getElementById('giscus-alt-theme').value;
+      if (authorPrefersDark) {
+          [baseTheme, altTheme] = [altTheme, baseTheme];
+      }
+      return document.body.classList.contains('quarto-dark') ? altTheme : baseTheme;
+    };
+    const script = document.createElement("script");
+    script.src = "https://giscus.app/client.js";
+    script.async = true;
+    script.dataset.repo = "larmarange/guide-R";
+    script.dataset.repoId = "R_kgDOH6-xnw";
+    script.dataset.category = "Forum";
+    script.dataset.categoryId = "DIC_kwDOH6-xn84CRLQy";
+    script.dataset.mapping = "pathname";
+    script.dataset.reactionsEnabled = "1";
+    script.dataset.emitMetadata = "0";
+    script.dataset.inputPosition = "top";
+    script.dataset.theme = getTheme();
+    script.dataset.lang = "fr";
+    script.crossOrigin = "anonymous";
+    // Append the script to the desired div instead of at the end of the body
+    document.getElementById("quarto-content").appendChild(script);
+  }
+  loadGiscus();
+</script><nav class="page-navigation"><div class="nav-page nav-page-previous">
       <a href="../analyses_avancees/classification-ascendante-hierarchique.html" class="pagination-link" aria-label="Classification ascendante hiérarchique">
         <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">43</span>&nbsp; <span class="chapter-title">Classification ascendante hiérarchique</span></span>
       </a>          

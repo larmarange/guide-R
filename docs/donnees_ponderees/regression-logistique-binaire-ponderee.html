@@ -2,10 +2,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="fr" xml:lang="fr"><head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.7.27">
+<meta name="generator" content="quarto-1.9.37">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 <title>33&nbsp; Régression logistique binaire pondérée – guide-R</title>
 <style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
 div.columns{display: flex; gap: min(4vw, 1.5em);}
@@ -72,14 +75,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-985aa47af68dae11cd4d235c71fb941e.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-6c49c5477b92c77c9eb341f9299c235f.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-985aa47af68dae11cd4d235c71fb941e.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-7f8f88aac4f3542376d5c11b86a4c14d.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-d0ae9245876894da5ac7e18953ecc5cc.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-7f8f88aac4f3542376d5c11b86a4c14d.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-1706ad55a43eb6182cc66969adfb4558.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../site_libs/bootstrap/bootstrap-dark-e07f40149b440be50f716415da65e4f4.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<link href="../site_libs/bootstrap/bootstrap-1706ad55a43eb6182cc66969adfb4558.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-fad85691bd79911de0320b982f671d9d.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-f68506c574928121fec95fb329006eac.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../site_libs/bootstrap/bootstrap-fad85691bd79911de0320b982f671d9d.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <script src="../site_libs/quarto-contrib/glightbox/glightbox.min.js"></script>
 <link href="../site_libs/quarto-contrib/glightbox/glightbox.min.css" rel="stylesheet">
 <link href="../site_libs/quarto-contrib/glightbox/lightbox.css" rel="stylesheet"><script id="quarto-search-options" type="application/json">{
@@ -117,10 +120,10 @@ gtag('config', 'G-8BT7D9P85Y', { 'anonymize_ip': true});
 document.addEventListener('DOMContentLoaded', function () {
 cookieconsent.run({
   "notice_banner_type":"simple",
-  "consent_type":"implied",
+  "consent_type":"express",
   "palette":"light",
   "language":"en",
-  "page_load_consent_levels":["strictly-necessary","functionality","tracking","targeting"],
+  "page_load_consent_levels":["strictly-necessary"],
   "notice_banner_reject_button_hide":false,
   "preferences_center_close_button_hide":false,
   "website_name":""
@@ -149,7 +152,7 @@ cookieconsent.run({
         toggleBodyColorMode(bsSheetEl);
       }
     }
-    window.setColorSchemeToggle = (alternate) => {
+    const setColorSchemeToggle = (alternate) => {
       const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
       for (let i=0; i < toggles.length; i++) {
         const toggle = toggles[i];
@@ -182,7 +185,7 @@ cookieconsent.run({
       }
       manageTransitions('#quarto-margin-sidebar .nav-link', true);
       // Switch the toggles
-      window.setColorSchemeToggle(alternate)
+      setColorSchemeToggle(alternate)
       // Hack to workaround the fact that safari doesn't
       // properly recolor the scrollbar when toggling (#1455)
       if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
@@ -222,7 +225,7 @@ cookieconsent.run({
     const isFileUrl = () => {
       return window.location.protocol === 'file:';
     }
-    window.hasAlternateSentinel = () => {
+    const hasAlternateSentinel = () => {
       let styleSentinel = getColorSchemeSentinel();
       if (styleSentinel !== null) {
         return styleSentinel === "alternate";
@@ -250,7 +253,7 @@ cookieconsent.run({
       const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
       const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
       let newTheme = '';
-      if(darkModeDefault) {
+      if(authorPrefersDark) {
         newTheme = isAlternate ? baseTheme : alternateTheme;
       } else {
         newTheme = isAlternate ? alternateTheme : baseTheme;
@@ -273,20 +276,22 @@ cookieconsent.run({
         changeGiscusTheme();
       }
     };
-    const darkModeDefault = false;
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
       document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
       document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
     let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
     // Dark / light mode switch
     window.quartoToggleColorScheme = () => {
       // Read the current dark / light value
-      let toAlternate = !window.hasAlternateSentinel();
+      let toAlternate = !hasAlternateSentinel();
       toggleColorMode(toAlternate);
       setStyleSentinel(toAlternate);
       toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
     };
     // Switch to dark mode if need be
-    if (window.hasAlternateSentinel()) {
+    if (hasAlternateSentinel()) {
       toggleColorMode(true);
     } else {
       toggleColorMode(false);
@@ -309,7 +314,7 @@ cookieconsent.run({
 <!-- sidebar -->
   <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto"><div class="pt-lg-2 mt-2 text-left sidebar-header sidebar-header-stacked">
       <a href="../index.html" class="sidebar-logo-link">
-      <img src="../ressources/typewriter.png" alt="" class="sidebar-logo py-0 d-lg-inline d-none"></a>
+      <img src="../ressources/typewriter.png" alt="" class="sidebar-logo light-content py-0 d-lg-inline d-none"><img src="../ressources/typewriter.png" alt="" class="sidebar-logo dark-content py-0 d-lg-inline d-none"></a>
     <div class="sidebar-title mb-0 py-0">
       <a href="../">guide-R</a> 
         <div class="sidebar-tools-main tools-wide">
@@ -758,7 +763,7 @@ cookieconsent.run({
 <span class="header-section-number">33.1</span> Données des exemples</h2>
 <p>Nous allons reprendre les même données issues de l’enquête <em>Histoire de vie 2003</em>, mais en tenant compte cette fois-ci des poids de pondération fourni dans la variable <em>poids</em>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="fu">library</span>(tidyverse)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="fu">library</span>(tidyverse)</span>
 <span id="cb1-2"><a href="#cb1-2"></a><span class="fu">library</span>(labelled)</span>
 <span id="cb1-3"><a href="#cb1-3"></a><span class="fu">data</span>(hdv2003, <span class="at">package =</span> <span class="st">"questionr"</span>)</span>
 <span id="cb1-4"><a href="#cb1-4"></a>d <span class="ot">&lt;-</span></span>
@@ -794,25 +799,25 @@ cookieconsent.run({
 <span id="cb1-34"><a href="#cb1-34"></a>    <span class="at">relig =</span> <span class="st">"Rapport à la religion"</span>,</span>
 <span id="cb1-35"><a href="#cb1-35"></a>    <span class="at">heures.tv =</span> <span class="st">"Heures de télévision / jour"</span>,</span>
 <span id="cb1-36"><a href="#cb1-36"></a>    <span class="at">poids =</span> <span class="st">"Pondération de l'enquête"</span></span>
-<span id="cb1-37"><a href="#cb1-37"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-37"><a href="#cb1-37"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Il ne nous reste qu’à définir notre objet <a href="http://r-survey.r-forge.r-project.org/survey/">survey</a> en spécifiant la pondération fournie avec l’enquête. La documentation ne mentionne ni strates ni grappes.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a><span class="fu">library</span>(srvyr)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a><span class="fu">library</span>(srvyr)</span>
 <span id="cb2-2"><a href="#cb2-2"></a><span class="fu">library</span>(survey)</span>
 <span id="cb2-3"><a href="#cb2-3"></a>dp <span class="ot">&lt;-</span> d <span class="sc">|&gt;</span> </span>
-<span id="cb2-4"><a href="#cb2-4"></a>  <span class="fu">as_survey_design</span>(<span class="at">weights =</span> poids)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb2-4"><a href="#cb2-4"></a>  <span class="fu">as_survey_design</span>(<span class="at">weights =</span> poids)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section><section id="calcul-de-la-régression-logistique-binaire" class="level2 page-columns page-full" data-number="33.2"><h2 data-number="33.2" class="anchored" data-anchor-id="calcul-de-la-régression-logistique-binaire">
 <span class="header-section-number">33.2</span> Calcul de la régression logistique binaire</h2>
 <p>La syntaxe de <code><a href="https://rdrr.io/pkg/survey/man/svyglm.html">survey::svyglm()</a></code> est similaire à celle de <code><a href="https://rdrr.io/r/stats/glm.html">glm()</a></code> sauf qu’elle a un argument <code>design</code> au lieu de <code>data</code>.</p>
 <p>La plupart du temps, les poids de pondération ne sont pas des nombres entiers, mais des nombres décimaux. Or, la famille de modèles binomiaux repose sur des nombres entiers de succès et d’échecs. Avec une version récente<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> de <strong>R</strong>, cela n’est pas problématique. Nous aurons simplement un avertissement.</p>
 <div class="no-row-height column-margin column-container"><div id="fn1"><p><sup>1</sup>&nbsp;Si vous utilisez une version ancienne de <strong>R</strong>, cela n’était tout simplement pas possible. Vous obteniez un message d’erreur et le modèle n’était pas calculé. Si c’est votre cas, optez pour un modèle quasi-binomial ou bien mettez à jour <strong>R.</strong></p></div></div><div class="cell">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a>mod_binomial <span class="ot">&lt;-</span> <span class="fu">svyglm</span>(</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a>mod_binomial <span class="ot">&lt;-</span> <span class="fu">svyglm</span>(</span>
 <span id="cb3-2"><a href="#cb3-2"></a>  sport <span class="sc">~</span> sexe <span class="sc">+</span> groupe_ages <span class="sc">+</span> etudes <span class="sc">+</span> relig <span class="sc">+</span> heures.tv,</span>
 <span id="cb3-3"><a href="#cb3-3"></a>  <span class="at">family =</span> binomial,</span>
 <span id="cb3-4"><a href="#cb3-4"></a>  <span class="at">design =</span> dp</span>
-<span id="cb3-5"><a href="#cb3-5"></a>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb3-5"><a href="#cb3-5"></a>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Warning in eval(family$initialize): nombre de succès non entier dans un glm
 binomial !</code></pre>
@@ -820,18 +825,18 @@ binomial !</code></pre>
 </div>
 <p>Une alternative consiste à avoir recours à la famille quasi-binomiale, que l’on spécifie avec <code>family = quasibinomial</code> et qui constitue une extension de la famille binomiale pouvant gérer des poids non entiers. La distribution quasi-binomiale, bien que similaire à la distribution binomiale, possède un paramètre supplémentaire 𝜙 qui tente de décrire une variance supplémentaire dans les données qui ne peut être expliquée par une distribution binomiale seule (on parle alors de <em>surdispersion</em>). Les coefficients obtenus sont les mêmes, mais les intervalles de confiance peuvent être un peu plus large.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a>mod_quasi <span class="ot">&lt;-</span> <span class="fu">svyglm</span>(</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a>mod_quasi <span class="ot">&lt;-</span> <span class="fu">svyglm</span>(</span>
 <span id="cb5-2"><a href="#cb5-2"></a>  sport <span class="sc">~</span> sexe <span class="sc">+</span> groupe_ages <span class="sc">+</span> etudes <span class="sc">+</span> relig <span class="sc">+</span> heures.tv,</span>
 <span id="cb5-3"><a href="#cb5-3"></a>  <span class="at">family =</span> quasibinomial,</span>
 <span id="cb5-4"><a href="#cb5-4"></a>  <span class="at">design =</span> dp</span>
-<span id="cb5-5"><a href="#cb5-5"></a>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb5-5"><a href="#cb5-5"></a>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Simple, non&nbsp;?</p>
 </section><section id="sélection-de-modèle" class="level2" data-number="33.3"><h2 data-number="33.3" class="anchored" data-anchor-id="sélection-de-modèle">
 <span class="header-section-number">33.3</span> Sélection de modèle</h2>
 <p>Comme précédemment (cf. <a href="../analyses/selection-modele-pas-a-pas.html" class="quarto-xref"><span>Chapitre 24</span></a>), il est possible de procéder à une sélection de modèle pas à pas, par minimisation de l’AIC, avec <code><a href="https://rdrr.io/r/stats/step.html">step()</a></code>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a>mod_quasi2 <span class="ot">&lt;-</span> <span class="fu">step</span>(mod_quasi)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a>mod_quasi2 <span class="ot">&lt;-</span> <span class="fu">step</span>(mod_quasi)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Start:  AIC=2309.89
 sport ~ sexe + groupe_ages + etudes + relig + heures.tv
@@ -861,13 +866,13 @@ sport ~ sexe + groupe_ages + etudes + heures.tv
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-Sélection pas à pas et valeurs manquantes
+<span class="screen-reader-only">Avertissement</span>Sélection pas à pas et valeurs manquantes
 </div>
 </div>
 <div class="callout-body-container callout-body">
 <p>Nous avons abordé dans le chapitre sur la sélection de modèle pas à pas la problématique des valeurs manquantes lors d’une sélection pas à pas descendante par minimisation de l’AIC (cf. <a href="../analyses/selection-modele-pas-a-pas.html#sec-step-avec-na" class="quarto-xref"><span>Section 24.8</span></a>). La même approche peut être appliquée avec des données pondérées, à l’aide de la fonction <code><a href="https://larmarange.github.io/guideR/reference/step_with_na.html">guideR::step_with_na()</a></code>, compatible avec les modèles <code><a href="https://rdrr.io/pkg/survey/man/svyglm.html">survey::svyglm()</a></code>. Il faudra néanmoins, dans ce cas là, qu’on lui passe l’objet <a href="http://r-survey.r-forge.r-project.org/survey/">survey</a> ayant servi au calcul du modèle via l’e paramètre’argument <code>design</code>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a>mod_quasi2 <span class="ot">&lt;-</span> guideR<span class="sc">::</span><span class="fu">step_with_na</span>(mod_quasi, <span class="at">design =</span> dp)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a>mod_quasi2 <span class="ot">&lt;-</span> guideR<span class="sc">::</span><span class="fu">step_with_na</span>(mod_quasi, <span class="at">design =</span> dp)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div>
 </div>
@@ -875,15 +880,15 @@ Sélection pas à pas et valeurs manquantes
 <span class="header-section-number">33.4</span> Affichage des résultats</h2>
 <p>Nous pouvons tout à fait utiliser <code>gtsumarry::tbl_regression()</code> avec ce type de modèles. De même, on peut utiliser <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/add_global_p.html">gtsummary::add_global_p()</a></code> pour calculer les p-valeurs globales des variables ou encore <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/add_vif.html">gtsummary::add_vif()</a></code> pour vérifier la multicolinéarité (cf. <a href="../analyses/multicolinearite.html" class="quarto-xref"><span>Chapitre 28</span></a>).</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a><span class="fu">library</span>(gtsummary)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a><span class="fu">library</span>(gtsummary)</span>
 <span id="cb9-2"><a href="#cb9-2"></a><span class="fu">theme_gtsummary_language</span>(<span class="st">"fr"</span>, <span class="at">decimal.mark =</span> <span class="st">","</span>, <span class="at">big.mark =</span> <span class="st">" "</span>)</span>
-<span id="cb9-3"><a href="#cb9-3"></a>guideR<span class="sc">::</span><span class="fu">theme_gtsummary_bold_labels</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb9-3"><a href="#cb9-3"></a>guideR<span class="sc">::</span><span class="fu">theme_gtsummary_bold_labels</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell page-columns page-full">
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a>mod_quasi2 <span class="sc">|&gt;</span> </span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a>mod_quasi2 <span class="sc">|&gt;</span> </span>
 <span id="cb10-2"><a href="#cb10-2"></a>  <span class="fu">tbl_regression</span>(<span class="at">exponentiate =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span> </span>
 <span id="cb10-3"><a href="#cb10-3"></a>  <span class="fu">add_global_p</span>(<span class="at">keep =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb10-4"><a href="#cb10-4"></a>  <span class="fu">add_vif</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb10-4"><a href="#cb10-4"></a>  <span class="fu">add_vif</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div id="tbl-regression-logistique-ponderee" class="cell quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-tbl figure page-columns page-full"><div aria-describedby="tbl-regression-logistique-ponderee-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca" class="page-columns page-full">
 <div class="cell-output-display page-columns page-full">
@@ -1336,7 +1341,7 @@ Sélection pas à pas et valeurs manquantes
   height: 0px !important;
 }
 </style>
-<table class="gt_table do-not-create-environment cell table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<table class="gt_table cell table table-sm table-striped small" data-quarto-bootstrap="false">
 <colgroup>
 <col style="width: 16%">
 <col style="width: 16%">
@@ -1498,8 +1503,8 @@ Table&nbsp;33.1: Facteurs associés à la pratique d’un sport (régression log
 </div>
 <p>Pour un graphique des coefficients, nous pouvons utiliser <code><a href="https://larmarange.github.io/ggstats/reference/ggcoef_model.html">ggstats::ggcoef_model()</a></code>.</p>
 <div class="cell page-columns page-full">
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a>mod_quasi2 <span class="sc">|&gt;</span> </span>
-<span id="cb11-2"><a href="#cb11-2"></a>  ggstats<span class="sc">::</span><span class="fu">ggcoef_model</span>(<span class="at">exponentiate =</span> <span class="cn">TRUE</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a>mod_quasi2 <span class="sc">|&gt;</span> </span>
+<span id="cb11-2"><a href="#cb11-2"></a>  ggstats<span class="sc">::</span><span class="fu">ggcoef_model</span>(<span class="at">exponentiate =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display page-columns page-full">
 <div id="fig-forest-plot-regression-logistique-ponderee" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full"><div aria-describedby="fig-forest-plot-regression-logistique-ponderee-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -1515,7 +1520,7 @@ Figure&nbsp;33.1: Facteurs associés à la pratique d’un sport (régression lo
 <span class="header-section-number">33.5</span> Prédictions marginales</h2>
 <p>Pour visualiser les prédictions marginales moyennes du modèle (cf. <a href="../analyses/estimations-marginales.html#sec-predictions-marginales" class="quarto-xref"><span>Section 25.3</span></a>), nous pouvons utiliser <code><a href="https://larmarange.github.io/broom.helpers/reference/tidy_marginal_predictions.html">broom.helpers::plot_marginal_predictions()</a></code>. Il est préférable ici de transmettre également les poids d’échantillonnage pour le calcul de des prédictions marginales moyennes. Pour cela, nous pouvons récupérer les poids du modèle avec <code>weights(mod_quasi2)</code> puis les passer via l’argument <code>wts</code>.</p>
 <div class="cell page-columns page-full">
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a>mod_quasi2 <span class="sc">|&gt;</span> </span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a>mod_quasi2 <span class="sc">|&gt;</span> </span>
 <span id="cb12-2"><a href="#cb12-2"></a>  broom.helpers<span class="sc">::</span><span class="fu">plot_marginal_predictions</span>(</span>
 <span id="cb12-3"><a href="#cb12-3"></a>    <span class="at">type =</span> <span class="st">"response"</span>,</span>
 <span id="cb12-4"><a href="#cb12-4"></a>    <span class="at">wts =</span> <span class="fu">weights</span>(mod_quasi2)</span>
@@ -1524,7 +1529,7 @@ Figure&nbsp;33.1: Facteurs associés à la pratique d’un sport (régression lo
 <span id="cb12-7"><a href="#cb12-7"></a>  <span class="fu">scale_y_continuous</span>(</span>
 <span id="cb12-8"><a href="#cb12-8"></a>    <span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>, .<span class="dv">8</span>),</span>
 <span id="cb12-9"><a href="#cb12-9"></a>    <span class="at">labels =</span> scales<span class="sc">::</span><span class="fu">label_percent</span>()</span>
-<span id="cb12-10"><a href="#cb12-10"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb12-10"><a href="#cb12-10"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display page-columns page-full">
 <div id="fig-predictions-marginales-moyennes-regression-ponderee" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full"><div aria-describedby="fig-predictions-marginales-moyennes-regression-ponderee-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -1538,7 +1543,7 @@ Figure&nbsp;33.2: Prédictions marginales moyennes du modèle pondéré
 </div>
 <p>Et sous forme de tableau&nbsp;:</p>
 <div class="cell page-columns page-full">
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a>mod_quasi2 <span class="sc">|&gt;</span> </span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a>mod_quasi2 <span class="sc">|&gt;</span> </span>
 <span id="cb13-2"><a href="#cb13-2"></a>  <span class="fu">tbl_regression</span>(</span>
 <span id="cb13-3"><a href="#cb13-3"></a>    <span class="at">tidy_fun =</span> broom.helpers<span class="sc">::</span>tidy_marginal_predictions,</span>
 <span id="cb13-4"><a href="#cb13-4"></a>    <span class="at">type =</span> <span class="st">"response"</span>,</span>
@@ -1546,7 +1551,7 @@ Figure&nbsp;33.2: Prédictions marginales moyennes du modèle pondéré
 <span id="cb13-6"><a href="#cb13-6"></a>    <span class="at">wts =</span> <span class="fu">weights</span>(mod_quasi2)</span>
 <span id="cb13-7"><a href="#cb13-7"></a>  ) <span class="sc">|&gt;</span> </span>
 <span id="cb13-8"><a href="#cb13-8"></a>  <span class="fu">bold_labels</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb13-9"><a href="#cb13-9"></a>  <span class="fu">modify_column_hide</span>(<span class="st">"p.value"</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb13-9"><a href="#cb13-9"></a>  <span class="fu">modify_column_hide</span>(<span class="st">"p.value"</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div id="tbl-predictions-marginales-moyennes-regression-ponderee" class="cell quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-tbl figure page-columns page-full"><div aria-describedby="tbl-predictions-marginales-moyennes-regression-ponderee-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
@@ -1999,7 +2004,7 @@ Figure&nbsp;33.2: Prédictions marginales moyennes du modèle pondéré
   height: 0px !important;
 }
 </style>
-<table class="gt_table do-not-create-environment cell table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<table class="gt_table cell table table-sm table-striped small" data-quarto-bootstrap="false">
 <colgroup>
 <col style="width: 33%">
 <col style="width: 33%">
@@ -2140,7 +2145,7 @@ Table&nbsp;33.2: Prédictions marginales moyennes du modèle pondéré
       a.appendChild(i);
       window.document.body.appendChild(a);
     }
-    window.setColorSchemeToggle(window.hasAlternateSentinel())
+    setColorSchemeToggle(hasAlternateSentinel())
     const icon = "";
     const anchorJS = new window.AnchorJS();
     anchorJS.options = {
@@ -2190,13 +2195,14 @@ Table&nbsp;33.2: Prédictions marginales moyennes du modèle pondéré
       e.clearSelection();
     }
     const getTextToCopy = function(trigger) {
-        const codeEl = trigger.previousElementSibling.cloneNode(true);
-        for (const childEl of codeEl.children) {
-          if (isCodeAnnotation(childEl)) {
-            childEl.remove();
-          }
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
         }
-        return codeEl.innerText;
+      }
+      return codeEl.innerText;
     }
     const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
       text: getTextToCopy
@@ -2537,8 +2543,36 @@ Table&nbsp;33.2: Prédictions marginales moyennes du modèle pondéré
       }
     }
   });
-  </script><script src="https://giscus.app/client.js" data-repo="larmarange/guide-R" data-repo-id="R_kgDOH6-xnw" data-category="Forum" data-category-id="DIC_kwDOH6-xn84CRLQy" data-mapping="pathname" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="top" data-theme="light" data-lang="fr" crossorigin="anonymous" data-loading="lazy" async="">
-</script><input type="hidden" id="giscus-base-theme" value="light"><input type="hidden" id="giscus-alt-theme" value="dark"><nav class="page-navigation"><div class="nav-page nav-page-previous">
+  </script><input type="hidden" id="giscus-base-theme" value="light"><input type="hidden" id="giscus-alt-theme" value="dark"><script>
+  function loadGiscus() {
+    // Function to get the theme based on body class
+    const getTheme = () => {
+      let baseTheme = document.getElementById('giscus-base-theme').value;
+      let altTheme = document.getElementById('giscus-alt-theme').value;
+      if (authorPrefersDark) {
+          [baseTheme, altTheme] = [altTheme, baseTheme];
+      }
+      return document.body.classList.contains('quarto-dark') ? altTheme : baseTheme;
+    };
+    const script = document.createElement("script");
+    script.src = "https://giscus.app/client.js";
+    script.async = true;
+    script.dataset.repo = "larmarange/guide-R";
+    script.dataset.repoId = "R_kgDOH6-xnw";
+    script.dataset.category = "Forum";
+    script.dataset.categoryId = "DIC_kwDOH6-xn84CRLQy";
+    script.dataset.mapping = "pathname";
+    script.dataset.reactionsEnabled = "1";
+    script.dataset.emitMetadata = "0";
+    script.dataset.inputPosition = "top";
+    script.dataset.theme = getTheme();
+    script.dataset.lang = "fr";
+    script.crossOrigin = "anonymous";
+    // Append the script to the desired div instead of at the end of the body
+    document.getElementById("quarto-content").appendChild(script);
+  }
+  loadGiscus();
+</script><nav class="page-navigation"><div class="nav-page nav-page-previous">
       <a href="../donnees_ponderees/graphiques-ponderes.html" class="pagination-link" aria-label="Graphiques pondérés">
         <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">32</span>&nbsp; <span class="chapter-title">Graphiques pondérés</span></span>
       </a>          

@@ -2,10 +2,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="fr" xml:lang="fr"><head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.7.27">
+<meta name="generator" content="quarto-1.9.37">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 <title>31&nbsp; Analyses uni- et bivariées pondérées – guide-R</title>
 <style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
 div.columns{display: flex; gap: min(4vw, 1.5em);}
@@ -72,14 +75,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-985aa47af68dae11cd4d235c71fb941e.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-6c49c5477b92c77c9eb341f9299c235f.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-985aa47af68dae11cd4d235c71fb941e.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-7f8f88aac4f3542376d5c11b86a4c14d.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-d0ae9245876894da5ac7e18953ecc5cc.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-7f8f88aac4f3542376d5c11b86a4c14d.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-1706ad55a43eb6182cc66969adfb4558.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../site_libs/bootstrap/bootstrap-dark-e07f40149b440be50f716415da65e4f4.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<link href="../site_libs/bootstrap/bootstrap-1706ad55a43eb6182cc66969adfb4558.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light"><script id="quarto-search-options" type="application/json">{
+<link href="../site_libs/bootstrap/bootstrap-fad85691bd79911de0320b982f671d9d.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-f68506c574928121fec95fb329006eac.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../site_libs/bootstrap/bootstrap-fad85691bd79911de0320b982f671d9d.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light"><script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
   "collapse-after": 3,
@@ -114,10 +117,10 @@ gtag('config', 'G-8BT7D9P85Y', { 'anonymize_ip': true});
 document.addEventListener('DOMContentLoaded', function () {
 cookieconsent.run({
   "notice_banner_type":"simple",
-  "consent_type":"implied",
+  "consent_type":"express",
   "palette":"light",
   "language":"en",
-  "page_load_consent_levels":["strictly-necessary","functionality","tracking","targeting"],
+  "page_load_consent_levels":["strictly-necessary"],
   "notice_banner_reject_button_hide":false,
   "preferences_center_close_button_hide":false,
   "website_name":""
@@ -146,7 +149,7 @@ cookieconsent.run({
         toggleBodyColorMode(bsSheetEl);
       }
     }
-    window.setColorSchemeToggle = (alternate) => {
+    const setColorSchemeToggle = (alternate) => {
       const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
       for (let i=0; i < toggles.length; i++) {
         const toggle = toggles[i];
@@ -179,7 +182,7 @@ cookieconsent.run({
       }
       manageTransitions('#quarto-margin-sidebar .nav-link', true);
       // Switch the toggles
-      window.setColorSchemeToggle(alternate)
+      setColorSchemeToggle(alternate)
       // Hack to workaround the fact that safari doesn't
       // properly recolor the scrollbar when toggling (#1455)
       if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
@@ -219,7 +222,7 @@ cookieconsent.run({
     const isFileUrl = () => {
       return window.location.protocol === 'file:';
     }
-    window.hasAlternateSentinel = () => {
+    const hasAlternateSentinel = () => {
       let styleSentinel = getColorSchemeSentinel();
       if (styleSentinel !== null) {
         return styleSentinel === "alternate";
@@ -247,7 +250,7 @@ cookieconsent.run({
       const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
       const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
       let newTheme = '';
-      if(darkModeDefault) {
+      if(authorPrefersDark) {
         newTheme = isAlternate ? baseTheme : alternateTheme;
       } else {
         newTheme = isAlternate ? alternateTheme : baseTheme;
@@ -270,20 +273,22 @@ cookieconsent.run({
         changeGiscusTheme();
       }
     };
-    const darkModeDefault = false;
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
       document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
       document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
     let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
     // Dark / light mode switch
     window.quartoToggleColorScheme = () => {
       // Read the current dark / light value
-      let toAlternate = !window.hasAlternateSentinel();
+      let toAlternate = !hasAlternateSentinel();
       toggleColorMode(toAlternate);
       setStyleSentinel(toAlternate);
       toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
     };
     // Switch to dark mode if need be
-    if (window.hasAlternateSentinel()) {
+    if (hasAlternateSentinel()) {
       toggleColorMode(true);
     } else {
       toggleColorMode(false);
@@ -306,7 +311,7 @@ cookieconsent.run({
 <!-- sidebar -->
   <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto"><div class="pt-lg-2 mt-2 text-left sidebar-header sidebar-header-stacked">
       <a href="../index.html" class="sidebar-logo-link">
-      <img src="../ressources/typewriter.png" alt="" class="sidebar-logo py-0 d-lg-inline d-none"></a>
+      <img src="../ressources/typewriter.png" alt="" class="sidebar-logo light-content py-0 d-lg-inline d-none"><img src="../ressources/typewriter.png" alt="" class="sidebar-logo dark-content py-0 d-lg-inline d-none"></a>
     <div class="sidebar-title mb-0 py-0">
       <a href="../">guide-R</a> 
         <div class="sidebar-tools-main tools-wide">
@@ -757,8 +762,8 @@ cookieconsent.run({
 <p>Son équivalent pour les objets <a href="http://r-survey.r-forge.r-project.org/survey/">survey</a> existe&nbsp;: il s’agit de la fonction <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/tbl_svysummary.html">gtsummary::tbl_svysummary()</a></code> qui fonctionne de manière similaire.</p>
 <p>Pour illustrer son fonctionnement, nous allons utiliser le jeu de données <em>fecondite</em> fournit dans le package <a href="https://juba.github.io/questionr/">questionr</a>. Ce jeu de données fournit un tableau de données <code>femmes</code> comportant une variable <em>poids</em> de pondération que nous allons utiliser. Les données catégorielles étant stockées sous forme de vecteurs numériques avec étiquettes de valeurs (cf. <a href="../manipulation/etiquettes-valeurs.html" class="quarto-xref"><span>Chapitre 12</span></a>), nous allons les convertir en facteurs avec <code><a href="https://larmarange.github.io/labelled/reference/to_factor.html">labelled::unlabelled()</a></code>. De même, certaines valeurs manquantes sont indiquées sous formes de <em>user NAs</em> (cf. <a href="../manipulation/valeurs-manquantes.html#sec-user-na" class="quarto-xref"><span>Section 13.2</span></a>)&nbsp;: nous allons les convertir en valeurs manquantes classiques (<em>regular NAs</em>) avec <code><a href="https://larmarange.github.io/labelled/reference/na_values.html">labelled::user_na_to_na()</a></code>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="fu">data</span>(<span class="st">"fecondite"</span>, <span class="at">package =</span> <span class="st">"questionr"</span>)</span>
-<span id="cb1-2"><a href="#cb1-2"></a><span class="fu">library</span>(srvyr)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="fu">data</span>(<span class="st">"fecondite"</span>, <span class="at">package =</span> <span class="st">"questionr"</span>)</span>
+<span id="cb1-2"><a href="#cb1-2"></a><span class="fu">library</span>(srvyr)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>
 Attachement du package : 'srvyr'</code></pre>
@@ -768,11 +773,11 @@ Attachement du package : 'srvyr'</code></pre>
 
     filter</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a>dp <span class="ot">&lt;-</span> femmes <span class="sc">|&gt;</span> </span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a>dp <span class="ot">&lt;-</span> femmes <span class="sc">|&gt;</span> </span>
 <span id="cb4-2"><a href="#cb4-2"></a>  labelled<span class="sc">::</span><span class="fu">user_na_to_na</span>() <span class="sc">|&gt;</span> </span>
 <span id="cb4-3"><a href="#cb4-3"></a>  labelled<span class="sc">::</span><span class="fu">unlabelled</span>() <span class="sc">|&gt;</span> </span>
 <span id="cb4-4"><a href="#cb4-4"></a>  <span class="fu">as_survey_design</span>(<span class="at">weights =</span> poids)</span>
-<span id="cb4-5"><a href="#cb4-5"></a>dp</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb4-5"><a href="#cb4-5"></a>dp</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Independent Sampling design (with replacement)
 Called via srvyr
@@ -788,25 +793,25 @@ Data variables:
 </div>
 <p>Chargeons <a href="https://github.com/ddsjoberg/gtsummary">gtsummary</a> et définissons le français comme langue de rendu des tableaux.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a><span class="fu">library</span>(gtsummary)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a><span class="fu">library</span>(gtsummary)</span>
 <span id="cb6-2"><a href="#cb6-2"></a><span class="fu">theme_gtsummary_language</span>(</span>
 <span id="cb6-3"><a href="#cb6-3"></a>  <span class="at">language =</span> <span class="st">"fr"</span>, </span>
 <span id="cb6-4"><a href="#cb6-4"></a>  <span class="at">decimal.mark =</span> <span class="st">","</span>, </span>
 <span id="cb6-5"><a href="#cb6-5"></a>  <span class="at">big.mark =</span> <span class="st">""</span></span>
-<span id="cb6-6"><a href="#cb6-6"></a>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb6-6"><a href="#cb6-6"></a>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Setting theme "language: fr"</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a>guideR<span class="sc">::</span><span class="fu">theme_gtsummary_bold_labels</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a>guideR<span class="sc">::</span><span class="fu">theme_gtsummary_bold_labels</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Pour réaliser un tableau croisé, il nous suffit d’appeler <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/tbl_svysummary.html">gtsummary::tbl_svysummary()</a></code> de la même manière que l’on aurait procédé avec <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/tbl_summary.html">gtsummary::tbl_summary()</a></code>. En arrière plan, <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/tbl_svysummary.html">gtsummary::tbl_svysummary()</a></code> appellera les différentes fonctions statistiques de <a href="http://r-survey.r-forge.r-project.org/survey/">survey</a>&nbsp;: la pondération ainsi que les spécificités du plan d’échantillonnage seront donc correctement prises en compte.</p>
 <div class="cell page-columns page-full">
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a>dp <span class="sc">|&gt;</span> </span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a>dp <span class="sc">|&gt;</span> </span>
 <span id="cb9-2"><a href="#cb9-2"></a>  <span class="fu">tbl_svysummary</span>(</span>
 <span id="cb9-3"><a href="#cb9-3"></a>    <span class="at">by =</span> milieu,</span>
 <span id="cb9-4"><a href="#cb9-4"></a>    <span class="at">include =</span> <span class="fu">c</span>(age, educ, travail)</span>
 <span id="cb9-5"><a href="#cb9-5"></a>  ) <span class="sc">|&gt;</span> </span>
-<span id="cb9-6"><a href="#cb9-6"></a>  <span class="fu">add_overall</span>(<span class="at">last =</span> <span class="cn">TRUE</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb9-6"><a href="#cb9-6"></a>  <span class="fu">add_overall</span>(<span class="at">last =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div id="tbl-tbl_svysummary" class="cell quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-tbl figure page-columns page-full"><div aria-describedby="tbl-tbl_svysummary-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
@@ -1259,7 +1264,7 @@ Data variables:
   height: 0px !important;
 }
 </style>
-<table class="gt_table do-not-create-environment cell table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<table class="gt_table cell table table-sm table-striped small" data-quarto-bootstrap="false">
 <colgroup>
 <col style="width: 25%">
 <col style="width: 25%">
@@ -1371,7 +1376,7 @@ Important
 <p>Dans d’autres enquêtes, les poids sont générés de telle manière que la somme des poids correspondent au nombre total de personnes enquêtées. Dans ce genre de situation, on a souvent tendance, à tort, à interpréter les effectifs pondérés comme un nombre d’observations. Or, il peut y avoir un écart important entre le nombre d’observations dans l’enquête et les effectifs pondérés.</p>
 <p>On pourra éventuellement présenter séparément le nombre d’observations (i.e.&nbsp;les effectifs non pondérés) et les proportions pondérées. <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/tbl_svysummary.html">gtsummary::tbl_svysummary()</a></code> fournit justement à la fois ces données pondérées et non pondérées. Il est vrai que cela nécessite quand même quelques manipulations. Pour les cellules, on précisera le type d’effectifs à afficher avec l’argument <code>statistic</code>. Pour personnaliser l’affiche du nombre de valeurs manquantes, cela doit se faire à un niveau plus global via <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/set_gtsummary_theme.html">gtsummary::set_gtsummary_theme()</a></code>. Enfin, on passera par <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/modify.html">gtsummary::modify_header()</a></code> pour personnaliser les en-têtes de colonne.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a>dp <span class="sc">|&gt;</span> </span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a>dp <span class="sc">|&gt;</span> </span>
 <span id="cb10-2"><a href="#cb10-2"></a>  <span class="fu">tbl_svysummary</span>(</span>
 <span id="cb10-3"><a href="#cb10-3"></a>    <span class="at">by =</span> milieu,</span>
 <span id="cb10-4"><a href="#cb10-4"></a>    <span class="at">include =</span> <span class="fu">c</span>(educ, travail),</span>
@@ -1381,7 +1386,7 @@ Important
 <span id="cb10-8"><a href="#cb10-8"></a>  ) <span class="sc">|&gt;</span> </span>
 <span id="cb10-9"><a href="#cb10-9"></a>  <span class="fu">modify_header</span>(</span>
 <span id="cb10-10"><a href="#cb10-10"></a>    <span class="fu">all_stat_cols</span>() <span class="sc">~</span> <span class="st">"**{level}** ({n_unweighted} obs.)"</span></span>
-<span id="cb10-11"><a href="#cb10-11"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb10-11"><a href="#cb10-11"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div id="sfnwhewmsz" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>#sfnwhewmsz table {
@@ -1832,7 +1837,7 @@ Important
   height: 0px !important;
 }
 </style>
-<table class="gt_table table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<table class="gt_table table table-sm table-striped small" data-quarto-bootstrap="false">
 <colgroup>
 <col style="width: 33%">
 <col style="width: 33%">
@@ -1906,7 +1911,7 @@ Important
 <p><em>Nota Bene&nbsp;:</em> cette fonction à également une option <code>mean_sd = TRUE</code> si, dans le même temps, on souhaite forcer l’affichage de la moyenne et de l’écart-type au lieu de la médiane et l’intervalle inter-quartile pour les variables continues.</p>
 <p>Il faut noter qu’une modification du thème impactera tous les tableaux suivants, jusqu’à ce que le thème soit à nouveau modifié ou bien que l’on fasse appel à <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/set_gtsummary_theme.html">gtsummary::reset_gtsummary_theme()</a></code>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a>guideR<span class="sc">::</span><span class="fu">theme_gtsummary_unweighted_n</span>()</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a>guideR<span class="sc">::</span><span class="fu">theme_gtsummary_unweighted_n</span>()</span>
 <span id="cb11-2"><a href="#cb11-2"></a></span>
 <span id="cb11-3"><a href="#cb11-3"></a>dp <span class="sc">|&gt;</span> </span>
 <span id="cb11-4"><a href="#cb11-4"></a>  <span class="fu">tbl_svysummary</span>(</span>
@@ -1915,7 +1920,7 @@ Important
 <span id="cb11-7"><a href="#cb11-7"></a>    <span class="at">missing_stat =</span> <span class="st">"{N_miss_unweighted} obs."</span></span>
 <span id="cb11-8"><a href="#cb11-8"></a>) <span class="sc">|&gt;</span> </span>
 <span id="cb11-9"><a href="#cb11-9"></a>  <span class="fu">add_overall</span>(<span class="at">last =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb11-10"><a href="#cb11-10"></a>  <span class="fu">bold_labels</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb11-10"><a href="#cb11-10"></a>  <span class="fu">bold_labels</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div id="byutvjjgpz" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>#byutvjjgpz table {
@@ -2366,7 +2371,7 @@ Important
   height: 0px !important;
 }
 </style>
-<table class="gt_table table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<table class="gt_table table table-sm table-striped small" data-quarto-bootstrap="false">
 <colgroup>
 <col style="width: 25%">
 <col style="width: 25%">
@@ -2466,17 +2471,17 @@ Important
 </ul>
 <p>Ces fonctions prennent leurs arguments sous forme de formules pour spécifier les variables d’intérêt.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a>survey<span class="sc">::</span><span class="fu">svymean</span>(<span class="sc">~</span> age, dp)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a>survey<span class="sc">::</span><span class="fu">svymean</span>(<span class="sc">~</span> age, dp)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>      mean     SE
 age 28.468 0.2697</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a>survey<span class="sc">::</span><span class="fu">svymean</span>(<span class="sc">~</span> age, dp) <span class="sc">|&gt;</span> <span class="fu">confint</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a>survey<span class="sc">::</span><span class="fu">svymean</span>(<span class="sc">~</span> age, dp) <span class="sc">|&gt;</span> <span class="fu">confint</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>       2.5 %   97.5 %
 age 27.93931 28.99653</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1"></a>survey<span class="sc">::</span><span class="fu">svyquantile</span>(<span class="sc">~</span>age, dp, <span class="at">quantile =</span> <span class="fu">c</span>(<span class="fl">0.25</span>, <span class="fl">0.5</span>, <span class="fl">0.75</span>), <span class="at">ci =</span> <span class="cn">TRUE</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1"></a>survey<span class="sc">::</span><span class="fu">svyquantile</span>(<span class="sc">~</span>age, dp, <span class="at">quantile =</span> <span class="fu">c</span>(<span class="fl">0.25</span>, <span class="fl">0.5</span>, <span class="fl">0.75</span>), <span class="at">ci =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>$age
      quantile ci.2.5 ci.97.5        se
@@ -2492,13 +2497,13 @@ attr(,"class")
 </div>
 <p>Les tris à plat se déclarent en passant comme argument le nom de la variable précédé d’un tilde (<code>~</code>), tandis que les tableaux croisés utilisent les noms des deux variables séparés par un signe plus (<code>+</code>) et précédés par un tilde (<code>~</code>)<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>.</p>
 <div class="no-row-height column-margin column-container"><div id="fn1"><p><sup>1</sup>&nbsp;Cette syntaxe est similaire à celle de <code><a href="https://rdrr.io/r/stats/xtabs.html">xtabs()</a></code>.</p></div></div><div class="cell">
-<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1"></a>survey<span class="sc">::</span><span class="fu">svytable</span>(<span class="sc">~</span>region, dp)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1"></a>survey<span class="sc">::</span><span class="fu">svytable</span>(<span class="sc">~</span>region, dp)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>region
     Nord      Est      Sud    Ouest 
 611.0924 175.7404 329.2220 911.2197 </code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1"></a>survey<span class="sc">::</span><span class="fu">svytable</span>(<span class="sc">~</span>milieu <span class="sc">+</span> educ, dp)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1"></a>survey<span class="sc">::</span><span class="fu">svytable</span>(<span class="sc">~</span>milieu <span class="sc">+</span> educ, dp)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>        educ
 milieu        aucun   primaire secondaire  supérieur
@@ -2508,8 +2513,8 @@ milieu        aucun   primaire secondaire  supérieur
 </div>
 <p>La fonction <code><a href="https://juba.github.io/questionr/reference/freq.html">questionr::freq()</a></code> peut être utilisée si on lui passe en argument non pas la variable elle-même, mais son tri à plat obtenu avec <code><a href="https://rdrr.io/pkg/survey/man/svychisq.html">survey::svytable()</a></code>&nbsp;:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1"></a>survey<span class="sc">::</span><span class="fu">svytable</span>(<span class="sc">~</span>region, dp) <span class="sc">|&gt;</span> </span>
-<span id="cb22-2"><a href="#cb22-2"></a>  questionr<span class="sc">::</span><span class="fu">freq</span>(<span class="at">total =</span> <span class="cn">TRUE</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1"></a>survey<span class="sc">::</span><span class="fu">svytable</span>(<span class="sc">~</span>region, dp) <span class="sc">|&gt;</span> </span>
+<span id="cb22-2"><a href="#cb22-2"></a>  questionr<span class="sc">::</span><span class="fu">freq</span>(<span class="at">total =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>           n     %  val%
 Nord   611.1  30.1  30.1
@@ -2521,7 +2526,7 @@ Total 2027.3 100.0 100.0</code></pre>
 </div>
 <p>Mais il est plus simple ici d’utiliser la fonction <code><a href="https://larmarange.github.io/guideR/reference/proportion.html">guideR::proportion()</a></code>, compatible avec <a href="http://r-survey.r-forge.r-project.org/survey/">survey</a>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1"></a>dp <span class="sc">|&gt;</span> guideR<span class="sc">::</span><span class="fu">proportion</span>(region)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1"></a>dp <span class="sc">|&gt;</span> guideR<span class="sc">::</span><span class="fu">proportion</span>(region)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 4 × 4
   region     n     N  prop
@@ -2534,8 +2539,8 @@ Total 2027.3 100.0 100.0</code></pre>
 </div>
 <p>Les fonctions <code><a href="https://juba.github.io/questionr/reference/rprop.html">questionr::rprop()</a></code> et <code><a href="https://juba.github.io/questionr/reference/cprop.html">questionr::cprop()</a></code> peuvent être utilisées pour calculer les pourcentages en ligne ou en colonne.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1"></a>survey<span class="sc">::</span><span class="fu">svytable</span>(<span class="sc">~</span>milieu <span class="sc">+</span> educ, dp) <span class="sc">|&gt;</span> </span>
-<span id="cb26-2"><a href="#cb26-2"></a>  questionr<span class="sc">::</span><span class="fu">cprop</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1"></a>survey<span class="sc">::</span><span class="fu">svytable</span>(<span class="sc">~</span>milieu <span class="sc">+</span> educ, dp) <span class="sc">|&gt;</span> </span>
+<span id="cb26-2"><a href="#cb26-2"></a>  questionr<span class="sc">::</span><span class="fu">cprop</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>        educ
 milieu   aucun primaire secondaire supérieur Ensemble
@@ -2546,7 +2551,7 @@ milieu   aucun primaire secondaire supérieur Ensemble
 </div>
 <p>Là encore, on pourra utiliser alternativement <code><a href="https://larmarange.github.io/guideR/reference/proportion.html">guideR::proportion()</a></code>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1"></a>dp <span class="sc">|&gt;</span> guideR<span class="sc">::</span><span class="fu">proportion</span>(milieu, <span class="at">.by =</span> educ)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1"></a>dp <span class="sc">|&gt;</span> guideR<span class="sc">::</span><span class="fu">proportion</span>(milieu, <span class="at">.by =</span> educ)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 8 × 5
 # Groups:   educ [4]
@@ -2564,7 +2569,7 @@ milieu   aucun primaire secondaire supérieur Ensemble
 </div>
 <p>Le principe de la fonction <code><a href="https://rdrr.io/pkg/survey/man/svyby.html">survey::svyby()</a></code> est similaire à celui de <code><a href="https://rdrr.io/r/base/tapply.html">tapply()</a></code> (cf. <a href="../analyses/statistique-bivariee.html#sec-tapply" class="quarto-xref"><span>Section 19.2.4</span></a>). Elle permet de calculer des statistiques selon plusieurs sous-groupes définis par un facteur.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1"></a>survey<span class="sc">::</span><span class="fu">svyby</span>(<span class="sc">~</span>age, <span class="sc">~</span>region, dp, survey<span class="sc">::</span>svymean)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb30"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1"></a>survey<span class="sc">::</span><span class="fu">svyby</span>(<span class="sc">~</span>age, <span class="sc">~</span>region, dp, survey<span class="sc">::</span>svymean)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>      region      age        se
 Nord    Nord 29.03299 0.4753268
@@ -2577,12 +2582,12 @@ Ouest  Ouest 28.08626 0.4458201</code></pre>
 <span class="header-section-number">31.3</span> Intervalles de confiance et tests statistiques</h2>
 <p>La fonction <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/add_ci.html">gtsummary::add_ci()</a></code> peut être appliquée à des tableaux produits avec <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/tbl_svysummary.html">gtsummary::tbl_svysummary()</a></code><a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a>. Les méthodes utilisées sont adaptées à la prise en compte d’un plan d’échantillonnage. On se référera à la document de la fonction pour plus de détails sur les méthodes statistiques utilisées. <strong>Rappel&nbsp;:</strong> pour les variables continues, on sera vigilant à ce que la statistique affichée (médiane par défaut) corresponde au type d’intervalle de confiance calculé (moyenne par défaut).</p>
 <div class="no-row-height column-margin column-container"><div id="fn2"><p><sup>2</sup>&nbsp;Cela requiert une version récente (≥1.7.0) de <a href="https://github.com/ddsjoberg/gtsummary">gtsummary</a>.</p></div></div><div class="cell page-columns page-full">
-<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1"></a>dp <span class="sc">|&gt;</span> </span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb32"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1"></a>dp <span class="sc">|&gt;</span> </span>
 <span id="cb32-2"><a href="#cb32-2"></a>  <span class="fu">tbl_svysummary</span>(</span>
 <span id="cb32-3"><a href="#cb32-3"></a>    <span class="at">include =</span> <span class="fu">c</span>(age, region),</span>
 <span id="cb32-4"><a href="#cb32-4"></a>    <span class="at">statistic =</span> <span class="fu">all_continuous</span>() <span class="sc">~</span> <span class="st">"{mean} ({sd})"</span></span>
 <span id="cb32-5"><a href="#cb32-5"></a>  ) <span class="sc">|&gt;</span> </span>
-<span id="cb32-6"><a href="#cb32-6"></a>  <span class="fu">add_ci</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb32-6"><a href="#cb32-6"></a>  <span class="fu">add_ci</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div id="tbl-tbl_svysummary-add_ci" class="cell quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-tbl figure page-columns page-full"><div aria-describedby="tbl-tbl_svysummary-add_ci-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
@@ -3035,7 +3040,7 @@ Ouest  Ouest 28.08626 0.4458201</code></pre>
   height: 0px !important;
 }
 </style>
-<table class="gt_table do-not-create-environment cell table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<table class="gt_table cell table table-sm table-striped small" data-quarto-bootstrap="false">
 <colgroup>
 <col style="width: 33%">
 <col style="width: 33%">
@@ -3099,13 +3104,13 @@ Table&nbsp;31.2: Intervalles de confiance avec prise en compte du plan d’écha
 </div>
 <p>De même, on peut aisément effectuer des tests de comparaison avec <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/add_p.html">gtsummary::add_p()</a></code>. Là aussi, les tests utilisés sont des adaptations des tests classiques avec différentes corrections pour tenir compte à la fois de la pondération et du plan d’échantillonnage.</p>
 <div class="cell page-columns page-full">
-<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1"></a>dp <span class="sc">|&gt;</span> </span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb33"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1"></a>dp <span class="sc">|&gt;</span> </span>
 <span id="cb33-2"><a href="#cb33-2"></a>  <span class="fu">tbl_svysummary</span>(</span>
 <span id="cb33-3"><a href="#cb33-3"></a>    <span class="at">include =</span> <span class="fu">c</span>(age, region),</span>
 <span id="cb33-4"><a href="#cb33-4"></a>    <span class="at">by =</span> milieu</span>
 <span id="cb33-5"><a href="#cb33-5"></a>  ) <span class="sc">|&gt;</span> </span>
 <span id="cb33-6"><a href="#cb33-6"></a>  <span class="fu">add_p</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb33-7"><a href="#cb33-7"></a>  <span class="fu">bold_labels</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb33-7"><a href="#cb33-7"></a>  <span class="fu">bold_labels</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div id="tbl-tbl_svysummary-add_p" class="cell quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-tbl figure page-columns page-full"><div aria-describedby="tbl-tbl_svysummary-add_p-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
@@ -3558,7 +3563,7 @@ Table&nbsp;31.2: Intervalles de confiance avec prise en compte du plan d’écha
   height: 0px !important;
 }
 </style>
-<table class="gt_table do-not-create-environment cell table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<table class="gt_table cell table table-sm table-striped small" data-quarto-bootstrap="false">
 <colgroup>
 <col style="width: 25%">
 <col style="width: 25%">
@@ -3653,9 +3658,9 @@ Astuce
 <p>Dans les chapitres sur la statistique univariée (cf. <a href="../analyses/statistique-univariee.html" class="quarto-xref"><span>Chapitre 18</span></a>) et la statistique bivariée (cf. <a href="../analyses/statistique-bivariee.html" class="quarto-xref"><span>Chapitre 19</span></a>), nous avions introduit les fonctions <code><a href="https://larmarange.github.io/guideR/reference/mean_sd.html">guideR::mean_sd()</a></code>, <code>guideR::meadian_iqr()</code> et <code><a href="https://larmarange.github.io/guideR/reference/proportion.html">guideR::proportion()</a></code>, fonctions fournies par <a href="https://larmarange.github.io/guideR/">guideR</a>, le package compagnon de <em>guide-R</em>.</p>
 <p>Or, ces trois fonctions sont également compatibles avec les objets <code>survey</code> et peuvent donc être utilisées de la même manière.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1"></a><span class="fu">library</span>(guideR)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb34"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1"></a><span class="fu">library</span>(guideR)</span>
 <span id="cb34-2"><a href="#cb34-2"></a>dp <span class="sc">|&gt;</span> </span>
-<span id="cb34-3"><a href="#cb34-3"></a>  <span class="fu">mean_sd</span>(age, <span class="at">.by =</span> region, <span class="at">.conf.int =</span> <span class="cn">TRUE</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb34-3"><a href="#cb34-3"></a>  <span class="fu">mean_sd</span>(age, <span class="at">.by =</span> region, <span class="at">.conf.int =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 4 × 8
   x     region  mean mean_low mean_high    sd     n missing
@@ -3665,8 +3670,8 @@ Astuce
 3 age   Sud     29.0     27.8      30.2 0.615   407       0
 4 age   Ouest   28.1     27.2      29.0 0.446   562       0</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1"></a>dp <span class="sc">|&gt;</span> </span>
-<span id="cb36-2"><a href="#cb36-2"></a>  <span class="fu">median_iqr</span>(age, <span class="at">.by =</span> region)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb36"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1"></a>dp <span class="sc">|&gt;</span> </span>
+<span id="cb36-2"><a href="#cb36-2"></a>  <span class="fu">median_iqr</span>(age, <span class="at">.by =</span> region)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 4 × 10
   x     region median   min    q1    q3   max   iqr     n missing
@@ -3676,8 +3681,8 @@ Astuce
 3 age   Sud        27    14    22    36    49    14   407       0
 4 age   Ouest      27    14    20    34    49    14   562       0</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1"></a>dp <span class="sc">|&gt;</span> </span>
-<span id="cb38-2"><a href="#cb38-2"></a>  <span class="fu">proportion</span>(educ, <span class="at">.conf.int =</span> <span class="cn">TRUE</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb38"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1"></a>dp <span class="sc">|&gt;</span> </span>
+<span id="cb38-2"><a href="#cb38-2"></a>  <span class="fu">proportion</span>(educ, <span class="at">.conf.int =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 4 × 6
   educ            n     N  prop prop_low prop_high
@@ -3687,8 +3692,8 @@ Astuce
 3 secondaire  364.  2027. 18.0     15.9      20.2 
 4 supérieur    61.1 2027.  3.01     2.19      4.13</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1"></a>dp <span class="sc">|&gt;</span> </span>
-<span id="cb40-2"><a href="#cb40-2"></a>  <span class="fu">proportion</span>(educ, <span class="at">.by =</span> region)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb40"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1"></a>dp <span class="sc">|&gt;</span> </span>
+<span id="cb40-2"><a href="#cb40-2"></a>  <span class="fu">proportion</span>(educ, <span class="at">.by =</span> region)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 16 × 5
 # Groups:   region [4]
@@ -3718,9 +3723,9 @@ Astuce
 <p>On peut avoir besoin de calculer des moyennes et/ou des proportions par sous-groupe, avec leurs intervalles de confiance, de manière manuelle, par exemple en amont d’un graphique à représenter avec <a href="https://ggplot2.tidyverse.org">ggplot2</a>. Dans ce cas de figure, les fonctions natives de <a href="http://r-survey.r-forge.r-project.org/survey/">survey</a> ne sont pas toujours très facile d’emploi et l’on pourra avantageusement recourir à <a href="http://gdfe.co/srvyr/">srvyr</a> pour bénéficier d’une syntaxe à la <a href="https://dplyr.tidyverse.org">dplyr</a>.</p>
 <p>Par exemple, pour calculer l’âge moyen des femmes par région, on combinera <code><a href="http://gdfe.co/srvyr/reference/survey_mean.html">srvyr::survey_mean()</a></code> avec <code><a href="https://dplyr.tidyverse.org/reference/group_by.html">srvyr::group_by()</a></code> et <code><a href="https://dplyr.tidyverse.org/reference/summarise.html">srvyr::summarise()</a></code> &nbsp;:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1"></a>dp <span class="sc">|&gt;</span> </span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb42"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1"></a>dp <span class="sc">|&gt;</span> </span>
 <span id="cb42-2"><a href="#cb42-2"></a>  <span class="fu">group_by</span>(region) <span class="sc">|&gt;</span> </span>
-<span id="cb42-3"><a href="#cb42-3"></a>  <span class="fu">summarise</span>(<span class="at">moy =</span> <span class="fu">survey_mean</span>(age))</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb42-3"><a href="#cb42-3"></a>  <span class="fu">summarise</span>(<span class="at">moy =</span> <span class="fu">survey_mean</span>(age))</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 4 × 3
   region   moy moy_se
@@ -3733,9 +3738,9 @@ Astuce
 </div>
 <p>Par défaut, cela renvoie les moyennes et les erreurs standards. Pour les intervalles de confiance, on précisera simplement <code>vartype = "ci"</code>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1"></a>dp <span class="sc">|&gt;</span> </span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb44"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1"></a>dp <span class="sc">|&gt;</span> </span>
 <span id="cb44-2"><a href="#cb44-2"></a>  <span class="fu">group_by</span>(region) <span class="sc">|&gt;</span> </span>
-<span id="cb44-3"><a href="#cb44-3"></a>  <span class="fu">summarise</span>(<span class="at">moy =</span> <span class="fu">survey_mean</span>(age, <span class="at">vartype =</span> <span class="st">"ci"</span>))</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb44-3"><a href="#cb44-3"></a>  <span class="fu">summarise</span>(<span class="at">moy =</span> <span class="fu">survey_mean</span>(age, <span class="at">vartype =</span> <span class="st">"ci"</span>))</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 4 × 4
   region   moy moy_low moy_upp
@@ -3748,9 +3753,9 @@ Astuce
 </div>
 <p>Pour des proportions, on aura recours à <code><a href="http://gdfe.co/srvyr/reference/survey_mean.html">srvyr::survey_prop()</a></code>. Par exemple, pour un tri à plat du niveau d’éducation&nbsp;:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1"></a>dp <span class="sc">|&gt;</span> </span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb46"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1"></a>dp <span class="sc">|&gt;</span> </span>
 <span id="cb46-2"><a href="#cb46-2"></a>  <span class="fu">group_by</span>(educ) <span class="sc">|&gt;</span> </span>
-<span id="cb46-3"><a href="#cb46-3"></a>  <span class="fu">summarise</span>(<span class="at">prop =</span> <span class="fu">survey_prop</span>())</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb46-3"><a href="#cb46-3"></a>  <span class="fu">summarise</span>(<span class="at">prop =</span> <span class="fu">survey_prop</span>())</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>When `proportion` is unspecified, `survey_prop()` now defaults to `proportion = TRUE`.
 ℹ This should improve confidence interval coverage.
@@ -3769,9 +3774,9 @@ This message is displayed once per session.</code></pre>
 <p>Là encore, on peut passer l’option <code>vartype = "ci"</code> pour obtenir les intervalles de confiance<a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a>.</p>
 <div class="no-row-height column-margin column-container"><div id="fn3"><p><sup>3</sup>&nbsp;Par défaut, les intervalles de confiance sont calculés avec <code><a href="https://rdrr.io/pkg/survey/man/surveysummary.html">survey::svymean()</a></code> et peuvent générer des valeurs inférieures à 0 ou supérieures à 1. Pour un calcul plus précis reposant sur <code><a href="https://rdrr.io/pkg/survey/man/svyciprop.html">survey::svyciprop()</a></code>, on précisera <code>proportion = TRUE</code>. Plusieurs méthodes existent pour ce calcul, voir l’aide de <code><a href="https://rdrr.io/pkg/survey/man/svyciprop.html">survey::svyciprop()</a></code>.</p></div></div><p>Si l’on passe plusieurs variables dans le <code>group_by()</code>, les proportions sont calculées pour la dernière variable pour chaque combinaison des autres variables. Par exemple, pour la distribution du niveau d’éducation par milieu de résidence (i.e.&nbsp;la somme des proportions est de 100% pour le milieu urbain et de 100% pour celles du milieu rural, soit 200% au total)&nbsp;:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb49"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1"></a>dp <span class="sc">|&gt;</span> </span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb49"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1"></a>dp <span class="sc">|&gt;</span> </span>
 <span id="cb49-2"><a href="#cb49-2"></a>  <span class="fu">group_by</span>(milieu, educ) <span class="sc">|&gt;</span> </span>
-<span id="cb49-3"><a href="#cb49-3"></a>  <span class="fu">summarise</span>(<span class="at">prop =</span> <span class="fu">survey_prop</span>(<span class="at">vartype =</span> <span class="st">"ci"</span>))</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb49-3"><a href="#cb49-3"></a>  <span class="fu">summarise</span>(<span class="at">prop =</span> <span class="fu">survey_prop</span>(<span class="at">vartype =</span> <span class="st">"ci"</span>))</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 8 × 5
 # Groups:   milieu [2]
@@ -3789,9 +3794,9 @@ This message is displayed once per session.</code></pre>
 </div>
 <p>Si l’on souhaite les pourcentages que représentent chaque combinaison au sein de l’ensemble de l’échantillon (i.e.&nbsp;que la somme de toutes les proportions soit de 100%), on aura recours à <code><a href="http://gdfe.co/srvyr/reference/interact.html">srvyr::interact()</a></code>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1"></a>dp <span class="sc">|&gt;</span> </span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb51"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1"></a>dp <span class="sc">|&gt;</span> </span>
 <span id="cb51-2"><a href="#cb51-2"></a>  <span class="fu">group_by</span>(<span class="fu">interact</span>(milieu, educ)) <span class="sc">|&gt;</span> </span>
-<span id="cb51-3"><a href="#cb51-3"></a>  <span class="fu">summarise</span>(<span class="at">prop =</span> <span class="fu">survey_prop</span>(<span class="at">vartype =</span> <span class="st">"ci"</span>))</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb51-3"><a href="#cb51-3"></a>  <span class="fu">summarise</span>(<span class="at">prop =</span> <span class="fu">survey_prop</span>(<span class="at">vartype =</span> <span class="st">"ci"</span>))</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 8 × 5
   milieu educ          prop prop_low prop_upp
@@ -3812,27 +3817,27 @@ This message is displayed once per session.</code></pre>
 <p>Pour illustrer cela, nous allons considérer un même jeu de données, avec la même variable de poids, mais en faisant varier la présence de strates et de grappes.</p>
 <p>Commençons par regarder le jeu de données <em>apistrat</em> fourni par <a href="http://r-survey.r-forge.r-project.org/survey/">survey</a>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb53"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1"></a><span class="fu">data</span>(<span class="st">"api"</span>, <span class="at">package =</span> <span class="st">"survey"</span>)</span>
-<span id="cb53-2"><a href="#cb53-2"></a><span class="fu">nrow</span>(apistrat)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb53"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1"></a><span class="fu">data</span>(<span class="st">"api"</span>, <span class="at">package =</span> <span class="st">"survey"</span>)</span>
+<span id="cb53-2"><a href="#cb53-2"></a><span class="fu">nrow</span>(apistrat)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 200</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb55"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1"></a><span class="fu">summary</span>(apistrat<span class="sc">$</span>pw)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb55"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1"></a><span class="fu">summary</span>(apistrat<span class="sc">$</span>pw)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
   15.10   19.05   32.28   30.97   44.21   44.21 </code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb57"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb57-1"><a href="#cb57-1"></a><span class="fu">sum</span>(apistrat<span class="sc">$</span>pw)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb57"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb57-1"><a href="#cb57-1"></a><span class="fu">sum</span>(apistrat<span class="sc">$</span>pw)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 6194</code></pre>
 </div>
 </div>
 <p>Nous avons ici un tableau de données de 200 lignes, avec des poids variant entre 15 et 44. Nous pouvons définir une pondération simple et croiser deux variables.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb59"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb59-1"><a href="#cb59-1"></a>d_ponderation_simple <span class="ot">&lt;-</span> apistrat <span class="sc">|&gt;</span> </span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb59"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb59-1"><a href="#cb59-1"></a>d_ponderation_simple <span class="ot">&lt;-</span> apistrat <span class="sc">|&gt;</span> </span>
 <span id="cb59-2"><a href="#cb59-2"></a>  <span class="fu">as_survey_design</span>(<span class="at">weights =</span> pw)</span>
 <span id="cb59-3"><a href="#cb59-3"></a>tbl <span class="ot">&lt;-</span> survey<span class="sc">::</span><span class="fu">svytable</span>(<span class="sc">~</span> awards <span class="sc">+</span> yr.rnd, <span class="at">design =</span> d_ponderation_simple)</span>
-<span id="cb59-4"><a href="#cb59-4"></a>tbl</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb59-4"><a href="#cb59-4"></a>tbl</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>      yr.rnd
 awards      No     Yes
@@ -3842,7 +3847,7 @@ awards      No     Yes
 </div>
 <p>Réalisons un test du Chi² entre ces deux variables. Si nous appliquions la fonction classique <code><a href="https://rdrr.io/r/stats/chisq.test.html">chisq.test()</a></code> sur ce tableau, cette fonction considérait que nous avons 6194 observations (somme des poids) et dès lors nous obtiendrions une p-valeur très faible.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb61"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb61-1"><a href="#cb61-1"></a>tbl <span class="sc">|&gt;</span> <span class="fu">chisq.test</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb61"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb61-1"><a href="#cb61-1"></a>tbl <span class="sc">|&gt;</span> <span class="fu">chisq.test</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
     Pearson's Chi-squared test with Yates' continuity correction
@@ -3853,7 +3858,7 @@ X-squared = 113.84, df = 1, p-value &lt; 2.2e-16</code></pre>
 </div>
 <p>Le calcul précédent ne tient pas compte que nous n’avons que 200 observations dans notre échantillon. Refaisons le calcul <code><a href="https://rdrr.io/pkg/survey/man/svychisq.html">survey::svychisq()</a></code> qui est adaptée aux plans d’échantillonnage.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb63"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb63-1"><a href="#cb63-1"></a>survey<span class="sc">::</span><span class="fu">svychisq</span>(<span class="sc">~</span> awards <span class="sc">+</span> yr.rnd, <span class="at">design =</span> d_ponderation_simple)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb63"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb63-1"><a href="#cb63-1"></a>survey<span class="sc">::</span><span class="fu">svychisq</span>(<span class="sc">~</span> awards <span class="sc">+</span> yr.rnd, <span class="at">design =</span> d_ponderation_simple)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
     Pearson's X^2: Rao &amp; Scott adjustment
@@ -3865,15 +3870,15 @@ F = 2.9162, ndf = 1, ddf = 199, p-value = 0.08926</code></pre>
 <p>Le résultat est ici tout autre et notre test n’est plus significatif au seuil de 5%&nbsp;! Ici, les corrections de Rao &amp; Scott permettent justement de tenir compte que nous avons un échantillon de seulement 200 observations.</p>
 <p>Regardons maintenant si, à poids égal, il y a une différence entre une enquête stratifiée et une enquête en grappes.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb65"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb65-1"><a href="#cb65-1"></a><span class="co"># Pondération simple</span></span>
-<span id="cb65-2"><a href="#cb65-2"></a>survey<span class="sc">::</span><span class="fu">svytable</span>(<span class="sc">~</span> awards <span class="sc">+</span> yr.rnd, <span class="at">design =</span> d_ponderation_simple)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb65"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb65-1"><a href="#cb65-1"></a><span class="co"># Pondération simple</span></span>
+<span id="cb65-2"><a href="#cb65-2"></a>survey<span class="sc">::</span><span class="fu">svytable</span>(<span class="sc">~</span> awards <span class="sc">+</span> yr.rnd, <span class="at">design =</span> d_ponderation_simple)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>      yr.rnd
 awards      No     Yes
    No  2068.34  168.09
    Yes 3274.06  683.51</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb67"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb67-1"><a href="#cb67-1"></a>survey<span class="sc">::</span><span class="fu">svychisq</span>(<span class="sc">~</span> awards <span class="sc">+</span> yr.rnd, <span class="at">design =</span> d_ponderation_simple)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb67"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb67-1"><a href="#cb67-1"></a>survey<span class="sc">::</span><span class="fu">svychisq</span>(<span class="sc">~</span> awards <span class="sc">+</span> yr.rnd, <span class="at">design =</span> d_ponderation_simple)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
     Pearson's X^2: Rao &amp; Scott adjustment
@@ -3881,17 +3886,17 @@ awards      No     Yes
 data:  NextMethod()
 F = 2.9162, ndf = 1, ddf = 199, p-value = 0.08926</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb69"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb69-1"><a href="#cb69-1"></a><span class="co"># Enquête stratifiée</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb69"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb69-1"><a href="#cb69-1"></a><span class="co"># Enquête stratifiée</span></span>
 <span id="cb69-2"><a href="#cb69-2"></a>d_strates <span class="ot">&lt;-</span> apistrat <span class="sc">|&gt;</span> </span>
 <span id="cb69-3"><a href="#cb69-3"></a>  <span class="fu">as_survey_design</span>(<span class="at">weights =</span> pw, <span class="at">strata =</span> stype)</span>
-<span id="cb69-4"><a href="#cb69-4"></a>survey<span class="sc">::</span><span class="fu">svytable</span>(<span class="sc">~</span> awards <span class="sc">+</span> yr.rnd, <span class="at">design =</span> d_strates)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb69-4"><a href="#cb69-4"></a>survey<span class="sc">::</span><span class="fu">svytable</span>(<span class="sc">~</span> awards <span class="sc">+</span> yr.rnd, <span class="at">design =</span> d_strates)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>      yr.rnd
 awards      No     Yes
    No  2068.34  168.09
    Yes 3274.06  683.51</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb71"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb71-1"><a href="#cb71-1"></a>survey<span class="sc">::</span><span class="fu">svychisq</span>(<span class="sc">~</span> awards <span class="sc">+</span> yr.rnd, <span class="at">design =</span> d_strates)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb71"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb71-1"><a href="#cb71-1"></a>survey<span class="sc">::</span><span class="fu">svychisq</span>(<span class="sc">~</span> awards <span class="sc">+</span> yr.rnd, <span class="at">design =</span> d_strates)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
     Pearson's X^2: Rao &amp; Scott adjustment
@@ -3899,17 +3904,17 @@ awards      No     Yes
 data:  NextMethod()
 F = 2.9007, ndf = 1, ddf = 197, p-value = 0.09012</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb73"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb73-1"><a href="#cb73-1"></a><span class="co"># Enquête en grappes</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb73"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb73-1"><a href="#cb73-1"></a><span class="co"># Enquête en grappes</span></span>
 <span id="cb73-2"><a href="#cb73-2"></a>d_grappes <span class="ot">&lt;-</span> apistrat <span class="sc">|&gt;</span> </span>
 <span id="cb73-3"><a href="#cb73-3"></a>  <span class="fu">as_survey_design</span>(<span class="at">weights =</span> pw, <span class="at">ids =</span> dnum)</span>
-<span id="cb73-4"><a href="#cb73-4"></a>survey<span class="sc">::</span><span class="fu">svytable</span>(<span class="sc">~</span> awards <span class="sc">+</span> yr.rnd, <span class="at">design =</span> d_grappes)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb73-4"><a href="#cb73-4"></a>survey<span class="sc">::</span><span class="fu">svytable</span>(<span class="sc">~</span> awards <span class="sc">+</span> yr.rnd, <span class="at">design =</span> d_grappes)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>      yr.rnd
 awards      No     Yes
    No  2068.34  168.09
    Yes 3274.06  683.51</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb75"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb75-1"><a href="#cb75-1"></a>survey<span class="sc">::</span><span class="fu">svychisq</span>(<span class="sc">~</span> awards <span class="sc">+</span> yr.rnd, <span class="at">design =</span> d_grappes)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb75"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb75-1"><a href="#cb75-1"></a>survey<span class="sc">::</span><span class="fu">svychisq</span>(<span class="sc">~</span> awards <span class="sc">+</span> yr.rnd, <span class="at">design =</span> d_grappes)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
     Pearson's X^2: Rao &amp; Scott adjustment
@@ -3937,7 +3942,7 @@ F = 3.1393, ndf = 1, ddf = 134, p-value = 0.0787</code></pre>
       a.appendChild(i);
       window.document.body.appendChild(a);
     }
-    window.setColorSchemeToggle(window.hasAlternateSentinel())
+    setColorSchemeToggle(hasAlternateSentinel())
     const icon = "";
     const anchorJS = new window.AnchorJS();
     anchorJS.options = {
@@ -3987,13 +3992,14 @@ F = 3.1393, ndf = 1, ddf = 134, p-value = 0.0787</code></pre>
       e.clearSelection();
     }
     const getTextToCopy = function(trigger) {
-        const codeEl = trigger.previousElementSibling.cloneNode(true);
-        for (const childEl of codeEl.children) {
-          if (isCodeAnnotation(childEl)) {
-            childEl.remove();
-          }
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
         }
-        return codeEl.innerText;
+      }
+      return codeEl.innerText;
     }
     const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
       text: getTextToCopy
@@ -4334,8 +4340,36 @@ F = 3.1393, ndf = 1, ddf = 134, p-value = 0.0787</code></pre>
       }
     }
   });
-  </script><script src="https://giscus.app/client.js" data-repo="larmarange/guide-R" data-repo-id="R_kgDOH6-xnw" data-category="Forum" data-category-id="DIC_kwDOH6-xn84CRLQy" data-mapping="pathname" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="top" data-theme="light" data-lang="fr" crossorigin="anonymous" data-loading="lazy" async="">
-</script><input type="hidden" id="giscus-base-theme" value="light"><input type="hidden" id="giscus-alt-theme" value="dark"><nav class="page-navigation"><div class="nav-page nav-page-previous">
+  </script><input type="hidden" id="giscus-base-theme" value="light"><input type="hidden" id="giscus-alt-theme" value="dark"><script>
+  function loadGiscus() {
+    // Function to get the theme based on body class
+    const getTheme = () => {
+      let baseTheme = document.getElementById('giscus-base-theme').value;
+      let altTheme = document.getElementById('giscus-alt-theme').value;
+      if (authorPrefersDark) {
+          [baseTheme, altTheme] = [altTheme, baseTheme];
+      }
+      return document.body.classList.contains('quarto-dark') ? altTheme : baseTheme;
+    };
+    const script = document.createElement("script");
+    script.src = "https://giscus.app/client.js";
+    script.async = true;
+    script.dataset.repo = "larmarange/guide-R";
+    script.dataset.repoId = "R_kgDOH6-xnw";
+    script.dataset.category = "Forum";
+    script.dataset.categoryId = "DIC_kwDOH6-xn84CRLQy";
+    script.dataset.mapping = "pathname";
+    script.dataset.reactionsEnabled = "1";
+    script.dataset.emitMetadata = "0";
+    script.dataset.inputPosition = "top";
+    script.dataset.theme = getTheme();
+    script.dataset.lang = "fr";
+    script.crossOrigin = "anonymous";
+    // Append the script to the desired div instead of at the end of the body
+    document.getElementById("quarto-content").appendChild(script);
+  }
+  loadGiscus();
+</script><nav class="page-navigation"><div class="nav-page nav-page-previous">
       <a href="../donnees_ponderees/manipulation.html" class="pagination-link" aria-label="Manipulation de données pondérées">
         <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">30</span>&nbsp; <span class="chapter-title">Manipulation de données pondérées</span></span>
       </a>          

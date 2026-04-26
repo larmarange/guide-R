@@ -2,10 +2,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="fr" xml:lang="fr"><head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.7.27">
+<meta name="generator" content="quarto-1.9.37">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 <title>18&nbsp; Statistique univariée &amp; Intervalles de confiance – guide-R</title>
 <style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
 div.columns{display: flex; gap: min(4vw, 1.5em);}
@@ -72,14 +75,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-985aa47af68dae11cd4d235c71fb941e.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-6c49c5477b92c77c9eb341f9299c235f.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-985aa47af68dae11cd4d235c71fb941e.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-7f8f88aac4f3542376d5c11b86a4c14d.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-d0ae9245876894da5ac7e18953ecc5cc.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-7f8f88aac4f3542376d5c11b86a4c14d.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-1706ad55a43eb6182cc66969adfb4558.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../site_libs/bootstrap/bootstrap-dark-e07f40149b440be50f716415da65e4f4.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<link href="../site_libs/bootstrap/bootstrap-1706ad55a43eb6182cc66969adfb4558.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-fad85691bd79911de0320b982f671d9d.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-f68506c574928121fec95fb329006eac.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../site_libs/bootstrap/bootstrap-fad85691bd79911de0320b982f671d9d.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <script src="../site_libs/quarto-contrib/glightbox/glightbox.min.js"></script>
 <link href="../site_libs/quarto-contrib/glightbox/glightbox.min.css" rel="stylesheet">
 <link href="../site_libs/quarto-contrib/glightbox/lightbox.css" rel="stylesheet"><script id="quarto-search-options" type="application/json">{
@@ -117,10 +120,10 @@ gtag('config', 'G-8BT7D9P85Y', { 'anonymize_ip': true});
 document.addEventListener('DOMContentLoaded', function () {
 cookieconsent.run({
   "notice_banner_type":"simple",
-  "consent_type":"implied",
+  "consent_type":"express",
   "palette":"light",
   "language":"en",
-  "page_load_consent_levels":["strictly-necessary","functionality","tracking","targeting"],
+  "page_load_consent_levels":["strictly-necessary"],
   "notice_banner_reject_button_hide":false,
   "preferences_center_close_button_hide":false,
   "website_name":""
@@ -149,7 +152,7 @@ cookieconsent.run({
         toggleBodyColorMode(bsSheetEl);
       }
     }
-    window.setColorSchemeToggle = (alternate) => {
+    const setColorSchemeToggle = (alternate) => {
       const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
       for (let i=0; i < toggles.length; i++) {
         const toggle = toggles[i];
@@ -182,7 +185,7 @@ cookieconsent.run({
       }
       manageTransitions('#quarto-margin-sidebar .nav-link', true);
       // Switch the toggles
-      window.setColorSchemeToggle(alternate)
+      setColorSchemeToggle(alternate)
       // Hack to workaround the fact that safari doesn't
       // properly recolor the scrollbar when toggling (#1455)
       if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
@@ -222,7 +225,7 @@ cookieconsent.run({
     const isFileUrl = () => {
       return window.location.protocol === 'file:';
     }
-    window.hasAlternateSentinel = () => {
+    const hasAlternateSentinel = () => {
       let styleSentinel = getColorSchemeSentinel();
       if (styleSentinel !== null) {
         return styleSentinel === "alternate";
@@ -250,7 +253,7 @@ cookieconsent.run({
       const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
       const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
       let newTheme = '';
-      if(darkModeDefault) {
+      if(authorPrefersDark) {
         newTheme = isAlternate ? baseTheme : alternateTheme;
       } else {
         newTheme = isAlternate ? alternateTheme : baseTheme;
@@ -273,20 +276,22 @@ cookieconsent.run({
         changeGiscusTheme();
       }
     };
-    const darkModeDefault = false;
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
       document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
       document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
     let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
     // Dark / light mode switch
     window.quartoToggleColorScheme = () => {
       // Read the current dark / light value
-      let toAlternate = !window.hasAlternateSentinel();
+      let toAlternate = !hasAlternateSentinel();
       toggleColorMode(toAlternate);
       setStyleSentinel(toAlternate);
       toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
     };
     // Switch to dark mode if need be
-    if (window.hasAlternateSentinel()) {
+    if (hasAlternateSentinel()) {
       toggleColorMode(true);
     } else {
       toggleColorMode(false);
@@ -309,7 +314,7 @@ cookieconsent.run({
 <!-- sidebar -->
   <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto"><div class="pt-lg-2 mt-2 text-left sidebar-header sidebar-header-stacked">
       <a href="../index.html" class="sidebar-logo-link">
-      <img src="../ressources/typewriter.png" alt="" class="sidebar-logo py-0 d-lg-inline d-none"></a>
+      <img src="../ressources/typewriter.png" alt="" class="sidebar-logo light-content py-0 d-lg-inline d-none"><img src="../ressources/typewriter.png" alt="" class="sidebar-logo dark-content py-0 d-lg-inline d-none"></a>
     <div class="sidebar-title mb-0 py-0">
       <a href="../">guide-R</a> 
         <div class="sidebar-tools-main tools-wide">
@@ -789,15 +794,15 @@ cookieconsent.run({
 <p>Une première approche consiste à explorer visuelle la variable d’intérêt, notamment à l’aide de l’interface proposée par <a href="https://dreamrs.github.io/esquisse/">esquisse</a> (cf <a href="ggplot2.html#sec-esquisse" class="quarto-xref"><span>Section 17.4</span></a>).</p>
 <p>Nous indiquons ci-après le code correspond aux graphiques <a href="https://ggplot2.tidyverse.org">ggplot2</a> les plus courants.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="fu">library</span>(ggplot2)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="fu">library</span>(ggplot2)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <section id="variable-continue" class="level3 page-columns page-full" data-number="18.1.1"><h3 data-number="18.1.1" class="anchored" data-anchor-id="variable-continue">
 <span class="header-section-number">18.1.1</span> Variable continue</h3>
 <p>Un histogramme est la représentation graphique la plus commune pour représenter la distribution d’une variable, par exemple ici la longueur des pétales (variable <code>Petal.Length</code>) du fichier de données <code><a href="https://rdrr.io/r/datasets/iris.html">datasets::iris</a></code>. Il s’obtient avec la géométrie <code><a href="https://ggplot2.tidyverse.org/reference/geom_histogram.html">ggplot2::geom_histogram()</a></code>.</p>
 <div class="cell page-columns page-full">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a><span class="fu">ggplot</span>(iris) <span class="sc">+</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a><span class="fu">ggplot</span>(iris) <span class="sc">+</span></span>
 <span id="cb2-2"><a href="#cb2-2"></a>  <span class="fu">aes</span>(<span class="at">x =</span> Petal.Length) <span class="sc">+</span></span>
-<span id="cb2-3"><a href="#cb2-3"></a>  <span class="fu">geom_histogram</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb2-3"><a href="#cb2-3"></a>  <span class="fu">geom_histogram</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>`stat_bin()` using `bins = 30`. Pick better value `binwidth`.</code></pre>
 </div>
@@ -828,7 +833,7 @@ Astuce
 </div>
 <p>On peut personnaliser la couleur de remplissage des rectangles en indiquant une valeur fixe pour l’esthétique <code>fill</code> dans l’appel de <code><a href="https://ggplot2.tidyverse.org/reference/geom_histogram.html">ggplot2::geom_histogram()</a></code> (et non via la fonction <code><a href="https://ggplot2.tidyverse.org/reference/aes.html">ggplot2::aes()</a></code> puisqu’il ne s’agit pas d’une variable du tableau de données). L’esthétique <code>colour</code> permet de spécifier la couleur du trait des rectangles. Enfin, le paramètre <code>binwidth</code> permet de spécifier la largeur des barres.</p>
 <div class="cell page-columns page-full">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a><span class="fu">ggplot</span>(iris) <span class="sc">+</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a><span class="fu">ggplot</span>(iris) <span class="sc">+</span></span>
 <span id="cb4-2"><a href="#cb4-2"></a>  <span class="fu">aes</span>(<span class="at">x =</span> Petal.Length) <span class="sc">+</span></span>
 <span id="cb4-3"><a href="#cb4-3"></a>  <span class="fu">geom_histogram</span>(</span>
 <span id="cb4-4"><a href="#cb4-4"></a>    <span class="at">fill =</span><span class="st">"lightblue"</span>, </span>
@@ -836,7 +841,7 @@ Astuce
 <span id="cb4-6"><a href="#cb4-6"></a>    <span class="at">binwidth =</span> <span class="dv">1</span></span>
 <span id="cb4-7"><a href="#cb4-7"></a>  ) <span class="sc">+</span></span>
 <span id="cb4-8"><a href="#cb4-8"></a>  <span class="fu">xlab</span>(<span class="st">"Longeur pétale"</span>) <span class="sc">+</span></span>
-<span id="cb4-9"><a href="#cb4-9"></a>  <span class="fu">ylab</span>(<span class="st">"Effectifs"</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb4-9"><a href="#cb4-9"></a>  <span class="fu">ylab</span>(<span class="st">"Effectifs"</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display page-columns page-full">
 <div id="fig-histogramme-personnalise" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full"><div aria-describedby="fig-histogramme-personnalise-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -851,7 +856,7 @@ Figure&nbsp;18.2: un histogramme personnalisé
 <p>À noter, les dernières versions de <a href="https://ggplot2.tidyverse.org">ggplot2</a> prennent en compte les étiquettes de variables (voir <a href="../manipulation/etiquettes-variables.html" class="quarto-xref"><span>Chapitre 11</span></a>).</p>
 <p>On peut alternativement indiquer un nombre de classes avec <code>bins</code>.</p>
 <div class="cell page-columns page-full">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a>iris <span class="ot">&lt;-</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a>iris <span class="ot">&lt;-</span></span>
 <span id="cb5-2"><a href="#cb5-2"></a>  iris <span class="sc">|&gt;</span> </span>
 <span id="cb5-3"><a href="#cb5-3"></a>  labelled<span class="sc">::</span><span class="fu">set_variable_labels</span>(</span>
 <span id="cb5-4"><a href="#cb5-4"></a>    <span class="at">Petal.Length =</span> <span class="st">"Longueur du pétale"</span></span>
@@ -859,7 +864,7 @@ Figure&nbsp;18.2: un histogramme personnalisé
 <span id="cb5-6"><a href="#cb5-6"></a></span>
 <span id="cb5-7"><a href="#cb5-7"></a><span class="fu">ggplot</span>(iris) <span class="sc">+</span></span>
 <span id="cb5-8"><a href="#cb5-8"></a>  <span class="fu">aes</span>(<span class="at">x =</span> Petal.Length) <span class="sc">+</span></span>
-<span id="cb5-9"><a href="#cb5-9"></a>  <span class="fu">geom_histogram</span>(<span class="at">bins =</span> <span class="dv">10</span>, <span class="at">colour =</span> <span class="st">"black"</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb5-9"><a href="#cb5-9"></a>  <span class="fu">geom_histogram</span>(<span class="at">bins =</span> <span class="dv">10</span>, <span class="at">colour =</span> <span class="st">"black"</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display page-columns page-full">
 <div id="fig-histogramme-10-classes" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full"><div aria-describedby="fig-histogramme-10-classes-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -873,9 +878,9 @@ Figure&nbsp;18.3: un histogramme en 10 classes
 </div>
 <p>Une représentation alternative de la distribution d’une variable peut être obtenue avec une courbe de densité, dont la particularité est d’avoir une surface sous la courbe égale à 1. Une telle courbe s’obtient avec <code><a href="https://ggplot2.tidyverse.org/reference/geom_density.html">ggplot2::geom_density()</a></code>. Le paramètre <code>adjust</code> permet d’ajuster le niveau de lissage de la courbe.</p>
 <div class="cell page-columns page-full">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a><span class="fu">ggplot</span>(iris) <span class="sc">+</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a><span class="fu">ggplot</span>(iris) <span class="sc">+</span></span>
 <span id="cb6-2"><a href="#cb6-2"></a>  <span class="fu">aes</span>(<span class="at">x =</span> Petal.Length) <span class="sc">+</span></span>
-<span id="cb6-3"><a href="#cb6-3"></a>  <span class="fu">geom_density</span>(<span class="at">adjust =</span> .<span class="dv">5</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb6-3"><a href="#cb6-3"></a>  <span class="fu">geom_density</span>(<span class="at">adjust =</span> .<span class="dv">5</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display page-columns page-full">
 <div id="fig-courbe-densite" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full"><div aria-describedby="fig-courbe-densite-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -892,10 +897,10 @@ Figure&nbsp;18.4: une courbe de densité
 <p>Pour représenter la répartition des effectifs parmi les modalités d’une variable catégorielle, on a souvent tendance à utiliser des diagrammes en secteurs (<q>camemberts</q>). Or, ce type de représentation graphique est très rarement appropriée&nbsp;: l’œil humain préfère comparer des longueurs plutôt que des surfaces<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>.</p>
 <div class="no-row-height column-margin column-container"><div id="fn1"><p><sup>1</sup>&nbsp;Voir en particulier <a href="https://www.data-to-viz.com/caveat/pie.html" class="uri">https://www.data-to-viz.com/caveat/pie.html</a> pour un exemple concret.</p></div></div><p>Dans certains contextes ou pour certaines présentations, on pourra éventuellement considérer un diagramme en <q>donut</q>, mais le plus souvent, rien ne vaut un bon vieux diagramme en barres avec <code><a href="https://ggplot2.tidyverse.org/reference/geom_bar.html">ggplot2::geom_bar()</a></code>. Prenons pour l’exemple la variable <code>occup</code> du jeu de données <code>hdv2003</code> du package <a href="https://juba.github.io/questionr/">questionr</a>.</p>
 <div class="cell page-columns page-full">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a><span class="fu">data</span>(<span class="st">"hdv2003"</span>, <span class="at">package =</span> <span class="st">"questionr"</span>)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a><span class="fu">data</span>(<span class="st">"hdv2003"</span>, <span class="at">package =</span> <span class="st">"questionr"</span>)</span>
 <span id="cb7-2"><a href="#cb7-2"></a><span class="fu">ggplot</span>(hdv2003) <span class="sc">+</span></span>
 <span id="cb7-3"><a href="#cb7-3"></a>  <span class="fu">aes</span>(<span class="at">x =</span> occup) <span class="sc">+</span></span>
-<span id="cb7-4"><a href="#cb7-4"></a>  <span class="fu">geom_bar</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb7-4"><a href="#cb7-4"></a>  <span class="fu">geom_bar</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display page-columns page-full">
 <div id="fig-diag-barres-simple" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full"><div aria-describedby="fig-diag-barres-simple-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -924,11 +929,11 @@ Astuce
 <p>Cette statistique, qui sera également bien utile pour des graphiques plus complexes, nécessite qu’on lui indique une esthétique <strong>by</strong> pour indiquer dans quels sous-groupes calculer des proportions. Ici, nous avons un seul groupe considéré et nous souhaitons des pourcentages du total. On indiquera simplement <code>by = 1</code>.</p>
 <p>Pour formater l’axe vertical avec des pourcentages, on pourra avoir recours à la fonction <code><a href="https://scales.r-lib.org/reference/label_percent.html">scales::label_percent()</a></code> que l’on appellera via <code><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html">ggplot2::scale_y_continuous()</a></code>.</p>
 <div class="cell page-columns page-full">
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a><span class="fu">library</span>(ggstats)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a><span class="fu">library</span>(ggstats)</span>
 <span id="cb8-2"><a href="#cb8-2"></a><span class="fu">ggplot</span>(hdv2003) <span class="sc">+</span></span>
 <span id="cb8-3"><a href="#cb8-3"></a>  <span class="fu">aes</span>(<span class="at">x =</span> occup, <span class="at">y =</span> <span class="fu">after_stat</span>(prop), <span class="at">by =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
 <span id="cb8-4"><a href="#cb8-4"></a>  <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">"prop"</span>) <span class="sc">+</span></span>
-<span id="cb8-5"><a href="#cb8-5"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">labels =</span> scales<span class="sc">::</span><span class="fu">label_percent</span>())</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb8-5"><a href="#cb8-5"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">labels =</span> scales<span class="sc">::</span><span class="fu">label_percent</span>())</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display page-columns page-full">
 <div id="fig-diag-barres-personnalise" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full"><div aria-describedby="fig-diag-barres-personnalise-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -942,7 +947,7 @@ Figure&nbsp;18.6: un diagramme en barres épuré
 </div>
 <p>Pour une publication ou une communication, il ne faut surtout pas hésiter à <strong>épurer</strong> vos graphiques (<em>less is better!</em>), voire à trier les modalités en fonction de leur fréquence pour faciliter la lecture (ce qui se fait aisément avec <code><a href="https://forcats.tidyverse.org/reference/fct_inorder.html">forcats::fct_infreq()</a></code>).</p>
 <div class="cell page-columns page-full">
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a><span class="fu">ggplot</span>(hdv2003) <span class="sc">+</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a><span class="fu">ggplot</span>(hdv2003) <span class="sc">+</span></span>
 <span id="cb9-2"><a href="#cb9-2"></a>  <span class="fu">aes</span>(<span class="at">x =</span> forcats<span class="sc">::</span><span class="fu">fct_infreq</span>(occup), </span>
 <span id="cb9-3"><a href="#cb9-3"></a>      <span class="at">y =</span> <span class="fu">after_stat</span>(prop), <span class="at">by =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
 <span id="cb9-4"><a href="#cb9-4"></a>  <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">"prop"</span>, </span>
@@ -961,7 +966,7 @@ Figure&nbsp;18.6: un diagramme en barres épuré
 <span id="cb9-17"><a href="#cb9-17"></a>    <span class="at">axis.text.y =</span> <span class="fu">element_blank</span>()</span>
 <span id="cb9-18"><a href="#cb9-18"></a>  ) <span class="sc">+</span></span>
 <span id="cb9-19"><a href="#cb9-19"></a>  <span class="fu">xlab</span>(<span class="cn">NULL</span>) <span class="sc">+</span> <span class="fu">ylab</span>(<span class="cn">NULL</span>) <span class="sc">+</span></span>
-<span id="cb9-20"><a href="#cb9-20"></a>  <span class="fu">ggtitle</span>(<span class="st">"Occupation des personnes enquêtées"</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb9-20"><a href="#cb9-20"></a>  <span class="fu">ggtitle</span>(<span class="st">"Occupation des personnes enquêtées"</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display page-columns page-full">
 <div id="fig-diag-barres-epure" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full"><div aria-describedby="fig-diag-barres-epure-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -984,14 +989,14 @@ Figure&nbsp;18.7: un diagramme en barres épuré
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-Représentation graphique de plusieurs variables catégorielles
+<span class="screen-reader-only">Astuce</span>Représentation graphique de plusieurs variables catégorielles
 </div>
 </div>
 <div class="callout-body-container callout-body">
 <p>Pour représenter plusieurs variables catégorielles en un seul graphique, on pourra éventuellement profiter de la géométrie <code><a href="http://corybrunson.github.io/ggalluvial/reference/geom_stratum.html">ggalluvial::geom_stratum()</a></code> du package <a href="http://corybrunson.github.io/ggalluvial/">ggalluvial</a>.</p>
 <p>Cette géométrie est un peu particulière. On indiquera les différentes variables à représenter avec les esthétiques <code>axis1</code>, <code>axis2</code>, etc. On utilisera l’argument <code>limits</code> de <code><a href="https://ggplot2.tidyverse.org/reference/scale_discrete.html">ggplot2::scale_x_discrete()</a></code> pour personnaliser l’axe des x.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a><span class="fu">library</span>(ggalluvial)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a><span class="fu">library</span>(ggalluvial)</span>
 <span id="cb10-2"><a href="#cb10-2"></a><span class="fu">ggplot</span>(hdv2003) <span class="sc">+</span></span>
 <span id="cb10-3"><a href="#cb10-3"></a>  <span class="fu">aes</span>(<span class="at">axis1 =</span> sexe, <span class="at">axis2 =</span> occup, <span class="at">axis3 =</span> sport) <span class="sc">+</span></span>
 <span id="cb10-4"><a href="#cb10-4"></a>  <span class="fu">geom_stratum</span>(</span>
@@ -1011,7 +1016,7 @@ Représentation graphique de plusieurs variables catégorielles
 <span id="cb10-18"><a href="#cb10-18"></a>    )</span>
 <span id="cb10-19"><a href="#cb10-19"></a>  ) <span class="sc">+</span></span>
 <span id="cb10-20"><a href="#cb10-20"></a>  khroma<span class="sc">::</span><span class="fu">scale_fill_bright</span>() <span class="sc">+</span></span>
-<span id="cb10-21"><a href="#cb10-21"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb10-21"><a href="#cb10-21"></a>  <span class="fu">theme_minimal</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure"><p><a href="statistique-univariee_files/figure-html/unnamed-chunk-2-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-8"><img src="statistique-univariee_files/figure-html/unnamed-chunk-2-1.png" class="img-fluid figure-img" width="672"></a></p>
@@ -1026,9 +1031,9 @@ Représentation graphique de plusieurs variables catégorielles
 <p>Le package <a href="https://github.com/ddsjoberg/gtsummary">gtsummary</a> constitue l’une des boites à outils de l’analyste quantitative, car il permet de réaliser très facilement des tableaux quasiment publiables en l’état. En matière de statistiques univariées, la fonction clé est <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/tbl_summary.html">gtsummary::tbl_summary()</a></code>.</p>
 <p>Commençons avec un premier exemple rapide. On part d’un tableau de données et on indique, avec l’argument <code>include</code>, les variables à afficher dans le tableau statistique (si on n’indique rien, toutes les variables du tableau de données sont considérées). Il faut noter que l’argument <code>include</code> de <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/tbl_summary.html">gtsummary::tbl_summary()</a></code> utilise la même syntaxe dite <q><em>tidy select</em></q> que <code><a href="https://dplyr.tidyverse.org/reference/select.html">dplyr::select()</a></code> (cf. <a href="../manipulation/dplyr.html#sec-dplyr-select" class="quarto-xref"><span>Section 8.2.1</span></a>). On peut indiquer tout autant des variables catégorielles que des variables continues.</p>
 <div class="cell page-columns page-full">
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a><span class="fu">library</span>(gtsummary)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a><span class="fu">library</span>(gtsummary)</span>
 <span id="cb11-2"><a href="#cb11-2"></a>hdv2003 <span class="sc">|&gt;</span> </span>
-<span id="cb11-3"><a href="#cb11-3"></a>  <span class="fu">tbl_summary</span>(<span class="at">include =</span> <span class="fu">c</span>(age, occup))</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb11-3"><a href="#cb11-3"></a>  <span class="fu">tbl_summary</span>(<span class="at">include =</span> <span class="fu">c</span>(age, occup))</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div id="tbl-tableau-simple" class="cell quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-tbl figure page-columns page-full"><div aria-describedby="tbl-tableau-simple-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
@@ -1481,7 +1486,7 @@ Représentation graphique de plusieurs variables catégorielles
   height: 0px !important;
 }
 </style>
-<table class="gt_table do-not-create-environment cell table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<table class="gt_table cell table table-sm table-striped small" data-quarto-bootstrap="false">
 <colgroup>
 <col style="width: 50%">
 <col style="width: 50%">
@@ -1549,7 +1554,7 @@ Table&nbsp;18.1: un tableau simple
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-Remarque sur les types de variables et les sélecteurs associés
+<span class="screen-reader-only">Important</span>Remarque sur les types de variables et les sélecteurs associés
 </div>
 </div>
 <div class="callout-body-container callout-body">
@@ -1568,11 +1573,11 @@ Remarque sur les types de variables et les sélecteurs associés
 <p>La fonction <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/theme_gtsummary.html">gtsummary::theme_gtsummary_journal()</a></code> permets d’adopter les standards de certaines grandes revues scientifiques telles que <em>JAMA</em> (<em>Journal of the American Medical Association</em>), <em>The Lancet</em> ou encore le <em>NEJM</em> (<em>New England Journal of Medicine</em>).</p>
 <p>La fonction <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/theme_gtsummary.html">gtsummary::theme_gtsummary_language()</a></code> permet de modifier la langue utilisée par défaut dans les tableaux. Les options <code>decimal.mark</code> et <code>big.mark</code> permettent de définir respectivement le séparateur de décimales et le séparateur des milliers. Ainsi, pour présenter un tableau en français, on appliquera en début de script&nbsp;:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a><span class="fu">theme_gtsummary_language</span>(</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a><span class="fu">theme_gtsummary_language</span>(</span>
 <span id="cb12-2"><a href="#cb12-2"></a>  <span class="at">language =</span> <span class="st">"fr"</span>, </span>
 <span id="cb12-3"><a href="#cb12-3"></a>  <span class="at">decimal.mark =</span> <span class="st">","</span>, </span>
 <span id="cb12-4"><a href="#cb12-4"></a>  <span class="at">big.mark =</span> <span class="st">" "</span></span>
-<span id="cb12-5"><a href="#cb12-5"></a>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb12-5"><a href="#cb12-5"></a>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Setting theme "language: fr"</code></pre>
 </div>
@@ -1580,12 +1585,12 @@ Remarque sur les types de variables et les sélecteurs associés
 <p>Ce thème sera appliqué à tous les tableaux ultérieurs.</p>
 <p>Le package <a href="https://larmarange.github.io/guideR/">guideR</a>, le compagnon de <em>guide-R</em>, propose également quelques thèmes complémentaires. Notamment, <code><a href="https://larmarange.github.io/guideR/reference/gtsummary_themes.html">guideR::theme_gtsummary_prop_n()</a></code> permet d’afficher d’abord les proportions, en forçant le nombre de décimales à 1, suivi des effectifs entre parenthèses. Le thème <code><a href="https://larmarange.github.io/guideR/reference/gtsummary_themes.html">guideR::theme_gtsummary_bold_labels()</a></code> applique quant à lui du gras à tous les noms de variable.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a>guideR<span class="sc">::</span><span class="fu">theme_gtsummary_prop_n</span>()</span>
-<span id="cb14-2"><a href="#cb14-2"></a>guideR<span class="sc">::</span><span class="fu">theme_gtsummary_bold_labels</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a>guideR<span class="sc">::</span><span class="fu">theme_gtsummary_prop_n</span>()</span>
+<span id="cb14-2"><a href="#cb14-2"></a>guideR<span class="sc">::</span><span class="fu">theme_gtsummary_bold_labels</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell page-columns page-full">
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1"></a>hdv2003 <span class="sc">|&gt;</span> </span>
-<span id="cb15-2"><a href="#cb15-2"></a>  <span class="fu">tbl_summary</span>(<span class="at">include =</span> <span class="fu">c</span>(age, occup))</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1"></a>hdv2003 <span class="sc">|&gt;</span> </span>
+<span id="cb15-2"><a href="#cb15-2"></a>  <span class="fu">tbl_summary</span>(<span class="at">include =</span> <span class="fu">c</span>(age, occup))</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div id="tbl-tableau-simple-fr" class="cell quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-tbl figure page-columns page-full"><div aria-describedby="tbl-tableau-simple-fr-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
@@ -2038,7 +2043,7 @@ Remarque sur les types de variables et les sélecteurs associés
   height: 0px !important;
 }
 </style>
-<table class="gt_table do-not-create-environment cell table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<table class="gt_table cell table table-sm table-striped small" data-quarto-bootstrap="false">
 <colgroup>
 <col style="width: 50%">
 <col style="width: 50%">
@@ -2105,14 +2110,14 @@ Table&nbsp;18.2: un tableau simple en français
 <p><code>gtsummary</code>, par défaut, prends en compte les étiquettes de variables (cf. <a href="../manipulation/etiquettes-variables.html" class="quarto-xref"><span>Chapitre 11</span></a>), si elles existent, et sinon utilisera le nom de chaque variable dans le tableau. Pour rappel, les étiquettes de variables peuvent être manipulées avec l’extension <a href="https://larmarange.github.io/labelled/">labelled</a> et les fonctions <code><a href="https://larmarange.github.io/labelled/reference/var_label.html">labelled::var_label()</a></code> et <code><a href="https://larmarange.github.io/labelled/reference/var_label.html">labelled::set_variable_labels()</a></code>.</p>
 <p>Il est aussi possible d’utiliser l’option <code>label</code> de <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/tbl_summary.html">gtsummary::tbl_summary()</a></code> pour indiquer des étiquettes personnalisées.</p>
 <div class="cell page-columns page-full">
-<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1"></a>hdv2003 <span class="sc">|&gt;</span> </span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1"></a>hdv2003 <span class="sc">|&gt;</span> </span>
 <span id="cb16-2"><a href="#cb16-2"></a>  labelled<span class="sc">::</span><span class="fu">set_variable_labels</span>(</span>
 <span id="cb16-3"><a href="#cb16-3"></a>    <span class="at">occup =</span> <span class="st">"Occupation actuelle"</span></span>
 <span id="cb16-4"><a href="#cb16-4"></a>  ) <span class="sc">|&gt;</span> </span>
 <span id="cb16-5"><a href="#cb16-5"></a>  <span class="fu">tbl_summary</span>(</span>
 <span id="cb16-6"><a href="#cb16-6"></a>    <span class="at">include =</span> <span class="fu">c</span>(age, occup, heures.tv),</span>
 <span id="cb16-7"><a href="#cb16-7"></a>    <span class="at">label =</span> <span class="fu">list</span>(age <span class="sc">~</span> <span class="st">"Âge médian"</span>)</span>
-<span id="cb16-8"><a href="#cb16-8"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb16-8"><a href="#cb16-8"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div id="tbl-tableau-etiquette" class="cell quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-tbl figure page-columns page-full"><div aria-describedby="tbl-tableau-etiquette-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
@@ -2565,7 +2570,7 @@ Table&nbsp;18.2: un tableau simple en français
   height: 0px !important;
 }
 </style>
-<table class="gt_table do-not-create-environment cell table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<table class="gt_table cell table table-sm table-striped small" data-quarto-bootstrap="false">
 <colgroup>
 <col style="width: 50%">
 <col style="width: 50%">
@@ -2642,52 +2647,52 @@ Table&nbsp;18.3: un tableau étiquetté
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-Remarque sur la syntaxe des options
+<span class="screen-reader-only">Important</span>Remarque sur la syntaxe des options
 </div>
 </div>
 <div class="callout-body-container callout-body">
 <p>De nombreuses options des fonctions de <a href="https://github.com/ddsjoberg/gtsummary">gtsummary</a> peuvent s’appliquer seulement à une ou certaines variables. Pour ces options-là, <a href="https://github.com/ddsjoberg/gtsummary">gtsummary</a> attends une formule de la forme <code>variables concernées ~ valeur de l'option</code> ou bien une liste de formules ayant cette forme.</p>
 <p>Par exemple, pour modifier l’étiquette associée à une certaine variable, on peut utiliser l’option <code>label</code> de <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/tbl_summary.html">gtsummary::tbl_summary()</a></code>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1"></a>trial <span class="sc">|&gt;</span> </span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1"></a>trial <span class="sc">|&gt;</span> </span>
 <span id="cb17-2"><a href="#cb17-2"></a>  <span class="fu">tbl_summary</span>(</span>
 <span id="cb17-3"><a href="#cb17-3"></a>    <span class="at">label =</span> age <span class="sc">~</span> <span class="st">"Âge"</span></span>
-<span id="cb17-4"><a href="#cb17-4"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb17-4"><a href="#cb17-4"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Lorsque l’on souhaite passer plusieurs options pour plusieurs variables différentes, on utilisera une <code><a href="https://rdrr.io/r/base/list.html">list()</a></code>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1"></a>trial <span class="sc">|&gt;</span> </span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1"></a>trial <span class="sc">|&gt;</span> </span>
 <span id="cb18-2"><a href="#cb18-2"></a>  <span class="fu">tbl_summary</span>(</span>
 <span id="cb18-3"><a href="#cb18-3"></a>    <span class="at">label =</span> <span class="fu">list</span>(</span>
 <span id="cb18-4"><a href="#cb18-4"></a>      age <span class="sc">~</span> <span class="st">"Âge"</span>,</span>
 <span id="cb18-5"><a href="#cb18-5"></a>      trt <span class="sc">~</span> <span class="st">"Traitement"</span></span>
 <span id="cb18-6"><a href="#cb18-6"></a>    )</span>
-<span id="cb18-7"><a href="#cb18-7"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb18-7"><a href="#cb18-7"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p><a href="https://github.com/ddsjoberg/gtsummary">gtsummary</a> est très flexible sur la manière d’indiquer la ou les variables concernées. Il peut s’agir du nom de la variable, d’une chaîne de caractères contenant le nom de la variable, ou d’un vecteur contenant le nom de la variable. Les syntaxes ci-dessous sont ainsi équivalentes.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1"></a>trial <span class="sc">|&gt;</span> </span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1"></a>trial <span class="sc">|&gt;</span> </span>
 <span id="cb19-2"><a href="#cb19-2"></a>  <span class="fu">tbl_summary</span>(<span class="at">label =</span> age <span class="sc">~</span> <span class="st">"Âge"</span>)</span>
 <span id="cb19-3"><a href="#cb19-3"></a>trial <span class="sc">|&gt;</span> </span>
 <span id="cb19-4"><a href="#cb19-4"></a>  <span class="fu">tbl_summary</span>(<span class="at">label =</span> <span class="st">"age"</span> <span class="sc">~</span> <span class="st">"Âge"</span>)</span>
 <span id="cb19-5"><a href="#cb19-5"></a>v <span class="ot">&lt;-</span> <span class="st">"age"</span></span>
 <span id="cb19-6"><a href="#cb19-6"></a>trial <span class="sc">|&gt;</span> </span>
-<span id="cb19-7"><a href="#cb19-7"></a>  <span class="fu">tbl_summary</span>(<span class="at">label =</span> v <span class="sc">~</span> <span class="st">"Âge"</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb19-7"><a href="#cb19-7"></a>  <span class="fu">tbl_summary</span>(<span class="at">label =</span> v <span class="sc">~</span> <span class="st">"Âge"</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Pour appliquer le même changement à plusieurs variables, plusieurs syntaxes sont acceptées pour lister plusieurs variables.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1"></a>trial <span class="sc">|&gt;</span> </span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1"></a>trial <span class="sc">|&gt;</span> </span>
 <span id="cb20-2"><a href="#cb20-2"></a>  <span class="fu">tbl_summary</span>(</span>
 <span id="cb20-3"><a href="#cb20-3"></a>    <span class="at">label =</span> <span class="fu">c</span>(<span class="st">"age"</span>, <span class="st">"trt"</span>) <span class="sc">~</span> <span class="st">"Une même étiquette"</span></span>
 <span id="cb20-4"><a href="#cb20-4"></a>  )</span>
 <span id="cb20-5"><a href="#cb20-5"></a>trial <span class="sc">|&gt;</span> </span>
 <span id="cb20-6"><a href="#cb20-6"></a>  <span class="fu">tbl_summary</span>(</span>
 <span id="cb20-7"><a href="#cb20-7"></a>    <span class="at">label =</span> <span class="fu">c</span>(age, trt) <span class="sc">~</span> <span class="st">"Une même étiquette"</span></span>
-<span id="cb20-8"><a href="#cb20-8"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb20-8"><a href="#cb20-8"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Il est également possible d’utiliser la syntaxe <a href="https://tidyselect.r-lib.org">tidyselect</a> et les sélecteurs de <a href="https://tidyselect.r-lib.org">tidyselect</a> comme <code><a href="https://tidyselect.r-lib.org/reference/everything.html">tidyselect::everything()</a></code>, <code><a href="https://tidyselect.r-lib.org/reference/starts_with.html">tidyselect::starts_with()</a></code>, <code><a href="https://tidyselect.r-lib.org/reference/starts_with.html">tidyselect::contains()</a></code> ou <code><a href="https://tidyselect.r-lib.org/reference/all_of.html">tidyselect::all_of()</a></code>. Ces différents sélecteurs peuvent être combinés au sein d’un <code><a href="https://rdrr.io/r/base/c.html">c()</a></code>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1"></a>trial <span class="sc">|&gt;</span> </span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1"></a>trial <span class="sc">|&gt;</span> </span>
 <span id="cb21-2"><a href="#cb21-2"></a>  <span class="fu">tbl_summary</span>(</span>
 <span id="cb21-3"><a href="#cb21-3"></a>    <span class="at">label =</span> <span class="fu">everything</span>() <span class="sc">~</span> <span class="st">"Une même étiquette"</span></span>
 <span id="cb21-4"><a href="#cb21-4"></a>  )</span>
@@ -2702,11 +2707,11 @@ Remarque sur la syntaxe des options
 <span id="cb21-13"><a href="#cb21-13"></a>trial <span class="sc">|&gt;</span> </span>
 <span id="cb21-14"><a href="#cb21-14"></a>  <span class="fu">tbl_summary</span>(</span>
 <span id="cb21-15"><a href="#cb21-15"></a>    <span class="at">label =</span> age<span class="sc">:</span>trt <span class="sc">~</span> <span class="st">"Une même étiquette"</span></span>
-<span id="cb21-16"><a href="#cb21-16"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb21-16"><a href="#cb21-16"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>En plus, il est possible d’utiliser les sélecteurs propres à <a href="https://github.com/ddsjoberg/gtsummary">gtsummary</a>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1"></a>trial <span class="sc">|&gt;</span> </span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1"></a>trial <span class="sc">|&gt;</span> </span>
 <span id="cb22-2"><a href="#cb22-2"></a>  <span class="fu">tbl_summary</span>(</span>
 <span id="cb22-3"><a href="#cb22-3"></a>    <span class="at">label =</span> <span class="fu">all_continuous</span>() <span class="sc">~</span> <span class="st">"Une même étiquette"</span></span>
 <span id="cb22-4"><a href="#cb22-4"></a>  )</span>
@@ -2717,18 +2722,18 @@ Remarque sur la syntaxe des options
 <span id="cb22-9"><a href="#cb22-9"></a>      <span class="fu">all_dichotomous</span>() <span class="sc">~</span> <span class="st">"Variable dichotomique"</span>,</span>
 <span id="cb22-10"><a href="#cb22-10"></a>      <span class="fu">all_categorical</span>(<span class="at">dichotomous =</span> <span class="cn">FALSE</span>) <span class="sc">~</span> <span class="st">"Variable catégorielle"</span></span>
 <span id="cb22-11"><a href="#cb22-11"></a>    )</span>
-<span id="cb22-12"><a href="#cb22-12"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb22-12"><a href="#cb22-12"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Enfin, si l’on ne précise rien à gauche du <code>~</code>, ce sera considéré comme équivalent à <code>everything()</code>. Les deux syntaxes ci-dessous sont donc équivalentes.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1"></a>trial <span class="sc">|&gt;</span> </span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1"></a>trial <span class="sc">|&gt;</span> </span>
 <span id="cb23-2"><a href="#cb23-2"></a>  <span class="fu">tbl_summary</span>(</span>
 <span id="cb23-3"><a href="#cb23-3"></a>    <span class="at">label =</span> <span class="sc">~</span> <span class="st">"Une même étiquette"</span></span>
 <span id="cb23-4"><a href="#cb23-4"></a>  )</span>
 <span id="cb23-5"><a href="#cb23-5"></a>trial <span class="sc">|&gt;</span> </span>
 <span id="cb23-6"><a href="#cb23-6"></a>  <span class="fu">tbl_summary</span>(</span>
 <span id="cb23-7"><a href="#cb23-7"></a>    <span class="at">label =</span> <span class="fu">everything</span>() <span class="sc">~</span> <span class="st">"Une même étiquette"</span></span>
-<span id="cb23-8"><a href="#cb23-8"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb23-8"><a href="#cb23-8"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div>
 </div>
@@ -2737,12 +2742,12 @@ Remarque sur la syntaxe des options
 <p>Le paramètre <code>statistic</code> permets de sélectionner les statistiques à afficher pour chaque variable. On indiquera une chaîne de caractères dont les différentes statistiques seront indiquées entre accolades (<code><a href="https://rdrr.io/r/base/Paren.html">{}</a></code>).</p>
 <p>Pour une <strong>variable continue</strong>, on pourra utiliser <code>{median}</code> pour la médiane, <code>{mean}</code> pour la moyenne, <code>{sd}</code> pour l’écart type, <code>{var}</code> pour la variance, <code>{min}</code> pour le minimum, <code>{max}</code> pour le maximum, ou encore <code>{p##}</code> (en remplaçant <code>##</code> par un nombre entier entre 00 et 100) pour le percentile correspondant (par exemple <code>p25</code> et <code>p75</code> pour le premier et le troisième quartile). Utilisez <code>gtsummary::all_continous()</code> pour sélectionner toutes les variables continues.</p>
 <div class="cell page-columns page-full">
-<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1"></a>hdv2003 <span class="sc">|&gt;</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1"></a>hdv2003 <span class="sc">|&gt;</span></span>
 <span id="cb24-2"><a href="#cb24-2"></a>  <span class="fu">tbl_summary</span>(</span>
 <span id="cb24-3"><a href="#cb24-3"></a>    <span class="at">include =</span> <span class="fu">c</span>(age, heures.tv),</span>
 <span id="cb24-4"><a href="#cb24-4"></a>    <span class="at">statistic =</span> </span>
 <span id="cb24-5"><a href="#cb24-5"></a>      <span class="fu">all_continuous</span>() <span class="sc">~</span> <span class="st">"Moy. : {mean} [min-max : {min} - {max}]"</span></span>
-<span id="cb24-6"><a href="#cb24-6"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb24-6"><a href="#cb24-6"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div id="tbl-stat-var-cont" class="cell quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-tbl figure page-columns page-full"><div aria-describedby="tbl-stat-var-cont-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
@@ -3195,7 +3200,7 @@ Remarque sur la syntaxe des options
   height: 0px !important;
 }
 </style>
-<table class="gt_table do-not-create-environment cell table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<table class="gt_table cell table table-sm table-striped small" data-quarto-bootstrap="false">
 <thead><tr class="gt_col_headings header">
 <th id="label" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col"><strong>Caractéristique</strong></th>
 <th id="stat_0" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col">
@@ -3231,14 +3236,14 @@ Table&nbsp;18.4: statistiques personnalisées pour une variable continue
 </div>
 <p>Il est possible d’afficher des statistiques différentes pour chaque variable.</p>
 <div class="cell page-columns page-full">
-<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1"></a>hdv2003 <span class="sc">|&gt;</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1"></a>hdv2003 <span class="sc">|&gt;</span></span>
 <span id="cb25-2"><a href="#cb25-2"></a>  <span class="fu">tbl_summary</span>(</span>
 <span id="cb25-3"><a href="#cb25-3"></a>    <span class="at">include =</span> <span class="fu">c</span>(age, heures.tv),</span>
 <span id="cb25-4"><a href="#cb25-4"></a>    <span class="at">statistic =</span> <span class="fu">list</span>(</span>
 <span id="cb25-5"><a href="#cb25-5"></a>      age <span class="sc">~</span> <span class="st">"Méd. : {median} [{p25} - {p75}]"</span>,</span>
 <span id="cb25-6"><a href="#cb25-6"></a>      heures.tv <span class="sc">~</span> <span class="st">"Moy. : {mean} ({sd})"</span></span>
 <span id="cb25-7"><a href="#cb25-7"></a>    )</span>
-<span id="cb25-8"><a href="#cb25-8"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb25-8"><a href="#cb25-8"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div id="tbl-stat-var-cont2" class="cell quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-tbl figure page-columns page-full"><div aria-describedby="tbl-stat-var-cont2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
@@ -3691,7 +3696,7 @@ Table&nbsp;18.4: statistiques personnalisées pour une variable continue
   height: 0px !important;
 }
 </style>
-<table class="gt_table do-not-create-environment cell table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<table class="gt_table cell table table-sm table-striped small" data-quarto-bootstrap="false">
 <thead><tr class="gt_col_headings header">
 <th id="label" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col"><strong>Caractéristique</strong></th>
 <th id="stat_0" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col">
@@ -3727,14 +3732,14 @@ Table&nbsp;18.5: statistiques personnalisées pour une variable continue (2)
 </div>
 <p>Pour les variables continues, il est également possible d’indiquer le nom d’une fonction personnalisée qui prends un vecteur et renvoie une valeur résumée. Par exemple, pour afficher la moyenne des carrés&nbsp;:</p>
 <div class="cell page-columns page-full">
-<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1"></a>moy_carres <span class="ot">&lt;-</span> <span class="cf">function</span>(x) {</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1"></a>moy_carres <span class="ot">&lt;-</span> <span class="cf">function</span>(x) {</span>
 <span id="cb26-2"><a href="#cb26-2"></a>  <span class="fu">mean</span>(x<span class="sc">^</span><span class="dv">2</span>, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
 <span id="cb26-3"><a href="#cb26-3"></a>}</span>
 <span id="cb26-4"><a href="#cb26-4"></a>hdv2003 <span class="sc">|&gt;</span></span>
 <span id="cb26-5"><a href="#cb26-5"></a>  <span class="fu">tbl_summary</span>(</span>
 <span id="cb26-6"><a href="#cb26-6"></a>    <span class="at">include =</span> heures.tv,</span>
 <span id="cb26-7"><a href="#cb26-7"></a>    <span class="at">statistic =</span> <span class="sc">~</span> <span class="st">"MC : {moy_carres}"</span></span>
-<span id="cb26-8"><a href="#cb26-8"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb26-8"><a href="#cb26-8"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div id="tbl-stat-var-cont3" class="cell quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-tbl figure page-columns page-full"><div aria-describedby="tbl-stat-var-cont3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
@@ -4187,7 +4192,7 @@ Table&nbsp;18.5: statistiques personnalisées pour une variable continue (2)
   height: 0px !important;
 }
 </style>
-<table class="gt_table do-not-create-environment cell table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<table class="gt_table cell table table-sm table-striped small" data-quarto-bootstrap="false">
 <thead><tr class="gt_col_headings header">
 <th id="label" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col"><strong>Caractéristique</strong></th>
 <th id="stat_0" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col">
@@ -4232,11 +4237,11 @@ Astuce
 <p>À noter, <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/theme_gtsummary.html">gtsummary::theme_gtsummary_mean_sd()</a></code> n’est pas compatibles avec <code><a href="https://larmarange.github.io/guideR/reference/gtsummary_themes.html">guideR::theme_gtsummary_prop_n()</a></code>. Si l’on veut combiner les deux options, on optera alors la version <code>guideR::theme_gtsummary_prop_n(mean_sd = TRUE)</code>.</p>
 <p>Cela présente par ailleurs d’autres avantages que nous verrons plus loin, car <code><a href="https://larmarange.github.io/guideR/reference/gtsummary_themes.html">guideR::theme_gtsummary_prop_n()</a></code> met également à jour les intervalles de confiance renvoyés par <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/add_ci.html">gtsummary::add_ci()</a></code> et les tests par défaut utilisés par <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/add_p.html">gtsummary::add_p()</a></code>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1"></a>guideR<span class="sc">::</span><span class="fu">theme_gtsummary_prop_n</span>(<span class="at">mean_sd =</span> <span class="cn">TRUE</span>)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1"></a>guideR<span class="sc">::</span><span class="fu">theme_gtsummary_prop_n</span>(<span class="at">mean_sd =</span> <span class="cn">TRUE</span>)</span>
 <span id="cb27-2"><a href="#cb27-2"></a>hdv2003 <span class="sc">|&gt;</span></span>
 <span id="cb27-3"><a href="#cb27-3"></a>  <span class="fu">tbl_summary</span>(</span>
 <span id="cb27-4"><a href="#cb27-4"></a>    <span class="at">include =</span> heures.tv</span>
-<span id="cb27-5"><a href="#cb27-5"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb27-5"><a href="#cb27-5"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div id="ksxjqelyko" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>#ksxjqelyko table {
@@ -4687,7 +4692,7 @@ Astuce
   height: 0px !important;
 }
 </style>
-<table class="gt_table table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<table class="gt_table table table-sm table-striped small" data-quarto-bootstrap="false">
 <thead><tr class="gt_col_headings header">
 <th id="label" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col"><strong>Caractéristique</strong></th>
 <th id="stat_0" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col">
@@ -4716,11 +4721,11 @@ Astuce
 </div>
 <p>Pour une <strong>variable catégorielle</strong>, les statistiques possibles sont <code>{n}</code> le nombre d’observations, <code>{N}</code> le nombre total d’observations, et <code>{p}</code> le pourcentage correspondant. Utilisez <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/select_helpers.html">gtsummary::all_categorical()</a></code> pour sélectionner toutes les variables catégorielles.</p>
 <div class="cell page-columns page-full">
-<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1"></a>hdv2003 <span class="sc">|&gt;</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1"></a>hdv2003 <span class="sc">|&gt;</span></span>
 <span id="cb28-2"><a href="#cb28-2"></a>  <span class="fu">tbl_summary</span>(</span>
 <span id="cb28-3"><a href="#cb28-3"></a>    <span class="at">include =</span> occup,</span>
 <span id="cb28-4"><a href="#cb28-4"></a>    <span class="at">statistic =</span> <span class="fu">all_categorical</span>() <span class="sc">~</span> <span class="st">"{p} % ({n}/{N})"</span></span>
-<span id="cb28-5"><a href="#cb28-5"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb28-5"><a href="#cb28-5"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div id="tbl-stat-var-cat" class="cell quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-tbl figure page-columns page-full"><div aria-describedby="tbl-stat-var-cat-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
@@ -5173,7 +5178,7 @@ Astuce
   height: 0px !important;
 }
 </style>
-<table class="gt_table do-not-create-environment cell table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<table class="gt_table cell table table-sm table-striped small" data-quarto-bootstrap="false">
 <colgroup>
 <col style="width: 50%">
 <col style="width: 50%">
@@ -5233,11 +5238,11 @@ Table&nbsp;18.7: statiques personnalisées pour une variable catégorielle
 </div>
 <p>Il est possible, pour une variable catégorielle, de trier les modalités de la plus fréquente à la moins fréquente avec le paramètre <code>sort</code>.</p>
 <div class="cell page-columns page-full">
-<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1"></a>hdv2003 <span class="sc">|&gt;</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1"></a>hdv2003 <span class="sc">|&gt;</span></span>
 <span id="cb29-2"><a href="#cb29-2"></a>  <span class="fu">tbl_summary</span>(</span>
 <span id="cb29-3"><a href="#cb29-3"></a>    <span class="at">include =</span> occup,</span>
 <span id="cb29-4"><a href="#cb29-4"></a>    <span class="at">sort =</span> <span class="fu">all_categorical</span>() <span class="sc">~</span> <span class="st">"frequency"</span></span>
-<span id="cb29-5"><a href="#cb29-5"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb29-5"><a href="#cb29-5"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div id="tbl-stat-var-cat-sort" class="cell quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-tbl figure page-columns page-full"><div aria-describedby="tbl-stat-var-cat-sort-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
@@ -5690,7 +5695,7 @@ Table&nbsp;18.7: statiques personnalisées pour une variable catégorielle
   height: 0px !important;
 }
 </style>
-<table class="gt_table do-not-create-environment cell table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<table class="gt_table cell table table-sm table-striped small" data-quarto-bootstrap="false">
 <colgroup>
 <col style="width: 50%">
 <col style="width: 50%">
@@ -5764,7 +5769,7 @@ Table&nbsp;18.8: variable catégorielle triée par fréquence
 <span class="header-section-number">18.2.4</span> Affichage du nom des statistiques</h3>
 <p>Lorsque l’on affiche de multiples statistiques, la liste des statistiques est regroupée dans une note de tableau qui peut vite devenir un peu confuse.</p>
 <div class="cell page-columns page-full">
-<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1"></a>tbl <span class="ot">&lt;-</span> hdv2003 <span class="sc">|&gt;</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb30"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1"></a>tbl <span class="ot">&lt;-</span> hdv2003 <span class="sc">|&gt;</span></span>
 <span id="cb30-2"><a href="#cb30-2"></a>  <span class="fu">tbl_summary</span>(</span>
 <span id="cb30-3"><a href="#cb30-3"></a>    <span class="at">include =</span> <span class="fu">c</span>(age, heures.tv, occup),</span>
 <span id="cb30-4"><a href="#cb30-4"></a>    <span class="at">statistic =</span> <span class="fu">list</span>(</span>
@@ -5772,7 +5777,7 @@ Table&nbsp;18.8: variable catégorielle triée par fréquence
 <span id="cb30-6"><a href="#cb30-6"></a>      heures.tv <span class="sc">~</span> <span class="st">"{median} [{p25} - {p75}]"</span></span>
 <span id="cb30-7"><a href="#cb30-7"></a>    )</span>
 <span id="cb30-8"><a href="#cb30-8"></a>  )</span>
-<span id="cb30-9"><a href="#cb30-9"></a>tbl</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb30-9"><a href="#cb30-9"></a>tbl</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div id="tbl-stat-nom" class="cell quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-tbl figure page-columns page-full"><div aria-describedby="tbl-stat-nom-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
@@ -6225,7 +6230,7 @@ Table&nbsp;18.8: variable catégorielle triée par fréquence
   height: 0px !important;
 }
 </style>
-<table class="gt_table do-not-create-environment cell table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<table class="gt_table cell table table-sm table-striped small" data-quarto-bootstrap="false">
 <colgroup>
 <col style="width: 50%">
 <col style="width: 50%">
@@ -6297,8 +6302,8 @@ Table&nbsp;18.9: tableau par défaut
 </div>
 <p>La fonction <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/add_stat_label.html">gtsummary::add_stat_label()</a></code> permets d’indiquer le type de statistique à côté du nom des variables ou bien dans une colonne dédiée, plutôt qu’en note de tableau.</p>
 <div class="cell page-columns page-full">
-<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1"></a>tbl <span class="sc">|&gt;</span> </span>
-<span id="cb31-2"><a href="#cb31-2"></a>  <span class="fu">add_stat_label</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb31"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1"></a>tbl <span class="sc">|&gt;</span> </span>
+<span id="cb31-2"><a href="#cb31-2"></a>  <span class="fu">add_stat_label</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div id="tbl-stat-nom-2" class="cell quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-tbl figure page-columns page-full"><div aria-describedby="tbl-stat-nom-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
@@ -6751,7 +6756,7 @@ Table&nbsp;18.9: tableau par défaut
   height: 0px !important;
 }
 </style>
-<table class="gt_table do-not-create-environment cell table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<table class="gt_table cell table table-sm table-striped small" data-quarto-bootstrap="false">
 <colgroup>
 <col style="width: 50%">
 <col style="width: 50%">
@@ -6816,8 +6821,8 @@ Table&nbsp;18.10: ajout du nom des statistiques
 </div>
 </div>
 <div class="cell page-columns page-full">
-<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1"></a>tbl <span class="sc">|&gt;</span> </span>
-<span id="cb32-2"><a href="#cb32-2"></a>  <span class="fu">add_stat_label</span>(<span class="at">location =</span> <span class="st">"column"</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb32"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1"></a>tbl <span class="sc">|&gt;</span> </span>
+<span id="cb32-2"><a href="#cb32-2"></a>  <span class="fu">add_stat_label</span>(<span class="at">location =</span> <span class="st">"column"</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div id="tbl-stat-nom-3" class="cell quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-tbl figure page-columns page-full"><div aria-describedby="tbl-stat-nom-3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
@@ -7270,7 +7275,7 @@ Table&nbsp;18.10: ajout du nom des statistiques
   height: 0px !important;
 }
 </style>
-<table class="gt_table do-not-create-environment cell table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<table class="gt_table cell table table-sm table-striped small" data-quarto-bootstrap="false">
 <colgroup>
 <col style="width: 33%">
 <col style="width: 33%">
@@ -7351,10 +7356,10 @@ Table&nbsp;18.11: ajout du nom des statistiques dans une colonne séparée
 <span class="header-section-number">18.2.5</span> Forcer le type de variable</h3>
 <p>Comme évoqué plus haut, <a href="https://github.com/ddsjoberg/gtsummary">gtsummary</a> détermine automatiquement le type de chaque variable. Par défaut, la variable <code>age</code> du tableau de données <code>trial</code> est traitée comme variable continue, <code>death</code> comme dichotomique (seule la valeur 1 est affichée) et <code>grade</code> comme variable catégorielle.</p>
 <div class="cell page-columns page-full">
-<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1"></a>trial <span class="sc">|&gt;</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb33"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1"></a>trial <span class="sc">|&gt;</span></span>
 <span id="cb33-2"><a href="#cb33-2"></a>  <span class="fu">tbl_summary</span>(</span>
 <span id="cb33-3"><a href="#cb33-3"></a>    <span class="at">include =</span> <span class="fu">c</span>(grade, age, death)</span>
-<span id="cb33-4"><a href="#cb33-4"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb33-4"><a href="#cb33-4"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div id="tbl-types-defaut" class="cell quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-tbl figure page-columns page-full"><div aria-describedby="tbl-types-defaut-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
@@ -7807,7 +7812,7 @@ Table&nbsp;18.11: ajout du nom des statistiques dans une colonne séparée
   height: 0px !important;
 }
 </style>
-<table class="gt_table do-not-create-environment cell table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<table class="gt_table cell table table-sm table-striped small" data-quarto-bootstrap="false">
 <colgroup>
 <col style="width: 50%">
 <col style="width: 50%">
@@ -7863,7 +7868,7 @@ Table&nbsp;18.12: types de variable par défaut
 </div>
 <p>Il est cependant possible de forcer un certain type avec l’argument <code>type</code>. Précision&nbsp;: lorsque l’on force une variable en dichotomique, il faut indiquer avec <code>value</code> la valeur à afficher (les autres sont alors masquées).</p>
 <div class="cell page-columns page-full">
-<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1"></a>trial <span class="sc">|&gt;</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb34"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1"></a>trial <span class="sc">|&gt;</span></span>
 <span id="cb34-2"><a href="#cb34-2"></a>  <span class="fu">tbl_summary</span>(</span>
 <span id="cb34-3"><a href="#cb34-3"></a>    <span class="at">include =</span> <span class="fu">c</span>(grade, death),</span>
 <span id="cb34-4"><a href="#cb34-4"></a>    <span class="at">type =</span> <span class="fu">list</span>(</span>
@@ -7872,7 +7877,7 @@ Table&nbsp;18.12: types de variable par défaut
 <span id="cb34-7"><a href="#cb34-7"></a>    ),</span>
 <span id="cb34-8"><a href="#cb34-8"></a>    <span class="at">value =</span> grade <span class="sc">~</span> <span class="st">"III"</span>,</span>
 <span id="cb34-9"><a href="#cb34-9"></a>    <span class="at">label =</span> grade <span class="sc">~</span> <span class="st">"Grade III"</span></span>
-<span id="cb34-10"><a href="#cb34-10"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb34-10"><a href="#cb34-10"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div id="tbl-types-personnalises" class="cell quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-tbl figure page-columns page-full"><div aria-describedby="tbl-types-personnalises-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
@@ -8325,7 +8330,7 @@ Table&nbsp;18.12: types de variable par défaut
   height: 0px !important;
 }
 </style>
-<table class="gt_table do-not-create-environment cell table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<table class="gt_table cell table table-sm table-striped small" data-quarto-bootstrap="false">
 <colgroup>
 <col style="width: 50%">
 <col style="width: 50%">
@@ -8369,13 +8374,13 @@ Table&nbsp;18.13: types de variable personnalisés
 </div>
 <p>Il ne faut pas oublier que, par défaut, <a href="https://github.com/ddsjoberg/gtsummary">gtsummary</a> traite les variables quantitatives avec moins de 10 valeurs comme des variables catégorielles. Prenons un exemple&nbsp;:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1"></a>trial<span class="sc">$</span>alea <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>, <span class="at">size =</span> <span class="fu">nrow</span>(trial), <span class="at">replace =</span> <span class="cn">TRUE</span>)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb35"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1"></a>trial<span class="sc">$</span>alea <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>, <span class="at">size =</span> <span class="fu">nrow</span>(trial), <span class="at">replace =</span> <span class="cn">TRUE</span>)</span>
 <span id="cb35-2"><a href="#cb35-2"></a><span class="co">#| label: tbl-types-defaut-alea</span></span>
 <span id="cb35-3"><a href="#cb35-3"></a><span class="co">#| tbl-cap: traitement par défaut d'une variable numérique à 4 valeurs uniques</span></span>
 <span id="cb35-4"><a href="#cb35-4"></a>trial <span class="sc">|&gt;</span></span>
 <span id="cb35-5"><a href="#cb35-5"></a>  <span class="fu">tbl_summary</span>(</span>
 <span id="cb35-6"><a href="#cb35-6"></a>    <span class="at">include =</span> alea</span>
-<span id="cb35-7"><a href="#cb35-7"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb35-7"><a href="#cb35-7"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div id="afimpwtnwx" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>#afimpwtnwx table {
@@ -8826,7 +8831,7 @@ Table&nbsp;18.13: types de variable personnalisés
   height: 0px !important;
 }
 </style>
-<table class="gt_table table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<table class="gt_table table table-sm table-striped small" data-quarto-bootstrap="false">
 <colgroup>
 <col style="width: 50%">
 <col style="width: 50%">
@@ -8869,11 +8874,11 @@ Table&nbsp;18.13: types de variable personnalisés
 </div>
 <p>On pourra forcer le traitement de cette variable comme continue.</p>
 <div class="cell page-columns page-full">
-<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1"></a>trial <span class="sc">|&gt;</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb36"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1"></a>trial <span class="sc">|&gt;</span></span>
 <span id="cb36-2"><a href="#cb36-2"></a>  <span class="fu">tbl_summary</span>(</span>
 <span id="cb36-3"><a href="#cb36-3"></a>    <span class="at">include =</span> alea,</span>
 <span id="cb36-4"><a href="#cb36-4"></a>    <span class="at">type =</span> alea <span class="sc">~</span> <span class="st">"continuous"</span></span>
-<span id="cb36-5"><a href="#cb36-5"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb36-5"><a href="#cb36-5"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div id="tbl-types-alea-continue" class="cell quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-tbl figure page-columns page-full"><div aria-describedby="tbl-types-alea-continue-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
@@ -9326,7 +9331,7 @@ Table&nbsp;18.13: types de variable personnalisés
   height: 0px !important;
 }
 </style>
-<table class="gt_table do-not-create-environment cell table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<table class="gt_table cell table table-sm table-striped small" data-quarto-bootstrap="false">
 <thead><tr class="gt_col_headings header">
 <th id="label" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col"><strong>Caractéristique</strong></th>
 <th id="stat_0" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col">
@@ -9354,7 +9359,7 @@ Table&nbsp;18.14: forcer le traitement continu d’une variable numérique à 4 
 <span class="header-section-number">18.2.6</span> Afficher des statistiques sur plusieurs lignes (variables continues)</h3>
 <p>Pour les variables continues, <a href="https://github.com/ddsjoberg/gtsummary">gtsummary</a> a introduit un type de variable <code>"continuous2"</code>, qui doit être attribué manuellement via <code>type</code>, et qui permets d’afficher plusieurs lignes de statistiques (en indiquant plusieurs chaînes de caractères dans <code>statistic</code>). À noter le sélecteur dédié <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/select_helpers.html">gtsummary::all_continuous2()</a></code>.</p>
 <div class="cell page-columns page-full">
-<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1"></a>hdv2003 <span class="sc">|&gt;</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb37"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1"></a>hdv2003 <span class="sc">|&gt;</span></span>
 <span id="cb37-2"><a href="#cb37-2"></a>  <span class="fu">tbl_summary</span>(</span>
 <span id="cb37-3"><a href="#cb37-3"></a>    <span class="at">include =</span> <span class="fu">c</span>(age, heures.tv),</span>
 <span id="cb37-4"><a href="#cb37-4"></a>    <span class="at">type =</span> age <span class="sc">~</span> <span class="st">"continuous2"</span>,</span>
@@ -9364,7 +9369,7 @@ Table&nbsp;18.14: forcer le traitement continu d’une variable numérique à 4 
 <span id="cb37-8"><a href="#cb37-8"></a>        <span class="st">"{mean} ({sd})"</span>,</span>
 <span id="cb37-9"><a href="#cb37-9"></a>        <span class="st">"{min} - {max}"</span></span>
 <span id="cb37-10"><a href="#cb37-10"></a>      )</span>
-<span id="cb37-11"><a href="#cb37-11"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb37-11"><a href="#cb37-11"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div id="tbl-continuous2" class="cell quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-tbl figure page-columns page-full"><div aria-describedby="tbl-continuous2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
@@ -9817,7 +9822,7 @@ Table&nbsp;18.14: forcer le traitement continu d’une variable numérique à 4 
   height: 0px !important;
 }
 </style>
-<table class="gt_table do-not-create-environment cell table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<table class="gt_table cell table table-sm table-striped small" data-quarto-bootstrap="false">
 <colgroup>
 <col style="width: 50%">
 <col style="width: 50%">
@@ -9871,14 +9876,14 @@ Table&nbsp;18.15: des statistiques sur plusieurs lignes (variables continues)
 <span class="header-section-number">18.2.7</span> Mise en forme des statistiques</h3>
 <p>L’argument <code>digits</code> permet de spécifier comment mettre en forme les différentes statistiques. Le plus simple est d’indiquer le nombre de décimales à afficher. Il est important de tenir compte que plusieurs statistiques peuvent être affichées pour une même variable. On peut alors indiquer une valeur différente pour chaque statistique.</p>
 <div class="cell page-columns page-full">
-<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1"></a>hdv2003 <span class="sc">|&gt;</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb38"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1"></a>hdv2003 <span class="sc">|&gt;</span></span>
 <span id="cb38-2"><a href="#cb38-2"></a>  <span class="fu">tbl_summary</span>(</span>
 <span id="cb38-3"><a href="#cb38-3"></a>    <span class="at">include =</span> <span class="fu">c</span>(age, occup),</span>
 <span id="cb38-4"><a href="#cb38-4"></a>    <span class="at">digits =</span> <span class="fu">list</span>(</span>
 <span id="cb38-5"><a href="#cb38-5"></a>      <span class="fu">all_continuous</span>() <span class="sc">~</span> <span class="dv">1</span>,</span>
 <span id="cb38-6"><a href="#cb38-6"></a>      <span class="fu">all_categorical</span>() <span class="sc">~</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">0</span>)</span>
 <span id="cb38-7"><a href="#cb38-7"></a>    )</span>
-<span id="cb38-8"><a href="#cb38-8"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb38-8"><a href="#cb38-8"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div id="tbl-digits" class="cell quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-tbl figure page-columns page-full"><div aria-describedby="tbl-digits-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
@@ -10331,7 +10336,7 @@ Table&nbsp;18.15: des statistiques sur plusieurs lignes (variables continues)
   height: 0px !important;
 }
 </style>
-<table class="gt_table do-not-create-environment cell table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<table class="gt_table cell table table-sm table-striped small" data-quarto-bootstrap="false">
 <colgroup>
 <col style="width: 50%">
 <col style="width: 50%">
@@ -10395,14 +10400,14 @@ Table&nbsp;18.16: personnalisation du nombre de décimales
 </div>
 <p>On peut aussi nommer les statistiques concernées dans l’argument <code>digits</code>. Cela est même recommandé pour éviter toute confusion.</p>
 <div class="cell page-columns page-full">
-<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1"></a>hdv2003 <span class="sc">|&gt;</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb39"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1"></a>hdv2003 <span class="sc">|&gt;</span></span>
 <span id="cb39-2"><a href="#cb39-2"></a>  <span class="fu">tbl_summary</span>(</span>
 <span id="cb39-3"><a href="#cb39-3"></a>    <span class="at">include =</span> <span class="fu">c</span>(age, occup),</span>
 <span id="cb39-4"><a href="#cb39-4"></a>    <span class="at">digits =</span> <span class="fu">list</span>(</span>
 <span id="cb39-5"><a href="#cb39-5"></a>      <span class="fu">all_continuous</span>() <span class="sc">~</span> <span class="fu">c</span>(<span class="at">sd =</span> <span class="dv">1</span>, <span class="at">mean =</span> <span class="dv">2</span>),</span>
 <span id="cb39-6"><a href="#cb39-6"></a>      <span class="fu">all_categorical</span>() <span class="sc">~</span> <span class="fu">c</span>(<span class="at">n =</span> <span class="dv">0</span>, <span class="at">p =</span> <span class="dv">1</span>)</span>
 <span id="cb39-7"><a href="#cb39-7"></a>    )</span>
-<span id="cb39-8"><a href="#cb39-8"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb39-8"><a href="#cb39-8"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div id="tbl-digits-2" class="cell quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-tbl figure page-columns page-full"><div aria-describedby="tbl-digits-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
@@ -10855,7 +10860,7 @@ Table&nbsp;18.16: personnalisation du nombre de décimales
   height: 0px !important;
 }
 </style>
-<table class="gt_table do-not-create-environment cell table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<table class="gt_table cell table table-sm table-striped small" data-quarto-bootstrap="false">
 <colgroup>
 <col style="width: 50%">
 <col style="width: 50%">
@@ -10920,7 +10925,7 @@ Table&nbsp;18.17: personnalisation du nombre de décimales
 <p>Au lieu d’un nombre de décimales, on peut indiquer plutôt une fonction à appliquer pour mettre en forme le résultat. Par exemple, <a href="https://github.com/ddsjoberg/gtsummary">gtsummary</a> fournit les fonctions suivantes&nbsp;: <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/style_number.html">gtsummary::style_number()</a></code> pour les nombres de manière générale, <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/style_percent.html">gtsummary::style_percent()</a></code> pour les pourcentages (les valeurs sont multipliées par 100, mais le symbole % n’est pas ajouté), <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/style_pvalue.html">gtsummary::style_pvalue()</a></code> pour les p-valeurs, <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/style_sigfig.html">gtsummary::style_sigfig()</a></code> qui n’affiche, par défaut, que deux chiffres significatifs, ou encore <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/style_ratio.html">gtsummary::style_ratio()</a></code> qui est une variante de <code data-pkg="&quot;gtsummary"><a href="https://www.danieldsjoberg.com/gtsummary/reference/style_sigfig.html">gtsummary::style_sigfig()</a></code> pour les ratios (comme les <em>odds ratios</em>) que l’on compare à 1.</p>
 <p>Il faut bien noter que ce qui est attendu par <code>digits</code>, c’est une fonction et non le résultat d’une fonction. On indiquera donc le nom de la fonction sans parenthèse, comme dans l’exemple ci-dessous (même si pas forcément pertinent ;-)).</p>
 <div class="cell page-columns page-full">
-<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1"></a>hdv2003 <span class="sc">|&gt;</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb40"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1"></a>hdv2003 <span class="sc">|&gt;</span></span>
 <span id="cb40-2"><a href="#cb40-2"></a>  <span class="fu">tbl_summary</span>(</span>
 <span id="cb40-3"><a href="#cb40-3"></a>    <span class="at">include =</span> age,</span>
 <span id="cb40-4"><a href="#cb40-4"></a>    <span class="at">digits =</span> </span>
@@ -10928,7 +10933,7 @@ Table&nbsp;18.17: personnalisation du nombre de décimales
 <span id="cb40-6"><a href="#cb40-6"></a>        <span class="at">mean =</span> style_percent,</span>
 <span id="cb40-7"><a href="#cb40-7"></a>        <span class="at">sd =</span> style_sigfig</span>
 <span id="cb40-8"><a href="#cb40-8"></a>      )</span>
-<span id="cb40-9"><a href="#cb40-9"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb40-9"><a href="#cb40-9"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div id="tbl-digits-3" class="cell quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-tbl figure page-columns page-full"><div aria-describedby="tbl-digits-3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
@@ -11381,7 +11386,7 @@ Table&nbsp;18.17: personnalisation du nombre de décimales
   height: 0px !important;
 }
 </style>
-<table class="gt_table do-not-create-environment cell table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<table class="gt_table cell table table-sm table-striped small" data-quarto-bootstrap="false">
 <thead><tr class="gt_col_headings header">
 <th id="label" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col"><strong>Caractéristique</strong></th>
 <th id="stat_0" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col">
@@ -11407,12 +11412,12 @@ Table&nbsp;18.18: personnalisation de la mise en forme des nombres
 </div>
 <p>Comme <code>digits</code> s’attend à recevoir une fonction (et non le résultat) d’une fonction, on ne peut pas passer directement des arguments aux fonctions <code>style_*()</code> de <a href="https://github.com/ddsjoberg/gtsummary">gtsummary</a>. Pour cela, on aura recours à leurs équivalents <code>label_style_*()</code> qui ne mettent pas directement un nombre en forme, mais renvoient une fonction de mise en forme.</p>
 <div class="cell page-columns page-full">
-<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1"></a>trial <span class="sc">|&gt;</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb41"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1"></a>trial <span class="sc">|&gt;</span></span>
 <span id="cb41-2"><a href="#cb41-2"></a>  <span class="fu">tbl_summary</span>(</span>
 <span id="cb41-3"><a href="#cb41-3"></a>    <span class="at">include =</span> marker,</span>
 <span id="cb41-4"><a href="#cb41-4"></a>    <span class="at">statistic =</span> <span class="sc">~</span> <span class="st">"{mean} pour 100"</span>,</span>
 <span id="cb41-5"><a href="#cb41-5"></a>    <span class="at">digits =</span> <span class="sc">~</span> <span class="fu">label_style_percent</span>(<span class="at">digits =</span> <span class="dv">1</span>)</span>
-<span id="cb41-6"><a href="#cb41-6"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb41-6"><a href="#cb41-6"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div id="tbl-digits-4" class="cell quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-tbl figure page-columns page-full"><div aria-describedby="tbl-digits-4-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
@@ -11865,7 +11870,7 @@ Table&nbsp;18.18: personnalisation de la mise en forme des nombres
   height: 0px !important;
 }
 </style>
-<table class="gt_table do-not-create-environment cell table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<table class="gt_table cell table table-sm table-striped small" data-quarto-bootstrap="false">
 <thead><tr class="gt_col_headings header">
 <th id="label" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col"><strong>Caractéristique</strong></th>
 <th id="stat_0" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col">
@@ -11899,7 +11904,7 @@ Table&nbsp;18.19: passer une fonction personnalisée à digits (syntaxe 1)
 <p>Pour une mise en forme plus avancée des nombres, il faut se tourner vers l’extension <a href="https://scales.r-lib.org">scales</a> et ses diverses fonctions de mise en forme comme <code><a href="https://scales.r-lib.org/reference/label_number.html">scales::label_number()</a></code> ou <code><a href="https://scales.r-lib.org/reference/label_percent.html">scales::label_percent()</a></code>.</p>
 <p><strong>ATTENTION&nbsp;:</strong> les fonctions de <a href="https://scales.r-lib.org">scales</a> n’héritent pas des paramètres du thème <a href="https://github.com/ddsjoberg/gtsummary">gtsummary</a> actif. Il faut donc personnaliser le séparateur de décimal dans l’appel à la fonction.</p>
 <div class="cell page-columns page-full">
-<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1"></a>trial <span class="sc">|&gt;</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb42"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1"></a>trial <span class="sc">|&gt;</span></span>
 <span id="cb42-2"><a href="#cb42-2"></a>  <span class="fu">tbl_summary</span>(</span>
 <span id="cb42-3"><a href="#cb42-3"></a>    <span class="at">include =</span> marker,</span>
 <span id="cb42-4"><a href="#cb42-4"></a>    <span class="at">statistic =</span> <span class="sc">~</span> <span class="st">"{mean}"</span>,</span>
@@ -11908,7 +11913,7 @@ Table&nbsp;18.19: passer une fonction personnalisée à digits (syntaxe 1)
 <span id="cb42-7"><a href="#cb42-7"></a>      <span class="at">suffix =</span> <span class="st">" ng/mL"</span>, </span>
 <span id="cb42-8"><a href="#cb42-8"></a>      <span class="at">decimal.mark =</span> <span class="st">","</span></span>
 <span id="cb42-9"><a href="#cb42-9"></a>    )</span>
-<span id="cb42-10"><a href="#cb42-10"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb42-10"><a href="#cb42-10"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div id="tbl-digits-5" class="cell quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-tbl figure page-columns page-full"><div aria-describedby="tbl-digits-5-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
@@ -12361,7 +12366,7 @@ Table&nbsp;18.19: passer une fonction personnalisée à digits (syntaxe 1)
   height: 0px !important;
 }
 </style>
-<table class="gt_table do-not-create-environment cell table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<table class="gt_table cell table table-sm table-striped small" data-quarto-bootstrap="false">
 <thead><tr class="gt_col_headings header">
 <th id="label" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col"><strong>Caractéristique</strong></th>
 <th id="stat_0" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col">
@@ -12395,12 +12400,12 @@ Table&nbsp;18.20: passer une fonction personnalisée à digits (syntaxe 4)
 <span class="header-section-number">18.2.8</span> Données manquantes</h3>
 <p>Le paramètre <code>missing</code> permets d’indiquer s’il faut afficher le nombre d’observations manquantes (c’est-à-dire égales à <code>NA</code>)&nbsp;: <code>"ifany"</code> (valeur par défaut) affiche ce nombre seulement s’il y en a, <code>"no"</code> masque ce nombre et <code>"always"</code> force l’affichage de ce nombre même s’il n’y pas de valeur manquante. Le paramètre <code>missing_text</code> permets de personnaliser le texte affiché.</p>
 <div class="cell page-columns page-full">
-<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1"></a>hdv2003 <span class="sc">|&gt;</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb43"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1"></a>hdv2003 <span class="sc">|&gt;</span></span>
 <span id="cb43-2"><a href="#cb43-2"></a>  <span class="fu">tbl_summary</span>(</span>
 <span id="cb43-3"><a href="#cb43-3"></a>    <span class="at">include =</span> <span class="fu">c</span>(age, heures.tv),</span>
 <span id="cb43-4"><a href="#cb43-4"></a>    <span class="at">missing =</span> <span class="st">"always"</span>,</span>
 <span id="cb43-5"><a href="#cb43-5"></a>    <span class="at">missing_text =</span> <span class="st">"Nbre observations manquantes"</span></span>
-<span id="cb43-6"><a href="#cb43-6"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb43-6"><a href="#cb43-6"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div id="tbl-missing" class="cell quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-tbl figure page-columns page-full"><div aria-describedby="tbl-missing-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
@@ -12853,7 +12858,7 @@ Table&nbsp;18.20: passer une fonction personnalisée à digits (syntaxe 4)
   height: 0px !important;
 }
 </style>
-<table class="gt_table do-not-create-environment cell table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<table class="gt_table cell table table-sm table-striped small" data-quarto-bootstrap="false">
 <thead><tr class="gt_col_headings header">
 <th id="label" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col"><strong>Caractéristique</strong></th>
 <th id="stat_0" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col">
@@ -12893,14 +12898,14 @@ Table&nbsp;18.21: forcer l’affichage des valeurs manquantes
 </div>
 <p>Il est à noter, pour les variables catégorielles, que les valeurs manquantes ne sont jamais pris en compte pour le calcul des pourcentages. Pour les inclure dans le calcul, il faut les transformer en valeurs explicites, par exemple avec <code><a href="https://forcats.tidyverse.org/reference/fct_na_value_to_level.html">forcats::fct_na_value_to_level()</a></code> de <a href="https://forcats.tidyverse.org/">forcats</a>.</p>
 <div class="cell page-columns page-full">
-<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1"></a>hdv2003 <span class="sc">|&gt;</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb44"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1"></a>hdv2003 <span class="sc">|&gt;</span></span>
 <span id="cb44-2"><a href="#cb44-2"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(</span>
 <span id="cb44-3"><a href="#cb44-3"></a>    <span class="at">trav.imp.explicit =</span> trav.imp <span class="sc">|&gt;</span> </span>
 <span id="cb44-4"><a href="#cb44-4"></a>      forcats<span class="sc">::</span><span class="fu">fct_na_value_to_level</span>(<span class="st">"(non renseigné)"</span>)</span>
 <span id="cb44-5"><a href="#cb44-5"></a>  ) <span class="sc">|&gt;</span> </span>
 <span id="cb44-6"><a href="#cb44-6"></a>  <span class="fu">tbl_summary</span>(</span>
 <span id="cb44-7"><a href="#cb44-7"></a>    <span class="at">include =</span> <span class="fu">c</span>(trav.imp, trav.imp.explicit)</span>
-<span id="cb44-8"><a href="#cb44-8"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb44-8"><a href="#cb44-8"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div id="tbl-explicit-na" class="cell quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-tbl figure page-columns page-full"><div aria-describedby="tbl-explicit-na-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
@@ -13353,7 +13358,7 @@ Table&nbsp;18.21: forcer l’affichage des valeurs manquantes
   height: 0px !important;
 }
 </style>
-<table class="gt_table do-not-create-environment cell table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<table class="gt_table cell table table-sm table-striped small" data-quarto-bootstrap="false">
 <colgroup>
 <col style="width: 50%">
 <col style="width: 50%">
@@ -13431,12 +13436,12 @@ Table&nbsp;18.22: valeurs manquantes explicites (variable catégorielle)
 <span class="header-section-number">18.2.9</span> Ajouter les effectifs observés</h3>
 <p>Lorsque l’on masque les manquants, il peut être pertinent d’ajouter une colonne avec les effectifs observés pour chaque variable à l’aide de la fonction <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/add_n.html">gtsummary::add_n()</a></code>.</p>
 <div class="cell page-columns page-full">
-<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1"></a>hdv2003 <span class="sc">|&gt;</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb45"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1"></a>hdv2003 <span class="sc">|&gt;</span></span>
 <span id="cb45-2"><a href="#cb45-2"></a>  <span class="fu">tbl_summary</span>(</span>
 <span id="cb45-3"><a href="#cb45-3"></a>    <span class="at">include =</span> <span class="fu">c</span>(heures.tv, trav.imp),</span>
 <span id="cb45-4"><a href="#cb45-4"></a>    <span class="at">missing =</span> <span class="st">"no"</span></span>
 <span id="cb45-5"><a href="#cb45-5"></a>  ) <span class="sc">|&gt;</span> </span>
-<span id="cb45-6"><a href="#cb45-6"></a>  <span class="fu">add_n</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb45-6"><a href="#cb45-6"></a>  <span class="fu">add_n</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div id="tbl-add_n" class="cell quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-tbl figure page-columns page-full"><div aria-describedby="tbl-add_n-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
@@ -13889,7 +13894,7 @@ Table&nbsp;18.22: valeurs manquantes explicites (variable catégorielle)
   height: 0px !important;
 }
 </style>
-<table class="gt_table do-not-create-environment cell table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<table class="gt_table cell table table-sm table-striped small" data-quarto-bootstrap="false">
 <colgroup>
 <col style="width: 33%">
 <col style="width: 33%">
@@ -13966,47 +13971,47 @@ Table&nbsp;18.23: ajouter une colonne avec les effectifs observés
 </ul>
 <p>Si la variable contient des valeurs manquantes (<code>NA</code>), ces fonctions renverront une valeur manquante, sauf si on leur précise <code>na.rm = TRUE</code>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1"></a>hdv2003<span class="sc">$</span>heures.tv <span class="sc">|&gt;</span> <span class="fu">mean</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb46"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1"></a>hdv2003<span class="sc">$</span>heures.tv <span class="sc">|&gt;</span> <span class="fu">mean</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] NA</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1"></a>hdv2003<span class="sc">$</span>heures.tv <span class="sc">|&gt;</span> <span class="fu">mean</span>(<span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb48"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1"></a>hdv2003<span class="sc">$</span>heures.tv <span class="sc">|&gt;</span> <span class="fu">mean</span>(<span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 2.246566</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1"></a>hdv2003<span class="sc">$</span>heures.tv <span class="sc">|&gt;</span> <span class="fu">sd</span>(<span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb50"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1"></a>hdv2003<span class="sc">$</span>heures.tv <span class="sc">|&gt;</span> <span class="fu">sd</span>(<span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 1.775853</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb52"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1"></a>hdv2003<span class="sc">$</span>heures.tv <span class="sc">|&gt;</span> <span class="fu">min</span>(<span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb52"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1"></a>hdv2003<span class="sc">$</span>heures.tv <span class="sc">|&gt;</span> <span class="fu">min</span>(<span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 0</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb54"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1"></a>hdv2003<span class="sc">$</span>heures.tv <span class="sc">|&gt;</span> <span class="fu">max</span>(<span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb54"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1"></a>hdv2003<span class="sc">$</span>heures.tv <span class="sc">|&gt;</span> <span class="fu">max</span>(<span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 12</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb56"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1"></a>hdv2003<span class="sc">$</span>heures.tv <span class="sc">|&gt;</span> <span class="fu">range</span>(<span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb56"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1"></a>hdv2003<span class="sc">$</span>heures.tv <span class="sc">|&gt;</span> <span class="fu">range</span>(<span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1]  0 12</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb58"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb58-1"><a href="#cb58-1"></a>hdv2003<span class="sc">$</span>heures.tv <span class="sc">|&gt;</span> <span class="fu">median</span>(<span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb58"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb58-1"><a href="#cb58-1"></a>hdv2003<span class="sc">$</span>heures.tv <span class="sc">|&gt;</span> <span class="fu">median</span>(<span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 2</code></pre>
 </div>
 </div>
 <p>La fonction <code><a href="https://rdrr.io/r/stats/quantile.html">quantile()</a></code> permets de calculer tous types de quantiles.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb60"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb60-1"><a href="#cb60-1"></a>hdv2003<span class="sc">$</span>heures.tv <span class="sc">|&gt;</span> <span class="fu">quantile</span>(<span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb60"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb60-1"><a href="#cb60-1"></a>hdv2003<span class="sc">$</span>heures.tv <span class="sc">|&gt;</span> <span class="fu">quantile</span>(<span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>  0%  25%  50%  75% 100% 
    0    1    2    3   12 </code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb62"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb62-1"><a href="#cb62-1"></a>hdv2003<span class="sc">$</span>heures.tv <span class="sc">|&gt;</span> </span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb62"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb62-1"><a href="#cb62-1"></a>hdv2003<span class="sc">$</span>heures.tv <span class="sc">|&gt;</span> </span>
 <span id="cb62-2"><a href="#cb62-2"></a>  <span class="fu">quantile</span>(</span>
 <span id="cb62-3"><a href="#cb62-3"></a>    <span class="at">probs =</span> <span class="fu">c</span>(.<span class="dv">2</span>, .<span class="dv">4</span>, .<span class="dv">6</span>, .<span class="dv">8</span>),</span>
 <span id="cb62-4"><a href="#cb62-4"></a>    <span class="at">na.rm =</span> <span class="cn">TRUE</span></span>
-<span id="cb62-5"><a href="#cb62-5"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb62-5"><a href="#cb62-5"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>20% 40% 60% 80% 
   1   2   2   3 </code></pre>
@@ -14014,7 +14019,7 @@ Table&nbsp;18.23: ajouter une colonne avec les effectifs observés
 </div>
 <p>La fonction <code><a href="https://rdrr.io/r/base/summary.html">summary()</a></code> renvoie la plupart de ces indicateurs en une seule fois, ainsi que le nombre de valeurs manquantes.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb64"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb64-1"><a href="#cb64-1"></a>hdv2003<span class="sc">$</span>heures.tv <span class="sc">|&gt;</span> <span class="fu">summary</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb64"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb64-1"><a href="#cb64-1"></a>hdv2003<span class="sc">$</span>heures.tv <span class="sc">|&gt;</span> <span class="fu">summary</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA's 
   0.000   1.000   2.000   2.247   3.000  12.000       5 </code></pre>
@@ -14023,8 +14028,8 @@ Table&nbsp;18.23: ajouter une colonne avec les effectifs observés
 <p>Le package <a href="https://larmarange.github.io/guideR/">guideR</a> fournit deux fonctions bien pratiques dans ce contexte&nbsp;: <code><a href="https://larmarange.github.io/guideR/reference/mean_sd.html">guideR::mean_sd()</a></code> et <code><a href="https://larmarange.github.io/guideR/reference/median_iqr.html">guideR::median_iqr()</a></code>. Ces deux fonctions s’appliquent sur un tableau de données et suivent une syntaxe similaire aux fonctions du <em>tidyverse</em>. Elles renvoient par ailleurs les résultats sous forme d’un tableau de données qui peut, par la suite, être facilement réutilisés pour d’autres calculs ou des graphiques.</p>
 <p>La fonction <code><a href="https://larmarange.github.io/guideR/reference/mean_sd.html">guideR::mean_sd()</a></code> renvoie tout simplement la moyenne et l’écart-type (<em>standard deviation</em> ou <em>sd</em> en anglais), ainsi que le nombre d’observations valides (<em>n</em>) et de manquants (<em>missing</em>).</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb66"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb66-1"><a href="#cb66-1"></a><span class="fu">library</span>(guideR)</span>
-<span id="cb66-2"><a href="#cb66-2"></a>hdv2003 <span class="sc">|&gt;</span> <span class="fu">mean_sd</span>(heures.tv)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb66"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb66-1"><a href="#cb66-1"></a><span class="fu">library</span>(guideR)</span>
+<span id="cb66-2"><a href="#cb66-2"></a>hdv2003 <span class="sc">|&gt;</span> <span class="fu">mean_sd</span>(heures.tv)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 1 × 5
   x          mean    sd     n missing
@@ -14034,7 +14039,7 @@ Table&nbsp;18.23: ajouter une colonne avec les effectifs observés
 </div>
 <p>La fonction <code><a href="https://larmarange.github.io/guideR/reference/median_iqr.html">guideR::median_iqr()</a></code> renvoie, quant à elle, la médiane, le minimum, le premier quartile (q1), le troisième quartile (q3), le maximum et l’intervalle interquartile (<em>interquartile range</em> ou <em>iqr</em> en anglais) soit la différence entre q3 et q1. Là encore sont renvoyés le nombre d’observations valides et de manquants.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb68"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb68-1"><a href="#cb68-1"></a>hdv2003 <span class="sc">|&gt;</span> <span class="fu">median_iqr</span>(heures.tv)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb68"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb68-1"><a href="#cb68-1"></a>hdv2003 <span class="sc">|&gt;</span> <span class="fu">median_iqr</span>(heures.tv)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 1 × 9
   x         median   min    q1    q3   max   iqr     n missing
@@ -14046,10 +14051,10 @@ Table&nbsp;18.23: ajouter une colonne avec les effectifs observés
 <span class="header-section-number">18.3.2</span> Variable catégorielle</h3>
 <p>Les fonctions de base pour le calcul d’un tri à plat sont les fonctions <code><a href="https://rdrr.io/r/base/table.html">table()</a></code> et <code><a href="https://rdrr.io/r/stats/xtabs.html">xtabs()</a></code>. Leur syntaxe est quelque peu différente. On passe un vecteur entier à <code><a href="https://rdrr.io/r/base/table.html">table()</a></code> alors que la syntaxe de <code><a href="https://rdrr.io/r/stats/xtabs.html">xtabs()</a></code> se rapproche de celle d’un modèle linéaire&nbsp;: on décrit le tableau attendu à l’aide d’une formule et on indique le tableau de données. Les deux fonctions renvoient le même résultat.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb70"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb70-1"><a href="#cb70-1"></a>tbl <span class="ot">&lt;-</span> hdv2003<span class="sc">$</span>trav.imp <span class="sc">|&gt;</span> <span class="fu">table</span>()</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb70"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb70-1"><a href="#cb70-1"></a>tbl <span class="ot">&lt;-</span> hdv2003<span class="sc">$</span>trav.imp <span class="sc">|&gt;</span> <span class="fu">table</span>()</span>
 <span id="cb70-2"><a href="#cb70-2"></a>tbl <span class="ot">&lt;-</span> <span class="fu">xtabs</span>(<span class="sc">~</span> trav.imp, <span class="at">data =</span> hdv2003)</span>
 <span id="cb70-3"><a href="#cb70-3"></a>tbl <span class="ot">&lt;-</span> hdv2003 <span class="sc">|&gt;</span> <span class="fu">xtabs</span>(<span class="sc">~</span> trav.imp, <span class="at">data =</span> _)</span>
-<span id="cb70-4"><a href="#cb70-4"></a>tbl</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb70-4"><a href="#cb70-4"></a>tbl</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>trav.imp
            Le plus important Aussi important que le reste 
@@ -14061,7 +14066,7 @@ Moins important que le reste                Peu important
 <p>Comme on le voit, il s’agit du tableau brut des effectifs, sans les valeurs manquantes, et pas vraiment lisible dans la console de <strong>R</strong>.</p>
 <p>Pour calculer les proportions, on appliquera <code><a href="https://rdrr.io/r/base/proportions.html">proportions()</a></code> (au pluriel) sur la table des effectifs bruts.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb72"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb72-1"><a href="#cb72-1"></a><span class="fu">proportions</span>(tbl)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb72"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb72-1"><a href="#cb72-1"></a><span class="fu">proportions</span>(tbl)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>trav.imp
            Le plus important Aussi important que le reste 
@@ -14072,7 +14077,7 @@ Moins important que le reste                Peu important
 </div>
 <p>Pour la réalisation rapide d’un tri à plat, on pourra aussi utiliser la fonction <code><a href="https://juba.github.io/questionr/reference/freq.html">questionr::freq()</a></code> qui affiche également le nombre de valeurs manquantes et les pourcentages, en un seul appel.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb74"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb74-1"><a href="#cb74-1"></a>questionr<span class="sc">::</span><span class="fu">freq</span>(hdv2003<span class="sc">$</span>trav.imp)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb74"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb74-1"><a href="#cb74-1"></a>questionr<span class="sc">::</span><span class="fu">freq</span>(hdv2003<span class="sc">$</span>trav.imp)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>                               n    % val%
 Le plus important             29  1.5  2.8
@@ -14084,8 +14089,8 @@ NA                           952 47.6   NA</code></pre>
 </div>
 <p>Ceci dit, si l’on préfère une approche à la <a href="https://dplyr.tidyverse.org">dplyr</a>, on pourra se reposer sur <code><a href="https://dplyr.tidyverse.org/reference/count.html">dplyr::count()</a></code> qui permet de compter le nombre d’observations.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb76"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb76-1"><a href="#cb76-1"></a>hdv2003 <span class="sc">|&gt;</span> </span>
-<span id="cb76-2"><a href="#cb76-2"></a>  dplyr<span class="sc">::</span><span class="fu">count</span>(trav.imp)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb76"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb76-1"><a href="#cb76-1"></a>hdv2003 <span class="sc">|&gt;</span> </span>
+<span id="cb76-2"><a href="#cb76-2"></a>  dplyr<span class="sc">::</span><span class="fu">count</span>(trav.imp)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>                      trav.imp   n
 1            Le plus important  29
@@ -14097,9 +14102,9 @@ NA                           952 47.6   NA</code></pre>
 </div>
 <p>À partir de là, il est possible de calculer à la suite les proportions en utilisant <code><a href="https://rdrr.io/r/base/proportions.html">proportions()</a></code> (au pluriel) au sein d’un <code><a href="https://dplyr.tidyverse.org/reference/mutate.html">dplyr::mutate()</a></code>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb78"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb78-1"><a href="#cb78-1"></a>hdv2003 <span class="sc">|&gt;</span> </span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb78"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb78-1"><a href="#cb78-1"></a>hdv2003 <span class="sc">|&gt;</span> </span>
 <span id="cb78-2"><a href="#cb78-2"></a>  dplyr<span class="sc">::</span><span class="fu">count</span>(trav.imp) <span class="sc">|&gt;</span> </span>
-<span id="cb78-3"><a href="#cb78-3"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">prop =</span> <span class="fu">proportions</span>(n))</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb78-3"><a href="#cb78-3"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">prop =</span> <span class="fu">proportions</span>(n))</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>                      trav.imp   n   prop
 1            Le plus important  29 0.0145
@@ -14111,8 +14116,8 @@ NA                           952 47.6   NA</code></pre>
 </div>
 <p>Ou encore plus simplement, on pourra avoir recours à <a href="https://larmarange.github.io/guideR/">guideR</a>, le package compagnon de <em>guide-R</em> et qui propose une fonction <code>proportion()</code> (sans s, comme le verbe anglais <em>to proportion</em>).</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb80"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb80-1"><a href="#cb80-1"></a><span class="fu">library</span>(guideR)</span>
-<span id="cb80-2"><a href="#cb80-2"></a>hdv2003 <span class="sc">|&gt;</span> <span class="fu">proportion</span>(trav.imp)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb80"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb80-1"><a href="#cb80-1"></a><span class="fu">library</span>(guideR)</span>
+<span id="cb80-2"><a href="#cb80-2"></a>hdv2003 <span class="sc">|&gt;</span> <span class="fu">proportion</span>(trav.imp)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 5 × 4
   trav.imp                         n     N  prop
@@ -14126,7 +14131,7 @@ NA                           952 47.6   NA</code></pre>
 </div>
 <p>Notez que, par défaut, les proportions sont multipliées par 100 pour afficher des pourcentages. Ceci est modifiable avec <code>.scale</code>. L’argument <code>.na.rm</code> permet quant à lui de retirer les valeurs manquantes du calcul.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb82"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb82-1"><a href="#cb82-1"></a>hdv2003 <span class="sc">|&gt;</span> <span class="fu">proportion</span>(trav.imp, <span class="at">.scale =</span> <span class="dv">1</span>, <span class="at">.na.rm =</span> <span class="cn">TRUE</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb82"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb82-1"><a href="#cb82-1"></a>hdv2003 <span class="sc">|&gt;</span> <span class="fu">proportion</span>(trav.imp, <span class="at">.scale =</span> <span class="dv">1</span>, <span class="at">.na.rm =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 4 × 4
   trav.imp                         n     N   prop
@@ -14164,12 +14169,12 @@ Avertissement
 </div>
 </div>
 <div class="cell page-columns page-full">
-<div class="sourceCode cell-code" id="cb84"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb84-1"><a href="#cb84-1"></a><span class="fu">theme_gtsummary_prop_n</span>(<span class="at">mean_sd =</span> <span class="cn">FALSE</span>)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb84"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb84-1"><a href="#cb84-1"></a><span class="fu">theme_gtsummary_prop_n</span>(<span class="at">mean_sd =</span> <span class="cn">FALSE</span>)</span>
 <span id="cb84-2"><a href="#cb84-2"></a>hdv2003 <span class="sc">|&gt;</span></span>
 <span id="cb84-3"><a href="#cb84-3"></a>  <span class="fu">tbl_summary</span>(</span>
 <span id="cb84-4"><a href="#cb84-4"></a>    <span class="at">include =</span> <span class="fu">c</span>(age, heures.tv, trav.imp),</span>
 <span id="cb84-5"><a href="#cb84-5"></a>  ) <span class="sc">|&gt;</span> </span>
-<span id="cb84-6"><a href="#cb84-6"></a>  <span class="fu">add_ci</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb84-6"><a href="#cb84-6"></a>  <span class="fu">add_ci</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div id="tbl-add_ci" class="cell quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-tbl figure page-columns page-full"><div aria-describedby="tbl-add_ci-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
@@ -14622,7 +14627,7 @@ Avertissement
   height: 0px !important;
 }
 </style>
-<table class="gt_table do-not-create-environment cell table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<table class="gt_table cell table table-sm table-striped small" data-quarto-bootstrap="false">
 <colgroup>
 <col style="width: 33%">
 <col style="width: 33%">
@@ -14702,7 +14707,7 @@ Table&nbsp;18.24: Ajouter les intervalles de confiance
 </div>
 <p>L’argument <code>statistic</code> permet de personnaliser la présentation de l’intervalle&nbsp;; <code>conf.level</code> de changer le niveau de confiance et <code>style_fun</code> de modifier la mise en forme des nombres de l’intervalle.</p>
 <div class="cell page-columns page-full">
-<div class="sourceCode cell-code" id="cb85"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb85-1"><a href="#cb85-1"></a>guideR<span class="sc">::</span><span class="fu">theme_gtsummary_prop_n</span>(<span class="at">mean_sd =</span> <span class="cn">TRUE</span>)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb85"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb85-1"><a href="#cb85-1"></a>guideR<span class="sc">::</span><span class="fu">theme_gtsummary_prop_n</span>(<span class="at">mean_sd =</span> <span class="cn">TRUE</span>)</span>
 <span id="cb85-2"><a href="#cb85-2"></a></span>
 <span id="cb85-3"><a href="#cb85-3"></a>hdv2003 <span class="sc">|&gt;</span></span>
 <span id="cb85-4"><a href="#cb85-4"></a>  <span class="fu">tbl_summary</span>(</span>
@@ -14712,7 +14717,7 @@ Table&nbsp;18.24: Ajouter les intervalles de confiance
 <span id="cb85-8"><a href="#cb85-8"></a>    <span class="at">statistic =</span> <span class="sc">~</span> <span class="st">"entre {conf.low} et {conf.high}"</span>,</span>
 <span id="cb85-9"><a href="#cb85-9"></a>    <span class="at">conf.level =</span> .<span class="dv">9</span>,</span>
 <span id="cb85-10"><a href="#cb85-10"></a>    <span class="at">style_fun =</span> <span class="sc">~</span> <span class="fu">label_style_number</span>(<span class="at">digits =</span> <span class="dv">1</span>)</span>
-<span id="cb85-11"><a href="#cb85-11"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb85-11"><a href="#cb85-11"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div id="tbl-add_ci-2" class="cell quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-tbl figure page-columns page-full"><div aria-describedby="tbl-add_ci-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
@@ -15165,7 +15170,7 @@ Table&nbsp;18.24: Ajouter les intervalles de confiance
   height: 0px !important;
 }
 </style>
-<table class="gt_table do-not-create-environment cell table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<table class="gt_table cell table table-sm table-striped small" data-quarto-bootstrap="false">
 <colgroup>
 <col style="width: 33%">
 <col style="width: 33%">
@@ -15217,7 +15222,7 @@ Table&nbsp;18.25: Des intervalles de confiance personnalisés
 <span class="header-section-number">18.4.2</span> Calcul manuel des intervalles de confiance</h3>
 <p>Le calcul de l’intervalle de confiance d’une <strong>moyenne</strong> s’effectue avec la fonction <code><a href="https://rdrr.io/r/stats/t.test.html">t.test()</a></code>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb86"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb86-1"><a href="#cb86-1"></a>hdv2003<span class="sc">$</span>age <span class="sc">|&gt;</span> <span class="fu">t.test</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb86"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb86-1"><a href="#cb86-1"></a>hdv2003<span class="sc">$</span>age <span class="sc">|&gt;</span> <span class="fu">t.test</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
     One Sample t-test
@@ -15234,7 +15239,7 @@ mean of x
 </div>
 <p>Le résultat renvoyé est une liste contenant de multiples informations.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb88"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb88-1"><a href="#cb88-1"></a>hdv2003<span class="sc">$</span>age <span class="sc">|&gt;</span> <span class="fu">t.test</span>() <span class="sc">|&gt;</span> <span class="fu">str</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb88"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb88-1"><a href="#cb88-1"></a>hdv2003<span class="sc">$</span>age <span class="sc">|&gt;</span> <span class="fu">t.test</span>() <span class="sc">|&gt;</span> <span class="fu">str</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>List of 10
  $ statistic  : Named num 127
@@ -15257,7 +15262,7 @@ mean of x
 </div>
 <p>Si l’on a besoin d’accéder spécifiquement à l’intervalle de confiance calculé&nbsp;:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb90"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb90-1"><a href="#cb90-1"></a>hdv2003<span class="sc">$</span>age <span class="sc">|&gt;</span> <span class="fu">t.test</span>() <span class="sc">|&gt;</span> purrr<span class="sc">::</span><span class="fu">pluck</span>(<span class="st">"conf.int"</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb90"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb90-1"><a href="#cb90-1"></a>hdv2003<span class="sc">$</span>age <span class="sc">|&gt;</span> <span class="fu">t.test</span>() <span class="sc">|&gt;</span> purrr<span class="sc">::</span><span class="fu">pluck</span>(<span class="st">"conf.int"</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 47.41406 48.89994
 attr(,"conf.level")
@@ -15276,7 +15281,7 @@ Astuce
 <div class="callout-body-container callout-body">
 <p>Plus simplement, on pourra avoir recours à <code><a href="https://larmarange.github.io/guideR/reference/mean_sd.html">guideR::mean_sd()</a></code> avec l’option <code>.conf.int = TRUE</code>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb92"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb92-1"><a href="#cb92-1"></a>hdv2003 <span class="sc">|&gt;</span> <span class="fu">mean_sd</span>(age, <span class="at">.conf.int =</span> <span class="cn">TRUE</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb92"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb92-1"><a href="#cb92-1"></a>hdv2003 <span class="sc">|&gt;</span> <span class="fu">mean_sd</span>(age, <span class="at">.conf.int =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 1 × 7
   x      mean mean_low mean_high    sd     n missing
@@ -15288,7 +15293,7 @@ Astuce
 </div>
 <p>Pour l’intervalle de confiance d’une <strong>médiane</strong>, on utilisera <code><a href="https://rdrr.io/r/stats/wilcox.test.html">wilcox.test()</a></code> en précisant <code>conf.int = TRUE</code>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb94"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb94-1"><a href="#cb94-1"></a>hdv2003<span class="sc">$</span>age <span class="sc">|&gt;</span> <span class="fu">wilcox.test</span>(<span class="at">conf.int =</span> <span class="cn">TRUE</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb94"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb94-1"><a href="#cb94-1"></a>hdv2003<span class="sc">$</span>age <span class="sc">|&gt;</span> <span class="fu">wilcox.test</span>(<span class="at">conf.int =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
     Wilcoxon signed rank test with continuity correction
@@ -15302,9 +15307,9 @@ sample estimates:
 (pseudo)median 
       47.99996 </code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb96"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb96-1"><a href="#cb96-1"></a>hdv2003<span class="sc">$</span>age <span class="sc">|&gt;</span> </span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb96"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb96-1"><a href="#cb96-1"></a>hdv2003<span class="sc">$</span>age <span class="sc">|&gt;</span> </span>
 <span id="cb96-2"><a href="#cb96-2"></a>  <span class="fu">wilcox.test</span>(<span class="at">conf.int =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
-<span id="cb96-3"><a href="#cb96-3"></a>  purrr<span class="sc">::</span><span class="fu">pluck</span>(<span class="st">"conf.int"</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb96-3"><a href="#cb96-3"></a>  purrr<span class="sc">::</span><span class="fu">pluck</span>(<span class="st">"conf.int"</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 47.00001 48.50007
 attr(,"conf.level")
@@ -15328,9 +15333,9 @@ Mise en garde
 <p>Pour une <strong>proportion</strong>, on utilisera <code><a href="https://rdrr.io/r/stats/prop.test.html">prop.test()</a></code> en lui transmettant le nombre de succès et le nombre d’observations, qu’il faudra donc avoir calculé au préalable. On peut également passer une table à deux entrées avec le nombre de succès puis le nombre d’échecs.</p>
 <p>Ainsi, pour obtenir l’intervalle de confiance de la proportion des enquêtés qui considèrent leur travail comme <em>peu important</em>, en tenant compte des valeurs manquantes, le plus simple est d’effectuer le code suivant<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a>&nbsp;:</p>
 <div class="no-row-height column-margin column-container"><div id="fn2"><p><sup>2</sup>&nbsp;Notez l’utilisation de <code><a href="https://rdrr.io/r/base/rev.html">rev()</a></code> pour inverser le tableau créé avec <code><a href="https://rdrr.io/r/stats/xtabs.html">xtabs()</a></code> afin que le nombre de succès (<code>TRUE</code>) soit indiqués avant le nombre d’échecs (<code>FALSE</code>).</p></div></div><div class="cell">
-<div class="sourceCode cell-code" id="cb98"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb98-1"><a href="#cb98-1"></a><span class="fu">xtabs</span>(<span class="sc">~</span> <span class="fu">I</span>(hdv2003<span class="sc">$</span>trav.imp <span class="sc">==</span> <span class="st">"Peu important"</span>), <span class="at">data =</span> hdv2003) <span class="sc">|&gt;</span> </span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb98"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb98-1"><a href="#cb98-1"></a><span class="fu">xtabs</span>(<span class="sc">~</span> <span class="fu">I</span>(hdv2003<span class="sc">$</span>trav.imp <span class="sc">==</span> <span class="st">"Peu important"</span>), <span class="at">data =</span> hdv2003) <span class="sc">|&gt;</span> </span>
 <span id="cb98-2"><a href="#cb98-2"></a>  <span class="fu">rev</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb98-3"><a href="#cb98-3"></a>  <span class="fu">prop.test</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb98-3"><a href="#cb98-3"></a>  <span class="fu">prop.test</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
     1-sample proportions test with continuity correction
@@ -15359,7 +15364,7 @@ Astuce
 <p>Comme on le voit, il n’est pas aisé, avec les fonctions de <strong>R base</strong> de calculer les intervalles de confiance pour toutes les modalités d’une variable catégorielle.</p>
 <p>On pourra, dès lors, profiter de la fonction <code><a href="https://larmarange.github.io/guideR/reference/proportion.html">guideR::proportion()</a></code> qui peut facilement calculer les intervalles de confiances. Il suffit de lui préciser <code>.conf.int = TRUE</code>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb100"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb100-1"><a href="#cb100-1"></a>hdv2003 <span class="sc">|&gt;</span> <span class="fu">proportion</span>(trav.imp, <span class="at">.conf.int =</span> <span class="cn">TRUE</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb100"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb100-1"><a href="#cb100-1"></a>hdv2003 <span class="sc">|&gt;</span> <span class="fu">proportion</span>(trav.imp, <span class="at">.conf.int =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 5 × 6
   trav.imp                         n     N  prop prop_low prop_high
@@ -15370,7 +15375,7 @@ Astuce
 4 Peu important                   52  2000  2.6     1.97       3.42
 5 &lt;NA&gt;                           952  2000 47.6    45.4       49.8 </code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb102"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb102-1"><a href="#cb102-1"></a>hdv2003 <span class="sc">|&gt;</span> <span class="fu">proportion</span>(trav.imp, <span class="at">.conf.int =</span> <span class="cn">TRUE</span>, <span class="at">.scale =</span> <span class="dv">1</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb102"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb102-1"><a href="#cb102-1"></a>hdv2003 <span class="sc">|&gt;</span> <span class="fu">proportion</span>(trav.imp, <span class="at">.conf.int =</span> <span class="cn">TRUE</span>, <span class="at">.scale =</span> <span class="dv">1</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 5 × 6
   trav.imp                         n     N   prop prop_low prop_high
@@ -15406,7 +15411,7 @@ Astuce
       a.appendChild(i);
       window.document.body.appendChild(a);
     }
-    window.setColorSchemeToggle(window.hasAlternateSentinel())
+    setColorSchemeToggle(hasAlternateSentinel())
     const icon = "";
     const anchorJS = new window.AnchorJS();
     anchorJS.options = {
@@ -15456,13 +15461,14 @@ Astuce
       e.clearSelection();
     }
     const getTextToCopy = function(trigger) {
-        const codeEl = trigger.previousElementSibling.cloneNode(true);
-        for (const childEl of codeEl.children) {
-          if (isCodeAnnotation(childEl)) {
-            childEl.remove();
-          }
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
         }
-        return codeEl.innerText;
+      }
+      return codeEl.innerText;
     }
     const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
       text: getTextToCopy
@@ -15803,8 +15809,36 @@ Astuce
       }
     }
   });
-  </script><script src="https://giscus.app/client.js" data-repo="larmarange/guide-R" data-repo-id="R_kgDOH6-xnw" data-category="Forum" data-category-id="DIC_kwDOH6-xn84CRLQy" data-mapping="pathname" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="top" data-theme="light" data-lang="fr" crossorigin="anonymous" data-loading="lazy" async="">
-</script><input type="hidden" id="giscus-base-theme" value="light"><input type="hidden" id="giscus-alt-theme" value="dark"><nav class="page-navigation"><div class="nav-page nav-page-previous">
+  </script><input type="hidden" id="giscus-base-theme" value="light"><input type="hidden" id="giscus-alt-theme" value="dark"><script>
+  function loadGiscus() {
+    // Function to get the theme based on body class
+    const getTheme = () => {
+      let baseTheme = document.getElementById('giscus-base-theme').value;
+      let altTheme = document.getElementById('giscus-alt-theme').value;
+      if (authorPrefersDark) {
+          [baseTheme, altTheme] = [altTheme, baseTheme];
+      }
+      return document.body.classList.contains('quarto-dark') ? altTheme : baseTheme;
+    };
+    const script = document.createElement("script");
+    script.src = "https://giscus.app/client.js";
+    script.async = true;
+    script.dataset.repo = "larmarange/guide-R";
+    script.dataset.repoId = "R_kgDOH6-xnw";
+    script.dataset.category = "Forum";
+    script.dataset.categoryId = "DIC_kwDOH6-xn84CRLQy";
+    script.dataset.mapping = "pathname";
+    script.dataset.reactionsEnabled = "1";
+    script.dataset.emitMetadata = "0";
+    script.dataset.inputPosition = "top";
+    script.dataset.theme = getTheme();
+    script.dataset.lang = "fr";
+    script.crossOrigin = "anonymous";
+    // Append the script to the desired div instead of at the end of the body
+    document.getElementById("quarto-content").appendChild(script);
+  }
+  loadGiscus();
+</script><nav class="page-navigation"><div class="nav-page nav-page-previous">
       <a href="../analyses/ggplot2.html" class="pagination-link" aria-label="Graphiques avec `ggplot2`">
         <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Graphiques avec <code>ggplot2</code></span></span>
       </a>          

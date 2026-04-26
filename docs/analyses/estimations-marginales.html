@@ -2,10 +2,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="fr" xml:lang="fr"><head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.7.27">
+<meta name="generator" content="quarto-1.9.37">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 <title>25&nbsp; Prédictions marginales, contrastes marginaux &amp; effets marginaux – guide-R</title>
 <style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
 div.columns{display: flex; gap: min(4vw, 1.5em);}
@@ -72,14 +75,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-985aa47af68dae11cd4d235c71fb941e.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-6c49c5477b92c77c9eb341f9299c235f.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-985aa47af68dae11cd4d235c71fb941e.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-7f8f88aac4f3542376d5c11b86a4c14d.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-d0ae9245876894da5ac7e18953ecc5cc.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-7f8f88aac4f3542376d5c11b86a4c14d.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-1706ad55a43eb6182cc66969adfb4558.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../site_libs/bootstrap/bootstrap-dark-e07f40149b440be50f716415da65e4f4.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<link href="../site_libs/bootstrap/bootstrap-1706ad55a43eb6182cc66969adfb4558.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-fad85691bd79911de0320b982f671d9d.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-f68506c574928121fec95fb329006eac.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../site_libs/bootstrap/bootstrap-fad85691bd79911de0320b982f671d9d.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <script src="../site_libs/quarto-contrib/glightbox/glightbox.min.js"></script>
 <link href="../site_libs/quarto-contrib/glightbox/glightbox.min.css" rel="stylesheet">
 <link href="../site_libs/quarto-contrib/glightbox/lightbox.css" rel="stylesheet"><script id="quarto-search-options" type="application/json">{
@@ -117,10 +120,10 @@ gtag('config', 'G-8BT7D9P85Y', { 'anonymize_ip': true});
 document.addEventListener('DOMContentLoaded', function () {
 cookieconsent.run({
   "notice_banner_type":"simple",
-  "consent_type":"implied",
+  "consent_type":"express",
   "palette":"light",
   "language":"en",
-  "page_load_consent_levels":["strictly-necessary","functionality","tracking","targeting"],
+  "page_load_consent_levels":["strictly-necessary"],
   "notice_banner_reject_button_hide":false,
   "preferences_center_close_button_hide":false,
   "website_name":""
@@ -129,7 +132,7 @@ cookieconsent.run({
   });
 });
 </script><style>html{ scroll-behavior: smooth; }</style>
-<script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script><script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script><script type="text/javascript">
+<script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script><script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script><script type="text/javascript">
 const typesetMath = (el) => {
   if (window.MathJax) {
     // MathJax Typeset
@@ -140,7 +143,7 @@ const typesetMath = (el) => {
     var macros = [];
     for (var i = 0; i < mathElements.length; i++) {
       var texText = mathElements[i].firstChild;
-      if (mathElements[i].tagName == "SPAN") {
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
         window.katex.render(texText.data, mathElements[i], {
           displayMode: mathElements[i].classList.contains('display'),
           throwOnError: false,
@@ -174,7 +177,7 @@ window.Quarto = {
         toggleBodyColorMode(bsSheetEl);
       }
     }
-    window.setColorSchemeToggle = (alternate) => {
+    const setColorSchemeToggle = (alternate) => {
       const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
       for (let i=0; i < toggles.length; i++) {
         const toggle = toggles[i];
@@ -207,7 +210,7 @@ window.Quarto = {
       }
       manageTransitions('#quarto-margin-sidebar .nav-link', true);
       // Switch the toggles
-      window.setColorSchemeToggle(alternate)
+      setColorSchemeToggle(alternate)
       // Hack to workaround the fact that safari doesn't
       // properly recolor the scrollbar when toggling (#1455)
       if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
@@ -247,7 +250,7 @@ window.Quarto = {
     const isFileUrl = () => {
       return window.location.protocol === 'file:';
     }
-    window.hasAlternateSentinel = () => {
+    const hasAlternateSentinel = () => {
       let styleSentinel = getColorSchemeSentinel();
       if (styleSentinel !== null) {
         return styleSentinel === "alternate";
@@ -275,7 +278,7 @@ window.Quarto = {
       const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
       const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
       let newTheme = '';
-      if(darkModeDefault) {
+      if(authorPrefersDark) {
         newTheme = isAlternate ? baseTheme : alternateTheme;
       } else {
         newTheme = isAlternate ? alternateTheme : baseTheme;
@@ -298,20 +301,22 @@ window.Quarto = {
         changeGiscusTheme();
       }
     };
-    const darkModeDefault = false;
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
       document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
       document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
     let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
     // Dark / light mode switch
     window.quartoToggleColorScheme = () => {
       // Read the current dark / light value
-      let toAlternate = !window.hasAlternateSentinel();
+      let toAlternate = !hasAlternateSentinel();
       toggleColorMode(toAlternate);
       setStyleSentinel(toAlternate);
       toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
     };
     // Switch to dark mode if need be
-    if (window.hasAlternateSentinel()) {
+    if (hasAlternateSentinel()) {
       toggleColorMode(true);
     } else {
       toggleColorMode(false);
@@ -334,7 +339,7 @@ window.Quarto = {
 <!-- sidebar -->
   <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto"><div class="pt-lg-2 mt-2 text-left sidebar-header sidebar-header-stacked">
       <a href="../index.html" class="sidebar-logo-link">
-      <img src="../ressources/typewriter.png" alt="" class="sidebar-logo py-0 d-lg-inline d-none"></a>
+      <img src="../ressources/typewriter.png" alt="" class="sidebar-logo light-content py-0 d-lg-inline d-none"><img src="../ressources/typewriter.png" alt="" class="sidebar-logo dark-content py-0 d-lg-inline d-none"></a>
     <div class="sidebar-title mb-0 py-0">
       <a href="../">guide-R</a> 
         <div class="sidebar-tools-main tools-wide">
@@ -828,7 +833,7 @@ Note
 <span class="header-section-number">25.2</span> Données d’illustration</h2>
 <p>Pour illustrer ce chapitre, nous allons prendre un modèle logistique issu du chapitre sur la régression logistique binaire (cf. <a href="regression-logistique-binaire.html" class="quarto-xref"><span>Chapitre 23</span></a>).</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="fu">library</span>(tidyverse)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="fu">library</span>(tidyverse)</span>
 <span id="cb1-2"><a href="#cb1-2"></a><span class="fu">library</span>(labelled)</span>
 <span id="cb1-3"><a href="#cb1-3"></a><span class="fu">library</span>(gtsummary)</span>
 <span id="cb1-4"><a href="#cb1-4"></a><span class="fu">theme_gtsummary_language</span>(</span>
@@ -876,12 +881,12 @@ Note
 <span id="cb1-46"><a href="#cb1-46"></a>  sport <span class="sc">~</span> sexe <span class="sc">+</span> groupe_ages <span class="sc">+</span> etudes <span class="sc">+</span> heures.tv,</span>
 <span id="cb1-47"><a href="#cb1-47"></a>  <span class="at">family =</span> binomial,</span>
 <span id="cb1-48"><a href="#cb1-48"></a>  <span class="at">data =</span> d</span>
-<span id="cb1-49"><a href="#cb1-49"></a>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-49"><a href="#cb1-49"></a>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell page-columns page-full">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a>mod <span class="sc">|&gt;</span> </span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a>mod <span class="sc">|&gt;</span> </span>
 <span id="cb2-2"><a href="#cb2-2"></a>  <span class="fu">tbl_regression</span>(<span class="at">exponentiate =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb2-3"><a href="#cb2-3"></a>  <span class="fu">bold_labels</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb2-3"><a href="#cb2-3"></a>  <span class="fu">bold_labels</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div id="tbl-rappel-model" class="cell quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-tbl figure page-columns page-full"><div aria-describedby="tbl-rappel-model-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
@@ -1334,7 +1339,7 @@ Note
   height: 0px !important;
 }
 </style>
-<table class="gt_table do-not-create-environment cell table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<table class="gt_table cell table table-sm table-striped small" data-quarto-bootstrap="false">
 <colgroup>
 <col style="width: 25%">
 <col style="width: 25%">
@@ -1453,13 +1458,13 @@ Table&nbsp;25.1: Odds Ratios du modèle logistique
 </div>
 <p>Il faut se rappeler que pour calculer le modèle, les observations ayant au moins une valeur manquante ont été exclues. Le modèle n’a donc pas été calculé sur 2000 observations (nombre de lignes de <code>hdv2003</code>) mais sur 1995. On peut obtenir le tableau de données du modèle (<em>model frame</em>), qui ne contient que les variables et les observations utilisées, avec <code><a href="https://larmarange.github.io/broom.helpers/reference/model_get_model_frame.html">broom.helpers::model_get_model_frame()</a></code>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a>mf <span class="ot">&lt;-</span> mod <span class="sc">%&gt;%</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a>mf <span class="ot">&lt;-</span> mod <span class="sc">%&gt;%</span></span>
 <span id="cb3-2"><a href="#cb3-2"></a>  broom.helpers<span class="sc">::</span><span class="fu">model_get_model_frame</span>()</span>
-<span id="cb3-3"><a href="#cb3-3"></a><span class="fu">nrow</span>(mf)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb3-3"><a href="#cb3-3"></a><span class="fu">nrow</span>(mf)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 1995</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a><span class="fu">colnames</span>(mf)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a><span class="fu">colnames</span>(mf)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] "sport"       "sexe"        "groupe_ages" "etudes"      "heures.tv"  </code></pre>
 </div>
@@ -1471,26 +1476,26 @@ Table&nbsp;25.1: Odds Ratios du modèle logistique
 <p>Pour illustrer et mieux comprendre ce que représente la différence entre les femmes et les hommes, nous allons effectuer des prédictions avec notre modèle en ne faisant varier que la variable <em>sexe</em>.</p>
 <p>Une première approche consiste à dupliquer nos données observées et à supposer que tous les individus sont des femmes, puis à supposer que tous les individus sont des hommes.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a>mf_femmes <span class="ot">&lt;-</span> mf <span class="sc">|&gt;</span> <span class="fu">mutate</span>(<span class="at">sexe =</span> <span class="st">"Femme"</span>)</span>
-<span id="cb7-2"><a href="#cb7-2"></a>mf_hommes <span class="ot">&lt;-</span> mf <span class="sc">|&gt;</span> <span class="fu">mutate</span>(<span class="at">sexe =</span> <span class="st">"Homme"</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a>mf_femmes <span class="ot">&lt;-</span> mf <span class="sc">|&gt;</span> <span class="fu">mutate</span>(<span class="at">sexe =</span> <span class="st">"Femme"</span>)</span>
+<span id="cb7-2"><a href="#cb7-2"></a>mf_hommes <span class="ot">&lt;-</span> mf <span class="sc">|&gt;</span> <span class="fu">mutate</span>(<span class="at">sexe =</span> <span class="st">"Homme"</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Nos deux jeux de données sont donc identiques pour toutes les autres variables et ne varient que pour le <em>sexe</em>. Nous pouvons maintenant prédire, à partir de notre modèle ajusté, la probabilité de faire du sport de chacun des individus de ces deux nouveaux jeux de données, puis à en calculer la moyenne.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a>mod <span class="sc">|&gt;</span> <span class="fu">predict</span>(<span class="at">type =</span> <span class="st">"response"</span>, <span class="at">newdata =</span> mf_femmes) <span class="sc">|&gt;</span> <span class="fu">mean</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a>mod <span class="sc">|&gt;</span> <span class="fu">predict</span>(<span class="at">type =</span> <span class="st">"response"</span>, <span class="at">newdata =</span> mf_femmes) <span class="sc">|&gt;</span> <span class="fu">mean</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 0.324814</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a>mod <span class="sc">|&gt;</span> <span class="fu">predict</span>(<span class="at">type =</span> <span class="st">"response"</span>, <span class="at">newdata =</span> mf_hommes) <span class="sc">|&gt;</span> <span class="fu">mean</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a>mod <span class="sc">|&gt;</span> <span class="fu">predict</span>(<span class="at">type =</span> <span class="st">"response"</span>, <span class="at">newdata =</span> mf_hommes) <span class="sc">|&gt;</span> <span class="fu">mean</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 0.4036624</code></pre>
 </div>
 </div>
 <p>Nous obtenons ainsi des <strong>prédictions marginales moyennes</strong>, <em>average marginal predictions</em> en anglais, de respectivement 32% et 40% pour les femmes et pour les hommes.</p>
-<p>Le même résultat, avec en plus un intervalle de confiance, peut s’obtenir avec <code><a href="https://marginaleffects.com/man/r/predictions.html">marginaleffects::predictions()</a></code>.</p>
+<p>Le même résultat, avec en plus un intervalle de confiance, peut s’obtenir avec <code><a href="https://rdrr.io/pkg/marginaleffects/man/predictions.html">marginaleffects::predictions()</a></code>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a><span class="fu">library</span>(marginaleffects)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a><span class="fu">library</span>(marginaleffects)</span>
 <span id="cb12-2"><a href="#cb12-2"></a>mod <span class="sc">|&gt;</span> </span>
-<span id="cb12-3"><a href="#cb12-3"></a>  <span class="fu">predictions</span>(<span class="at">variables =</span> <span class="st">"sexe"</span>, <span class="at">by =</span> <span class="st">"sexe"</span>, <span class="at">type =</span> <span class="st">"response"</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb12-3"><a href="#cb12-3"></a>  <span class="fu">predictions</span>(<span class="at">variables =</span> <span class="st">"sexe"</span>, <span class="at">by =</span> <span class="st">"sexe"</span>, <span class="at">type =</span> <span class="st">"response"</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
   sexe Estimate Std. Error    z Pr(&gt;|z|)     S 2.5 % 97.5 %
@@ -1500,10 +1505,10 @@ Table&nbsp;25.1: Odds Ratios du modèle logistique
 Type: response</code></pre>
 </div>
 </div>
-<p>Pour une variable continue, on peut procéder de la même manière en générant des prédictions marginales pour certaines valeurs de la variable. Par défaut, <code><a href="https://marginaleffects.com/man/r/predictions.html">marginaleffects::predictions()</a></code> réalise des prédictions selon les 5 nombres de Tukey (<em>Tukey’s five numbers</em>, à savoir minimum, premier quartile, médiane, troisième quartile et maximum).</p>
+<p>Pour une variable continue, on peut procéder de la même manière en générant des prédictions marginales pour certaines valeurs de la variable. Par défaut, <code><a href="https://rdrr.io/pkg/marginaleffects/man/predictions.html">marginaleffects::predictions()</a></code> réalise des prédictions selon les 5 nombres de Tukey (<em>Tukey’s five numbers</em>, à savoir minimum, premier quartile, médiane, troisième quartile et maximum).</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a>mod <span class="sc">|&gt;</span> </span>
-<span id="cb14-2"><a href="#cb14-2"></a>  <span class="fu">predictions</span>(<span class="at">variables =</span> <span class="st">"heures.tv"</span>, <span class="at">by =</span> <span class="st">"heures.tv"</span>, <span class="at">type =</span> <span class="st">"response"</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a>mod <span class="sc">|&gt;</span> </span>
+<span id="cb14-2"><a href="#cb14-2"></a>  <span class="fu">predictions</span>(<span class="at">variables =</span> <span class="st">"heures.tv"</span>, <span class="at">by =</span> <span class="st">"heures.tv"</span>, <span class="at">type =</span> <span class="st">"response"</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
  heures.tv Estimate Std. Error     z Pr(&gt;|z|)     S  2.5 % 97.5 %
@@ -1516,7 +1521,7 @@ Type: response</code></pre>
 Type: response</code></pre>
 </div>
 </div>
-<p>Le package <a href="https://larmarange.github.io/broom.helpers/">broom.helpers</a> fournit la fonction <code><a href="https://larmarange.github.io/broom.helpers/reference/tidy_marginal_predictions.html">broom.helpers::tidy_marginal_predictions()</a></code> qui génèrent les prédictions marginales de chaque variable<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> avec <code><a href="https://marginaleffects.com/man/r/predictions.html">marginaleffects::predictions()</a></code> et renvoie les résultat dans un format directement utilisable avec <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/tbl_regression.html">gtsummary::tbl_regression()</a></code>.</p>
+<p>Le package <a href="https://larmarange.github.io/broom.helpers/">broom.helpers</a> fournit la fonction <code><a href="https://larmarange.github.io/broom.helpers/reference/tidy_marginal_predictions.html">broom.helpers::tidy_marginal_predictions()</a></code> qui génèrent les prédictions marginales de chaque variable<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> avec <code><a href="https://rdrr.io/pkg/marginaleffects/man/predictions.html">marginaleffects::predictions()</a></code> et renvoie les résultat dans un format directement utilisable avec <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/tbl_regression.html">gtsummary::tbl_regression()</a></code>.</p>
 <div class="no-row-height column-margin column-container"><div id="fn1"><p><sup>1</sup>&nbsp;La fonction <code><a href="https://larmarange.github.io/broom.helpers/reference/tidy_marginal_predictions.html">broom.helpers::tidy_marginal_predictions()</a></code> peut également gérer des combinaisons de variables ou interactions, voir <a href="interactions.html" class="quarto-xref"><span>Chapitre 27</span></a>).</p></div></div><div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -1531,14 +1536,14 @@ Note
 </div>
 </div>
 <div class="cell page-columns page-full">
-<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1"></a>mod <span class="sc">|&gt;</span> </span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1"></a>mod <span class="sc">|&gt;</span> </span>
 <span id="cb16-2"><a href="#cb16-2"></a>  <span class="fu">tbl_regression</span>(</span>
 <span id="cb16-3"><a href="#cb16-3"></a>    <span class="at">tidy_fun =</span> broom.helpers<span class="sc">::</span>tidy_marginal_predictions,</span>
 <span id="cb16-4"><a href="#cb16-4"></a>    <span class="at">type =</span> <span class="st">"response"</span>,</span>
 <span id="cb16-5"><a href="#cb16-5"></a>    <span class="at">estimate_fun =</span> scales<span class="sc">::</span><span class="fu">label_percent</span>(<span class="at">accuracy =</span> <span class="fl">0.1</span>)</span>
 <span id="cb16-6"><a href="#cb16-6"></a>  ) <span class="sc">|&gt;</span> </span>
 <span id="cb16-7"><a href="#cb16-7"></a>  <span class="fu">bold_labels</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb16-8"><a href="#cb16-8"></a>  <span class="fu">modify_column_hide</span>(<span class="st">"p.value"</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb16-8"><a href="#cb16-8"></a>  <span class="fu">modify_column_hide</span>(<span class="st">"p.value"</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div id="tbl-predictions-marginales-moyennes" class="cell quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-tbl figure page-columns page-full"><div aria-describedby="tbl-predictions-marginales-moyennes-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
@@ -1991,7 +1996,7 @@ Note
   height: 0px !important;
 }
 </style>
-<table class="gt_table do-not-create-environment cell table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<table class="gt_table cell table table-sm table-striped small" data-quarto-bootstrap="false">
 <colgroup>
 <col style="width: 33%">
 <col style="width: 33%">
@@ -2118,16 +2123,16 @@ Table&nbsp;25.2: Prédictions marginales moyennes
 </div>
 <p>La fonction <code><a href="https://larmarange.github.io/broom.helpers/reference/tidy_marginal_predictions.html">broom.helpers::plot_marginal_predictions()</a></code> permet de visualiser les prédictions marginales à la moyenne en réalisant une liste de graphiques, un par variable, que nous pouvons combiner avec <code><a href="https://patchwork.data-imaginist.com/reference/wrap_plots.html">patchwork::wrap_plots()</a></code>. L’opérateur <code>&amp;</code> permet d’appliquer une fonction de <a href="https://ggplot2.tidyverse.org">ggplot2</a> à chaque sous-graphique. Ici, nous allons uniformiser l’axe des <em>y</em>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1"></a>p <span class="ot">&lt;-</span> mod <span class="sc">|&gt;</span> </span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1"></a>p <span class="ot">&lt;-</span> mod <span class="sc">|&gt;</span> </span>
 <span id="cb17-2"><a href="#cb17-2"></a>  broom.helpers<span class="sc">::</span><span class="fu">plot_marginal_predictions</span>(<span class="at">type =</span> <span class="st">"response"</span>) <span class="sc">|&gt;</span> </span>
 <span id="cb17-3"><a href="#cb17-3"></a>  patchwork<span class="sc">::</span><span class="fu">wrap_plots</span>() <span class="sc">&amp;</span></span>
 <span id="cb17-4"><a href="#cb17-4"></a>  <span class="fu">scale_y_continuous</span>(</span>
 <span id="cb17-5"><a href="#cb17-5"></a>    <span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>, .<span class="dv">8</span>),</span>
 <span id="cb17-6"><a href="#cb17-6"></a>    <span class="at">labels =</span> scales<span class="sc">::</span><span class="fu">label_percent</span>()</span>
-<span id="cb17-7"><a href="#cb17-7"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb17-7"><a href="#cb17-7"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell page-columns page-full">
-<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1"></a>p</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1"></a>p</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display page-columns page-full">
 <div id="fig-predictions-marginales-moyennes" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full"><div aria-describedby="fig-predictions-marginales-moyennes-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -2141,7 +2146,7 @@ Figure&nbsp;25.1: Prédictions marginales moyennes
 </div>
 <p>Il est ici difficile de lire les étiquettes de la variable <em>etudes</em>. Nous pouvons éventuellement inverser l’axe des <em>x</em> et celui des <em>y</em> avec <code><a href="https://ggplot2.tidyverse.org/reference/coord_flip.html">ggplot2::coord_flip()</a></code>.</p>
 <div class="cell page-columns page-full">
-<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1"></a>p <span class="sc">&amp;</span> <span class="fu">coord_flip</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1"></a>p <span class="sc">&amp;</span> <span class="fu">coord_flip</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display page-columns page-full">
 <div id="fig-predictions-marginales-moyennes-2" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full"><div aria-describedby="fig-predictions-marginales-moyennes-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -2155,7 +2160,7 @@ Figure&nbsp;25.2: Prédictions marginales moyennes
 </div>
 <p>Une alternative possible avec d’avoir recours à <code>ggtstats::ggcoef_model()</code>.</p>
 <div class="cell page-columns page-full">
-<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1"></a>mod <span class="sc">|&gt;</span> </span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1"></a>mod <span class="sc">|&gt;</span> </span>
 <span id="cb20-2"><a href="#cb20-2"></a>  ggstats<span class="sc">::</span><span class="fu">ggcoef_model</span>(</span>
 <span id="cb20-3"><a href="#cb20-3"></a>    <span class="at">tidy_fun =</span> broom.helpers<span class="sc">::</span>tidy_marginal_predictions,</span>
 <span id="cb20-4"><a href="#cb20-4"></a>    <span class="at">tidy_args =</span> <span class="fu">list</span>(<span class="at">type =</span> <span class="st">"response"</span>),</span>
@@ -2164,7 +2169,7 @@ Figure&nbsp;25.2: Prédictions marginales moyennes
 <span id="cb20-7"><a href="#cb20-7"></a>    <span class="at">significance =</span> <span class="cn">NULL</span>,</span>
 <span id="cb20-8"><a href="#cb20-8"></a>    <span class="at">vline =</span> <span class="cn">FALSE</span></span>
 <span id="cb20-9"><a href="#cb20-9"></a>  ) <span class="sc">+</span></span>
-<span id="cb20-10"><a href="#cb20-10"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">labels =</span> scales<span class="sc">::</span><span class="fu">label_percent</span>())</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb20-10"><a href="#cb20-10"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">labels =</span> scales<span class="sc">::</span><span class="fu">label_percent</span>())</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>`height` was translated to `width`.</code></pre>
 </div>
@@ -2185,7 +2190,7 @@ Figure&nbsp;25.3: Prédictions marginales moyennes
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-Importance de l’argument <code>type</code> pour les modèles <code>glm</code>
+<span class="screen-reader-only">Important</span>Importance de l’argument <code>type</code> pour les modèles <code>glm</code>
 </div>
 </div>
 <div class="callout-body-container callout-body">
@@ -2193,16 +2198,16 @@ Importance de l’argument <code>type</code> pour les modèles <code>glm</code>
 <p>Avec l’option <code>type = "reponse"</code>, on indique à <a href="https://marginaleffects.com/">marginaleffects</a> de calculer pour chaque individu une prédiction selon l’échelle de l’outcome puis de procéder à la moyenne, ce que nous avons fait dans les exemples précédents.</p>
 <p>Si nous avions indiqué <code>type = "link"</code>, les prédictions auraient été faites selon l’échelle de la fonction de lien avant d’être moyennée.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1"></a>mod <span class="sc">|&gt;</span> <span class="fu">predict</span>(<span class="at">type =</span> <span class="st">"link"</span>, <span class="at">newdata =</span> mf_femmes) <span class="sc">|&gt;</span> <span class="fu">mean</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1"></a>mod <span class="sc">|&gt;</span> <span class="fu">predict</span>(<span class="at">type =</span> <span class="st">"link"</span>, <span class="at">newdata =</span> mf_femmes) <span class="sc">|&gt;</span> <span class="fu">mean</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] -0.910525</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1"></a>mod <span class="sc">|&gt;</span> <span class="fu">predict</span>(<span class="at">type =</span> <span class="st">"link"</span>, <span class="at">newdata =</span> mf_hommes) <span class="sc">|&gt;</span> <span class="fu">mean</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1"></a>mod <span class="sc">|&gt;</span> <span class="fu">predict</span>(<span class="at">type =</span> <span class="st">"link"</span>, <span class="at">newdata =</span> mf_hommes) <span class="sc">|&gt;</span> <span class="fu">mean</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] -0.4928844</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1"></a>mod <span class="sc">|&gt;</span> </span>
-<span id="cb26-2"><a href="#cb26-2"></a>  <span class="fu">predictions</span>(<span class="at">variables =</span> <span class="st">"sexe"</span>, <span class="at">by =</span> <span class="st">"sexe"</span>, <span class="at">type =</span> <span class="st">"link"</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1"></a>mod <span class="sc">|&gt;</span> </span>
+<span id="cb26-2"><a href="#cb26-2"></a>  <span class="fu">predictions</span>(<span class="at">variables =</span> <span class="st">"sexe"</span>, <span class="at">by =</span> <span class="st">"sexe"</span>, <span class="at">type =</span> <span class="st">"link"</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
   sexe Estimate Std. Error      z Pr(&gt;|z|)     S  2.5 % 97.5 %
@@ -2212,19 +2217,19 @@ Importance de l’argument <code>type</code> pour les modèles <code>glm</code>
 Type: link</code></pre>
 </div>
 </div>
-<p>Depuis la version 0.10.0 de <a href="https://marginaleffects.com/">marginaleffects</a>, si l’on ne précise pas le paramètre <code>type</code> (i.e.&nbsp;si <code>type = NULL</code>), la fonction <code><a href="https://marginaleffects.com/man/r/predictions.html">marginaleffects::predictions()</a></code> réalise les prédictions selon l’échelle de la fonction de lien, calcule les moyennes puis re-transforme ce résultat selon l’échelle de la variable à expliquer.</p>
+<p>Depuis la version 0.10.0 de <a href="https://marginaleffects.com/">marginaleffects</a>, si l’on ne précise pas le paramètre <code>type</code> (i.e.&nbsp;si <code>type = NULL</code>), la fonction <code><a href="https://rdrr.io/pkg/marginaleffects/man/predictions.html">marginaleffects::predictions()</a></code> réalise les prédictions selon l’échelle de la fonction de lien, calcule les moyennes puis re-transforme ce résultat selon l’échelle de la variable à expliquer.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1"></a>logit_inverse <span class="ot">&lt;-</span> <span class="fu">binomial</span>(<span class="st">"logit"</span>) <span class="sc">|&gt;</span> purrr<span class="sc">::</span><span class="fu">pluck</span>(<span class="st">"linkinv"</span>)</span>
-<span id="cb28-2"><a href="#cb28-2"></a>mod <span class="sc">|&gt;</span> <span class="fu">predict</span>(<span class="at">type =</span> <span class="st">"link"</span>, <span class="at">newdata =</span> mf_femmes) <span class="sc">|&gt;</span> <span class="fu">mean</span>() <span class="sc">|&gt;</span> <span class="fu">logit_inverse</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1"></a>logit_inverse <span class="ot">&lt;-</span> <span class="fu">binomial</span>(<span class="st">"logit"</span>) <span class="sc">|&gt;</span> purrr<span class="sc">::</span><span class="fu">pluck</span>(<span class="st">"linkinv"</span>)</span>
+<span id="cb28-2"><a href="#cb28-2"></a>mod <span class="sc">|&gt;</span> <span class="fu">predict</span>(<span class="at">type =</span> <span class="st">"link"</span>, <span class="at">newdata =</span> mf_femmes) <span class="sc">|&gt;</span> <span class="fu">mean</span>() <span class="sc">|&gt;</span> <span class="fu">logit_inverse</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 0.2868924</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1"></a>mod <span class="sc">|&gt;</span> <span class="fu">predict</span>(<span class="at">type =</span> <span class="st">"link"</span>, <span class="at">newdata =</span> mf_hommes) <span class="sc">|&gt;</span> <span class="fu">mean</span>() <span class="sc">|&gt;</span> <span class="fu">logit_inverse</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb30"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1"></a>mod <span class="sc">|&gt;</span> <span class="fu">predict</span>(<span class="at">type =</span> <span class="st">"link"</span>, <span class="at">newdata =</span> mf_hommes) <span class="sc">|&gt;</span> <span class="fu">mean</span>() <span class="sc">|&gt;</span> <span class="fu">logit_inverse</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 0.3792143</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1"></a>mod <span class="sc">|&gt;</span> </span>
-<span id="cb32-2"><a href="#cb32-2"></a>  <span class="fu">predictions</span>(<span class="at">variables =</span> <span class="st">"sexe"</span>, <span class="at">by =</span> <span class="st">"sexe"</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb32"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1"></a>mod <span class="sc">|&gt;</span> </span>
+<span id="cb32-2"><a href="#cb32-2"></a>  <span class="fu">predictions</span>(<span class="at">variables =</span> <span class="st">"sexe"</span>, <span class="at">by =</span> <span class="st">"sexe"</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
   sexe Estimate Std. Error    z Pr(&gt;|z|)     S 2.5 % 97.5 %
@@ -2247,7 +2252,7 @@ Type: response</code></pre>
 </h4>
 <p>On peut réaliser cela avec <a href="https://marginaleffects.com/">marginaleffects</a> en précisant <code>newdata = "mean"</code>. Prenons un exemple pour la variable <em>sexe</em>&nbsp;:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1"></a>mod <span class="sc">|&gt;</span> <span class="fu">predictions</span>(<span class="at">variables =</span> <span class="st">"sexe"</span>, <span class="at">newdata =</span> <span class="st">"mean"</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb34"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1"></a>mod <span class="sc">|&gt;</span> <span class="fu">predictions</span>(<span class="at">variables =</span> <span class="st">"sexe"</span>, <span class="at">newdata =</span> <span class="st">"mean"</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
  groupe_ages Estimate Pr(&gt;|z|)    S 2.5 % 97.5 %
@@ -2259,15 +2264,15 @@ Type: invlink(link)</code></pre>
 </div>
 <p>Dans ce cas de figure, <a href="https://marginaleffects.com/">marginaleffects</a> considère pour chaque variable continue sa moyenne (ici <code>2.246</code> pour <em>heures.tv</em>) et pour chaque variable catégorielle son mode (la valeur observée la plus fréquente, ici <code>"Technique / Professionnel"</code> pour la variable <em>etudes</em>). On fait juste varier les modalités de <em>sexe</em> puis on calculer la probabilité de faire du sport de ces individus moyens.</p>
 <p>On peut également passer le paramètre <code>newdata = "mean"</code> à <code><a href="https://larmarange.github.io/broom.helpers/reference/tidy_marginal_predictions.html">broom.helpers::tidy_marginal_predictions()</a></code> ou même à <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/tbl_regression.html">gtsummary::tbl_regression()</a></code><a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a>.</p>
-<div class="no-row-height column-margin column-container"><div id="fn2"><p><sup>2</sup>&nbsp;Les paramètres additionnels indiqués à <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/tbl_regression.html">gtsummary::tbl_regression()</a></code> sont transmis en cascade à <code><a href="https://larmarange.github.io/broom.helpers/reference/tidy_plus_plus.html">broom.helpers::tidy_plus_plus()</a></code> puis à <code><a href="https://larmarange.github.io/broom.helpers/reference/tidy_marginal_predictions.html">broom.helpers::tidy_marginal_predictions()</a></code> et enfin à <code><a href="https://marginaleffects.com/man/r/predictions.html">marginaleffects::predictions()</a></code>.</p></div></div><div class="cell page-columns page-full">
-<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1"></a>mod <span class="sc">|&gt;</span> </span>
+<div class="no-row-height column-margin column-container"><div id="fn2"><p><sup>2</sup>&nbsp;Les paramètres additionnels indiqués à <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/tbl_regression.html">gtsummary::tbl_regression()</a></code> sont transmis en cascade à <code><a href="https://larmarange.github.io/broom.helpers/reference/tidy_plus_plus.html">broom.helpers::tidy_plus_plus()</a></code> puis à <code><a href="https://larmarange.github.io/broom.helpers/reference/tidy_marginal_predictions.html">broom.helpers::tidy_marginal_predictions()</a></code> et enfin à <code><a href="https://rdrr.io/pkg/marginaleffects/man/predictions.html">marginaleffects::predictions()</a></code>.</p></div></div><div class="cell page-columns page-full">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb36"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1"></a>mod <span class="sc">|&gt;</span> </span>
 <span id="cb36-2"><a href="#cb36-2"></a>  <span class="fu">tbl_regression</span>(</span>
 <span id="cb36-3"><a href="#cb36-3"></a>    <span class="at">tidy_fun =</span> broom.helpers<span class="sc">::</span>tidy_marginal_predictions,</span>
 <span id="cb36-4"><a href="#cb36-4"></a>    <span class="at">newdata =</span> <span class="st">"mean"</span>,</span>
 <span id="cb36-5"><a href="#cb36-5"></a>    <span class="at">estimate_fun =</span> scales<span class="sc">::</span><span class="fu">label_percent</span>(<span class="at">accuracy =</span> <span class="fl">0.1</span>)</span>
 <span id="cb36-6"><a href="#cb36-6"></a>  ) <span class="sc">|&gt;</span> </span>
 <span id="cb36-7"><a href="#cb36-7"></a>  <span class="fu">bold_labels</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb36-8"><a href="#cb36-8"></a>  <span class="fu">modify_column_hide</span>(<span class="st">"p.value"</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb36-8"><a href="#cb36-8"></a>  <span class="fu">modify_column_hide</span>(<span class="st">"p.value"</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div id="tbl-predictions-marginales-a-la-moyenne" class="cell quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-tbl figure page-columns page-full"><div aria-describedby="tbl-predictions-marginales-a-la-moyenne-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
@@ -2720,7 +2725,7 @@ Type: invlink(link)</code></pre>
   height: 0px !important;
 }
 </style>
-<table class="gt_table do-not-create-environment cell table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<table class="gt_table cell table table-sm table-striped small" data-quarto-bootstrap="false">
 <colgroup>
 <col style="width: 33%">
 <col style="width: 33%">
@@ -2847,17 +2852,17 @@ Table&nbsp;25.3: Prédictions marginales à la moyenne
 </div>
 <p>De même, on peut générer une représentation graphique&nbsp;:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1"></a>p <span class="ot">&lt;-</span> mod <span class="sc">|&gt;</span> </span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb37"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1"></a>p <span class="ot">&lt;-</span> mod <span class="sc">|&gt;</span> </span>
 <span id="cb37-2"><a href="#cb37-2"></a>  broom.helpers<span class="sc">::</span><span class="fu">plot_marginal_predictions</span>(<span class="at">newdata =</span> <span class="st">"mean"</span>) <span class="sc">|&gt;</span> </span>
 <span id="cb37-3"><a href="#cb37-3"></a>  patchwork<span class="sc">::</span><span class="fu">wrap_plots</span>() <span class="sc">&amp;</span></span>
 <span id="cb37-4"><a href="#cb37-4"></a>  <span class="fu">scale_y_continuous</span>(</span>
 <span id="cb37-5"><a href="#cb37-5"></a>    <span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>, .<span class="dv">8</span>),</span>
 <span id="cb37-6"><a href="#cb37-6"></a>    <span class="at">labels =</span> scales<span class="sc">::</span><span class="fu">label_percent</span>()</span>
 <span id="cb37-7"><a href="#cb37-7"></a>  ) <span class="sc">&amp;</span></span>
-<span id="cb37-8"><a href="#cb37-8"></a>  <span class="fu">coord_flip</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb37-8"><a href="#cb37-8"></a>  <span class="fu">coord_flip</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell page-columns page-full">
-<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1"></a>p</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb38"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1"></a>p</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display page-columns page-full">
 <div id="fig-predictions-marginales-a-la-moyenne" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full"><div aria-describedby="fig-predictions-marginales-a-la-moyenne-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -2871,7 +2876,7 @@ Figure&nbsp;25.4: Prédictions marginales à la moyenne
 </div>
 <p>Si l’on souhaite utiliser <code><a href="https://larmarange.github.io/ggstats/reference/ggcoef_model.html">ggstats::ggcoef_model()</a></code>, on peut directement indiquer <code>newdata = "mean"</code>. Il faudra passer cette option via <code>tidy_args</code> qui prend une liste d’arguments à transmettre à <code>tidy_fun</code>.</p>
 <div class="cell page-columns page-full">
-<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1"></a>mod <span class="sc">|&gt;</span> </span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb39"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1"></a>mod <span class="sc">|&gt;</span> </span>
 <span id="cb39-2"><a href="#cb39-2"></a>  ggstats<span class="sc">::</span><span class="fu">ggcoef_model</span>(</span>
 <span id="cb39-3"><a href="#cb39-3"></a>    <span class="at">tidy_fun =</span> broom.helpers<span class="sc">::</span>tidy_marginal_predictions,</span>
 <span id="cb39-4"><a href="#cb39-4"></a>    <span class="at">tidy_args =</span> <span class="fu">list</span>(<span class="at">newdata =</span> <span class="st">"mean"</span>),</span>
@@ -2880,7 +2885,7 @@ Figure&nbsp;25.4: Prédictions marginales à la moyenne
 <span id="cb39-7"><a href="#cb39-7"></a>    <span class="at">significance =</span> <span class="cn">NULL</span>,</span>
 <span id="cb39-8"><a href="#cb39-8"></a>    <span class="at">vline =</span> <span class="cn">FALSE</span></span>
 <span id="cb39-9"><a href="#cb39-9"></a>  ) <span class="sc">+</span></span>
-<span id="cb39-10"><a href="#cb39-10"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">labels =</span> scales<span class="sc">::</span><span class="fu">label_percent</span>())</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb39-10"><a href="#cb39-10"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">labels =</span> scales<span class="sc">::</span><span class="fu">label_percent</span>())</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>`height` was translated to `width`.</code></pre>
 </div>
@@ -2901,8 +2906,8 @@ Figure&nbsp;25.5: Prédictions marginales à la moyenne
 <p>Le package <a href="https://cran.r-project.org/package=effects">effects</a><a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a> adopte une approche un peu différente pour définir un <q>individu moyen</q>.</p>
 <div class="no-row-height column-margin column-container"><div id="fn3"><p><sup>3</sup>&nbsp;Malgré son nom, le package <a href="https://cran.r-project.org/package=effects">effects</a> ne calcule pas des effets marginaux mais des prédictions marginales, selon la terminologie retenue au début de ce document.</p></div></div><p>Calculons les prédictions marginales à la moyenne avec la fonction <code><a href="https://rdrr.io/pkg/effects/man/effect.html">effects::Effect()</a></code>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1"></a>e <span class="ot">&lt;-</span> effects<span class="sc">::</span><span class="fu">Effect</span>(<span class="st">"sexe"</span>, mod)</span>
-<span id="cb41-2"><a href="#cb41-2"></a>e</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb41"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1"></a>e <span class="ot">&lt;-</span> effects<span class="sc">::</span><span class="fu">Effect</span>(<span class="st">"sexe"</span>, mod)</span>
+<span id="cb41-2"><a href="#cb41-2"></a>e</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
  sexe effect
@@ -2913,7 +2918,7 @@ sexe
 </div>
 <p>On le voit, les résultats sont là encore assez proches mais différents. Regardons de plus près les données utilisées pour les prédictions.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1"></a>e<span class="sc">$</span>model.matrix</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb43"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1"></a>e<span class="sc">$</span>model.matrix</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>  (Intercept) sexeHomme groupe_ages25-44 ans groupe_ages45-64 ans
 1           1         0            0.3533835            0.3719298
@@ -2940,12 +2945,12 @@ attr(,"contrasts")$etudes
 <p>Pour les variables continues, <a href="https://cran.r-project.org/package=effects">effects</a> utilise la moyenne observée de la variable, comme précédemment avec <a href="https://marginaleffects.com/">marginaleffects</a>. Par contre, pour les variables catégorielles, ce n’est pas le mode qui est utilisé, mais l’ensemble des modalités, pondérées selon leur proportion observée dans l’échantillon. Cette approche a l’avantage de <q>moyenniser</q> également les variables catégorielles, même si les individus pour lesquels une prédiction est réalisée sont complètement fictifs.</p>
 <p>On peut utiliser <code><a href="https://larmarange.github.io/broom.helpers/reference/tidy_all_effects.html">broom.helpers::tidy_all_effects()</a></code> pour générer un tableau de prédictions marginales avec <a href="https://cran.r-project.org/package=effects">effects</a>.</p>
 <div class="cell page-columns page-full">
-<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1"></a>mod <span class="sc">|&gt;</span> </span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb45"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1"></a>mod <span class="sc">|&gt;</span> </span>
 <span id="cb45-2"><a href="#cb45-2"></a>  <span class="fu">tbl_regression</span>(</span>
 <span id="cb45-3"><a href="#cb45-3"></a>    <span class="at">tidy_fun =</span> broom.helpers<span class="sc">::</span>tidy_all_effects,</span>
 <span id="cb45-4"><a href="#cb45-4"></a>    <span class="at">estimate_fun =</span> scales<span class="sc">::</span><span class="fu">label_percent</span>(<span class="at">accuracy =</span> <span class="fl">0.1</span>)</span>
 <span id="cb45-5"><a href="#cb45-5"></a>  ) <span class="sc">|&gt;</span> </span>
-<span id="cb45-6"><a href="#cb45-6"></a>  <span class="fu">bold_labels</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb45-6"><a href="#cb45-6"></a>  <span class="fu">bold_labels</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div id="tbl-predictions-marginales-effects" class="cell quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-tbl figure page-columns page-full"><div aria-describedby="tbl-predictions-marginales-effects-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
@@ -3398,7 +3403,7 @@ attr(,"contrasts")$etudes
   height: 0px !important;
 }
 </style>
-<table class="gt_table do-not-create-environment cell table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<table class="gt_table cell table table-sm table-striped small" data-quarto-bootstrap="false">
 <colgroup>
 <col style="width: 33%">
 <col style="width: 33%">
@@ -3525,9 +3530,9 @@ Table&nbsp;25.4: Prédictions marginales à la moyenne avec le package effects
 </div>
 <p>Pour une représentation graphique, nous pouvons utiliser les fonctions internes d’<a href="https://cran.r-project.org/package=effects">effects</a> en appliquant <code><a href="https://rdrr.io/r/graphics/plot.default.html">plot()</a></code> aux résultats de <code><a href="https://rdrr.io/pkg/effects/man/effect.html">effects::allEffects()</a></code> qui calcule les prédictions marginales de chaque variable.</p>
 <div class="cell page-columns page-full">
-<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1"></a>mod <span class="sc">|&gt;</span> </span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb46"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1"></a>mod <span class="sc">|&gt;</span> </span>
 <span id="cb46-2"><a href="#cb46-2"></a>  effects<span class="sc">::</span><span class="fu">allEffects</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb46-3"><a href="#cb46-3"></a>  <span class="fu">plot</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb46-3"><a href="#cb46-3"></a>  <span class="fu">plot</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display page-columns page-full">
 <div id="fig-predictions-marginales-effects" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full"><div aria-describedby="fig-predictions-marginales-effects-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -3541,12 +3546,12 @@ Figure&nbsp;25.6: Prédictions marginales à la moyenne avec le package effects
 </div>
 <p>On peut aussi utiliser <code><a href="https://larmarange.github.io/ggstats/reference/ggcoef_model.html">ggstats::ggcoef_model()</a></code><a href="#fn4" class="footnote-ref" id="fnref4" role="doc-noteref"><sup>4</sup></a>.</p>
 <div class="no-row-height column-margin column-container"><div id="fn4"><p><sup>4</sup>&nbsp;De manière générale, <code><a href="https://larmarange.github.io/ggstats/reference/ggcoef_model.html">ggstats::ggcoef_model()</a></code> est compatible avec les mêmes <code>tidy_fun</code> que <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/tbl_regression.html">gtsummary::tbl_regression()</a></code>, les deux fonctions utilisant en interne <code><a href="https://larmarange.github.io/broom.helpers/reference/tidy_plus_plus.html">broom.helpers::tidy_plus_plus()</a></code>.</p></div></div><div class="cell page-columns page-full">
-<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1"></a>mod <span class="sc">|&gt;</span> </span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb47"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1"></a>mod <span class="sc">|&gt;</span> </span>
 <span id="cb47-2"><a href="#cb47-2"></a>  ggstats<span class="sc">::</span><span class="fu">ggcoef_model</span>(</span>
 <span id="cb47-3"><a href="#cb47-3"></a>    <span class="at">tidy_fun =</span> broom.helpers<span class="sc">::</span>tidy_all_effects,</span>
 <span id="cb47-4"><a href="#cb47-4"></a>    <span class="at">vline =</span> <span class="cn">FALSE</span></span>
 <span id="cb47-5"><a href="#cb47-5"></a>  ) <span class="sc">+</span></span>
-<span id="cb47-6"><a href="#cb47-6"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">labels =</span> scales<span class="sc">::</span><span class="fu">label_percent</span>())</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb47-6"><a href="#cb47-6"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">labels =</span> scales<span class="sc">::</span><span class="fu">label_percent</span>())</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>`height` was translated to `width`.</code></pre>
 </div>
@@ -3565,12 +3570,12 @@ Figure&nbsp;25.7: Prédictions marginales à la moyenne avec le package effects
 <span class="header-section-number">25.3.3</span> Variantes</h3>
 <p>Le package <a href="https://strengejacke.github.io/ggeffects/">ggeffects</a> propose une fonction <code><a href="https://strengejacke.github.io/ggeffects/reference/ggpredict.html">ggeffects::ggpredict()</a></code> qui calcule des prédictions marginales à la moyenne des variables continues et à la première modalité (utilisée comme référence) des variables catégorielles. On ne peut donc plus, au sens strict, parler de prédictions <q>à la moyenne</q>. <a href="https://larmarange.github.io/broom.helpers/">broom.helpers</a> fournit une fonction <code>tidy_ggpredict()</code>.</p>
 <div class="cell page-columns page-full">
-<div class="sourceCode cell-code" id="cb49"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1"></a>mod <span class="sc">|&gt;</span> </span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb49"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1"></a>mod <span class="sc">|&gt;</span> </span>
 <span id="cb49-2"><a href="#cb49-2"></a>  <span class="fu">tbl_regression</span>(</span>
 <span id="cb49-3"><a href="#cb49-3"></a>    <span class="at">tidy_fun =</span> broom.helpers<span class="sc">::</span>tidy_ggpredict,</span>
 <span id="cb49-4"><a href="#cb49-4"></a>    <span class="at">estimate_fun =</span> scales<span class="sc">::</span><span class="fu">label_percent</span>(<span class="at">accuracy =</span> <span class="fl">0.1</span>)</span>
 <span id="cb49-5"><a href="#cb49-5"></a>  ) <span class="sc">|&gt;</span> </span>
-<span id="cb49-6"><a href="#cb49-6"></a>  <span class="fu">bold_labels</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb49-6"><a href="#cb49-6"></a>  <span class="fu">bold_labels</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Data were 'prettified'. Consider using `terms="heures.tv [all]"` to get
   smooth plots.</code></pre>
@@ -4027,7 +4032,7 @@ Figure&nbsp;25.7: Prédictions marginales à la moyenne avec le package effects
   height: 0px !important;
 }
 </style>
-<table class="gt_table do-not-create-environment cell table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<table class="gt_table cell table table-sm table-striped small" data-quarto-bootstrap="false">
 <colgroup>
 <col style="width: 33%">
 <col style="width: 33%">
@@ -4194,10 +4199,10 @@ Table&nbsp;25.5: Prédictions marginales avec ggpredict()
 </div>
 <p>Pour une représentation graphique, on peut utiliser les fonctionnalités natives inclues dans le package <a href="https://strengejacke.github.io/ggeffects/">ggeffects</a>.</p>
 <div class="cell page-columns page-full">
-<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1"></a>mod <span class="sc">|&gt;</span> </span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb51"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1"></a>mod <span class="sc">|&gt;</span> </span>
 <span id="cb51-2"><a href="#cb51-2"></a>  ggeffects<span class="sc">::</span><span class="fu">ggpredict</span>() <span class="sc">|&gt;</span> </span>
 <span id="cb51-3"><a href="#cb51-3"></a>  <span class="fu">lapply</span>(plot) <span class="sc">|&gt;</span> </span>
-<span id="cb51-4"><a href="#cb51-4"></a>  patchwork<span class="sc">::</span><span class="fu">wrap_plots</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb51-4"><a href="#cb51-4"></a>  patchwork<span class="sc">::</span><span class="fu">wrap_plots</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display page-columns page-full">
 <div id="fig-ggpredict" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full"><div aria-describedby="fig-ggpredict-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -4214,10 +4219,10 @@ Figure&nbsp;25.8: Prédictions marginales avec ggpredict()
 <p>Maintenant que nous savons estimer des prédictions marginales, nous pouvons facilement calculer des <strong>contrastes marginaux</strong>, à savoir des différences entre prédictions marginales.</p>
 <section id="contrastes-marginaux-moyens" class="level3 page-columns page-full" data-number="25.4.1"><h3 data-number="25.4.1" class="anchored" data-anchor-id="contrastes-marginaux-moyens">
 <span class="header-section-number">25.4.1</span> Contrastes marginaux moyens</h3>
-<p>Considérons tout d’abord la variable catégorielle <em>sexe</em> et calculons les prédictions marginales moyennes avec <code><a href="https://marginaleffects.com/man/r/predictions.html">marginaleffects::predictions()</a></code>.</p>
+<p>Considérons tout d’abord la variable catégorielle <em>sexe</em> et calculons les prédictions marginales moyennes avec <code><a href="https://rdrr.io/pkg/marginaleffects/man/predictions.html">marginaleffects::predictions()</a></code>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb52"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1"></a>pred <span class="ot">&lt;-</span> <span class="fu">predictions</span>(mod, <span class="at">variables =</span> <span class="st">"sexe"</span>, <span class="at">by =</span> <span class="st">"sexe"</span>, <span class="at">type =</span> <span class="st">"response"</span>)</span>
-<span id="cb52-2"><a href="#cb52-2"></a>pred</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb52"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1"></a>pred <span class="ot">&lt;-</span> <span class="fu">predictions</span>(mod, <span class="at">variables =</span> <span class="st">"sexe"</span>, <span class="at">by =</span> <span class="st">"sexe"</span>, <span class="at">type =</span> <span class="st">"response"</span>)</span>
+<span id="cb52-2"><a href="#cb52-2"></a>pred</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
   sexe Estimate Std. Error    z Pr(&gt;|z|)     S 2.5 % 97.5 %
@@ -4229,14 +4234,14 @@ Type: response</code></pre>
 </div>
 <p>Le contraste entre les hommes et les femmes est tout simplement la différence et les deux prédictions marginales.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb54"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1"></a>pred<span class="sc">$</span>estimate[<span class="dv">2</span>] <span class="sc">-</span> pred<span class="sc">$</span>estimate[<span class="dv">1</span>]</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb54"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1"></a>pred<span class="sc">$</span>estimate[<span class="dv">2</span>] <span class="sc">-</span> pred<span class="sc">$</span>estimate[<span class="dv">1</span>]</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 0.07884839</code></pre>
 </div>
 </div>
-<p>La fonction <code><a href="https://marginaleffects.com/man/r/comparisons.html">marginaleffects::avg_comparisons()</a></code> permet de réaliser directement ce calcul.</p>
+<p>La fonction <code><a href="https://rdrr.io/pkg/marginaleffects/man/comparisons.html">marginaleffects::avg_comparisons()</a></code> permet de réaliser directement ce calcul.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb56"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1"></a><span class="fu">avg_comparisons</span>(mod, <span class="at">variables =</span> <span class="st">"sexe"</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb56"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1"></a><span class="fu">avg_comparisons</span>(mod, <span class="at">variables =</span> <span class="st">"sexe"</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
  Estimate Std. Error z Pr(&gt;|z|)    S  2.5 % 97.5 %
@@ -4257,14 +4262,14 @@ Astuce
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Dans les faits, <code><a href="https://marginaleffects.com/man/r/comparisons.html">marginaleffects::avg_comparisons()</a></code> a calculé la différence entre les hommes et les femmes pour chaque observation d’origine puis a réalisé la moyenne des différences. Mathématiquement, la moyenne des différences est équivalente à la différence des moyennes.</p>
+<p>Dans les faits, <code><a href="https://rdrr.io/pkg/marginaleffects/man/comparisons.html">marginaleffects::avg_comparisons()</a></code> a calculé la différence entre les hommes et les femmes pour chaque observation d’origine puis a réalisé la moyenne des différences. Mathématiquement, la moyenne des différences est équivalente à la différence des moyennes.</p>
 </div>
 </div>
 <p>Les contrastes calculés ici ont été moyennés sur l’ensemble des valeurs observées. On parle donc de <strong>contrastes marginaux moyens</strong> (<em>average marginal contrasts</em>).</p>
 <p>Par défaut, chaque modalité est contrastée avec la première modalité prise comme référence (voir exemple ci-dessous avec la variable <em>groupe_ages</em>.</p>
 <p>Regardons maintenant une variable continue.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb58"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb58-1"><a href="#cb58-1"></a><span class="fu">avg_comparisons</span>(mod, <span class="at">variables =</span> <span class="st">"heures.tv"</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb58"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb58-1"><a href="#cb58-1"></a><span class="fu">avg_comparisons</span>(mod, <span class="at">variables =</span> <span class="st">"heures.tv"</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
  Estimate Std. Error    z Pr(&gt;|z|)    S   2.5 %  97.5 %
@@ -4275,10 +4280,10 @@ Type: response
 Comparison: +1</code></pre>
 </div>
 </div>
-<p>Par défaut, <code><a href="https://marginaleffects.com/man/r/comparisons.html">marginaleffects::avg_comparisons()</a></code> calcule, pour chaque valeur observée de <em>heures.tv</em>, l’effet sur la probabilité de pratiquer un sport d’augmenter de 1 le nombre d’heures quotidiennes de télévision (plus précisément la différence des valeurs prédites pour la valeur observée plus 0,5 et la valeur observée moins 0,5).</p>
+<p>Par défaut, <code><a href="https://rdrr.io/pkg/marginaleffects/man/comparisons.html">marginaleffects::avg_comparisons()</a></code> calcule, pour chaque valeur observée de <em>heures.tv</em>, l’effet sur la probabilité de pratiquer un sport d’augmenter de 1 le nombre d’heures quotidiennes de télévision (plus précisément la différence des valeurs prédites pour la valeur observée plus 0,5 et la valeur observée moins 0,5).</p>
 <p>On peut facilement obtenir la liste des contrastes marginaux pour l’ensemble des variables.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb60"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb60-1"><a href="#cb60-1"></a><span class="fu">avg_comparisons</span>(mod)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb60"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb60-1"><a href="#cb60-1"></a><span class="fu">avg_comparisons</span>(mod)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
         Term                             Contrast Estimate Std. Error     z
@@ -4307,7 +4312,7 @@ Type: response</code></pre>
 </div>
 <p>Il est important de noter que le nom des colonnes n’est pas compatible avec les fonctions de <a href="https://larmarange.github.io/broom.helpers/">broom.helpers</a> et par extension avec <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/tbl_regression.html">gtsummary::tbl_regression()</a></code> et <code><a href="https://larmarange.github.io/ggstats/reference/ggcoef_model.html">ggstats::ggcoef_model()</a></code>. On utilisera donc <code><a href="https://larmarange.github.io/broom.helpers/reference/tidy_marginal_contrasts.html">broom.helpers::tidy_marginal_contrasts()</a></code><a href="#fn5" class="footnote-ref" id="fnref5" role="doc-noteref"><sup>5</sup></a> qui remets en forme le tableau de résultats dans un format compatible. On pourra ainsi produire un tableau propre des résultats<a href="#fn6" class="footnote-ref" id="fnref6" role="doc-noteref"><sup>6</sup></a>. Au sens strict, les contrastes obtenus s’expriment en <strong>points de pourcentage</strong>. Pour éviter toute mauvaise interprétation des résultats, on privilégiera la notation <em>pp</em> (points de pourcentage) plutôt que le symbole <em>%</em>.</p>
 <div class="no-row-height column-margin column-container"><div id="fn5"><p><sup>5</sup>&nbsp;Il existe également une fonction <code><a href="https://larmarange.github.io/broom.helpers/reference/tidy_avg_comparisons.html">broom.helpers::tidy_avg_comparisons()</a></code> mais on lui préférera <code><a href="https://larmarange.github.io/broom.helpers/reference/tidy_marginal_contrasts.html">broom.helpers::tidy_marginal_contrasts()</a></code>. Pour un modèle sans interaction, les résultats sont identiques. Mais <code><a href="https://larmarange.github.io/broom.helpers/reference/tidy_marginal_contrasts.html">broom.helpers::tidy_marginal_contrasts()</a></code> peut gérer des termes d’interactions, ce qui sera utile dans un prochain chapitre (cf. <a href="interactions.html" class="quarto-xref"><span>Chapitre 27</span></a>).</p></div><div id="fn6"><p><sup>6</sup>&nbsp;Notez l’utilisation de <code>style_positive = "plus"</code> dans l’appel de <code><a href="https://scales.r-lib.org/reference/label_percent.html">scales::label_percent()</a></code> pour ajouter un signe <code>+</code> devant les valeurs positives, afin de bien indiquer que l’on représente le résultat d’une différence.</p></div></div><div class="cell page-columns page-full">
-<div class="sourceCode cell-code" id="cb62"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb62-1"><a href="#cb62-1"></a>mod <span class="sc">|&gt;</span> </span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb62"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb62-1"><a href="#cb62-1"></a>mod <span class="sc">|&gt;</span> </span>
 <span id="cb62-2"><a href="#cb62-2"></a>  <span class="fu">tbl_regression</span>(</span>
 <span id="cb62-3"><a href="#cb62-3"></a>    <span class="at">tidy_fun =</span> broom.helpers<span class="sc">::</span>tidy_marginal_contrasts,</span>
 <span id="cb62-4"><a href="#cb62-4"></a>    <span class="at">estimate_fun =</span> scales<span class="sc">::</span><span class="fu">label_percent</span>(</span>
@@ -4316,7 +4321,7 @@ Type: response</code></pre>
 <span id="cb62-7"><a href="#cb62-7"></a>      <span class="at">suffix =</span> <span class="st">" pp"</span></span>
 <span id="cb62-8"><a href="#cb62-8"></a>    )</span>
 <span id="cb62-9"><a href="#cb62-9"></a>  ) <span class="sc">|&gt;</span> </span>
-<span id="cb62-10"><a href="#cb62-10"></a>  <span class="fu">bold_labels</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb62-10"><a href="#cb62-10"></a>  <span class="fu">bold_labels</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div id="tbl-contrastes-marginaux-moyens" class="cell quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-tbl figure page-columns page-full"><div aria-describedby="tbl-contrastes-marginaux-moyens-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
@@ -4769,7 +4774,7 @@ Type: response</code></pre>
   height: 0px !important;
 }
 </style>
-<table class="gt_table do-not-create-environment cell table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<table class="gt_table cell table table-sm table-striped small" data-quarto-bootstrap="false">
 <colgroup>
 <col style="width: 25%">
 <col style="width: 25%">
@@ -4876,7 +4881,7 @@ Table&nbsp;25.6: Contrastes marginaux moyens
 </div>
 <p>De même, on peut représenter les contrastes marginaux moyens avec <code><a href="https://larmarange.github.io/ggstats/reference/ggcoef_model.html">ggstats::ggcoef_model()</a></code>.</p>
 <div class="cell page-columns page-full">
-<div class="sourceCode cell-code" id="cb63"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb63-1"><a href="#cb63-1"></a>ggstats<span class="sc">::</span><span class="fu">ggcoef_model</span>(</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb63"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb63-1"><a href="#cb63-1"></a>ggstats<span class="sc">::</span><span class="fu">ggcoef_model</span>(</span>
 <span id="cb63-2"><a href="#cb63-2"></a>  mod,</span>
 <span id="cb63-3"><a href="#cb63-3"></a>  <span class="at">tidy_fun =</span> broom.helpers<span class="sc">::</span>tidy_marginal_contrasts</span>
 <span id="cb63-4"><a href="#cb63-4"></a>) <span class="sc">+</span></span>
@@ -4885,7 +4890,7 @@ Table&nbsp;25.6: Contrastes marginaux moyens
 <span id="cb63-7"><a href="#cb63-7"></a>      <span class="at">style_positive =</span> <span class="st">"plus"</span>,</span>
 <span id="cb63-8"><a href="#cb63-8"></a>      <span class="at">suffix =</span> <span class="st">"pp"</span></span>
 <span id="cb63-9"><a href="#cb63-9"></a>    )</span>
-<span id="cb63-10"><a href="#cb63-10"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb63-10"><a href="#cb63-10"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>`height` was translated to `width`.</code></pre>
 </div>
@@ -4912,7 +4917,7 @@ Astuce
 <div class="callout-body-container callout-body">
 <p>Il est possible de personnaliser le type de contrastes calculés, variable par variable, avec l’option <code>variables_list</code> de <code><a href="https://larmarange.github.io/broom.helpers/reference/tidy_marginal_contrasts.html">broom.helpers::tidy_marginal_contrasts()</a></code>. La syntaxe est un peu particulière&nbsp;: il faut transmettre une liste de listes.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb65"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb65-1"><a href="#cb65-1"></a>mod <span class="sc">|&gt;</span> </span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb65"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb65-1"><a href="#cb65-1"></a>mod <span class="sc">|&gt;</span> </span>
 <span id="cb65-2"><a href="#cb65-2"></a>  <span class="fu">tbl_regression</span>(</span>
 <span id="cb65-3"><a href="#cb65-3"></a>    <span class="at">tidy_fun =</span> broom.helpers<span class="sc">::</span>tidy_marginal_contrasts,</span>
 <span id="cb65-4"><a href="#cb65-4"></a>    <span class="at">variables_list =</span> <span class="fu">list</span>(</span>
@@ -4926,7 +4931,7 @@ Astuce
 <span id="cb65-12"><a href="#cb65-12"></a>      <span class="at">suffix =</span> <span class="st">" pp"</span></span>
 <span id="cb65-13"><a href="#cb65-13"></a>    )</span>
 <span id="cb65-14"><a href="#cb65-14"></a>  ) <span class="sc">|&gt;</span> </span>
-<span id="cb65-15"><a href="#cb65-15"></a>  <span class="fu">bold_labels</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb65-15"><a href="#cb65-15"></a>  <span class="fu">bold_labels</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div id="dlagfvfrqd" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>#dlagfvfrqd table {
@@ -5377,7 +5382,7 @@ Astuce
   height: 0px !important;
 }
 </style>
-<table class="gt_table table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<table class="gt_table table table-sm table-striped small" data-quarto-bootstrap="false">
 <colgroup>
 <col style="width: 25%">
 <col style="width: 25%">
@@ -5485,7 +5490,7 @@ Astuce
 </div>
 <p>On peut obtenir le même résultat avec <code>broom.helpers::tidy_avg_comparison()</code> avec une syntaxe un peu plus simple (en passant une liste via <code>variables</code> au lieu d’une liste de listes via <code>variables_list</code>).</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb66"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb66-1"><a href="#cb66-1"></a>mod <span class="sc">|&gt;</span> </span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb66"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb66-1"><a href="#cb66-1"></a>mod <span class="sc">|&gt;</span> </span>
 <span id="cb66-2"><a href="#cb66-2"></a>  <span class="fu">tbl_regression</span>(</span>
 <span id="cb66-3"><a href="#cb66-3"></a>    <span class="at">tidy_fun =</span> broom.helpers<span class="sc">::</span>tidy_avg_comparisons,</span>
 <span id="cb66-4"><a href="#cb66-4"></a>    <span class="at">variables =</span> <span class="fu">list</span>(</span>
@@ -5499,7 +5504,7 @@ Astuce
 <span id="cb66-12"><a href="#cb66-12"></a>      <span class="at">suffix =</span> <span class="st">" pp"</span></span>
 <span id="cb66-13"><a href="#cb66-13"></a>    )</span>
 <span id="cb66-14"><a href="#cb66-14"></a>  ) <span class="sc">|&gt;</span> </span>
-<span id="cb66-15"><a href="#cb66-15"></a>  <span class="fu">bold_labels</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb66-15"><a href="#cb66-15"></a>  <span class="fu">bold_labels</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div id="fowwbismxk" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>#fowwbismxk table {
@@ -5950,7 +5955,7 @@ Astuce
   height: 0px !important;
 }
 </style>
-<table class="gt_table table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<table class="gt_table table table-sm table-striped small" data-quarto-bootstrap="false">
 <colgroup>
 <col style="width: 25%">
 <col style="width: 25%">
@@ -6063,7 +6068,7 @@ Astuce
 <p>Comme précédemment, plutôt que de calculer les contrastes marginaux pour chaque individu observé avant de faire la moyenne des résultats, une approche alternative consiste à considérer un individu <q>moyen</q> / <q>typique</q> et à calculer les contrastes marginaux pour cet individu. On parle alors de <strong>contrastes marginaux à la moyenne</strong> (<em>marginal contrasts at the mean</em>).</p>
 <p>Avec <a href="https://marginaleffects.com/">marginaleffects</a>, il suffit de spécifier <code>newdata = "mean"</code>. Les variables continues seront fixées à leur moyenne et les variables catégorielles à leur mode (modalité la plus fréquente dans l’échantillon).</p>
 <div class="cell page-columns page-full">
-<div class="sourceCode cell-code" id="cb67"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb67-1"><a href="#cb67-1"></a>mod <span class="sc">|&gt;</span> </span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb67"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb67-1"><a href="#cb67-1"></a>mod <span class="sc">|&gt;</span> </span>
 <span id="cb67-2"><a href="#cb67-2"></a>  <span class="fu">tbl_regression</span>(</span>
 <span id="cb67-3"><a href="#cb67-3"></a>    <span class="at">tidy_fun =</span> broom.helpers<span class="sc">::</span>tidy_marginal_contrasts,</span>
 <span id="cb67-4"><a href="#cb67-4"></a>    <span class="at">newdata =</span> <span class="st">"mean"</span>,</span>
@@ -6073,7 +6078,7 @@ Astuce
 <span id="cb67-8"><a href="#cb67-8"></a>      <span class="at">suffix =</span> <span class="st">" pp"</span></span>
 <span id="cb67-9"><a href="#cb67-9"></a>    )</span>
 <span id="cb67-10"><a href="#cb67-10"></a>  ) <span class="sc">|&gt;</span> </span>
-<span id="cb67-11"><a href="#cb67-11"></a>  <span class="fu">bold_labels</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb67-11"><a href="#cb67-11"></a>  <span class="fu">bold_labels</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div id="tbl-contrastes-marginaux-à-la-moyenne" class="cell quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-tbl figure page-columns page-full"><div aria-describedby="tbl-contrastes-marginaux-à-la-moyenne-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
@@ -6526,7 +6531,7 @@ Astuce
   height: 0px !important;
 }
 </style>
-<table class="gt_table do-not-create-environment cell table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<table class="gt_table cell table table-sm table-striped small" data-quarto-bootstrap="false">
 <colgroup>
 <col style="width: 25%">
 <col style="width: 25%">
@@ -6633,7 +6638,7 @@ Table&nbsp;25.7: Contrastes marginaux à la moyenne
 </div>
 <p>Pour la fonction <code><a href="https://larmarange.github.io/ggstats/reference/ggcoef_model.html">ggstats::ggcoef_model()</a></code>, on utilisera l’argument <code>tidy_args</code> pour transmettre l’option <code>newdata = "mean"</code>.</p>
 <div class="cell page-columns page-full">
-<div class="sourceCode cell-code" id="cb68"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb68-1"><a href="#cb68-1"></a>ggstats<span class="sc">::</span><span class="fu">ggcoef_model</span>(</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb68"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb68-1"><a href="#cb68-1"></a>ggstats<span class="sc">::</span><span class="fu">ggcoef_model</span>(</span>
 <span id="cb68-2"><a href="#cb68-2"></a>  mod,</span>
 <span id="cb68-3"><a href="#cb68-3"></a>  <span class="at">tidy_fun =</span> broom.helpers<span class="sc">::</span>tidy_marginal_contrasts,</span>
 <span id="cb68-4"><a href="#cb68-4"></a>  <span class="at">tidy_args =</span> <span class="fu">list</span>(<span class="at">newdata =</span> <span class="st">"mean"</span>)</span>
@@ -6643,7 +6648,7 @@ Table&nbsp;25.7: Contrastes marginaux à la moyenne
 <span id="cb68-8"><a href="#cb68-8"></a>      <span class="at">style_positive =</span> <span class="st">"plus"</span>,</span>
 <span id="cb68-9"><a href="#cb68-9"></a>      <span class="at">suffix =</span> <span class="st">"pp"</span></span>
 <span id="cb68-10"><a href="#cb68-10"></a>    )</span>
-<span id="cb68-11"><a href="#cb68-11"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb68-11"><a href="#cb68-11"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>`height` was translated to `width`.</code></pre>
 </div>
@@ -6667,9 +6672,9 @@ Figure&nbsp;25.10: Contrastes marginaux à la moyenne
 <section id="pentes-marginales-moyennes-effets-marginaux-moyens" class="level3 page-columns page-full" data-number="25.5.1"><h3 data-number="25.5.1" class="anchored" data-anchor-id="pentes-marginales-moyennes-effets-marginaux-moyens">
 <span class="header-section-number">25.5.1</span> Pentes marginales moyennes / Effets marginaux moyens</h3>
 <p>Les <strong>effets marginaux moyens</strong> (<em>average marginal effects</em>) sont calculés en deux temps&nbsp;: (1) un effet marginal est calculé pour chaque individu observé dans le modèle&nbsp;; (ii) puis la moyenne de ces effets individuels est calculée.</p>
-<p>On aura tout simplement recours à la fonction <code><a href="https://marginaleffects.com/man/r/slopes.html">marginaleffects::avg_slopes()</a></code>.</p>
+<p>On aura tout simplement recours à la fonction <code><a href="https://rdrr.io/pkg/marginaleffects/man/slopes.html">marginaleffects::avg_slopes()</a></code>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb70"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb70-1"><a href="#cb70-1"></a><span class="fu">avg_slopes</span>(mod)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb70"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb70-1"><a href="#cb70-1"></a><span class="fu">avg_slopes</span>(mod)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
         Term                             Contrast Estimate Std. Error     z
@@ -6698,7 +6703,7 @@ Type: response</code></pre>
 </div>
 <p>Pour un usage avec <code><a href="https://larmarange.github.io/broom.helpers/reference/tidy_plus_plus.html">broom.helpers::tidy_plus_plus()</a></code>, <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/tbl_regression.html">gtsummary::tbl_regression()</a></code> ou <code><a href="https://larmarange.github.io/ggstats/reference/ggcoef_model.html">ggstats::ggcoef_model()</a></code>, on utilisera <code><a href="https://larmarange.github.io/broom.helpers/reference/tidy_avg_slopes.html">broom.helpers::tidy_avg_slopes()</a></code>.</p>
 <div class="cell page-columns page-full">
-<div class="sourceCode cell-code" id="cb72"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb72-1"><a href="#cb72-1"></a>mod <span class="sc">|&gt;</span> </span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb72"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb72-1"><a href="#cb72-1"></a>mod <span class="sc">|&gt;</span> </span>
 <span id="cb72-2"><a href="#cb72-2"></a>  <span class="fu">tbl_regression</span>(</span>
 <span id="cb72-3"><a href="#cb72-3"></a>    <span class="at">tidy_fun =</span> broom.helpers<span class="sc">::</span>tidy_avg_slopes,</span>
 <span id="cb72-4"><a href="#cb72-4"></a>    <span class="at">estimate_fun =</span> scales<span class="sc">::</span><span class="fu">label_percent</span>(</span>
@@ -6707,7 +6712,7 @@ Type: response</code></pre>
 <span id="cb72-7"><a href="#cb72-7"></a>      <span class="at">suffix =</span> <span class="st">" pp"</span></span>
 <span id="cb72-8"><a href="#cb72-8"></a>    )</span>
 <span id="cb72-9"><a href="#cb72-9"></a>  ) <span class="sc">|&gt;</span> </span>
-<span id="cb72-10"><a href="#cb72-10"></a>  <span class="fu">bold_labels</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb72-10"><a href="#cb72-10"></a>  <span class="fu">bold_labels</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div id="tbl-effets-marginaux-moyens" class="cell quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-tbl figure page-columns page-full"><div aria-describedby="tbl-effets-marginaux-moyens-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
@@ -7160,7 +7165,7 @@ Type: response</code></pre>
   height: 0px !important;
 }
 </style>
-<table class="gt_table do-not-create-environment cell table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<table class="gt_table cell table table-sm table-striped small" data-quarto-bootstrap="false">
 <colgroup>
 <col style="width: 25%">
 <col style="width: 25%">
@@ -7266,7 +7271,7 @@ Table&nbsp;25.8: Effets marginaux moyens
 </div>
 </div>
 <div class="cell page-columns page-full">
-<div class="sourceCode cell-code" id="cb73"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb73-1"><a href="#cb73-1"></a>ggstats<span class="sc">::</span><span class="fu">ggcoef_model</span>(</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb73"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb73-1"><a href="#cb73-1"></a>ggstats<span class="sc">::</span><span class="fu">ggcoef_model</span>(</span>
 <span id="cb73-2"><a href="#cb73-2"></a>  mod,</span>
 <span id="cb73-3"><a href="#cb73-3"></a>  <span class="at">tidy_fun =</span> broom.helpers<span class="sc">::</span>tidy_avg_slopes</span>
 <span id="cb73-4"><a href="#cb73-4"></a>) <span class="sc">+</span></span>
@@ -7275,7 +7280,7 @@ Table&nbsp;25.8: Effets marginaux moyens
 <span id="cb73-7"><a href="#cb73-7"></a>      <span class="at">style_positive =</span> <span class="st">"plus"</span>,</span>
 <span id="cb73-8"><a href="#cb73-8"></a>      <span class="at">suffix =</span> <span class="st">"pp"</span></span>
 <span id="cb73-9"><a href="#cb73-9"></a>    )</span>
-<span id="cb73-10"><a href="#cb73-10"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb73-10"><a href="#cb73-10"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>`height` was translated to `width`.</code></pre>
 </div>
@@ -7292,7 +7297,7 @@ Figure&nbsp;25.11: Effets marginaux moyens
 </div>
 <p>Un résultat similaire peut être obtenu avec <code><a href="https://rdrr.io/pkg/margins/man/margins.html">margins::margins()</a></code>, le package <a href="https://github.com/bbolker/margins">margins</a> s’inspirant de la commande <strong>Stata</strong> <code>margins</code>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb75"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb75-1"><a href="#cb75-1"></a>margins<span class="sc">::</span><span class="fu">margins</span>(mod) <span class="sc">%&gt;%</span> <span class="fu">tidy</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb75"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb75-1"><a href="#cb75-1"></a>margins<span class="sc">::</span><span class="fu">margins</span>(mod) <span class="sc">%&gt;%</span> <span class="fu">tidy</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 9 × 5
   term                            estimate std.error statistic  p.value
@@ -7310,7 +7315,7 @@ Figure&nbsp;25.11: Effets marginaux moyens
 </div>
 <p>For <a href="https://larmarange.github.io/broom.helpers/">broom.helpers</a>, <a href="https://github.com/ddsjoberg/gtsummary">gtsummary</a> or <a href="https://larmarange.github.io/ggstats/">ggstats</a>, use <code><a href="https://larmarange.github.io/broom.helpers/reference/tidy_margins.html">broom.helpers::tidy_margins()</a></code>.</p>
 <div class="cell page-columns page-full">
-<div class="sourceCode cell-code" id="cb77"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb77-1"><a href="#cb77-1"></a>mod <span class="sc">|&gt;</span> </span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb77"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb77-1"><a href="#cb77-1"></a>mod <span class="sc">|&gt;</span> </span>
 <span id="cb77-2"><a href="#cb77-2"></a>  <span class="fu">tbl_regression</span>(</span>
 <span id="cb77-3"><a href="#cb77-3"></a>    <span class="at">tidy_fun =</span> broom.helpers<span class="sc">::</span>tidy_margins,</span>
 <span id="cb77-4"><a href="#cb77-4"></a>    <span class="at">estimate_fun =</span> scales<span class="sc">::</span><span class="fu">label_percent</span>(</span>
@@ -7319,7 +7324,7 @@ Figure&nbsp;25.11: Effets marginaux moyens
 <span id="cb77-7"><a href="#cb77-7"></a>      <span class="at">suffix =</span> <span class="st">" pp"</span></span>
 <span id="cb77-8"><a href="#cb77-8"></a>    )</span>
 <span id="cb77-9"><a href="#cb77-9"></a>  ) <span class="sc">|&gt;</span> </span>
-<span id="cb77-10"><a href="#cb77-10"></a>  <span class="fu">bold_labels</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb77-10"><a href="#cb77-10"></a>  <span class="fu">bold_labels</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div id="tbl-effets-marginaux-moyens-margins" class="cell quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-tbl figure page-columns page-full"><div aria-describedby="tbl-effets-marginaux-moyens-margins-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
@@ -7772,7 +7777,7 @@ Figure&nbsp;25.11: Effets marginaux moyens
   height: 0px !important;
 }
 </style>
-<table class="gt_table do-not-create-environment cell table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<table class="gt_table cell table table-sm table-striped small" data-quarto-bootstrap="false">
 <colgroup>
 <col style="width: 25%">
 <col style="width: 25%">
@@ -7890,7 +7895,7 @@ Table&nbsp;25.9: Effets marginaux moyens avec margins
 </div>
 </div>
 <div class="cell page-columns page-full">
-<div class="sourceCode cell-code" id="cb78"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb78-1"><a href="#cb78-1"></a>ggstats<span class="sc">::</span><span class="fu">ggcoef_model</span>(</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb78"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb78-1"><a href="#cb78-1"></a>ggstats<span class="sc">::</span><span class="fu">ggcoef_model</span>(</span>
 <span id="cb78-2"><a href="#cb78-2"></a>  mod,</span>
 <span id="cb78-3"><a href="#cb78-3"></a>  <span class="at">tidy_fun =</span> broom.helpers<span class="sc">::</span>tidy_margins</span>
 <span id="cb78-4"><a href="#cb78-4"></a>) <span class="sc">+</span></span>
@@ -7899,7 +7904,7 @@ Table&nbsp;25.9: Effets marginaux moyens avec margins
 <span id="cb78-7"><a href="#cb78-7"></a>      <span class="at">style_positive =</span> <span class="st">"plus"</span>,</span>
 <span id="cb78-8"><a href="#cb78-8"></a>      <span class="at">suffix =</span> <span class="st">"pp"</span></span>
 <span id="cb78-9"><a href="#cb78-9"></a>    )</span>
-<span id="cb78-10"><a href="#cb78-10"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb78-10"><a href="#cb78-10"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>`height` was translated to `width`.</code></pre>
 </div>
@@ -7950,7 +7955,7 @@ Figure&nbsp;25.12: Effets marginaux moyens avec margins
       a.appendChild(i);
       window.document.body.appendChild(a);
     }
-    window.setColorSchemeToggle(window.hasAlternateSentinel())
+    setColorSchemeToggle(hasAlternateSentinel())
     const icon = "";
     const anchorJS = new window.AnchorJS();
     anchorJS.options = {
@@ -8000,13 +8005,14 @@ Figure&nbsp;25.12: Effets marginaux moyens avec margins
       e.clearSelection();
     }
     const getTextToCopy = function(trigger) {
-        const codeEl = trigger.previousElementSibling.cloneNode(true);
-        for (const childEl of codeEl.children) {
-          if (isCodeAnnotation(childEl)) {
-            childEl.remove();
-          }
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
         }
-        return codeEl.innerText;
+      }
+      return codeEl.innerText;
     }
     const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
       text: getTextToCopy
@@ -8347,8 +8353,36 @@ Figure&nbsp;25.12: Effets marginaux moyens avec margins
       }
     }
   });
-  </script><script src="https://giscus.app/client.js" data-repo="larmarange/guide-R" data-repo-id="R_kgDOH6-xnw" data-category="Forum" data-category-id="DIC_kwDOH6-xn84CRLQy" data-mapping="pathname" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="top" data-theme="light" data-lang="fr" crossorigin="anonymous" data-loading="lazy" async="">
-</script><input type="hidden" id="giscus-base-theme" value="light"><input type="hidden" id="giscus-alt-theme" value="dark"><nav class="page-navigation"><div class="nav-page nav-page-previous">
+  </script><input type="hidden" id="giscus-base-theme" value="light"><input type="hidden" id="giscus-alt-theme" value="dark"><script>
+  function loadGiscus() {
+    // Function to get the theme based on body class
+    const getTheme = () => {
+      let baseTheme = document.getElementById('giscus-base-theme').value;
+      let altTheme = document.getElementById('giscus-alt-theme').value;
+      if (authorPrefersDark) {
+          [baseTheme, altTheme] = [altTheme, baseTheme];
+      }
+      return document.body.classList.contains('quarto-dark') ? altTheme : baseTheme;
+    };
+    const script = document.createElement("script");
+    script.src = "https://giscus.app/client.js";
+    script.async = true;
+    script.dataset.repo = "larmarange/guide-R";
+    script.dataset.repoId = "R_kgDOH6-xnw";
+    script.dataset.category = "Forum";
+    script.dataset.categoryId = "DIC_kwDOH6-xn84CRLQy";
+    script.dataset.mapping = "pathname";
+    script.dataset.reactionsEnabled = "1";
+    script.dataset.emitMetadata = "0";
+    script.dataset.inputPosition = "top";
+    script.dataset.theme = getTheme();
+    script.dataset.lang = "fr";
+    script.crossOrigin = "anonymous";
+    // Append the script to the desired div instead of at the end of the body
+    document.getElementById("quarto-content").appendChild(script);
+  }
+  loadGiscus();
+</script><nav class="page-navigation"><div class="nav-page nav-page-previous">
       <a href="../analyses/selection-modele-pas-a-pas.html" class="pagination-link" aria-label="Sélection pas à pas d'un modèle réduit">
         <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">24</span>&nbsp; <span class="chapter-title">Sélection pas à pas d’un modèle réduit</span></span>
       </a>          

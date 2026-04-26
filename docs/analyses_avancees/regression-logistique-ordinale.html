@@ -2,10 +2,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="fr" xml:lang="fr"><head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.7.27">
+<meta name="generator" content="quarto-1.9.37">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 <title>47&nbsp; Régression logistique ordinale – guide-R</title>
 <style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
 div.columns{display: flex; gap: min(4vw, 1.5em);}
@@ -72,14 +75,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-985aa47af68dae11cd4d235c71fb941e.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-6c49c5477b92c77c9eb341f9299c235f.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-985aa47af68dae11cd4d235c71fb941e.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-7f8f88aac4f3542376d5c11b86a4c14d.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-d0ae9245876894da5ac7e18953ecc5cc.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-7f8f88aac4f3542376d5c11b86a4c14d.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-1706ad55a43eb6182cc66969adfb4558.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../site_libs/bootstrap/bootstrap-dark-e07f40149b440be50f716415da65e4f4.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<link href="../site_libs/bootstrap/bootstrap-1706ad55a43eb6182cc66969adfb4558.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-fad85691bd79911de0320b982f671d9d.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-f68506c574928121fec95fb329006eac.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../site_libs/bootstrap/bootstrap-fad85691bd79911de0320b982f671d9d.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <script src="../site_libs/quarto-contrib/glightbox/glightbox.min.js"></script>
 <link href="../site_libs/quarto-contrib/glightbox/glightbox.min.css" rel="stylesheet">
 <link href="../site_libs/quarto-contrib/glightbox/lightbox.css" rel="stylesheet"><script id="quarto-search-options" type="application/json">{
@@ -117,10 +120,10 @@ gtag('config', 'G-8BT7D9P85Y', { 'anonymize_ip': true});
 document.addEventListener('DOMContentLoaded', function () {
 cookieconsent.run({
   "notice_banner_type":"simple",
-  "consent_type":"implied",
+  "consent_type":"express",
   "palette":"light",
   "language":"en",
-  "page_load_consent_levels":["strictly-necessary","functionality","tracking","targeting"],
+  "page_load_consent_levels":["strictly-necessary"],
   "notice_banner_reject_button_hide":false,
   "preferences_center_close_button_hide":false,
   "website_name":""
@@ -149,7 +152,7 @@ cookieconsent.run({
         toggleBodyColorMode(bsSheetEl);
       }
     }
-    window.setColorSchemeToggle = (alternate) => {
+    const setColorSchemeToggle = (alternate) => {
       const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
       for (let i=0; i < toggles.length; i++) {
         const toggle = toggles[i];
@@ -182,7 +185,7 @@ cookieconsent.run({
       }
       manageTransitions('#quarto-margin-sidebar .nav-link', true);
       // Switch the toggles
-      window.setColorSchemeToggle(alternate)
+      setColorSchemeToggle(alternate)
       // Hack to workaround the fact that safari doesn't
       // properly recolor the scrollbar when toggling (#1455)
       if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
@@ -222,7 +225,7 @@ cookieconsent.run({
     const isFileUrl = () => {
       return window.location.protocol === 'file:';
     }
-    window.hasAlternateSentinel = () => {
+    const hasAlternateSentinel = () => {
       let styleSentinel = getColorSchemeSentinel();
       if (styleSentinel !== null) {
         return styleSentinel === "alternate";
@@ -250,7 +253,7 @@ cookieconsent.run({
       const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
       const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
       let newTheme = '';
-      if(darkModeDefault) {
+      if(authorPrefersDark) {
         newTheme = isAlternate ? baseTheme : alternateTheme;
       } else {
         newTheme = isAlternate ? alternateTheme : baseTheme;
@@ -273,20 +276,22 @@ cookieconsent.run({
         changeGiscusTheme();
       }
     };
-    const darkModeDefault = false;
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
       document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
       document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
     let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
     // Dark / light mode switch
     window.quartoToggleColorScheme = () => {
       // Read the current dark / light value
-      let toAlternate = !window.hasAlternateSentinel();
+      let toAlternate = !hasAlternateSentinel();
       toggleColorMode(toAlternate);
       setStyleSentinel(toAlternate);
       toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
     };
     // Switch to dark mode if need be
-    if (window.hasAlternateSentinel()) {
+    if (hasAlternateSentinel()) {
       toggleColorMode(true);
     } else {
       toggleColorMode(false);
@@ -309,7 +314,7 @@ cookieconsent.run({
 <!-- sidebar -->
   <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto"><div class="pt-lg-2 mt-2 text-left sidebar-header sidebar-header-stacked">
       <a href="../index.html" class="sidebar-logo-link">
-      <img src="../ressources/typewriter.png" alt="" class="sidebar-logo py-0 d-lg-inline d-none"></a>
+      <img src="../ressources/typewriter.png" alt="" class="sidebar-logo light-content py-0 d-lg-inline d-none"><img src="../ressources/typewriter.png" alt="" class="sidebar-logo dark-content py-0 d-lg-inline d-none"></a>
     <div class="sidebar-title mb-0 py-0">
       <a href="../">guide-R</a> 
         <div class="sidebar-tools-main tools-wide">
@@ -772,14 +777,14 @@ cookieconsent.run({
 <span class="header-section-number">47.1</span> Données d’illustration</h2>
 <p>Pour illustrer la régression logistique multinomiale, nous allons reprendre le jeu de données <code>hdv2003</code> du package <a href="https://juba.github.io/questionr/">questionr</a> et portant sur l’enquête <em>histoires de vie 2003</em> de l’Insee et l’exemple utilisé dans le chapitre sur la régression logistique multinomiale (cf. <a href="regression-logistique-multinomiale.html" class="quarto-xref"><span>Chapitre 46</span></a>).</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="fu">library</span>(tidyverse)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="fu">library</span>(tidyverse)</span>
 <span id="cb1-2"><a href="#cb1-2"></a><span class="fu">library</span>(labelled)</span>
 <span id="cb1-3"><a href="#cb1-3"></a><span class="fu">data</span>(<span class="st">"hdv2003"</span>, <span class="at">package =</span> <span class="st">"questionr"</span>)</span>
-<span id="cb1-4"><a href="#cb1-4"></a>d <span class="ot">&lt;-</span> hdv2003</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-4"><a href="#cb1-4"></a>d <span class="ot">&lt;-</span> hdv2003</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Nous allons considérer comme variable d’intérêt la variable <em>trav.satisf</em>, à savoir la satisfaction ou l’insatisfaction au travail.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a>d <span class="sc">|&gt;</span> guideR<span class="sc">::</span><span class="fu">proportion</span>(trav.satisf)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a>d <span class="sc">|&gt;</span> guideR<span class="sc">::</span><span class="fu">proportion</span>(trav.satisf)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 4 × 4
   trav.satisf        n     N  prop
@@ -792,21 +797,21 @@ cookieconsent.run({
 </div>
 <p>Nous allons devoir ordonner les modalités de la plus faible à la plus forte.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a>d<span class="sc">$</span>trav.satisf <span class="ot">&lt;-</span> d<span class="sc">$</span>trav.satisf <span class="sc">|&gt;</span></span>
-<span id="cb4-2"><a href="#cb4-2"></a>  <span class="fu">fct_relevel</span>(<span class="st">"Insatisfaction"</span>, <span class="st">"Equilibre"</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a>d<span class="sc">$</span>trav.satisf <span class="ot">&lt;-</span> d<span class="sc">$</span>trav.satisf <span class="sc">|&gt;</span></span>
+<span id="cb4-2"><a href="#cb4-2"></a>  <span class="fu">fct_relevel</span>(<span class="st">"Insatisfaction"</span>, <span class="st">"Equilibre"</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Et nous allons indiquer qu’il s’agit d’un facteur ordonné.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a>d<span class="sc">$</span>trav.satisf <span class="ot">&lt;-</span> d<span class="sc">$</span>trav.satisf <span class="sc">|&gt;</span></span>
-<span id="cb5-2"><a href="#cb5-2"></a>  <span class="fu">as.ordered</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a>d<span class="sc">$</span>trav.satisf <span class="ot">&lt;-</span> d<span class="sc">$</span>trav.satisf <span class="sc">|&gt;</span></span>
+<span id="cb5-2"><a href="#cb5-2"></a>  <span class="fu">as.ordered</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Nous allons aussi en profiter pour raccourcir les étiquettes de la variable <em>trav.imp</em>&nbsp;:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a><span class="fu">levels</span>(d<span class="sc">$</span>trav.imp) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"Le plus"</span>, <span class="st">"Aussi"</span>, <span class="st">"Moins"</span>, <span class="st">"Peu"</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a><span class="fu">levels</span>(d<span class="sc">$</span>trav.imp) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"Le plus"</span>, <span class="st">"Aussi"</span>, <span class="st">"Moins"</span>, <span class="st">"Peu"</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Enfin, procédons à quelques recodages additionnels&nbsp;:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a>d <span class="ot">&lt;-</span> d <span class="sc">|&gt;</span> </span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a>d <span class="ot">&lt;-</span> d <span class="sc">|&gt;</span> </span>
 <span id="cb7-2"><a href="#cb7-2"></a>  <span class="fu">mutate</span>(</span>
 <span id="cb7-3"><a href="#cb7-3"></a>    <span class="at">sexe =</span> sexe <span class="sc">|&gt;</span> <span class="fu">fct_relevel</span>(<span class="st">"Femme"</span>),</span>
 <span id="cb7-4"><a href="#cb7-4"></a>    <span class="at">groupe_ages =</span> age <span class="sc">|&gt;</span></span>
@@ -836,7 +841,7 @@ cookieconsent.run({
 <span id="cb7-28"><a href="#cb7-28"></a>    <span class="at">groupe_ages =</span> <span class="st">"Groupe d'âges"</span>,</span>
 <span id="cb7-29"><a href="#cb7-29"></a>    <span class="at">etudes =</span> <span class="st">"Niveau d'études"</span>,</span>
 <span id="cb7-30"><a href="#cb7-30"></a>    <span class="at">trav.imp =</span> <span class="st">"Importance accordée au travail"</span></span>
-<span id="cb7-31"><a href="#cb7-31"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb7-31"><a href="#cb7-31"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section><section id="calcul-du-modèle-ordinal" class="level2" data-number="47.2"><h2 data-number="47.2" class="anchored" data-anchor-id="calcul-du-modèle-ordinal">
 <span class="header-section-number">47.2</span> Calcul du modèle ordinal</h2>
@@ -844,14 +849,14 @@ cookieconsent.run({
 <span class="header-section-number">47.2.1</span> avec MASS::polr()</h3>
 <p>Le plus facile pour le calcul d’un modèle ordinal est d’avoir recours à la fonction <code><a href="https://rdrr.io/pkg/MASS/man/polr.html">MASS::polr()</a></code>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a>rego <span class="ot">&lt;-</span> MASS<span class="sc">::</span><span class="fu">polr</span>(</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a>rego <span class="ot">&lt;-</span> MASS<span class="sc">::</span><span class="fu">polr</span>(</span>
 <span id="cb8-2"><a href="#cb8-2"></a>  trav.satisf <span class="sc">~</span> sexe <span class="sc">+</span> etudes <span class="sc">+</span> groupe_ages <span class="sc">+</span> trav.imp,</span>
 <span id="cb8-3"><a href="#cb8-3"></a>  <span class="at">data =</span> d</span>
-<span id="cb8-4"><a href="#cb8-4"></a>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb8-4"><a href="#cb8-4"></a>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Nous pouvons aisément simplifier le modèle avec <code><a href="https://rdrr.io/r/stats/step.html">step()</a></code> (cf. <a href="../analyses/selection-modele-pas-a-pas.html" class="quarto-xref"><span>Chapitre 24</span></a>).</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a>rego2 <span class="ot">&lt;-</span> rego <span class="sc">|&gt;</span> <span class="fu">step</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a>rego2 <span class="ot">&lt;-</span> rego <span class="sc">|&gt;</span> <span class="fu">step</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Start:  AIC=1978.29
 trav.satisf ~ sexe + etudes + groupe_ages + trav.imp
@@ -885,19 +890,19 @@ trav.satisf ~ etudes + trav.imp
 <span class="header-section-number">47.2.2</span> Fonctions alternatives</h3>
 <p>Un package alternatif pour le calcul de régressions ordinales est le package dédié <a href="https://github.com/runehaubo/ordinal">ordinal</a> et sa fonction <code><a href="https://rdrr.io/pkg/ordinal/man/clm.html">ordinal::clm()</a></code>. Pour les utilisateurs avancés, <a href="https://github.com/runehaubo/ordinal">ordinal</a> permet également de traiter certains prédicteurs comme ayant un effet nominal (et donc avec un coefficient par niveau) via l’argument <code>nominal</code>. Il existe également une fonction <code><a href="https://rdrr.io/pkg/ordinal/man/clmm.html">ordinal::clmm()</a></code> permet de définir des modèles mixtes avec variables à effet aléatoire.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a>rego3 <span class="ot">&lt;-</span> ordinal<span class="sc">::</span><span class="fu">clm</span>(</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a>rego3 <span class="ot">&lt;-</span> ordinal<span class="sc">::</span><span class="fu">clm</span>(</span>
 <span id="cb11-2"><a href="#cb11-2"></a>  trav.satisf <span class="sc">~</span> sexe <span class="sc">+</span> etudes <span class="sc">+</span> groupe_ages <span class="sc">+</span> trav.imp,</span>
 <span id="cb11-3"><a href="#cb11-3"></a>  <span class="at">data =</span> d</span>
-<span id="cb11-4"><a href="#cb11-4"></a>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb11-4"><a href="#cb11-4"></a>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Les modèles créés avec <code><a href="https://rdrr.io/pkg/ordinal/man/clm.html">ordinal::clm()</a></code> sont plutôt bien traités par des fonctions comme <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/tbl_regression.html">gtsummary::tbl_regression()</a></code> ou <code><a href="https://larmarange.github.io/ggstats/reference/ggcoef_model.html">ggstats::ggcoef_model()</a></code>.</p>
 <p>Enfin, on peut également citer la fonction <code><a href="https://rdrr.io/pkg/VGAM/man/vgam.html">VGAM::vgam()</a></code> en spécifiant <code>family = VGAM::cumulative(parallel = TRUE)</code>. Cette famille de modèles offre des options avancées (par exemple il est possible de calculer des modèles non parallèles, c’est-à-dire avec une série de coefficients pour chaque changement de niveau). Par contre, le support de <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/tbl_regression.html">gtsummary::tbl_regression()</a></code> et <code><a href="https://larmarange.github.io/ggstats/reference/ggcoef_model.html">ggstats::ggcoef_model()</a></code> sera limité (seulement des résultats bruts).</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a>rego4 <span class="ot">&lt;-</span> VGAM<span class="sc">::</span><span class="fu">vgam</span>(</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a>rego4 <span class="ot">&lt;-</span> VGAM<span class="sc">::</span><span class="fu">vgam</span>(</span>
 <span id="cb12-2"><a href="#cb12-2"></a>  trav.satisf <span class="sc">~</span> sexe <span class="sc">+</span> etudes <span class="sc">+</span> groupe_ages <span class="sc">+</span> trav.imp,</span>
 <span id="cb12-3"><a href="#cb12-3"></a>  <span class="at">data =</span> d,</span>
 <span id="cb12-4"><a href="#cb12-4"></a>  <span class="at">family =</span> VGAM<span class="sc">::</span><span class="fu">cumulative</span>(<span class="at">parallel =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb12-5"><a href="#cb12-5"></a>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb12-5"><a href="#cb12-5"></a>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="callout callout-style-default callout-important callout-titled">
 <div class="callout-header d-flex align-content-center">
@@ -916,17 +921,17 @@ Important
 <span class="header-section-number">47.3</span> Affichage des résultats du modèle</h2>
 <p>Pour un tableau des coefficients, on peut tout simplement appeler <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/tbl_regression.html">gtsummary::tbl_regression()</a></code>. Nous allons indiquer <code>exponentiate = TRUE</code> car, comme pour la régression logistique binaire, l’exponentielle des coefficients peut s’interpréter comme des <em>odds ratios</em>. Pour éviter certains messages d’information, nous allons préciser <code>tidy_fun = broom.helpers::tidy_parameters</code> (cela implique juste que le tableau des coefficients sera calculé avec le package <a href="https://easystats.github.io/parameters/">parameters</a> plutôt qu’avec le package <a href="https://broom.tidymodels.org/">broom</a>). Nous pouvons calculer à la volée la p-valeur globale de chaque variable avec <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/add_global_p.html">gtsummary::add_global_p()</a></code>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a><span class="fu">library</span>(gtsummary)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a><span class="fu">library</span>(gtsummary)</span>
 <span id="cb13-2"><a href="#cb13-2"></a><span class="fu">theme_gtsummary_language</span>(<span class="st">"fr"</span>, <span class="at">decimal.mark =</span> <span class="st">","</span>)</span>
-<span id="cb13-3"><a href="#cb13-3"></a>guideR<span class="sc">::</span><span class="fu">theme_gtsummary_bold_labels</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb13-3"><a href="#cb13-3"></a>guideR<span class="sc">::</span><span class="fu">theme_gtsummary_bold_labels</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell page-columns page-full">
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a>rego2 <span class="sc">|&gt;</span> </span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a>rego2 <span class="sc">|&gt;</span> </span>
 <span id="cb14-2"><a href="#cb14-2"></a>  <span class="fu">tbl_regression</span>(</span>
 <span id="cb14-3"><a href="#cb14-3"></a>    <span class="at">exponentiate =</span> <span class="cn">TRUE</span>,</span>
 <span id="cb14-4"><a href="#cb14-4"></a>    <span class="at">tidy_fun =</span> broom.helpers<span class="sc">::</span>tidy_parameters</span>
 <span id="cb14-5"><a href="#cb14-5"></a>  ) <span class="sc">|&gt;</span> </span>
-<span id="cb14-6"><a href="#cb14-6"></a>  <span class="fu">add_global_p</span>(<span class="at">keep =</span> <span class="cn">TRUE</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb14-6"><a href="#cb14-6"></a>  <span class="fu">add_global_p</span>(<span class="at">keep =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>
 Réajustement pour obtenir le Hessien</code></pre>
@@ -1390,7 +1395,7 @@ Réajustement pour obtenir le Hessien</code></pre>
   height: 0px !important;
 }
 </style>
-<table class="gt_table do-not-create-environment cell table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<table class="gt_table cell table table-sm table-striped small" data-quarto-bootstrap="false">
 <colgroup>
 <col style="width: 25%">
 <col style="width: 25%">
@@ -1405,7 +1410,7 @@ Réajustement pour obtenir le Hessien</code></pre>
 </tr></thead>
 <tbody class="gt_table_body">
 <tr class="gt_group_heading_row odd">
-<td colspan="4" id="beta" class="gt_group_heading" data-quarto-table-cell-role="th" scope="colgroup">beta</td>
+<th colspan="4" id="beta" class="gt_group_heading" data-quarto-table-cell-role="th" scope="colgroup">beta</th>
 </tr>
 <tr class="gt_row_group_first even">
 <td class="gt_row gt_left" headers="beta  label" style="font-weight: bold">Niveau d'études</td>
@@ -1489,11 +1494,11 @@ Table&nbsp;47.1: Tableau des odds ratio de la régression logistique ordinale
 <p>La même commande fonctionne avec un modèle créé avec <code><a href="https://rdrr.io/pkg/ordinal/man/clm.html">ordinal::clm()</a></code>.</p>
 <p>Pour un graphique des coefficients, on va procéder de même avec <code>ggstats::gcoef_model()</code> ou <code>ggstats::gcoef_table()</code>.</p>
 <div class="cell page-columns page-full">
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1"></a>rego2 <span class="sc">|&gt;</span> </span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1"></a>rego2 <span class="sc">|&gt;</span> </span>
 <span id="cb17-2"><a href="#cb17-2"></a>  ggstats<span class="sc">::</span><span class="fu">ggcoef_model</span>(</span>
 <span id="cb17-3"><a href="#cb17-3"></a>    <span class="at">exponentiate =</span> <span class="cn">TRUE</span>,</span>
 <span id="cb17-4"><a href="#cb17-4"></a>    <span class="at">tidy_fun =</span> broom.helpers<span class="sc">::</span>tidy_parameters</span>
-<span id="cb17-5"><a href="#cb17-5"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb17-5"><a href="#cb17-5"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display page-columns page-full">
 <div id="fig-ggcoef_model-ordinal" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full"><div aria-describedby="fig-ggcoef_model-ordinal-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -1506,11 +1511,11 @@ Figure&nbsp;47.1: Graphique des coefficients du modèle ordinal
 </div>
 </div>
 <div class="cell page-columns page-full">
-<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1"></a>rego2 <span class="sc">|&gt;</span> </span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1"></a>rego2 <span class="sc">|&gt;</span> </span>
 <span id="cb18-2"><a href="#cb18-2"></a>  ggstats<span class="sc">::</span><span class="fu">ggcoef_table</span>(</span>
 <span id="cb18-3"><a href="#cb18-3"></a>    <span class="at">exponentiate =</span> <span class="cn">TRUE</span>,</span>
 <span id="cb18-4"><a href="#cb18-4"></a>    <span class="at">tidy_fun =</span> broom.helpers<span class="sc">::</span>tidy_parameters</span>
-<span id="cb18-5"><a href="#cb18-5"></a>  )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb18-5"><a href="#cb18-5"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display page-columns page-full">
 <div id="fig-ggcoef_table-ordinal" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full"><div aria-describedby="fig-ggcoef_table-ordinal-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -1524,11 +1529,11 @@ Figure&nbsp;47.2: Graphique et table des coefficients du modèle ordinal
 </div>
 <p>Pour faciliter l’interprétation, on pourra représenter les prédictions marginales du modèle (cf. <a href="../analyses/estimations-marginales.html" class="quarto-xref"><span>Chapitre 25</span></a>) avec <code><a href="https://larmarange.github.io/broom.helpers/reference/tidy_marginal_predictions.html">broom.helpers::plot_marginal_predictions()</a></code>.</p>
 <div class="cell page-columns page-full">
-<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1"></a>rego2 <span class="sc">|&gt;</span> </span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1"></a>rego2 <span class="sc">|&gt;</span> </span>
 <span id="cb19-2"><a href="#cb19-2"></a>  broom.helpers<span class="sc">::</span><span class="fu">plot_marginal_predictions</span>() <span class="sc">|&gt;</span> </span>
 <span id="cb19-3"><a href="#cb19-3"></a>  patchwork<span class="sc">::</span><span class="fu">wrap_plots</span>(<span class="at">ncol =</span> <span class="dv">1</span>) <span class="sc">&amp;</span></span>
 <span id="cb19-4"><a href="#cb19-4"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">labels =</span> scales<span class="sc">::</span>percent, <span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>, .<span class="dv">6</span>)) <span class="sc">&amp;</span></span>
-<span id="cb19-5"><a href="#cb19-5"></a>  <span class="fu">coord_flip</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb19-5"><a href="#cb19-5"></a>  <span class="fu">coord_flip</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display page-columns page-full">
 <div id="fig-plot_marginal_predictions-ordinal" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full"><div aria-describedby="fig-plot_marginal_predictions-ordinal-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -1548,17 +1553,17 @@ Figure&nbsp;47.3: Prédictions marginales du modèle ordinal
 <p>L’extension <a href="http://r-survey.r-forge.r-project.org/survey/">survey</a> (cf. <a href="../donnees_ponderees/plan-echantillonnage.html" class="quarto-xref"><span>Chapitre 29</span></a>) propose une fonction native <code><a href="https://rdrr.io/pkg/survey/man/svyolr.html">survey::svyolr()</a></code> pour le calcul d’une régression ordinale.</p>
 <p>Nous allons commencer par définir le plan d’échantillonnage.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1"></a><span class="fu">library</span>(survey)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1"></a><span class="fu">library</span>(survey)</span>
 <span id="cb20-2"><a href="#cb20-2"></a><span class="fu">library</span>(srvyr)</span>
 <span id="cb20-3"><a href="#cb20-3"></a>dw <span class="ot">&lt;-</span> d <span class="sc">|&gt;</span></span>
-<span id="cb20-4"><a href="#cb20-4"></a>  <span class="fu">as_survey</span>(<span class="at">weights =</span> poids)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb20-4"><a href="#cb20-4"></a>  <span class="fu">as_survey</span>(<span class="at">weights =</span> poids)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Calculons le modèle.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1"></a>rego5 <span class="ot">&lt;-</span> <span class="fu">svyolr</span>(</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1"></a>rego5 <span class="ot">&lt;-</span> <span class="fu">svyolr</span>(</span>
 <span id="cb21-2"><a href="#cb21-2"></a>  trav.satisf <span class="sc">~</span> sexe <span class="sc">+</span> etudes <span class="sc">+</span> groupe_ages <span class="sc">+</span> trav.imp,</span>
 <span id="cb21-3"><a href="#cb21-3"></a>  <span class="at">design =</span> dw</span>
-<span id="cb21-4"><a href="#cb21-4"></a>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb21-4"><a href="#cb21-4"></a>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Le résultat peut être visualisé aisément avec <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/tbl_regression.html">gtsummary::tbl_regression()</a></code> ou <code><a href="https://larmarange.github.io/ggstats/reference/ggcoef_model.html">ggstats::ggcoef_model()</a></code>.</p>
 </section><section id="avec-svrepmiscsvymultinom" class="level3" data-number="47.4.2"><h3 data-number="47.4.2" class="anchored" data-anchor-id="avec-svrepmiscsvymultinom">
@@ -1567,24 +1572,24 @@ Figure&nbsp;47.3: Prédictions marginales du modèle ordinal
 <p>Alternativement, il est possible d’utiliser à <code><a href="https://rdrr.io/pkg/ordinal/man/clm.html">ordinal::clm()</a></code> en ayant recours à des poids de réplication, comme suggéré par Thomas Lumley dans son ouvrage <em>Complex Surveys: A Guide to Analysis Using R</em>.</p>
 <p>L’extension <a href="https://github.com/carlganz/svrepmisc">svrepmisc</a> disponible sur <a href="https://github.com/carlganz/svrepmisc">GitHub</a> fournit quelques fonctions facilitant l’utilisation des poids de réplication avec <a href="http://r-survey.r-forge.r-project.org/survey/">survey</a>. Pour l’installer, on utilisera le code ci-dessous&nbsp;:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1"></a>pak<span class="sc">::</span><span class="fu">pkg_install</span>(<span class="st">"carlganz/svrepmisc"</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1"></a>pak<span class="sc">::</span><span class="fu">pkg_install</span>(<span class="st">"carlganz/svrepmisc"</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>En premier lieu, il faut définir le design de notre tableau de données puis calculer des poids de réplication.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1"></a><span class="fu">library</span>(survey)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1"></a><span class="fu">library</span>(survey)</span>
 <span id="cb23-2"><a href="#cb23-2"></a><span class="fu">library</span>(srvyr)</span>
 <span id="cb23-3"><a href="#cb23-3"></a>dw_rep <span class="ot">&lt;-</span> d <span class="sc">|&gt;</span></span>
 <span id="cb23-4"><a href="#cb23-4"></a>  <span class="fu">as_survey</span>(<span class="at">weights =</span> poids) <span class="sc">|&gt;</span> </span>
-<span id="cb23-5"><a href="#cb23-5"></a>  <span class="fu">as_survey_rep</span>(<span class="at">type =</span> <span class="st">"bootstrap"</span>, <span class="at">replicates =</span> <span class="dv">25</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb23-5"><a href="#cb23-5"></a>  <span class="fu">as_survey_rep</span>(<span class="at">type =</span> <span class="st">"bootstrap"</span>, <span class="at">replicates =</span> <span class="dv">25</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Il faut prévoir un nombre de <code>replicates</code> suffisant pour calculer ultérieurement les intervalles de confiance des coefficients. Plus ce nombre est élevé, plus précise sera l’estimation de la variance et donc des valeurs p et des intervalles de confiance. Cependant, plus ce nombre est élevé, plus le temps de calcul sera important. Pour gagner en temps de calcul, nous avons ici pris une valeur de 25, mais l’usage est de considérer au moins 1000 réplications.</p>
 <p><a href="https://github.com/carlganz/svrepmisc">svrepmisc</a> fournit une fonction <code><a href="https://rdrr.io/pkg/svrepmisc/man/svyclm.html">svrepmisc::svyclm()</a></code> pour le calcul d’une régression multinomiale avec des poids de réplication.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1"></a><span class="fu">library</span>(svrepmisc)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1"></a><span class="fu">library</span>(svrepmisc)</span>
 <span id="cb24-2"><a href="#cb24-2"></a>rego6 <span class="ot">&lt;-</span> <span class="fu">svyclm</span>(</span>
 <span id="cb24-3"><a href="#cb24-3"></a>  trav.satisf <span class="sc">~</span> sexe <span class="sc">+</span> etudes <span class="sc">+</span> trav.imp,</span>
 <span id="cb24-4"><a href="#cb24-4"></a>  <span class="at">design =</span> dw_rep</span>
-<span id="cb24-5"><a href="#cb24-5"></a>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb24-5"><a href="#cb24-5"></a>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Warning: (-1) Model failed to converge with max|grad| = 0.000183554 (tol = 1e-06) 
 In addition: step factor reduced below minimum</code></pre>
@@ -1592,7 +1597,7 @@ In addition: step factor reduced below minimum</code></pre>
 </div>
 <p><a href="https://github.com/carlganz/svrepmisc">svrepmisc</a> fournit également des méthodes <code>svrepmisc::confint()</code> et <code>svrepmisc::tidy()</code>. Nous pouvons donc calculer et afficher les <em>odds ratio</em> et leur intervalle de confiance.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1"></a>rego6</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1"></a>rego6</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>                                Coefficient          SE t value Pr(&gt;|t|)    
 Insatisfaction|Equilibre        -2.03917466  0.49101567 -4.1530  0.00085 ***
@@ -1608,7 +1613,7 @@ trav.impPeu                     -1.53039056  0.70197414 -2.1801  0.04559 *
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1"></a>rego6 <span class="sc">|&gt;</span> <span class="fu">confint</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1"></a>rego6 <span class="sc">|&gt;</span> <span class="fu">confint</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>                                     2.5 %     97.5 %
 Insatisfaction|Equilibre        -3.0857498 -0.9925995
@@ -1622,8 +1627,8 @@ trav.impAussi                   -0.8547983  1.0962200
 trav.impMoins                   -0.9100360  1.0153789
 trav.impPeu                     -3.0266130 -0.0341681</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1"></a>rego6 <span class="sc">|&gt;</span></span>
-<span id="cb30-2"><a href="#cb30-2"></a>  broom<span class="sc">::</span><span class="fu">tidy</span>(<span class="at">exponentiate =</span> <span class="cn">TRUE</span>, <span class="at">conf.int =</span> <span class="cn">TRUE</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb30"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1"></a>rego6 <span class="sc">|&gt;</span></span>
+<span id="cb30-2"><a href="#cb30-2"></a>  broom<span class="sc">::</span><span class="fu">tidy</span>(<span class="at">exponentiate =</span> <span class="cn">TRUE</span>, <span class="at">conf.int =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>                              term  estimate std.error   statistic      p.value
 1           Equilibre|Satisfaction 1.3135298 0.4688922  0.58162191 0.5694596402
@@ -1656,19 +1661,19 @@ trav.impPeu                     -3.0266130 -0.0341681</code></pre>
 <p>Une alternative possible pour le calcul de la régression logistique multinomiale avec des données pondérées est <code><a href="https://rdrr.io/pkg/svyVGAM/man/svy_vglm.html">svyVGAM::svy_vglm()</a></code> avec <code>family = VGAM::multinomial</code>.</p>
 <p>Nous allons commencer par définir le plan d’échantillonnage.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1"></a><span class="fu">library</span>(survey)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb32"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1"></a><span class="fu">library</span>(survey)</span>
 <span id="cb32-2"><a href="#cb32-2"></a><span class="fu">library</span>(srvyr)</span>
 <span id="cb32-3"><a href="#cb32-3"></a>dw <span class="ot">&lt;-</span> d <span class="sc">|&gt;</span></span>
-<span id="cb32-4"><a href="#cb32-4"></a>  <span class="fu">as_survey</span>(<span class="at">weights =</span> poids)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb32-4"><a href="#cb32-4"></a>  <span class="fu">as_survey</span>(<span class="at">weights =</span> poids)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Puis, on appelle <code><a href="https://rdrr.io/pkg/svyVGAM/man/svy_vglm.html">svyVGAM::svy_vglm()</a></code> en précisant <code>family = VGAM::cumulative(parallel = TRUE)</code>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1"></a>rego7 <span class="ot">&lt;-</span> svyVGAM<span class="sc">::</span><span class="fu">svy_vglm</span>(</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb33"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1"></a>rego7 <span class="ot">&lt;-</span> svyVGAM<span class="sc">::</span><span class="fu">svy_vglm</span>(</span>
 <span id="cb33-2"><a href="#cb33-2"></a>  trav.satisf <span class="sc">~</span> sexe <span class="sc">+</span> etudes <span class="sc">+</span> trav.imp,</span>
 <span id="cb33-3"><a href="#cb33-3"></a>  <span class="at">family =</span> VGAM<span class="sc">::</span><span class="fu">cumulative</span>(<span class="at">parallel =</span> <span class="cn">TRUE</span>),</span>
 <span id="cb33-4"><a href="#cb33-4"></a>  <span class="at">design =</span> dw</span>
 <span id="cb33-5"><a href="#cb33-5"></a>)</span>
-<span id="cb33-6"><a href="#cb33-6"></a>rego7 <span class="sc">|&gt;</span> <span class="fu">summary</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb33-6"><a href="#cb33-6"></a>rego7 <span class="sc">|&gt;</span> <span class="fu">summary</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>svy_vglm.survey.design(trav.satisf ~ sexe + etudes + trav.imp, 
     family = VGAM::cumulative(parallel = TRUE), design = dw)
@@ -1698,8 +1703,8 @@ trav.impPeu                      1.53036737  0.65156164  2.3488 0.0188356</code>
 </div>
 <p>Cette fois-ci, <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/tbl_regression.html">gtsummary::tbl_regression()</a></code> et <code><a href="https://larmarange.github.io/ggstats/reference/ggcoef_model.html">ggstats::ggcoef_model()</a></code> sont compatibles avec <code><a href="https://rdrr.io/pkg/svyVGAM/man/svy_vglm.html">svyVGAM::svy_vglm()</a></code>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1"></a>rego7 <span class="sc">|&gt;</span></span>
-<span id="cb35-2"><a href="#cb35-2"></a>  <span class="fu">tbl_regression</span>(<span class="at">exponentiate =</span> <span class="cn">TRUE</span>) </span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb35"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1"></a>rego7 <span class="sc">|&gt;</span></span>
+<span id="cb35-2"><a href="#cb35-2"></a>  <span class="fu">tbl_regression</span>(<span class="at">exponentiate =</span> <span class="cn">TRUE</span>) </span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>ℹ &lt;svy_vglm&gt; model detected.</code></pre>
 </div>
@@ -2166,7 +2171,7 @@ trav.impPeu                      1.53036737  0.65156164  2.3488 0.0188356</code>
   height: 0px !important;
 }
 </style>
-<table class="gt_table table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<table class="gt_table table table-sm table-striped small" data-quarto-bootstrap="false">
 <colgroup>
 <col style="width: 25%">
 <col style="width: 25%">
@@ -2181,7 +2186,7 @@ trav.impPeu                      1.53036737  0.65156164  2.3488 0.0188356</code>
 </tr></thead>
 <tbody class="gt_table_body">
 <tr class="gt_group_heading_row odd">
-<td colspan="4" id="parallel" class="gt_group_heading" data-quarto-table-cell-role="th" scope="colgroup">parallel</td>
+<th colspan="4" id="parallel" class="gt_group_heading" data-quarto-table-cell-role="th" scope="colgroup">parallel</th>
 </tr>
 <tr class="gt_row_group_first even">
 <td class="gt_row gt_left" headers="parallel  label" style="font-weight: bold">sexe</td>
@@ -2276,8 +2281,8 @@ trav.impPeu                      1.53036737  0.65156164  2.3488 0.0188356</code>
 </div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1"></a>rego7 <span class="sc">|&gt;</span></span>
-<span id="cb40-2"><a href="#cb40-2"></a>  ggstats<span class="sc">::</span><span class="fu">ggcoef_model</span>(<span class="at">exponentiate =</span> <span class="cn">TRUE</span>) </span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb40"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1"></a>rego7 <span class="sc">|&gt;</span></span>
+<span id="cb40-2"><a href="#cb40-2"></a>  ggstats<span class="sc">::</span><span class="fu">ggcoef_model</span>(<span class="at">exponentiate =</span> <span class="cn">TRUE</span>) </span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>ℹ &lt;svy_vglm&gt; model detected.</code></pre>
 </div>
@@ -2310,7 +2315,7 @@ trav.impPeu                      1.53036737  0.65156164  2.3488 0.0188356</code>
       a.appendChild(i);
       window.document.body.appendChild(a);
     }
-    window.setColorSchemeToggle(window.hasAlternateSentinel())
+    setColorSchemeToggle(hasAlternateSentinel())
     const icon = "";
     const anchorJS = new window.AnchorJS();
     anchorJS.options = {
@@ -2360,13 +2365,14 @@ trav.impPeu                      1.53036737  0.65156164  2.3488 0.0188356</code>
       e.clearSelection();
     }
     const getTextToCopy = function(trigger) {
-        const codeEl = trigger.previousElementSibling.cloneNode(true);
-        for (const childEl of codeEl.children) {
-          if (isCodeAnnotation(childEl)) {
-            childEl.remove();
-          }
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
         }
-        return codeEl.innerText;
+      }
+      return codeEl.innerText;
     }
     const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
       text: getTextToCopy
@@ -2707,8 +2713,36 @@ trav.impPeu                      1.53036737  0.65156164  2.3488 0.0188356</code>
       }
     }
   });
-  </script><script src="https://giscus.app/client.js" data-repo="larmarange/guide-R" data-repo-id="R_kgDOH6-xnw" data-category="Forum" data-category-id="DIC_kwDOH6-xn84CRLQy" data-mapping="pathname" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="top" data-theme="light" data-lang="fr" crossorigin="anonymous" data-loading="lazy" async="">
-</script><input type="hidden" id="giscus-base-theme" value="light"><input type="hidden" id="giscus-alt-theme" value="dark"><nav class="page-navigation"><div class="nav-page nav-page-previous">
+  </script><input type="hidden" id="giscus-base-theme" value="light"><input type="hidden" id="giscus-alt-theme" value="dark"><script>
+  function loadGiscus() {
+    // Function to get the theme based on body class
+    const getTheme = () => {
+      let baseTheme = document.getElementById('giscus-base-theme').value;
+      let altTheme = document.getElementById('giscus-alt-theme').value;
+      if (authorPrefersDark) {
+          [baseTheme, altTheme] = [altTheme, baseTheme];
+      }
+      return document.body.classList.contains('quarto-dark') ? altTheme : baseTheme;
+    };
+    const script = document.createElement("script");
+    script.src = "https://giscus.app/client.js";
+    script.async = true;
+    script.dataset.repo = "larmarange/guide-R";
+    script.dataset.repoId = "R_kgDOH6-xnw";
+    script.dataset.category = "Forum";
+    script.dataset.categoryId = "DIC_kwDOH6-xn84CRLQy";
+    script.dataset.mapping = "pathname";
+    script.dataset.reactionsEnabled = "1";
+    script.dataset.emitMetadata = "0";
+    script.dataset.inputPosition = "top";
+    script.dataset.theme = getTheme();
+    script.dataset.lang = "fr";
+    script.crossOrigin = "anonymous";
+    // Append the script to the desired div instead of at the end of the body
+    document.getElementById("quarto-content").appendChild(script);
+  }
+  loadGiscus();
+</script><nav class="page-navigation"><div class="nav-page nav-page-previous">
       <a href="../analyses_avancees/regression-logistique-multinomiale.html" class="pagination-link" aria-label="Régression logistique multinomiale">
         <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">46</span>&nbsp; <span class="chapter-title">Régression logistique multinomiale</span></span>
       </a>          
