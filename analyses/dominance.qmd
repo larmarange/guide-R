@@ -1,0 +1,290 @@
+# Contribution des variables et analyse de dominance {#sec-dominance}
+
+Lorsque l'on réalise un modèle multivariable, une des premières questions est de savoir quels sont les variables ayant un effet significatif. Lorsque l'on a des variables catégorielles, qui se traduisent donc par plusieurs termes dans le modèle, nous avons déjà abordé les analyses de variance (ANOVA) ou analyses de déviance pour calculer des p-valeurs globales (cf. @sec-reg-log-anova).
+
+Mais il serait réducteur de se limiter à la seule significativité de la variable. Il importe de prendre aussi en compte les tailles d'effets et d'estimer le niveau de <q>contribution</q> d'une variable au modèle. À quel point une variable contribue-t-elle à expliquer le phénomène étudié ? Pour cela, on pourra se reposer sur plusieurs métriques cherchant à exprimer la part de variance ou de déviance expliquée par chaque variable. On parle également de *décomposition du R^2^.*
+
+## Modèles linéaires et 𝜂^2^
+
+Revenons sur quelques concepts de base d'un modèle de régression linéaire. La technique de régression utilisée est la méthode des moindres carrés ordinaire (*ordinary least squares* ou *OLS* en anglais). Cette méthode consiste à minimiser la somme des carrés des écarts entre chaque point observé et sa prédiction.
+
+Une mesure de qualité (*goodness of fir*) de la régression linéaire est le coefficient de détermination noté R^2^. Il représente la proportion de la variance totale expliquée par le modèle. Une manière de le définir est $R^2=1-(RSS/TSS)$ où *RSS* (*residual sum of squares*) représente la variance résiduelle du modèle, à savoir la somme des carrés des écarts entre les valeurs observées et les valeurs prédites. De son côté, *TSS* (*total sum of squares*) représente la variance totale, c'est-à-dire la variance observée de l'*outcome* en l'absence d'ajustement. On l'appelle également la variance du modèle nul, puisque c'est la variance obtenue dans un modèle vide ne contenant qu'un intercept (`outcome ~ 1`).
+
+Prenons un exemple de modèle linéaire. La variance résiduelle (*RSS*) peut s'obtenir avec la fonction générique `stats::deviance()`. Le package `{guideR}`, le compagnon de *guide-R*, fournit une fonction `guideR::total_deviance()` renvoyant la variance totale (*TSS*). Le package `{performance}` fournit une fonction générique `performance::r2()` pour le calcul du coefficient de détermination.
+
+```{r}
+ml <- lm(
+  Petal.Width ~ Petal.Length + Sepal.Width + Sepal.Length + Species,
+  data = iris
+)
+
+# RSS
+rss <- ml |> deviance()
+rss
+
+# TSS
+tss <- ml |> guideR::total_deviance()
+tss
+
+# R2
+1 - (rss / tss)
+ml |> performance::r2()
+```
+
+Si vous réaliser un tableau des coefficients avec `gtsummary::tbl_regression()`, vous pouvez ajouter facilement le R^2^ en note du tableau avec `gtsummary::add_glance_source_note()`.
+
+```{r}
+#| message: false
+library(gtsummary)
+theme_gtsummary_language("fr", decimal.mark = ",", big.mark = " ")
+guideR::theme_gtsummary_bold_labels()
+guideR::theme_gtsummary_prop_n()
+
+ml |> 
+  tbl_regression() |> 
+  add_glance_source_note(include = r.squared)
+```
+
+Dans notre exemple, nous pouvons donc dire que notre modèle explique 95% de la variance observée.
+
+Voyons voir maintenant si chacune des nos variables a un effet significatif sur le modèle. Pour cela, nous allons réaliser une analyse de variance (Anova) avec la fonction `car::Anova()`. Cette fonction réalise par défaut une Anova de type II (nous y reviendrons plus tard).
+
+```{r}
+ml |> car::Anova()
+```
+
+Pour chaque variable, on calcule un modèle sans cette variable et l'on compare la variance expliquée. Par exemple, si l'on calcul le modèle `Petal.Width ~ Sepal.Width + Sepal.Length + Species`, c'est-à-dire le même modèle mais sans la variable *Petal.Length*, alors la variance résiduelle obtenue serait supérieure de 0,6827 à la variance résiduelle de notre modèle complet. Cette quantité, que l'on peut noter *SS~pred~* ou somme des carrés associée à ce prédicteur, représente la quantité de variance expliquée par la variable *Petal.Length*, une fois les autres variables d'ajustement du modèle prises en compte.
+
+On peut alors exprimer la contribution de cette variable de plusieurs manières. Une première métrique, appelée 𝜂^2^ (*eta-squared*) consiste à rapporter cette quantité de variance à la variance totale [@keppel1991; @olejnik2003] : $\eta^2=SS_{pred}/TSS$. Elle exprime la contribution de la variable comme une proportion de la variance totale. On peut parler de *contribution totale*.
+
+Une métrique alternative, 𝜂~p~^2^ ou *partial eta-squared*, représente la variance expliquée par la variable comme une proportion de la variance non expliquée par les autres variables du modèle : $\eta_p^2=SS_{pred}/(RSS+SS_{pred})$. Ici, la variance expliquée par les autres variables du modèles est <q>mise de côté</q>. Nous parlerons alors de *contribution partielle*.
+
+Enfin, il est possible de calculer une *contribution relative* en rapportant la variance expliquée par la variable sur la variance expliquée par l'ensemble du modèle : $SS_{pred} / (TSS - RSS)$. Cela représente la contribution de la variable au R^2^.
+
+Le package `{guideR}` propose une fonction `guideR::tbl_contributions()` calculant ces différentes formes de contributions et les affichant dans un tableau mis en forme.
+
+```{r}
+ml |> guideR::tbl_contributions(decimals = 2)
+```
+
+::: callout-caution
+Il est à noter que plusieurs auteurs mentionnent que le 𝜂^2^ est un indicateur biaisé et que cela est problématique lorsque le nombre d'observations est limité (en pratique lorsque n est inférieur à 50 ou à 10-20 participants par condition). Plusieurs auteurs recommandent d'utiliser alors d'autres métriques comme le ⍵^2^ (*omega squared*) [@olejnik2003; \@kroes2025] ou encore 𝜀^2^ (*epsilon squared*) [@carroll1975]. On pourra se référer à la [vignette dédiée](https://easystats.github.io/effectsize/articles/anovaES.html#other-measures-of-effect-size) du package `{effectsize}.`
+:::
+
+## GLMs et R^2^ semi-partiels
+
+Dans le cadre des modèles linéaires généralisés (*generalized linear models* ou *GLM*), comme la régression logistique binaire ou le modèle de Poisson, l'ajustement du modèle ne repose pas sur la méthode des moindres carrés (OLS), mais est obtenu par maximisation de la vraisemblance. Dès lors, on ne dispose pas d'une somme des carrés et le R^2^ ne peut être calculé. Mais une mesure alternative est le pseudo R^2^ de McFadden [@mcfadden1974], aussi appelé *likelihood ratio index*. Il peut être exprimé à partir de la déviance, qui est une transformation de la vraisemblance et représente le manque d'adéquation du modèle. Conceptuellement, la déviance peut être vue comme un analogue, au cas GLM, de la variance du modèle linéaire. Ainsi, le peudo R^2^ de McFadden[^dominance-1] peut s'écrire comme $R^2_{McF}=1-D_r/D_t$ où *D~t~* représente la déviance totale, c'est-à-dire la déviance du modèle nul, et *D~r~* représente la déviance résiduelle, soit celle du modèle complet et représente donc la déviance non expliquée par le modèle. Ainsi, le pseudo-R^2^ représente la part de variance expliquée par le modèle[^dominance-2].
+
+[^dominance-1]: Il existe d'autres pseudo-R^2^ pour les modèles GLM, comme celui de Cox and Snell (1989), de Nagekkerke (1991), d'Estrella (1998) ou encore celui de Tjur (2009) spécifiquement pour les modèles logistiques binaires.
+
+[^dominance-2]: Pour un modèle logistique, les valeurs du pseudo-R^2^ sont souvent inférieures à celles observées dans les modèles linéaires. Pour une régression logistique binaire, il est très rare que le R^2^ soit supérieur à 50% et, en pratique, on considère qu'une valeur entre 20 et 40% est correcte.
+
+Reprenons, pour exemple, le modèle logistique que nous avons déjà abordé dans d'autres chapitres.
+
+```{r}
+#| message: false
+library(tidyverse)
+library(labelled)
+
+data(hdv2003, package = "questionr")
+
+d <-
+  hdv2003 |> 
+  mutate(
+    sexe = sexe |> fct_relevel("Femme"),
+    groupe_ages = age |>
+      cut(
+        c(18, 25, 45, 65, 99),
+        right = FALSE,
+        include.lowest = TRUE,
+        labels = c("18-24 ans", "25-44 ans",
+                   "45-64 ans", "65 ans et plus")
+      ),
+    etudes = nivetud |> 
+      fct_recode(
+        "Primaire" = "N'a jamais fait d'etudes",
+        "Primaire" = "A arrete ses etudes, avant la derniere annee d'etudes primaires",
+        "Primaire" = "Derniere annee d'etudes primaires",
+        "Secondaire" = "1er cycle",
+        "Secondaire" = "2eme cycle",
+        "Technique / Professionnel" = "Enseignement technique ou professionnel court",
+        "Technique / Professionnel" = "Enseignement technique ou professionnel long",
+        "Supérieur" = "Enseignement superieur y compris technique superieur"
+    ) |> 
+    fct_na_value_to_level("Non documenté")  
+  ) |> 
+  set_variable_labels(
+    sport = "Pratique un sport ?",
+    sexe = "Sexe",
+    groupe_ages = "Groupe d'âges",
+    etudes = "Niveau d'études",
+    heures.tv = "Heures de télévision / jour"
+  )
+
+mod <- glm(
+  sport ~ sexe + groupe_ages + etudes + heures.tv,
+  family = binomial,
+  data = d
+)
+mod |> performance::r2_mcfadden()
+```
+
+De la même manière, l'Anova (analyse de variance) a été étendue aux modèles GLM et correspond alors à une analyse de déviance.
+
+```{r}
+mod |> car::Anova()
+```
+
+À partir des écarts de déviance (*D~pred~*) associés à chaque variable (colonne *LR Chisq* dans le tableau précédent), nous pouvons calculer un équivalent du 𝜂^2^ : le pseudo-R^2^ semi-partiel (*semi-partial pseudo-R^2^*), égal à $D_{pred}/D_t$ et représentant la *contribution totale* de la variable exprimée en proportion de la déviance totale.
+
+De même, on peut calculer le pseudo-R^2^ partiel (*partial pseudo-R^2^*), égal à $D_{pred} / (D_r+D_{pred})$, représentant la *contribution partielle* de la variable, à savoir la proportion de déviance uniquement expliquée par cette variable, les autres effets étant contrôlés.
+
+Enfin, une *contribution relative*, exprimée en proportion de la déviance expliquée par l'ensemble du modèle, peut être calculée comme $D_{pred}/(D_t-D_r)$.
+
+Une fois encore, ces différentes métriques peuvent être calculées et affichées avec la fonction `guideR::tbl_contributions()`.
+
+```{r}
+mod |> guideR::tbl_contributions()
+```
+
+## Les différents types d'Anova
+
+Dans le chapitre sur la régression logistique binaire, nous avions brièvement abordé dans un encadré les différents types d'Anova[^dominance-3] (cf. @sec-reg-log-anova).
+
+[^dominance-3]: Pour une explication sur ces différents types, on pourra se référer (en anglais) à <https://mcfromnz.wordpress.com/2011/03/02/anova-type-iiiiii-ss-explained/>.
+
+Jusqu'à présent, dans ce chapitre, nous avons utilisé des Anova de type II qui sont calculés avec la fonction `car::Anova()`. Pour une Anova de type II, on part du modèle complet et on va ensuite calculer, pour chaque prédicteur, un modèle avec l'ensemble des variables du modèle sauf ce dernier (comme lors de la première étape d'une sélection descendante pas à pas). On obtient alors la part de variance expliquée par ce prédicteur lorsqu'il est ajouté à la toute dernière étape du modèle. De fait, l'ordre dans lequel les prédicteurs sont indiqués dans le modèle n'a ici pas d'importance puisque tous les prédicteurs sont traités de manière équivalente. Cependant, la somme des déviances expliquées par chaque prédicteur, lorsqu'il est ajouté à la toute fin, n'est pas égale à la déviance expliquée totale. Jetons un œil à notre exemple en rajoutant une ligne Total.
+
+```{r}
+mod |> 
+  guideR::tbl_contributions(type = "II") |> 
+  gt::grand_summary_rows(
+    columns = gt::any_of(c("Total", "Relative")),
+    fns = Total ~ sum(.),
+    fmt = ~ gt::fmt_percent(., decimals = 1)
+  )
+```
+
+La somme des pseudo-R^2^ semi-partiels est de 7,8% alors que le pseudo R^2^ de McFadden est de 15,3%. Cela est lié au fait qu'il y a toujours une forme de corrélation entre les prédicteurs (ils ne sont pas parfaitement indépendants). Ainsi, en l'absence d'un autre prédicteur, une variable va pouvoir contribuer de manière plus importante au modèle.
+
+Une alternative est la réalisation d'une Anova de type I avec la fonction `stats::anova()`. Dans ce type d'analyse, on part du modèle vide puis chaque variable est ajoutée séquentiellement au modèle. Reprenons notre exemple.
+
+```{r}
+mod |> 
+  guideR::tbl_contributions(type = "I") |> 
+  gt::grand_summary_rows(
+    columns = gt::any_of(c("Total", "Relative")),
+    fns = Total ~ sum(.),
+    fmt = ~ gt::fmt_percent(., decimals = 1)
+  )
+```
+
+On a tout d'abord considéré un modèle avec seulement la variable *sexe* et son pseudo R^2^ semi-partiel est de 0,6%, représentant sa contribution brute, i.e. univariable, c'est-à-dire en l'absence d'autres variables dans le modèle. Puis un second modèle avec les variables *sexe* et *groupe d'âges* est considéré. Le pseudo R^2^ semi-partiel de 8,3% correspond donc à l'apport du groupe d'âges par rapport au modèle ne contenant que le *sexe*. Et ainsi de suite. Le pseudo R^2^ semi-partiel de 5,9% associé au *niveau d'étude* correspond donc à l'apport de cette variable par rapport à un modèle ne contenant que le *sexe* et le *groupe d'âges*. Ici, la somme des pseudo R^2^ semi-partiels est *de facto* égale au pseudo R^2^ total. Mais les valeurs obtenues sont fortement dépendantes de l'ordre dans lequel on introduit les différentes variables comme le montre l'exemple suivant.
+
+```{r}
+glm(
+  sport ~ heures.tv + etudes + groupe_ages + sexe,
+  family = binomial,
+  data = d
+) |> 
+  guideR::tbl_contributions(type = "I") |> 
+  gt::grand_summary_rows(
+    columns = gt::any_of(c("Total", "Relative")),
+    fns = Total ~ sum(.),
+    fmt = ~ gt::fmt_percent(., decimals = 1)
+  )
+```
+
+Voyez comment le pseudo R^2^ semi-partiel associé au *groupe d'âges* est ici très différent (1,8% vs 8,3%).
+
+Une solution possible à cette problématique est l'**analyse de dominance** que nous allons aborder dans la section suivante. Mais juste avant, abordons les autres options proposées par `guideR::tbl_contributions()`.
+
+Tout d'abord, il y a l'Anova de type III que nous avons abordé dans le chapitre sur les interactions (cf. @sec-significativite-interaction). En l'absence d'interaction, le type II est recommandé car plus robuste. Par contre, en présence d'interaction, il est préférable d'avoir recours au type III qui traite les interactions de manière un peu différente des types II. Le type III teste les effets principaux en maintenant les niveaux des autres facteurs constants. En d'autres termes, il compare les moyennes d'un facteur en fixant les autres facteurs à leurs niveaux respectifs, plutôt que de les moyenner sur l'ensemble de leurs combinaisons. **Attention cependant :** pour utiliser un type III, il est préférable que les variables catégorielles soient codés avec des contrastes orthogonaux, autrement dit des contrastes de type somme ou de type Helmert (voir le chapitre @sec-contrastes dédié aux contrastes).
+
+Voici un exemple :
+
+```{r}
+modi <- 
+  glm(
+    sport ~ sexe * groupe_ages + sexe * heures.tv + etudes,
+    family = binomial,
+    data = d,
+    contrasts = list(
+      sexe = contr.sum,
+      groupe_ages = contr.sum
+    )
+  )
+modi |> 
+  guideR::tbl_contributions(type = "III")
+```
+
+La fonction `guideR::tbl_contributions()` propose enfin deux autres options. La première, intitulée `"drop1"`, repose sur la fonction `stats::drop1()` qui calcule tous les sous-modèles obtenus en supprimant un seul terme. En l'absence d'interaction, c'est strictement équivalent à une Anova de type II. En présence d'interactions, le traitement des interactions est quelque peu différent. Toutes les variables composants l'interaction sont supprimé et la fonction ne teste pas le fait de retirer l'interaction tout en conservant les termes la composant en entrées simples.
+
+Pour les modèles pondérés (réalisés avec `survey::svyglm()`, voir le chapitre @sec-regression-logistique-binaire-ponderee), il est recommandé d'utiliser l'option `"drop1"` plutôt que le type II, l'implémentation de `car::Anova()` n'étant pas optimale pour ce type de modèles.
+
+```{r}
+modi |> 
+  guideR::tbl_contributions(type = "drop1")
+```
+
+Enfin, la dernière option est `"add1"` et repose sur la fonction `stats::add1()`. Cette fois-ci, on part du modèle vide et on teste le fait d'ajouter, à chaque fois, une seule variable au modèle. Nous obtenons donc les contributions <q>brutes</q> ou univariables de chaque prédicteur. Pour ce type précis, seuls les peudo R^2^ semi-partiels sont retournés. Et, cette fois-ci, leur somme dépasse le peudo R^2^ global.
+
+```{r}
+#| warning: false
+mod |> 
+  guideR::tbl_contributions(type = "add1", show = "Total") |> 
+  gt::grand_summary_rows(
+    columns = gt::any_of("Total"),
+    fns = Total ~ sum(.),
+    fmt = ~ gt::fmt_percent(., decimals = 1)
+  )
+```
+
+## Analyse de dominance
+
+L'**analyse de dominance** répond à une question fondamentale : quand plusieurs prédicteurs sont corrélés, comment attribuer à chacun sa contribution distincte à l'explication de la variable dépendante ? Chao *et al*. [@chao2008] soulignent que cette question est centrale en régression multiple, car les méthodes usuelles (corrélations zéro-ordre, corrélations semi-partielles) ne capturent pas toujours la contribution complète d'un prédicteur.
+
+L'analyse de dominance repose sur la comparaison des **modèles emboîtés**
+(*nested models*). Pour chaque paire de prédicteurs, on examine dans
+combien de sous-modèles (combinaisons de prédicteurs) un prédicteur
+contribue *davantage* qu'un autre. Un prédicteur domine un autre
+si sa contribution supplémentaire (augmentation de R^2^ ou déviance) est
+systématiquement plus grande, quel que soit l'ensemble des autres
+prédicteurs présents dans le modèle.
+
+Il est possible de calculer, à partir de ces différents sous-modèle, une contribution moyenne de chaque variable, sous la forme d'un pseudo R^2^ semi-partiel. L'avantage, c'est que cette fois-ci la somme des contributions est égale au pseudo R^2^.
+
+Ce type d'analyse peut être gourmand en ressources de calcul car l'ensemble des combinaisons de prédicteurs va être calculé. Avec un GLM classique et un nombre d'observations de quelques milliers, cela ne pose en général pas trop de problème. Par contre, dans le cas d'un modèle plus complexe, le temps de calcul peut vite devenir très important.
+
+Sous **R**, l'analyse de dominance est disponible via les fonctions `dominanceanalysis::dominanceAnalysis()`, `parameters::dominance_analysis()` ou encore `domir::domin()`. Pour notre part, nous privilégions le package `{dominanceanalysis}`, dont la mise en œuvre est, en pratique, plus facile. À noter, le package `{guideR}` étend le package `{dominanceanalysis}` afin de couvrir les modèles GLM avec poids d'enquête (`survey::svyglm()`). Il suffit que le package `{guideR}` soit chargé en mémoire. Par ailleurs, il fournit également une fonction `guideR::tbl_dominance()` qui permet facilement de réaliser une analyse de dominance, d'en extraire les contributions moyennes et de les afficher sous la forme d'un tableau mis en forme.
+
+```{r}
+mod |> guideR::tbl_dominance()
+```
+
+Par rapport à l'approche précédente qui reposait sur une Anova de type II, nous obtenons une décomposition plus complète du R^2^ et les contributions relatives somment à 100%.
+
+Pour une présentation plus complète du package `{dominanceanalysis}`, on pourra se référer à [sa vignette dédiée](https://cran.r-project.org/web/packages/dominanceanalysis/vignettes/da-logistic-regression.html) (en anglais).
+
+::: callout-tip
+Pour aller un peu plus loin, on pourra réaliser manuellement une analyse de dominance avec `dominanceanalysis::dominanceAnalysis()`.
+
+```{r}
+da <- mod |> dominanceanalysis::dominanceAnalysis()
+```
+
+La dominance moyenne de chaque prédicteur s'obtient avec `dominanceanalysis::averageContribution()` et une représentation graphique peut être obtenue avec la fonction générique `plot()`.
+
+```{r}
+da |> dominanceanalysis::averageContribution()
+da |> plot() + ggplot2::expand_limits(y = 0)
+```
+
+L'option `plot("conditional")` permet de représenter l'évolution de la contribution moyenne des prédicteurs en fonction de la complexité des modèles. Le niveau 0 correspond au cas de figure où le prédicteur est seul dans le modèle, le niveau 1 aux sous-modèles contenant le prédicteur et 1 seule des autres variables, le niveau 2 aux sous-modèles avec le prédicteur et 2 autres variables et enfin le niveau 3 (le dernier ici car nous avons 4 prédicteurs au total dans le modèle complet) au modèle complet.
+
+```{r}
+da |> plot("conditional") + ggplot2::expand_limits(y = 0)
+```
+
+On peut ainsi voir comment la contribution associée à un prédicteur diminue au fur-et-à-mesure que d'autres prédicteurs sont ajoutés au modèle.
+:::
