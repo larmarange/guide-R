@@ -67,6 +67,12 @@ Le package `{guideR}` propose une fonction `guideR::tbl_contributions()` calcula
 ml |> guideR::tbl_contributions(decimals = 2)
 ```
 
+Le tableau peut être affiché en français avec l'option `lang = "fr"`.
+
+```{r}
+ml |> guideR::tbl_contributions(decimals = 2, lang = "fr")
+```
+
 ::: callout-caution
 Il est à noter que plusieurs auteurs mentionnent que le 𝜂^2^ est un indicateur biaisé et que cela est problématique lorsque le nombre d'observations est limité (en pratique lorsque n est inférieur à 50 ou à 10-20 participants par condition). Plusieurs auteurs recommandent d'utiliser alors d'autres métriques comme le ⍵^2^ (*omega squared*) [@olejnik2003; \@kroes2025] ou encore 𝜀^2^ (*epsilon squared*) [@carroll1975]. On pourra se référer à la [vignette dédiée](https://easystats.github.io/effectsize/articles/anovaES.html#other-measures-of-effect-size) du package `{effectsize}.`
 :::
@@ -144,7 +150,7 @@ Enfin, une *contribution relative*, exprimée en proportion de la déviance expl
 Une fois encore, ces différentes métriques peuvent être calculées et affichées avec la fonction `guideR::tbl_contributions()`.
 
 ```{r}
-mod |> guideR::tbl_contributions()
+mod |> guideR::tbl_contributions(lang = "fr")
 ```
 
 ## Les différents types d'Anova
@@ -157,7 +163,7 @@ Jusqu'à présent, dans ce chapitre, nous avons utilisé des Anova de type II qu
 
 ```{r}
 mod |> 
-  guideR::tbl_contributions(type = "II") |> 
+  guideR::tbl_contributions(type = "II", lang = "fr") |> 
   gt::grand_summary_rows(
     columns = gt::any_of(c("Total", "Relative")),
     fns = Total ~ sum(.),
@@ -171,7 +177,7 @@ Une alternative est la réalisation d'une Anova de type I avec la fonction `stat
 
 ```{r}
 mod |> 
-  guideR::tbl_contributions(type = "I") |> 
+  guideR::tbl_contributions(type = "I", lang = "fr") |> 
   gt::grand_summary_rows(
     columns = gt::any_of(c("Total", "Relative")),
     fns = Total ~ sum(.),
@@ -187,7 +193,7 @@ glm(
   family = binomial,
   data = d
 ) |> 
-  guideR::tbl_contributions(type = "I") |> 
+  guideR::tbl_contributions(type = "I", lang = "fr") |> 
   gt::grand_summary_rows(
     columns = gt::any_of(c("Total", "Relative")),
     fns = Total ~ sum(.),
@@ -215,7 +221,7 @@ modi <-
     )
   )
 modi |> 
-  guideR::tbl_contributions(type = "III")
+  guideR::tbl_contributions(type = "III", lang = "fr")
 ```
 
 La fonction `guideR::tbl_contributions()` propose enfin deux autres options. La première, intitulée `"drop1"`, repose sur la fonction `stats::drop1()` qui calcule tous les sous-modèles obtenus en supprimant un seul terme. En l'absence d'interaction, c'est strictement équivalent à une Anova de type II. En présence d'interactions, le traitement des interactions est quelque peu différent. Toutes les variables composants l'interaction sont supprimé et la fonction ne teste pas le fait de retirer l'interaction tout en conservant les termes la composant en entrées simples.
@@ -224,7 +230,7 @@ Pour les modèles pondérés (réalisés avec `survey::svyglm()`, voir le chapit
 
 ```{r}
 modi |> 
-  guideR::tbl_contributions(type = "drop1")
+  guideR::tbl_contributions(type = "drop1", lang = "fr")
 ```
 
 Enfin, la dernière option est `"add1"` et repose sur la fonction `stats::add1()`. Cette fois-ci, on part du modèle vide et on teste le fait d'ajouter, à chaque fois, une seule variable au modèle. Nous obtenons donc les contributions <q>brutes</q> ou univariables de chaque prédicteur. Pour ce type précis, seuls les peudo R^2^ semi-partiels sont retournés. Et, cette fois-ci, leur somme dépasse le peudo R^2^ global.
@@ -232,7 +238,7 @@ Enfin, la dernière option est `"add1"` et repose sur la fonction `stats::add1()
 ```{r}
 #| warning: false
 mod |> 
-  guideR::tbl_contributions(type = "add1", show = "Total") |> 
+  guideR::tbl_contributions(type = "add1", show = "Total", lang = "fr") |> 
   gt::grand_summary_rows(
     columns = gt::any_of("Total"),
     fns = Total ~ sum(.),
@@ -253,7 +259,7 @@ Ce type d'analyse peut être gourmand en ressources de calcul car l'ensemble des
 Sous **R**, l'analyse de dominance est disponible via les fonctions `dominanceanalysis::dominanceAnalysis()`, `parameters::dominance_analysis()` ou encore `domir::domin()`. Pour notre part, nous privilégions le package `{dominanceanalysis}`, dont la mise en œuvre est, en pratique, plus facile. À noter, le package `{guideR}` étend le package `{dominanceanalysis}` afin de couvrir les modèles GLM avec poids d'enquête (`survey::svyglm()`). Il suffit que le package `{guideR}` soit chargé en mémoire. Par ailleurs, il fournit également une fonction `guideR::tbl_dominance()` qui permet facilement de réaliser une analyse de dominance, d'en extraire les contributions moyennes et de les afficher sous la forme d'un tableau mis en forme.
 
 ```{r}
-mod |> guideR::tbl_dominance()
+mod |> guideR::tbl_dominance(lang = "fr")
 ```
 
 Par rapport à l'approche précédente qui reposait sur une Anova de type II, nous obtenons une décomposition plus complète du R^2^ et les contributions relatives somment à 100%.
