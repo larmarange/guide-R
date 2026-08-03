@@ -1,0 +1,256 @@
+# Analyses intersectionnelles MAIHDA {#sec-maihda}
+
+L'analyse intersectionnelle multi-niveaux de l'hétérogénéité individuelle et de la précision discriminante, *intersectional multilevel analysis of individual heterogeneity and discriminatory accuracy* en anglais, appelée également MAIHDA, *intersectional MAIHDA* ou I-MAIHDA. C'est une approche innovante permettant d'étudier les inégalités en matière de santé, de maladie, mais également d'un point de vue psychosocial ou socio-économique. L'I-MAIHDA est une application de l'approche MAIHDA au sens large, qui permet de quantifier les inégalités dans un cadre théorique intersectionnel. Cette approche a gagné en popularité ces dernières années. En 2026, un package dédié, `{MAIHDA}`, est en développement actif. Pour une présentation plus générale et un tutoriel méthodologique, la référence est l'article de Clare Evans et ses collaborateurs [@evans2024], dont la lecture est fortement conseillée.
+
+Le terme MAIHDA désigne l'utilisation de modèles multi-niveaux pour analyser les inégalités entre les différentes couches sociales, construits à partir de tableaux croisés multidimensionnels et multicatégoriels regroupant des identités, des conditions ou d'autres facteurs. Lorsqu'elle est appliquée dans un cadre intersectionnel, cette approche est plus précisément appelée I-MAIHDA et sert à analyser les inégalités en fonction de facteurs tels que le genre, la classe, le statut socio-économique ou la race.
+
+Le terme de <q>strates sociales</q> pour désigner des sous-groupes analytiques, tels que certaines intersections entre genre, origine ethnique et classe sociale, est ici privilégié car il évoque l’adoption provisoire d’étiquettes à des fins d’analyses stratifiées, tout en restant sceptique vis-à-vis du terme <q>groupe</q> et en évitant de conceptualiser ces étiquettes comme monolithiques, immuables ou rigides. Dans le cadre d'une analyse MAIHDA, les inégalités entre strates ne sont pas seulement évaluées en termes de différences entre les moyennes des strates, mais également en déterminant la part de l’hétérogénéité totale du résultat qui se situe au niveau des strates.
+
+## Préparation des données et analyses préalables
+
+Pour ce chapitre, nous allons utiliser le jeu données `questionr::fecondite` qui correspond à des données simulant une enquête démographique et de santé réalisée en Afrique sub-saharienne. Plus précisément, nous allons fusionner les données de la table *femmes* et de la table *menages* (pour récupérer le niveau de niveau de richesse du ménage). Notre indicateur d'intérêt sera le fait d'avoir déjà un réalisé un test de dépistage du VIH (variable *test*), dans la population des femmes âgées de 15 à 49 ans.
+
+Pour constituer nos strates, nous allons considérer trois dimensions : le niveau d'études, le milieu de résidence et le niveau de richesse du ménage. Lorsque nous allons regarder plus loins les effets intersectionnels, les strates seront construites en croisant ces trois variables. Plus il y a de modalités, plus le nombre de strates sera élevé et plus nous aurons des strates avec très peu d'effectifs. C'est pourquoi nous allons regrouper les niveaux d'éducation secondaire et supérieur car il y a, dans cet échantillon, peu de femmes avec un niveau d'étude supérieur. De même, nous allons recoder les niveaux de richesses en seulement trois modalités.
+
+En termes de préparation des données, nous allons également créer une variable groupe d'âges qui nous servira plus loin de variable d'ajustement et considérer la variable région que nous pourrons introduire comme variable de contexte. Enfin, nous allons supprimer les valeurs manquantes concernant notre variable d'intérêt *test*.
+
+```{r}
+library(tidyverse)
+library(labelled)
+library(gtsummary)
+theme_gtsummary_language("fr", decimal.mark = ",", big.mark = " ")
+guideR::theme_gtsummary_bold_labels()
+
+data("fecondite", package = "questionr")
+
+femmes <- 
+  femmes |> 
+  left_join(menages, by = "id_menage") |> 
+  unlabelled() |> 
+  mutate(
+    groupe_ages = age |>
+      cut(
+        c(-Inf, 25, 35, Inf),
+        right = FALSE,
+        include.lowest = TRUE,
+        labels = c("15-24 ans", "25-34 ans", "35 et plus")
+      ),
+    richesse = richesse |>
+      fct_recode(
+        "riche/très riche" = "très riche",
+        "riche/très riche" = "riche",
+        "pauvre/très pauvre" = "très pauvre",
+        "pauvre/très pauvre" = "pauvre",
+      ),
+    educ = educ |> 
+      fct_recode(
+        "secondaire/supérieur" = "secondaire",
+        "secondaire/supérieur" = "supérieur",
+      )
+  ) |> 
+  set_variable_labels(
+    groupe_ages = "Groupe d'âges"
+  ) |> 
+  filter(test != "manquant")
+```
+
+Avant de nous lancer dans une analyse intersectionnelle, effectuons déjà une analyse descriptive pour regarder les effets univariables.
+
+```{r}
+femmes |> 
+  guideR::plot_proportions(
+    test == "oui",
+    by = c(educ, richesse, milieu, groupe_ages, region),
+    fill = "lightblue",
+    flip = TRUE,
+    minimal = TRUE,
+    overall_label = "Ensemble",
+    show_overall_line = TRUE
+  )
+```
+
+L'analyse descriptive met en évidence, en analyse univariable, des effets marqués de nos trois variables intersectionnelles, l'accès au dépistage du VIH étant plus élevé pour les femmes éduquées, les femmes plus riches et celles vivant en milieu urbain. De même, nous voyons une influence du contexte avec des variations importantes selon les régions, et des effets d'âges significatifs.
+
+Dans le cadre d'une analyse classique, nous pourrions poursuivre avec une régression logistique binaire multivariable (cf. @sec-regression-logistique-binaire).
+
+```{r}
+#| fig-height: 4
+#| fig-width: 7
+mod <- glm(
+  test ~ educ + richesse + milieu,
+  data = femmes,
+  family = binomial
+)
+mod |> ggstats::ggcoef_table(exponentiate = TRUE)
+```
+
+Si l'on observe des effets additifs significatifs du milieu de résidence et du niveau d'éducation, les effets du niveau de richesse disparaissent une fois le modèle ajusté sur les deux autres variables. Cela se confirme en réalisant une Anova et en regardant les contributions des différentes variables (cf. @sec-dominance).
+
+```{r}
+mod |> guideR::tbl_contributions(lang = "fr")
+```
+
+On peut déjà noter un pseudo R^2^ relativement faible (inférieure à 10%), suggérant qu'une part important des variations de recours au dépistage ne sont pas expliquées par nos trois variables. La p-valeur associée aux niveaux de richesse confirme que la variable n'a pas d'effet significatif dans notre modèle multivariable.
+
+Une analyse de dominance (cf. @sec-dominance) permet de nuancer un peu plus ces premiers résultats.
+
+```{r}
+#| message: false
+mod |> guideR::tbl_dominance(lang = "fr")
+```
+
+En effet, le niveau de richesse est assez fortement corrélé au niveau d'éducation et au milieu de résidence. De fait, si l'analyse de dominance confirme l'importance du niveau d'éducation et du milieu de résidence (autour de 40% de contribution relative), la contribution du niveau de richesse n'est pas négligeable (autour 20%).
+
+## À la recherche des interactions
+
+Il est important de faire la distinction entre le terme <q>interaction</q> dans le cadre théorique de l'intersectionnalité et le terme <q>interaction</q> utilisé en analyse de régression. Dans les modèles de régression, un effet d’interaction (cf. @sec-interactions) rend compte de la mesure dans laquelle deux (ou plusieurs) expositions sociales distinctes se combinent pour créer des schémas d’inégalité dans un résultat qui ne serait pas décrit de manière adéquate en utilisant uniquement des effets additifs (c’est-à-dire des effets principaux). Par exemple, évaluer le risque d’un résultat sanitaire de manière additive en fonction de l’origine migratoire et du genre (par exemple, les effets principaux additifs « immigrée » et « femme ») peut ne pas suffire à décrire la prévalence d’un résultat sanitaire particulier chez les personnes immigrées et femmes, ce qui nécessite un terme d’interaction multiplicatif supplémentaire (immigrée × femme). En termes simples, l’intersectionnalité est un cadre qui nous permet de théoriser et de critiquer les expériences sociales (expositions) à des intersections particulières ainsi que les systèmes d’oppression qui génèrent ces expériences, tandis que les analyses de régression incluant des interactions permettent de saisir les effets de ces expériences sur des résultats spécifiques. Ainsi, l’effet des expositions peut ou non se traduire par des effets d’interaction statistiquement significatifs. L’absence d’effets d’interaction statistiquement significatifs ne dit rien sur la validité de l’intersectionnalité : elle ne prouve ni ne réfute l’existence d’expériences intersectionnelles. En ce sens, il vaut mieux considérer l’intersectionnalité comme un cadre d’analyse.
+
+Ceci étant posé, nous pourrions être tenté de réaliser un modèle de régression classique en y intégrant une interaction de l'ensemble de nos variables intersectionnelles. Or, lorsque l'on croise nos différentes variables intersectionnelles, le nombre de modalités devient très vite important, ici de l'ordre de 3×5×2 soit 30 combinaisons théoriquement possibles, sachant que certaines ne sont peut être pas observées dans les données. Dans ce genre de situation, un modèle GLM classique peut avoir des difficultés à converger, voir ne pas converger du tout.
+
+L'approche MAIHDA adopte une autre stratégie : les strates (la combinaison de nos variables intersectionnelles) sont intégrées sous la forme d'une variable aléatoire d'un modèle mixte. Si, de ce fait, MAIHDA peut gérer beaucoup mieux que d'autres approches le fait d'avoir des strates avec un petit nombre d'observations, cela ne permet pas pour autant d'éviter complètement le problème des petits N. En pratique, cela signifie que l'on cherchera à réduire le nombre de strates avec moins de 10 ou 20 observations, quitte à procéder à des recodages de catégories en amont (par exemple ici recoder le niveau de richesse en trois modalités) et à limiter le nombre de dimensions intersectionnelles inclues dans l'analyse.
+
+## Analyse MAIHDA classique (modèle nul et modèle ajusté)
+
+L'analyse MAIHDA classique, celle présentée dans l'article de Evans et al. [@evans2024], repose sur deux modèles mixtes. Le premier, dit *modèle nul*, ne contient qu'un intercept et les différentes strates (interaction des variables intersectionnelles) entrées comme effet aléatoire. Dans notre exemple, son équation est `test ~ 1 + (1 | educ:richesse:milieu)`, avec `(1 | educ:richesse:milieu)` représentant les effets aléatoires. Le second modèle, dit *modèle ajusté*, inclut chacune des variables intersectionnelles comme effet fixe tout en conservant les strates intersectionnelles comme effet aléatoire. Son équation dans notre exemple est `test ~ educ + richesse + milieu + (1 | educ:richesse:milieu)`.
+
+Le package `{MAIHDA}` fournit tout un ensemble de fonctions permettant de réaliser aisément des analyses MAIHDA sous R. Le package `{guideR}`, le compagnon de *guide-R*, fournit plusieurs fonctions permettant de présenter les résultats obtenus sous la forme de tableaux mis en forme et prêts à être publiés.
+
+La fonction `MAIHDA::maihda()` permet de réaliser une analyse MAIHDA complète en un seul appel. On lui passera l'équation du modèle complet. Elle en déduira les variables composant les strates intersectionnelles et générera automatiquement les différentes strates (et, au besoin, éliminera les strates non observées dans les données). Comme notre variable d'intérêt est binaire, on lui précisera `family = "binomial"`.
+
+```{r}
+m <- MAIHDA::maihda(
+  test ~ educ + richesse + milieu + (1 | educ:richesse:milieu),
+  data = femmes,
+  family = "binomial"
+)
+```
+
+En premier lieu, nous pouvons vérifier la distribution de nos strates en fonction de leur nombre d'observations avec `guideR::tbl_strata_info()`.
+
+```{r}
+m |> guideR::tbl_strata_info()
+```
+
+Dans notre exemple, nous avons 3/18 strates (soit 17% des strates) avec un effectif inférieur à 10 observations.
+
+Reproduisons le tableau principal des résultats (cf. table 3 dans [@evans2024]) avec `guideR::tbl_maihda()`.
+
+```{r}
+m |> guideR::tbl_maihda(exponentiate = TRUE)
+```
+
+Le premier élément à regarder est le modèle nul et plus précisément le VPC ou *Variance Partition Coefficient* comme le nomme Evans et al. Cette même métrique également connue sous le nom de ICC ou *Intraclass Correlation Coefficient* (coefficient de corrélation intra-classe). Il représente la variance entre les strates (*between-stratum variance*) exprimée en proportion de la variance totale.
+
+Dans notre exemple, près de 8% de la variance totale est expliquée par les effets des strates intersectionnelles (le reste étant expliqué par l'hétérogénéité des individus au sein des strates). D'une certaine manière, nous pouvons mettre cette proportion en regard des 6% du pseudo R^2^ de notre modèle logistique classique que nous avons calculé en introduction.
+
+La question qui se pose ensuite est de savoir, concernant le VPC, quelle est la part qui est due aux effets additifs des variables intersectionnelles et la part expliquée par les effets d'interactions (i.e. au-delà des effets additifs). Pour cela, nous pouvons nous pencher sur le second modèle, le *modèle ajusté*. Cette fois-ci les effets additifs sont capturés par les effets fixes associés à nos trois variables et inclus dans ce second modèle. De fait, les effets aléatoires associés aux strate ne capturent plus que les effets d'interactions. Si l'on regarde le VPC, il n'est plus que de 0,24%, représentant la part de la variance totale expliquée par les effets d'interactions. Le PVC ou *Proportional Change in Variance* (changement proportionnel de la variance) représente cette diminution du VPC entre les deux modèles : 97% de la variance entre les strates du modèle nul est additive et seulement 3%, dans notre exemple, correspond à des effets d'interaction entre les variables intersectionnelles.
+
+Ceci posé, on pourra chercher à savoir quelles sont les strates avec la plus faible ou la plus forte probabilité de vivre l'évènement étudié. Pour cela, on pourra avoir recours à `guideR::tbl_strata_predictions()`. Par défaut, les 5 strates avec la plus forte prédiction et les 5 strates avec la plus faible prédiction sont affichées. Cela peut être modifié avec l'argument `n_strata` (utiliser `Inf` pour tout afficher).
+
+```{r}
+m |> guideR::tbl_strata_predictions()
+```
+
+Un graphique de l'ensemble des prédictions par strate peut être obtenu avec `plot(type = "predicted")`.
+
+```{r}
+m |> plot(type = "predicted")
+```
+
+Il apparaît que les prédictions les plus élevées sont observées en milieu urbain et que les plus faibles sont en milieu rural. Pour une comparaison visuelle des prédictions selon le milieu de résidence, on pourra avoir recours à la fonction `guideR::plot_maihda_predictions_by()`.
+
+```{r}
+m |> guideR::plot_maihda_predictions_by(milieu)
+```
+
+Le graphique obtenu avec l'option `plot(type = "effect_decomp")` permet de visualiser la décomposition entre les effets additifs (représentés en gris) et les effets d'interaction (en orange). Dans notre exemple, sans surprise au regard du PVC, les effets d'interaction sont faibles.
+
+```{r}
+m |> plot(type = "effect_decomp")
+```
+
+## Modèles MAIHDA partiellement ajustés
+
+Le recours aux *modèles partiellement ajustés* vise à quantifier dans quelle mesure les différentes dimensions utilisées pour construire les strates intersectionnelles contribuent à la variance entre les strates observées dans le modèle nul.
+
+Pour cela, on va recalculer, pour chaque variable intersectionnelle, un modèle comprenant cette variable seule en effet fixe et les strates en effet aléatoire[^maihda-1]. À chaque fois, on calculera le PCV par rapport au modèle nul. La fonction `guideR::tbl_partially_adjusted_maihda()` permet de réaliser ces opérations en un seul appel et de présenter l'ensemble des résultats dans un tableau.
+
+[^maihda-1]: Un exemple de mise en œuvre présentée dans une [vignette](https://easystats.github.io/modelbased/articles/practical_intersectionality.html#partially-adjusted-intersectional-model-and-pcv) du package `{modelbased}` sur l'[analyse MAIHDA](https://easystats.github.io/modelbased/articles/practical_intersectionality.html#partially-adjusted-intersectional-model-and-pcv).
+
+```{r}
+m |> guideR::tbl_partially_adjusted_maihda(exponentiate = TRUE)
+```
+
+Nous retrouvons un effet limité du niveau de richesse, afin un PCV entre 7 et 8%, alors que les deux autres dimensions (niveau d'éducation et milieu de résidence) ont des contributions plus importantes avec des PCV de l'ordre de plus de 50%.
+
+## Variables d'ajustement et variables de contexte
+
+Il est possible d'ajouter des *variables d'ajustement* et des *variables de contexte* dans le modèle, sachant que les deux ne sont pas traitées de la même manière.
+
+Dans nos données descriptives, nous avons vu que l'âge était également associé significativement au fait d'avoir déjà réaliser un test de dépistage du VIH. Selon notre cadre théorique, nous pourrions éventuellement considérer cette variable comme une variable intersectionnelle et en faire une dimension additionnelle pour la construction des strates. Alternativement, nous pouvons envisager de ne pas l'inclure comme dimension intersectionnelle mais vouloir ajuster notre modèle sur l'âge pour tenir compte du fait que la structure par âges diffère d'une strate à l'autre. Dans ce cas, nous allons simplement ajouter la variable *groupe_ages* comme effet fixe dans le modèle mais sans le faire apparaître dans les effets aléatoires.
+
+Par ailleurs, nous avons vu également que le taux de dépistage variait fortement d'une région à l'autre. Il pourrait alors être pertinent d'ajouter cette information contextuelle au modèle. Pour cela on utilisera l'argument `context` de la fonction `MAIHDA::maihda()`. Cette dernière ajoutera un effet aléatoire séparé sur cette variable de contexte, comme c'est l'usage dans les modèles multi-niveaux.
+
+Calculons notre modèle et regardons les résultats.
+
+```{r}
+mac <- MAIHDA::maihda(
+  test ~ groupe_ages + educ + richesse + milieu + 
+    (1 | educ:richesse:milieu),
+  data = femmes,
+  family = "binomial",
+  context = "region"
+)
+mac
+mac |> 
+  guideR::tbl_maihda(
+    exponentiate = TRUE, 
+    global_p = TRUE
+  )
+```
+
+Par rapport à notre analyse précédente, le PVC a légèrement diminué indiquant des effets d'interaction un plus élevé. Nous voyons que notre variable d'ajustement (le groupe d'âges) contribue significativement au modèle. Enfin, notre variable de contexte (la région) a un VPC en propre, indiquée sur la ligne *context share,* de 4,7% dans le modèle nul et de 4,4% dans le modèle ajusté.
+
+## Usages avancés
+
+### Intervalle de confiance de la PCV
+
+Si vous utilisez `engine = "lme4"` (l'approche par défaut de `{MAIHDA}`), il est possible d'estimer un intervalle de confiance pour la PCV via une approche de type *bootstrap*. Pour cela, on ajoutera l'option `bootstrap = TRUE`. Il faut noter que cela nécessite de calculer plusieurs centaines de modèles et donc que le temps de calcul est particulièrement long, souvent plusieurs dizaines de minutes.
+
+### Modèles bayésiens
+
+La méthode MAIHDA intersectionnelle décompose la variation inter-strates en une partie additive (les effets principaux des dimensions intersectionnelles) et une partie d’interaction (l’écart par rapport à l’additivité impliqué par le modèle). Cette conclusion n’est défendable que lorsque chaque strate intersectionnelle est suffisamment peuplée pour permettre l’estimation de son effet. En pratique, ce n’est souvent pas le cas. Le croisement de plusieurs dimensions multiplie le nombre de strates alors que la taille de l’échantillon reste fixe, ce qui entraîne une baisse rapide du nombre de cellules. Il est difficile d’estimer une variance d’interaction à partir de cellules de ce type.
+
+Dans ce type de situation, il peut être pertinent d'utiliser une approche bayésienne via le package `{brms}` plutôt qu'un modèle mixte fréquentiste avec `{lme4}`. Pour cela, il suffit de lancer `MAIHDA::maihda()` ou `MAIHDA::fit_maihda()` avec l'option `engine = "brms"`. Avec ce type de modèle, la distribution *a priori* régularise les écarts-types inter-strates loin de la limite (afin que l’ajustement ne soit pas singulier) et la distribution *a posteriori* fournit un intervalle de crédibilité à la place d’un simple nombre. De plus, ce type d'approches permet de générer un intervalle de crédibilité autour du VPC.
+
+Nous ne présenterons pas ici d'exemple car le temps de calcul de ce type de modèles est particulièrement long (plusieurs minutes à plusieurs dizaines de minutes). Pour plus de détails sur ce point, voir la [vignette dédiée (en anglais)](https://hdbt.github.io/MAIHDA/articles/bayesian_sparse_maihda.html) sur le site de documentation de `{MAIHDA}`.
+
+### Poids d'enquête
+
+Dans le cadre de données d'enquêtes pondérées avec plan d'échantillonnage complexe (cf. @sec-plan-echantillonnage), il n'existe pas encore d'implémentation des modèles mixtes à effets aléatoires compatibles avec le package `{survey}`. Ceci dit, le package `{WeMix}` permet le calcul de modèles mixtes avec prise en compte de poids d'enquêtes et le package `{MAIHDA}` peut être utilisé avec le package `{WeMix}`. Pour cela, on précisera `engine = "wemix"` et le nom de la variable contenant les poids d'enquête sera précisée avec l'argument `sampling_weights`.
+
+```{r}
+mp <- MAIHDA::maihda(
+  test ~ educ + richesse + milieu + (1 | educ:richesse:milieu),
+  data = femmes,
+  family = "binomial",
+  engine = "wemix",
+  sampling_weights = "poids"
+)
+```
+
+La fonction `guideR::tbl_maihda()` propose un support minimal de ce type de modèle. Cependant, elle peut pour le moment récupérer les intervalles de confiance ni les p-valeurs des effets fixes.
+
+```{r}
+mp |> guideR::tbl_maihda(exponentiate = TRUE)
+```
+
+## Lectures complémentaires
+
+-   L'article de référence : Clare R. Evans, George Leckie, S.V. Subramanian, Andrew Bell, and Juan Merlo. 2024. “A Tutorial for Conducting Intersectional MultilevelAnalysis of Individual Heterogeneity and Discriminatory Accuracy(MAIHDA).” *SSM - Population Health* 26 (June): 101664. <https://doi.org/10.1016/j.ssmph.2024.101664>.
+
+-   La documentation du package `{MAIHDA}` et ses nombreuses vignettes : <https://hdbt.github.io/MAIHDA/>.
+
+-   Le site *Intersectional Health* de l'université de Sheffield : <https://intersectionalhealth.org/>.
+
+-   Une série de vidéos sur les modèles intersectionnels : <https://repository.ncrm.ac.uk/resources/online/all/multilevel_models_intersectionality>.
