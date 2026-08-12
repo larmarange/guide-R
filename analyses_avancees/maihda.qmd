@@ -10,7 +10,7 @@ Le terme de <q>strates sociales</q> pour désigner des sous-groupes analytiques,
 
 Pour ce chapitre, nous allons utiliser le jeu données `questionr::fecondite` qui correspond à des données simulant une enquête démographique et de santé réalisée en Afrique sub-saharienne. Plus précisément, nous allons fusionner les données de la table *femmes* et de la table *menages* (pour récupérer le niveau de niveau de richesse du ménage). Notre indicateur d'intérêt sera le fait d'avoir déjà un réalisé un test de dépistage du VIH (variable *test*), dans la population des femmes âgées de 15 à 49 ans.
 
-Pour constituer nos strates, nous allons considérer trois dimensions : le niveau d'études, le milieu de résidence et le niveau de richesse du ménage. Lorsque nous allons regarder plus loins les effets intersectionnels, les strates seront construites en croisant ces trois variables. Plus il y a de modalités, plus le nombre de strates sera élevé et plus nous aurons des strates avec très peu d'effectifs. C'est pourquoi nous allons regrouper les niveaux d'éducation secondaire et supérieur car il y a, dans cet échantillon, peu de femmes avec un niveau d'étude supérieur. De même, nous allons recoder les niveaux de richesses en seulement trois modalités.
+Pour constituer nos strates, nous allons considérer trois dimensions : le niveau d'études, le milieu de résidence et le niveau de richesse du ménage. Lorsque nous allons regarder plus loin les effets intersectionnels, les strates seront construites en croisant ces trois variables. Plus il y a de modalités, plus le nombre de strates sera élevé et plus nous aurons des strates avec très peu d'effectifs. C'est pourquoi nous allons regrouper les niveaux d'éducation secondaire et supérieur car il y a, dans cet échantillon, peu de femmes avec un niveau d'étude supérieur. De même, nous allons recoder les niveaux de richesses en seulement trois modalités.
 
 En termes de préparation des données, nous allons également créer une variable groupe d'âges qui nous servira plus loin de variable d'ajustement et considérer la variable région que nous pourrons introduire comme variable de contexte. Enfin, nous allons supprimer les valeurs manquantes concernant notre variable d'intérêt *test*.
 
@@ -53,6 +53,16 @@ femmes <-
   ) |> 
   filter(test != "manquant")
 ```
+
+::: callout-tip
+On peut aisément estimer en amont le nombre et la taille des strates que l'on obtiendra en fonction des variables intersectionnelles retenues, en ayant recours à la fonction `MAIHDA::make_strata()` permettant de créer des strates (et en supprimant les éventuelles strates vides) et en utilisant la fonction `guideR::tbl_strata_info()` permettant de réaliser un tableau descriptif de la taille des strates.
+
+```{r}
+femmes |> 
+  MAIHDA::make_strata(c("educ", "richesse", "milieu")) |> 
+  guideR::tbl_strata_info(type = "exclusive")
+```
+:::
 
 Avant de nous lancer dans une analyse intersectionnelle, effectuons déjà une analyse descriptive pour regarder les effets univariables.
 
@@ -103,9 +113,11 @@ En effet, le niveau de richesse est assez fortement corrélé au niveau d'éduca
 
 ## À la recherche des interactions
 
-Il est important de faire la distinction entre le terme <q>interaction</q> dans le cadre théorique de l'intersectionnalité et le terme <q>interaction</q> utilisé en analyse de régression. Dans les modèles de régression, un effet d’interaction (cf. @sec-interactions) rend compte de la mesure dans laquelle deux (ou plusieurs) expositions sociales distinctes se combinent pour créer des schémas d’inégalité dans un résultat qui ne serait pas décrit de manière adéquate en utilisant uniquement des effets additifs (c’est-à-dire des effets principaux). Par exemple, évaluer le risque d’un résultat sanitaire de manière additive en fonction de l’origine migratoire et du genre (par exemple, les effets principaux additifs « immigrée » et « femme ») peut ne pas suffire à décrire la prévalence d’un résultat sanitaire particulier chez les personnes immigrées et femmes, ce qui nécessite un terme d’interaction multiplicatif supplémentaire (immigrée × femme). En termes simples, l’intersectionnalité est un cadre qui nous permet de théoriser et de critiquer les expériences sociales (expositions) à des intersections particulières ainsi que les systèmes d’oppression qui génèrent ces expériences, tandis que les analyses de régression incluant des interactions permettent de saisir les effets de ces expériences sur des résultats spécifiques. Ainsi, l’effet des expositions peut ou non se traduire par des effets d’interaction statistiquement significatifs. L’absence d’effets d’interaction statistiquement significatifs ne dit rien sur la validité de l’intersectionnalité : elle ne prouve ni ne réfute l’existence d’expériences intersectionnelles. En ce sens, il vaut mieux considérer l’intersectionnalité comme un cadre d’analyse.
+Il est important de faire la distinction entre le terme <q>interaction</q> dans le cadre théorique de l'intersectionnalité et le terme <q>interaction</q> utilisé en analyse de régression. Dans les modèles de régression, un effet d’interaction (cf. @sec-interactions) rend compte de la mesure dans laquelle deux (ou plusieurs) expositions sociales distinctes se combinent pour créer des schémas d’inégalité dans un résultat qui ne serait pas décrit de manière adéquate en utilisant uniquement des effets additifs (c’est-à-dire des effets principaux). Par exemple, évaluer le risque d’un résultat sanitaire de manière additive en fonction de l’origine migratoire et du genre (par exemple, les effets principaux additifs <q>immigrée </q> et <q>femme</q>) peut ne pas suffire à décrire la prévalence d’un résultat sanitaire particulier chez les personnes immigrées et femmes, ce qui nécessite un terme d’interaction multiplicatif supplémentaire (immigrée × femme).
 
-Ceci étant posé, nous pourrions être tenté de réaliser un modèle de régression classique en y intégrant une interaction de l'ensemble de nos variables intersectionnelles. Or, lorsque l'on croise nos différentes variables intersectionnelles, le nombre de modalités devient très vite important, ici de l'ordre de 3×5×2 soit 30 combinaisons théoriquement possibles, sachant que certaines ne sont peut être pas observées dans les données. Dans ce genre de situation, un modèle GLM classique peut avoir des difficultés à converger, voir ne pas converger du tout.
+En termes simples, l’intersectionnalité est un cadre qui nous permet de théoriser et de critiquer les expériences sociales (expositions) à des intersections particulières ainsi que les systèmes d’oppression qui génèrent ces expériences, tandis que les analyses de régression incluant des interactions permettent de saisir les effets de ces expériences sur des résultats spécifiques. Ainsi, l’effet des expositions peut ou non se traduire par des effets d’interaction statistiquement significatifs. L’absence d’effets d’interaction statistiquement significatifs ne dit rien sur la validité de l’intersectionnalité : elle ne prouve ni ne réfute l’existence d’expériences intersectionnelles. En ce sens, il vaut mieux considérer l’intersectionnalité comme un cadre d’analyse.
+
+Ceci étant posé, nous pourrions être tenté de réaliser un modèle de régression classique en y intégrant une interaction de l'ensemble de nos variables intersectionnelles. Or, lorsque l'on croise nos différentes variables intersectionnelles, le nombre de modalités devient très vite important, ici de l'ordre de 3×3×2 soit 18 combinaisons théoriquement possibles, sachant que certaines ne sont peut être pas observées dans les données. Dans ce genre de situation, un modèle GLM classique peut avoir des difficultés à converger, voir ne pas converger du tout.
 
 L'approche MAIHDA adopte une autre stratégie : les strates (la combinaison de nos variables intersectionnelles) sont intégrées sous la forme d'une variable aléatoire d'un modèle mixte. Si, de ce fait, MAIHDA peut gérer beaucoup mieux que d'autres approches le fait d'avoir des strates avec un petit nombre d'observations, cela ne permet pas pour autant d'éviter complètement le problème des petits N. En pratique, cela signifie que l'on cherchera à réduire le nombre de strates avec moins de 10 ou 20 observations, quitte à procéder à des recodages de catégories en amont (par exemple ici recoder le niveau de richesse en trois modalités) et à limiter le nombre de dimensions intersectionnelles inclues dans l'analyse.
 
@@ -113,7 +125,7 @@ L'approche MAIHDA adopte une autre stratégie : les strates (la combinaison de 
 
 L'analyse MAIHDA classique, celle présentée dans l'article de Evans et al. [@evans2024], repose sur deux modèles mixtes. Le premier, dit *modèle nul*, ne contient qu'un intercept et les différentes strates (interaction des variables intersectionnelles) entrées comme effet aléatoire. Dans notre exemple, son équation est `test ~ 1 + (1 | educ:richesse:milieu)`, avec `(1 | educ:richesse:milieu)` représentant les effets aléatoires. Le second modèle, dit *modèle ajusté*, inclut chacune des variables intersectionnelles comme effet fixe tout en conservant les strates intersectionnelles comme effet aléatoire. Son équation dans notre exemple est `test ~ educ + richesse + milieu + (1 | educ:richesse:milieu)`.
 
-Le package `{MAIHDA}` fournit tout un ensemble de fonctions permettant de réaliser aisément des analyses MAIHDA sous R. Le package `{guideR}`, le compagnon de *guide-R*, fournit plusieurs fonctions permettant de présenter les résultats obtenus sous la forme de tableaux mis en forme et prêts à être publiés.
+Le package `{MAIHDA}` fournit tout un ensemble de fonctions permettant de réaliser aisément des analyses MAIHDA sous **R**. Le package `{guideR}`, le compagnon de *guide-R*, fournit plusieurs fonctions permettant de présenter les résultats obtenus sous la forme de tableaux mis en forme et prêts à être publiés.
 
 La fonction `MAIHDA::maihda()` permet de réaliser une analyse MAIHDA complète en un seul appel. On lui passera l'équation du modèle complet. Elle en déduira les variables composant les strates intersectionnelles et générera automatiquement les différentes strates (et, au besoin, éliminera les strates non observées dans les données). Comme notre variable d'intérêt est binaire, on lui précisera `family = "binomial"`.
 
@@ -125,7 +137,7 @@ m <- MAIHDA::maihda(
 )
 ```
 
-En premier lieu, nous pouvons vérifier la distribution de nos strates en fonction de leur nombre d'observations avec `guideR::tbl_strata_info()`.
+En premier lieu, nous pouvons vérifier la distribution de nos strates en fonction de leur nombre d'observations avec `guideR::tbl_strata_info()` qui permet de reproduire l'équivalent de la Table de 2 de Evans et al. [@evans2024].
 
 ```{r}
 m |> guideR::tbl_strata_info()
@@ -133,17 +145,27 @@ m |> guideR::tbl_strata_info()
 
 Dans notre exemple, nous avons 3/18 strates (soit 17% des strates) avec un effectif inférieur à 10 observations.
 
-Reproduisons le tableau principal des résultats (cf. table 3 dans [@evans2024]) avec `guideR::tbl_maihda()`.
+Reproduisons le tableau principal des résultats, cf. la table 3 de Evans et al. [@evans2024], avec `guideR::tbl_maihda()`. On notera que, par défaut, `guideR::tbl_maihda()` renvoie des statistiques supplémentaires par rapport à celles présentées par Evans et al.
 
 ```{r}
 m |> guideR::tbl_maihda(exponentiate = TRUE)
 ```
 
-Le premier élément à regarder est le modèle nul et plus précisément le VPC ou *Variance Partition Coefficient* comme le nomme Evans et al. Cette même métrique également connue sous le nom de ICC ou *Intraclass Correlation Coefficient* (coefficient de corrélation intra-classe). Il représente la variance entre les strates (*between-stratum variance*) exprimée en proportion de la variance totale.
+Le premier élément à regarder est le modèle nul et plus précisément le VPC ou *Variance Partition Coefficient* comme le nomme Evans et al. Cette même métrique également connue sous le nom de ICC ajusté ou *adjusted Intraclass Correlation Coefficient* (coefficient de corrélation intra-classe ajusté). Il représente la variance entre les strates (*between-stratum variance*) exprimée en proportion de la variance totale non-expliquée par les effets fixes[^maihda-1].
+
+[^maihda-1]: La proportion de la variance totale expliquée par les effets aléatoires correspond à l'ICC non ajusté ou *unadjusted ICC* qui est également présentée dans le tableau. En l'occurrence, dans ce modèle nul, il n'y a pas d'effet fixe et donc le VPC ou ICC ajusté est égal à l'ICC non ajusté.
 
 Dans notre exemple, près de 8% de la variance totale est expliquée par les effets des strates intersectionnelles (le reste étant expliqué par l'hétérogénéité des individus au sein des strates). D'une certaine manière, nous pouvons mettre cette proportion en regard des 6% du pseudo R^2^ de notre modèle logistique classique que nous avons calculé en introduction.
 
-La question qui se pose ensuite est de savoir, concernant le VPC, quelle est la part qui est due aux effets additifs des variables intersectionnelles et la part expliquée par les effets d'interactions (i.e. au-delà des effets additifs). Pour cela, nous pouvons nous pencher sur le second modèle, le *modèle ajusté*. Cette fois-ci les effets additifs sont capturés par les effets fixes associés à nos trois variables et inclus dans ce second modèle. De fait, les effets aléatoires associés aux strate ne capturent plus que les effets d'interactions. Si l'on regarde le VPC, il n'est plus que de 0,24%, représentant la part de la variance totale expliquée par les effets d'interactions. Le PVC ou *Proportional Change in Variance* (changement proportionnel de la variance) représente cette diminution du VPC entre les deux modèles : 97% de la variance entre les strates du modèle nul est additive et seulement 3%, dans notre exemple, correspond à des effets d'interaction entre les variables intersectionnelles.
+La question qui se pose ensuite est de savoir, concernant le VPC, quelle est la part qui est due aux effets additifs des variables intersectionnelles et la part expliquée par les effets d'interactions (i.e. au-delà des effets additifs). Pour cela, nous pouvons nous pencher sur le second modèle, le *modèle ajusté*.
+
+Cette fois-ci les effets additifs sont capturés par les effets fixes associés à nos trois variables et inclus dans ce second modèle. La part de variance expliquée par les effets fixes correspond au R^2^ marginal de Nakagawa, ici 9,6%. Le R^2^ conditionnel correspond quant à lui à la part de variance expliquée à la fois par les effets fixes et les effets aléatoires. La différence entre les deux indique donc la part des variance expliquée par les effets aléatoires et correspond donc à l'ICC non ajusté[^maihda-2]. Dans ce modèle ajusté, les effets aléatoires associés aux strates ne capturent plus que les effets d'interactions.
+
+[^maihda-2]: $ICC_{unadjusted}=R^2_{conditional}-R^2_{marginal}$
+
+Si l'on regarde le VPC, il n'est plus que de 0,24%, représentant la part de la variance non expliquée par les effets fixes expliquée par les effets d'interactions[^maihda-3]. Le PVC ou *Proportional Change in Variance* (changement proportionnel de la variance) représente cette diminution du VPC entre les deux modèles : 97% de la variance entre les strates du modèle nul est additive et seulement 3%, dans notre exemple, correspond à des effets d'interaction entre les variables intersectionnelles.
+
+[^maihda-3]: Dit autrement, le VPC ou ICC ajusté correspond donc à la variance expliquée par les effets aléatoires (*between-stratum variance*) divisée par la variance totale moins la variance expliquée par les effets fixes. Exprimé autrement : $VPC = ICC_{adjusted} = ICC_{unadjusted} / (1 - R^2_{marginal})$.
 
 Ceci posé, on pourra chercher à savoir quelles sont les strates avec la plus faible ou la plus forte probabilité de vivre l'évènement étudié. Pour cela, on pourra avoir recours à `guideR::tbl_strata_predictions()`. Par défaut, les 5 strates avec la plus forte prédiction et les 5 strates avec la plus faible prédiction sont affichées. Cela peut être modifié avec l'argument `n_strata` (utiliser `Inf` pour tout afficher).
 
@@ -151,19 +173,43 @@ Ceci posé, on pourra chercher à savoir quelles sont les strates avec la plus f
 m |> guideR::tbl_strata_predictions()
 ```
 
-Un graphique de l'ensemble des prédictions par strate peut être obtenu avec `plot(type = "predicted")`.
+Un graphique de l'ensemble des prédictions par strate peut être obtenu avec `guideR::plot_strata_predictions()`.
 
 ```{r}
-m |> plot(type = "predicted")
+m |> guideR::plot_strata_predictions()
 ```
 
-Il apparaît que les prédictions les plus élevées sont observées en milieu urbain et que les plus faibles sont en milieu rural. Pour une comparaison visuelle des prédictions selon le milieu de résidence, on pourra avoir recours à la fonction `guideR::plot_maihda_predictions_by()`.
+On peut aisément ajouter la valeur moyenne des prédictions avec `show_mean_line = TRUE` et surligner les strates avec des petits effectifs avec `highlight_n_below`.
 
 ```{r}
-m |> guideR::plot_maihda_predictions_by(milieu)
+m |> 
+  guideR::plot_strata_predictions(
+    show_mean_line = TRUE,
+    highlight_n_below = 20
+  )
 ```
 
-Le graphique obtenu avec l'option `plot(type = "effect_decomp")` permet de visualiser la décomposition entre les effets additifs (représentés en gris) et les effets d'interaction (en orange). Dans notre exemple, sans surprise au regard du PVC, les effets d'interaction sont faibles.
+Il apparaît que les prédictions les plus élevées sont observées en milieu urbain et que les plus faibles sont en milieu rural. Pour une comparaison visuelle des prédictions selon le milieu de résidence, on pourra avoir recours à l'argument `by`.
+
+```{r}
+m |> guideR::plot_strata_predictions(by = milieu)
+```
+
+Il est possible de diviser le graphique selon une autre variable avec des facettes.
+
+```{r}
+m |> 
+  guideR::plot_strata_predictions(by = milieu, sort = FALSE) +
+  facet_grid(
+    rows = vars(richesse), 
+    space = "free_y", 
+    scale = "free_y"
+  )
+```
+
+Le graphique obtenu avec l'option `plot(type = "effect_decomp")` permet de visualiser la décomposition entre les effets additifs (représentés en gris) et les effets d'interaction (en orange)[^maihda-4]. Dans notre exemple, sans surprise au regard du PVC, les effets d'interaction sont faibles.
+
+[^maihda-4]: Ne pas hésiter à consulter l'aide du package `{MAIHDA}` pour [visualiser les différents graphiques proposés par le package](https://hdbt.github.io/MAIHDA/reference/plot.maihda_model.html).
 
 ```{r}
 m |> plot(type = "effect_decomp")
@@ -173,12 +219,13 @@ m |> plot(type = "effect_decomp")
 
 Le recours aux *modèles partiellement ajustés* vise à quantifier dans quelle mesure les différentes dimensions utilisées pour construire les strates intersectionnelles contribuent à la variance entre les strates observées dans le modèle nul.
 
-Pour cela, on va recalculer, pour chaque variable intersectionnelle, un modèle comprenant cette variable seule en effet fixe et les strates en effet aléatoire[^maihda-1]. À chaque fois, on calculera le PCV par rapport au modèle nul. La fonction `guideR::tbl_partially_adjusted_maihda()` permet de réaliser ces opérations en un seul appel et de présenter l'ensemble des résultats dans un tableau.
+Pour cela, on va recalculer, pour chaque variable intersectionnelle, un modèle comprenant cette variable seule en effet fixe et les strates en effet aléatoire[^maihda-5]. À chaque fois, on calculera le PCV par rapport au modèle nul. La fonction `guideR::tbl_partially_adjusted_maihda()` permet de réaliser ces opérations en un seul appel et de présenter l'ensemble des résultats dans un tableau.
 
-[^maihda-1]: Un exemple de mise en œuvre présentée dans une [vignette](https://easystats.github.io/modelbased/articles/practical_intersectionality.html#partially-adjusted-intersectional-model-and-pcv) du package `{modelbased}` sur l'[analyse MAIHDA](https://easystats.github.io/modelbased/articles/practical_intersectionality.html#partially-adjusted-intersectional-model-and-pcv).
+[^maihda-5]: Un exemple de mise en œuvre présentée dans une [vignette](https://easystats.github.io/modelbased/articles/practical_intersectionality.html#partially-adjusted-intersectional-model-and-pcv) du package `{modelbased}` sur l'[analyse MAIHDA](https://easystats.github.io/modelbased/articles/practical_intersectionality.html#partially-adjusted-intersectional-model-and-pcv).
 
 ```{r}
-m |> guideR::tbl_partially_adjusted_maihda(exponentiate = TRUE)
+m |> 
+  guideR::tbl_partially_adjusted_maihda(exponentiate = TRUE)
 ```
 
 Nous retrouvons un effet limité du niveau de richesse, afin un PCV entre 7 et 8%, alors que les deux autres dimensions (niveau d'éducation et milieu de résidence) ont des contributions plus importantes avec des PCV de l'ordre de plus de 50%.
@@ -209,21 +256,40 @@ mac |>
   )
 ```
 
-Par rapport à notre analyse précédente, le PVC a légèrement diminué indiquant des effets d'interaction un plus élevé. Nous voyons que notre variable d'ajustement (le groupe d'âges) contribue significativement au modèle. Enfin, notre variable de contexte (la région) a un VPC en propre, indiquée sur la ligne *context share,* de 4,7% dans le modèle nul et de 4,4% dans le modèle ajusté.
+Par rapport à notre analyse précédente, le PCVa légèrement diminué indiquant des effets d'interaction un plus élevé. Nous voyons que notre variable d'ajustement (le groupe d'âges) contribue significativement au modèle. Enfin, notre variable de contexte (la région) a un VPC en propre, indiquée sur la ligne *context share,* de 4,7% dans le modèle nul et de 4,4% dans le modèle ajusté.
 
 ## Usages avancés
 
 ### Intervalle de confiance de la PCV
 
-Si vous utilisez `engine = "lme4"` (l'approche par défaut de `{MAIHDA}`), il est possible d'estimer un intervalle de confiance pour la PCV via une approche de type *bootstrap*. Pour cela, on ajoutera l'option `bootstrap = TRUE`. Il faut noter que cela nécessite de calculer plusieurs centaines de modèles et donc que le temps de calcul est particulièrement long, souvent plusieurs dizaines de minutes.
+Si vous utilisez `engine = "lme4"` (l'approche par défaut de `{MAIHDA}`), il est possible d'estimer un intervalle de confiance pour le VPC via une approche de type *bootstrap*. Il suffit de passer `bootstrap_vpc = TRUE` à `guideR::tbl_maihda()`.
+
+De même, le PCV peut également être estimé par une approche *bootstrap* avec `bootstrap_pcv = TRUE`.
+
+::: callout-warning
+**ATTENTION :** le temps de calcul est particulièrement long (facilement plusieurs heures selon vos données).
+
+On pourra procéder en deux temps en utilisant l'option `return_data = TRUE` qui permet de lancer le calcul et de récupérer une liste avec les modèles augmentés des informations calculées, puis de passer cette liste directement à `guideR::tbl_maihda()` sans avoir à recalculer les bootstraps. Il sera ainsi plus facile de personnaliser le tableau final.
+
+```{r}
+#| eval: false
+l <- 
+  m |> 
+  guideR::tbl_maihda(
+    bootstrap_vpc = TRUE,
+    bootstrap_pcv = TRUE
+  )
+l |> guideR::tbl_maihda(exponentiate = TRUE)
+```
+:::
 
 ### Modèles bayésiens
 
 La méthode MAIHDA intersectionnelle décompose la variation inter-strates en une partie additive (les effets principaux des dimensions intersectionnelles) et une partie d’interaction (l’écart par rapport à l’additivité impliqué par le modèle). Cette conclusion n’est défendable que lorsque chaque strate intersectionnelle est suffisamment peuplée pour permettre l’estimation de son effet. En pratique, ce n’est souvent pas le cas. Le croisement de plusieurs dimensions multiplie le nombre de strates alors que la taille de l’échantillon reste fixe, ce qui entraîne une baisse rapide du nombre de cellules. Il est difficile d’estimer une variance d’interaction à partir de cellules de ce type.
 
-Dans ce type de situation, il peut être pertinent d'utiliser une approche bayésienne via le package `{brms}` plutôt qu'un modèle mixte fréquentiste avec `{lme4}`. Pour cela, il suffit de lancer `MAIHDA::maihda()` ou `MAIHDA::fit_maihda()` avec l'option `engine = "brms"`. Avec ce type de modèle, la distribution *a priori* régularise les écarts-types inter-strates loin de la limite (afin que l’ajustement ne soit pas singulier) et la distribution *a posteriori* fournit un intervalle de crédibilité à la place d’un simple nombre. De plus, ce type d'approches permet de générer un intervalle de crédibilité autour du VPC.
+Dans ce type de situation, il peut être pertinent d'utiliser une approche bayésienne via le package `{brms}` plutôt qu'un modèle mixte fréquentiste avec `{lme4}`. Pour cela, il suffit de lancer `MAIHDA::maihda()` ou `MAIHDA::fit_maihda()` avec l'option `engine = "brms"`. Avec ce type de modèle, la distribution *a priori* régularise les écarts-types inter-strates loin de la limite (afin que l’ajustement ne soit pas singulier) et la distribution *a posteriori* fournit un intervalle de crédibilité à la place d’un simple nombre. De fait, ce type d'approches permet de générer un intervalle de crédibilité autour du VPC sans avoir à passer par une approche *bootstratp*. Par contre, pour la PCV, une approche de type *bootstrap* reste nécessaire.
 
-Nous ne présenterons pas ici d'exemple car le temps de calcul de ce type de modèles est particulièrement long (plusieurs minutes à plusieurs dizaines de minutes). Pour plus de détails sur ce point, voir la [vignette dédiée (en anglais)](https://hdbt.github.io/MAIHDA/articles/bayesian_sparse_maihda.html) sur le site de documentation de `{MAIHDA}`.
+Nous ne présenterons pas ici d'exemple car le temps de calcul de ce type de modèles est relativement long (plusieurs minutes à plusieurs dizaines de minutes). Pour plus de détails sur ce point, voir la [vignette dédiée (en anglais)](https://hdbt.github.io/MAIHDA/articles/bayesian_sparse_maihda.html) sur le site de documentation de `{MAIHDA}`.
 
 ### Poids d'enquête
 
@@ -239,10 +305,51 @@ mp <- MAIHDA::maihda(
 )
 ```
 
-La fonction `guideR::tbl_maihda()` propose un support minimal de ce type de modèle. Cependant, elle peut pour le moment récupérer les intervalles de confiance ni les p-valeurs des effets fixes.
+La fonction `guideR::tbl_maihda()` propose un support minimal de ce type de modèle : elle ne peut pas pour le moment récupérer les intervalles de confiance ni les p-valeurs des effets fixes.
 
 ```{r}
 mp |> guideR::tbl_maihda(exponentiate = TRUE)
+```
+
+### Décomposition inter-dimensionnelle
+
+Le package `{MAIHDA}` propose, en alternative à l'approche classique basée sur deux modèles (modèle nul et modèle ajusté), une approche reposant sur un seul modèle et une décomposition inter-dimensionnelle ou *crossed-dimensions decomposition*.
+
+Dans cette approche, les effets additifs des variables intersectionnelles sont estimés en introduisant chaque variable intersectionnelle sous la forme d'un effet aléatoire autonome et en ajoutant également un effet aléatoire pour les strates intersectionnelles. Dans notre exemple, le modèle estimé a donc pour équation `test ~ 1 + (1 | educ) + (1 | richesse) + (1 | milieu) + (1 | educ:richesse:milieu)`.
+
+Pour le calculer, nous appellerons la fonction `MAIHDA::maihda()` avec l'option `decomposition = "crossed-dimensions"`. Il nous suffit de définir les strates et le package `{MAIHDA}` rajoutera de lui-même les effets aléatoires additifs.
+
+```{r}
+cdd <- MAIHDA::maihda(
+  test ~ 1 + (1 | educ:richesse:milieu),
+  data = femmes,
+  family = "binomial",
+  decomposition = "crossed-dimensions"
+)
+```
+
+Dans notre exemple, nous voyons un message d'avertissement `boundary (singular)` nous indiquant qu'au moins que la variance d'au moins un des éléments a été estimée à 0, indiquant un problème de convergence et nous alertant sur le fait que l'analyse de variance n'est pas fiable. Regardons de plus prêt les résultats. Comme nous n'avons pas d'effet fixe, nous pouvons nous permettre de masquer les coefficients avec `hide_coefficients = TRUE`. À noter, en raison de la singularité déjà mentionnée, le R^2^ ne peut être correctement calculé.
+
+```{r}
+cdd |> guideR::tbl_maihda(hide_coefficients = TRUE)
+```
+
+De nouveaux éléments apparaissent dans ce tableau. Tout d'abord, la variance expliquée par les variables intersectionnelles (effets additifs et intersectionnels) est de 0,312 correspondant à 8,66% de la variance totale (VPC). Cette variance entre les strates peut se décomposer entre une dimension additive (somme de la variance de chaque variable intersectionnelle prise isolément) de 0,273 (soit 87,5% du VPC) et une dimension intersectionnelle (variance associée à l'effet aléatoire des strates) de 0,039 (soit 12,5%).
+
+La proportion de variance associée aux effets additifs (*additive share of between-strata variance*) peut être interprétée de manière similaire du PCV de l'approche classique. Cependant, il ne s'agit pas exactement de la même métrique. Elles abordent toutes deux la même question générale, à savoir quelle part de la variance inter-strates est additive, mais en utilisant des estimateurs différents (effets principaux fixes dans les deux modèles contre variances aléatoires des effets principaux d’un seul modèle, qui sont partiellement regroupées). Elles peuvent être similaires sur le plan directionnel, mais ne sont pas nécessairement proches sur le plan numérique ; il ne faut pas considérer l’une comme une validation de l’autre.
+
+Les dimensions avec peu de modalités sont mal identifiées. La variance additive d’une dimension est estimée à partir de ces quelques niveaux. Une dimension binaire (par exemple, une variable sexe) contribue à une variance estimée à partir de seulement deux groupes ; ainsi, `{lme4}` peut estimer une ou plusieurs composantes de variance égales ou proches de zéro (un ajustement singulier comme dans notre exemple). Cela rend instables les parts additives et interactionnelles.
+
+En présence d'ajustement singulier, une possible est d'avoir recours à l'option `engine = "brms"` qui est moins sensible. Ou se rabattre sur l'approche classique à deux modèles. Enfin, il est possible de considérer un modèle plus simple en supprimant l'une des dimensions des variables intersectionnelles (mais au prix d'un changement de la question de recherche initiale).
+
+```{r}
+cdd2 <- MAIHDA::maihda(
+  test ~ 1 + (1 | educ:milieu),
+  data = femmes,
+  family = "binomial",
+  decomposition = "crossed-dimensions"
+)
+cdd2 |> guideR::tbl_maihda(hide_coefficients = TRUE)
 ```
 
 ## Lectures complémentaires
