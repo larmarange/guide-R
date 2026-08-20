@@ -262,7 +262,9 @@ L'*intercept* traduit la situation à la référence (i.e. toutes les variables 
 Illustrons cela. Supposons donc une personne de sexe féminin, âgée entre 18 et 24 ans, de niveau d'étude primaire, pratiquante régulière et ne regardant pas la télévision (situation de référence). Seul l'*intercept* s'applique dans le modèle, et donc le modèle prédit que sa probabilité de faire du sport est de $-0,80$ selon l'échelle *logit*. Retraduisons cela en probabilité classique avec la fonction *logit inverse*.
 
 ```{r}
-logit_inverse <- binomial("logit") |> purrr::pluck("linkinv")
+logit_inverse <- 
+  binomial("logit") |> 
+  purrr::pluck("linkinv")
 logit_inverse(-0.80)
 ```
 
@@ -379,18 +381,14 @@ Lorsque le phénomène étudié est rare et donc que les probabilités sont faib
 
 La manière de présenter les résultats d'un modèle de régression varie selon les disciplines, les champs thématiques et les revues. Si en sociologie et épidémiologie on aurait plutôt tendance à afficher les *odds ratio* avec leur intervalle de confiance, il est fréquent en économétrie de présenter plutôt les coefficients bruts et leurs écarts-types (*standard deviation* ou *sd* en anglais). De même, plutôt que d'ajouter une colonne avec les p valeurs, un usage consiste à afficher des étoiles de significativité à la droite des coefficients significatifs.
 
-Pour cela, on pourra personnaliser le tableau produit avec `gtsummary::tbl_regression()`, notamment avec `gtsummary::add_significance_stars()` pour l'ajout des étoiles de significativité, ainsi que `gtsummary::modify_column_hide()` et `gtsummary::modify_column_unhide()` pour afficher / masquer les colonnes du tableau produit[^regression-logistique-binaire-5].
-
-[^regression-logistique-binaire-5]: La liste des colonnes disponibles peut être obtenues avec `mod |> tbl_regression() |> purrr::pluck("table_body") |> colnames()`.
+Pour cela, on pourra personnaliser le tableau produit avec `gtsummary::tbl_regression()`, notamment avec `gtsummary::add_significance_stars()` pour l'ajout des étoiles de significativité. La fonction masque également les intervalles de confiance, les p-valeurs et affiche les écarts-types. Ce comportement est modifiable via des arguments dédiés (voir l'aide de la fonction).
 
 ```{r}
 #| label: tbl-regression-presentation_econometrique
 #| tbl-cap: Présentation économétrique des facteurs associés à la pratique d'un sport
 mod |> 
   tbl_regression() |> 
-  add_significance_stars() |> 
-  modify_column_hide(c("ci", "p.value")) |> 
-  modify_column_unhide("std.error") 
+  add_significance_stars()
 ```
 
 Les économistes pourraient préférer le package `{modelsummary}` à `{gtsummary}`. Ces deux packages ont un objectif similaire (la production de tableaux statistiques) mais abordent cet objectif avec des approches différentes. Il faut noter que `modelsummary::modelsummary()` n'affiche pas les modalités de référence, ni les étiquettes de variable.
@@ -427,9 +425,9 @@ Mais cela ne nous dit nullement si les 65 ans et plus diffèrent des 45-64 ans. 
 
 Le package `{emmeans}` et sa fonction `emmeans::emmeans()` permettent de recalculer toutes les combinaisons d'*odds ratio* (on parle alors de *pairwise contrasts*) ainsi que leur intervalle de confiance et la p-valeur correspondante.
 
-On peut ajouter facilement[^regression-logistique-binaire-6] cela au tableau produit avec `gtsummary::tbl_regression()` en ajoutant l'option `add_pairwise_contrasts = TRUE`.
+On peut ajouter facilement[^regression-logistique-binaire-5] cela au tableau produit avec `gtsummary::tbl_regression()` en ajoutant l'option `add_pairwise_contrasts = TRUE`.
 
-[^regression-logistique-binaire-6]: Cela nécessite néanmoins au minimum la version 1.11.0 du package `{broom.helpers}` et la version 1.6.3 de `{gtsummary}`.
+[^regression-logistique-binaire-5]: Cela nécessite néanmoins au minimum la version 1.11.0 du package `{broom.helpers}` et la version 1.6.3 de `{gtsummary}`.
 
 ```{r}
 #| label: tbl-regression-logistique-pairwise
@@ -441,9 +439,9 @@ mod |>
   )
 ```
 
-De même, on peur visualiser les coefficients avec la même option dans `ggstats::ggcoef_model()`[^regression-logistique-binaire-7]. On peut d'ailleurs choisir les variables concernées avec l'argument `pairwise_variables`.
+De même, on peur visualiser les coefficients avec la même option dans `ggstats::ggcoef_model()`[^regression-logistique-binaire-6]. On peut d'ailleurs choisir les variables concernées avec l'argument `pairwise_variables`.
 
-[^regression-logistique-binaire-7]: Cela nécessite néanmoins au minimum la version 1.11.0 du package `{broom.helpers}` et la version 0.2.0 de `{ggstats}`.
+[^regression-logistique-binaire-6]: Cela nécessite néanmoins au minimum la version 1.11.0 du package `{broom.helpers}` et la version 0.2.0 de `{ggstats}`.
 
 ```{r}
 #| label: fig-forest-plot-regression-logistique-pairwise
@@ -466,9 +464,9 @@ car::Anova(mod)
 
 Ainsi, dans le cas présent, la suppression de la variable *relig* ne modifie significativement pas le modèle, indiquant l'absence d'effet de cette variable.
 
-Si l'on a recours à `gtsummary::tbl_regression()`, on peut facilement ajouter les p-valeurs globales avec `gtsummary::add_global_p()`[^regression-logistique-binaire-8].
+Si l'on a recours à `gtsummary::tbl_regression()`, on peut facilement ajouter les p-valeurs globales avec `gtsummary::add_global_p()`[^regression-logistique-binaire-7].
 
-[^regression-logistique-binaire-8]: Si l'on veut conserver les p-valeurs individuelles associées à chaque *odds ratio*, on ajoutera l'option `keep = TRUE`.
+[^regression-logistique-binaire-7]: Si l'on veut conserver les p-valeurs individuelles associées à chaque *odds ratio*, on ajoutera l'option `keep = TRUE`.
 
 ```{r}
 #| label: tbl-regression-logistique-global-p
