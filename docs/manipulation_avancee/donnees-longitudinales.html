@@ -2,17 +2,20 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="fr" xml:lang="fr"><head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.9.37">
+<meta name="generator" content="quarto-1.12.2">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 <title>42&nbsp; Données longitudinales – guide-R</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
 */
-code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
-div.columns{display: flex; gap: min(4vw, 1.5em);}
-div.column{flex: auto; overflow-x: auto;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
 div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 ul.task-list{list-style: none;}
 ul.task-list li input[type="checkbox"] {
@@ -55,7 +58,27 @@ div.sourceCode
 @media screen {
 pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
-</style>
+@media print {
+  html {
+    color-scheme: light only;
+  }
+  html, body, pre, code {
+    background-color: transparent;
+  }
+  body, a, a:visited, blockquote {
+    color: black;
+  }
+  pre, code {
+    padding: 0;
+  }
+  p, h2, h3 {
+    orphans: 3;
+    widows: 3;
+  }
+  h2, h3, h4 {
+    page-break-after: avoid;
+  }
+}</style>
 
 <script src="../site_libs/quarto-nav/quarto-nav.js"></script>
 <script src="../site_libs/quarto-nav/headroom.min.js"></script>
@@ -71,18 +94,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../site_libs/cookie-consent/cookie-consent.css" rel="stylesheet">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/scrollable-regions/scrollable-regions.js" type="module"></script>
 <script src="../site_libs/quarto-html/popper.min.js"></script>
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-7f8f88aac4f3542376d5c11b86a4c14d.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-d0ae9245876894da5ac7e18953ecc5cc.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-7f8f88aac4f3542376d5c11b86a4c14d.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-a34e72179bd910c3a0d1c193f042680d.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-6b7095a9b6a9693542ed2f2ab64557fc.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-a34e72179bd910c3a0d1c193f042680d.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-fad85691bd79911de0320b982f671d9d.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../site_libs/bootstrap/bootstrap-dark-f68506c574928121fec95fb329006eac.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<link href="../site_libs/bootstrap/bootstrap-fad85691bd79911de0320b982f671d9d.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-58f34290aeb0f1f441acb5dc787127af.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-3208342b027bcedf30363d9c3a4fd7ef.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../site_libs/bootstrap/bootstrap-58f34290aeb0f1f441acb5dc787127af.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <script src="../site_libs/quarto-contrib/glightbox/glightbox.min.js"></script>
 <link href="../site_libs/quarto-contrib/glightbox/glightbox.min.css" rel="stylesheet">
 <link href="../site_libs/quarto-contrib/glightbox/lightbox.css" rel="stylesheet"><script id="quarto-search-options" type="application/json">{
@@ -134,7 +158,7 @@ cookieconsent.run({
 </script><style>html{ scroll-behavior: smooth; }</style>
 <link rel="stylesheet" href="../styles.css">
 </head>
-<body class="nav-sidebar floating quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+<body class="nav-sidebar floating quarto-light"><a id="quarto-skip-link" class="visually-hidden-focusable" href="#quarto-document-content">Aller au contenu principal</a><script id="quarto-html-before-body" type="application/javascript">
     const toggleBodyColorMode = (bsSheetEl) => {
       const mode = bsSheetEl.getAttribute("data-mode");
       const bodyEl = window.document.querySelector("body");
@@ -157,6 +181,7 @@ cookieconsent.run({
       for (let i=0; i < toggles.length; i++) {
         const toggle = toggles[i];
         if (toggle) {
+          toggle.setAttribute("aria-checked", alternate ? "true" : "false");
           if (alternate) {
             toggle.classList.add("alternate");
           } else {
@@ -186,13 +211,19 @@ cookieconsent.run({
       manageTransitions('#quarto-margin-sidebar .nav-link', true);
       // Switch the toggles
       setColorSchemeToggle(alternate)
-      // Hack to workaround the fact that safari doesn't
-      // properly recolor the scrollbar when toggling (#1455)
+    }
+    // Hack to workaround the fact that safari doesn't
+    // properly recolor the scrollbar when toggling (#1455).
+    // Not run on load: stylesheets are set before first paint there, and
+    // scrolling would undo the scroll to a URL fragment (#14973).
+    // The one pixel nudge keeps the reader where they were.
+    const refreshSafariScrollbar = () => {
       if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
         manageTransitions("body", false);
-        window.scrollTo(0, 1);
+        const scrollY = window.scrollY;
+        window.scrollTo(0, scrollY > 0 ? scrollY - 1 : 1);
         setTimeout(() => {
-          window.scrollTo(0, 0);
+          window.scrollTo(0, scrollY);
           manageTransitions("body", true);
         }, 40);
       }
@@ -286,6 +317,7 @@ cookieconsent.run({
       // Read the current dark / light value
       let toAlternate = !hasAlternateSentinel();
       toggleColorMode(toAlternate);
+      refreshSafariScrollbar();
       setStyleSentinel(toAlternate);
       toggleGiscusIfUsed(toAlternate, darkModeDefault);
       window.dispatchEvent(new Event('resize'));
@@ -299,12 +331,12 @@ cookieconsent.run({
   </script>
 
 <div id="quarto-search-results"></div>
-  <header id="quarto-header" class="headroom fixed-top"><nav class="quarto-secondary-nav"><div class="container-fluid d-flex">
+  <header id="quarto-header" class="headroom fixed-top"><nav class="quarto-secondary-nav" aria-label="Barre d'outils"><div class="container-fluid d-flex">
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Basculer la barre latérale" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../manipulation_avancee/fusion-tables.html"><strong>Manipulation avancée</strong></a></li><li class="breadcrumb-item"><a href="../manipulation_avancee/donnees-longitudinales.html"><span class="chapter-number">42</span>&nbsp; <span class="chapter-title">Données longitudinales</span></a></li></ol></nav>
-        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Basculer la barre latérale" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        <nav class="quarto-page-breadcrumbs" aria-label="Fil d'Ariane"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../manipulation_avancee/fusion-tables.html"><strong>Manipulation avancée</strong></a></li><li class="breadcrumb-item"><a href="../manipulation_avancee/donnees-longitudinales.html"><span class="chapter-number">42</span>&nbsp; <span class="chapter-title">Données longitudinales</span></a></li></ol></nav>
+        <a class="flex-grow-1" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Recherche" onclick="window.quartoOpenSearch();">
         <i class="bi bi-search"></i>
@@ -312,15 +344,15 @@ cookieconsent.run({
     </div>
   </nav></header><!-- content --><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
 <!-- sidebar -->
-  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto"><div class="pt-lg-2 mt-2 text-left sidebar-header sidebar-header-stacked">
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto" aria-label="Site web"><div class="pt-lg-2 mt-2 text-left sidebar-header sidebar-header-stacked">
       <a href="../index.html" class="sidebar-logo-link">
       <img src="../ressources/typewriter.png" alt="" class="sidebar-logo light-content py-0 d-lg-inline d-none"><img src="../ressources/typewriter.png" alt="" class="sidebar-logo dark-content py-0 d-lg-inline d-none"></a>
     <div class="sidebar-title mb-0 py-0">
       <a href="../">guide-R</a> 
         <div class="sidebar-tools-main tools-wide">
     <a href="https://github.com/larmarange/guide-R/" title="Code source" class="quarto-navigation-tool px-1" aria-label="Code source"><i class="bi bi-github"></i></a>
-    <a href="../guide-R.epub" title="Download ePub" class="quarto-navigation-tool px-1" aria-label="Download ePub"><i class="bi bi-journal"></i></a>
-  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Basculer le mode sombre"><i class="bi"></i></a>
+    <a href="../guide-R.epub" title="Télécharger ePub" class="quarto-navigation-tool px-1" aria-label="Télécharger ePub"><i class="bi bi-journal"></i></a>
+  <button type="button" role="switch" aria-checked="false" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Basculer le mode sombre" aria-label="Basculer le mode sombre"><i class="bi"></i></button>
 </div>
     </div>
       </div>
@@ -339,13 +371,10 @@ cookieconsent.run({
 </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
- <span class="menu-text"><strong>Bases du langage</strong></span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Basculer la section">
-            <i class="bi bi-chevron-right ms-2"></i>
-          </a> 
+            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-controls="quarto-sidebar-section-1" aria-expanded="true">
+ <span class="menu-text" id="quarto-sidebar-section-1-label"><strong>Bases du langage</strong></span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
       </div>
-      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">
+      <ul id="quarto-sidebar-section-1" aria-labelledby="quarto-sidebar-section-1-label" class="collapse list-unstyled sidebar-section depth1 show">
 <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../bases/packages.html" class="sidebar-item-text sidebar-link">
@@ -386,13 +415,10 @@ cookieconsent.run({
 </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
- <span class="menu-text"><strong>Manipulation de données</strong></span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Basculer la section">
-            <i class="bi bi-chevron-right ms-2"></i>
-          </a> 
+            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-controls="quarto-sidebar-section-2" aria-expanded="true">
+ <span class="menu-text" id="quarto-sidebar-section-2-label"><strong>Manipulation de données</strong></span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
       </div>
-      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">
+      <ul id="quarto-sidebar-section-2" aria-labelledby="quarto-sidebar-section-2-label" class="collapse list-unstyled sidebar-section depth1 show">
 <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../manipulation/pipe.html" class="sidebar-item-text sidebar-link">
@@ -457,13 +483,10 @@ cookieconsent.run({
 </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
- <span class="menu-text"><strong>Analyses</strong></span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Basculer la section">
-            <i class="bi bi-chevron-right ms-2"></i>
-          </a> 
+            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" aria-controls="quarto-sidebar-section-3" aria-expanded="true">
+ <span class="menu-text" id="quarto-sidebar-section-3-label"><strong>Analyses</strong></span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
       </div>
-      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">
+      <ul id="quarto-sidebar-section-3" aria-labelledby="quarto-sidebar-section-3-label" class="collapse list-unstyled sidebar-section depth1 show">
 <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../analyses/ggplot2.html" class="sidebar-item-text sidebar-link">
@@ -546,13 +569,10 @@ cookieconsent.run({
 </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true">
- <span class="menu-text"><strong>Données pondérées avec <code>survey</code></strong></span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true" aria-label="Basculer la section">
-            <i class="bi bi-chevron-right ms-2"></i>
-          </a> 
+            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" aria-controls="quarto-sidebar-section-4" aria-expanded="true">
+ <span class="menu-text" id="quarto-sidebar-section-4-label"><strong>Données pondérées avec <code>survey</code></strong></span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
       </div>
-      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">
+      <ul id="quarto-sidebar-section-4" aria-labelledby="quarto-sidebar-section-4-label" class="collapse list-unstyled sidebar-section depth1 show">
 <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../donnees_ponderees/plan-echantillonnage.html" class="sidebar-item-text sidebar-link">
@@ -587,13 +607,10 @@ cookieconsent.run({
 </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true">
- <span class="menu-text"><strong>Manipulation avancée</strong></span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true" aria-label="Basculer la section">
-            <i class="bi bi-chevron-right ms-2"></i>
-          </a> 
+            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" aria-controls="quarto-sidebar-section-5" aria-expanded="true">
+ <span class="menu-text" id="quarto-sidebar-section-5-label"><strong>Manipulation avancée</strong></span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
       </div>
-      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">
+      <ul id="quarto-sidebar-section-5" aria-labelledby="quarto-sidebar-section-5-label" class="collapse list-unstyled sidebar-section depth1 show">
 <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../manipulation_avancee/fusion-tables.html" class="sidebar-item-text sidebar-link">
@@ -646,13 +663,10 @@ cookieconsent.run({
 </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="true">
- <span class="menu-text"><strong>Analyses avancées</strong></span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="true" aria-label="Basculer la section">
-            <i class="bi bi-chevron-right ms-2"></i>
-          </a> 
+            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" aria-controls="quarto-sidebar-section-6" aria-expanded="true">
+ <span class="menu-text" id="quarto-sidebar-section-6-label"><strong>Analyses avancées</strong></span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
       </div>
-      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 show">
+      <ul id="quarto-sidebar-section-6" aria-labelledby="quarto-sidebar-section-6-label" class="collapse list-unstyled sidebar-section depth1 show">
 <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../analyses_avancees/analyse-factorielle.html" class="sidebar-item-text sidebar-link">
@@ -723,13 +737,10 @@ cookieconsent.run({
 </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="true">
- <span class="menu-text"><strong>Pour aller plus loin</strong></span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="true" aria-label="Basculer la section">
-            <i class="bi bi-chevron-right ms-2"></i>
-          </a> 
+            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" aria-controls="quarto-sidebar-section-7" aria-expanded="true">
+ <span class="menu-text" id="quarto-sidebar-section-7-label"><strong>Pour aller plus loin</strong></span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
       </div>
-      <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth1 show">
+      <ul id="quarto-sidebar-section-7" aria-labelledby="quarto-sidebar-section-7-label" class="collapse list-unstyled sidebar-section depth1 show">
 <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../extra/ressources-documentaires.html" class="sidebar-item-text sidebar-link">
@@ -743,7 +754,7 @@ cookieconsent.run({
 </nav><div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        <nav id="TOC" role="doc-toc" class="toc-active"><h2 id="toc-title">Table des matières</h2>
+        <nav id="TOC" role="doc-toc" aria-labelledby="toc-title" class="toc-active"><h2 id="toc-title">Table des matières</h2>
    
   <ul>
 <li><a href="#diff%C3%A9rents-formats-de-donn%C3%A9es" id="toc-différents-formats-de-données" class="nav-link active" data-scroll-target="#diff%C3%A9rents-formats-de-donn%C3%A9es"><span class="header-section-number">42.1</span> Différents formats de données</a></li>
@@ -753,7 +764,7 @@ cookieconsent.run({
   </ul><div class="toc-actions"><ul><li><a href="https://github.com/larmarange/guide-R/blob/main/manipulation_avancee/donnees-longitudinales.qmd" class="toc-action"><i class="bi bi-github"></i>Voir la source</a></li><li><a href="https://github.com/larmarange/guide-R/issues/new" class="toc-action"><i class="bi empty"></i>Faire part d'un problème</a></li></ul></div></nav>
     </div>
 <!-- main -->
-<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../manipulation_avancee/fusion-tables.html"><strong>Manipulation avancée</strong></a></li><li class="breadcrumb-item"><a href="../manipulation_avancee/donnees-longitudinales.html"><span class="chapter-number">42</span>&nbsp; <span class="chapter-title">Données longitudinales</span></a></li></ol></nav><div class="quarto-title">
+<main class="content" id="quarto-document-content" tabindex="-1"><header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="Fil d'Ariane"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../manipulation_avancee/fusion-tables.html"><strong>Manipulation avancée</strong></a></li><li class="breadcrumb-item"><a href="../manipulation_avancee/donnees-longitudinales.html"><span class="chapter-number">42</span>&nbsp; <span class="chapter-title">Données longitudinales</span></a></li></ol></nav><div class="quarto-title">
 <h1 class="title"><span id="sec-donnees-longitudinales" class="quarto-section-identifier"><span class="chapter-number">42</span>&nbsp; <span class="chapter-title">Données longitudinales</span></span></h1>
 </div>
 
@@ -775,7 +786,7 @@ cookieconsent.run({
 <span class="header-section-number">42.1</span> Différents formats de données</h2>
 <p>Pour représenter l’évolution d’une ou plusieurs variables au cours du temps, plusieurs formats peuvent être utilisés.</p>
 <p>On parle de format <strong>large</strong> lorsque le jeu de données contient une seule ligne par individu, les évolutions d’une dimension au cours du temps étant codées avec une variable par pas de temps. Par exemple, dans le cadre d’une enquête sur les unions, le statut matrimonial pourrait être codés avec une variable pour coder la situation matrimonial à chaque âge&nbsp;: <em>smat20</em> pour le statut matrimonial à 20 ans, <em>smat21</em> à 21 ans, <em>smat22</em> à 22 ans, etc.</p>
-<p>Ce format est couramment utilisé par les producteurs de données dans les grandes enquêtes, car il permet de stocker l’information dans une seule grande table de données, avec les autres variables du questionnaire. C’est également le format de données attendues par certains package, par exemple <a href="http://traminer.unige.ch">TraMineR</a> dans le cadre d’une analyse de séquences (cf. <a href="../analyses_avancees/analyse-sequences.html" class="quarto-xref"><span>Chapitre 46</span></a>).</p>
+<p>Ce format est couramment utilisé par les producteurs de données dans les grandes enquêtes, car il permet de stocker l’information dans une seule grande table de données, avec les autres variables du questionnaire. C’est également le format de données attendues par certains package, par exemple <a href="https://traminer.unige.ch">TraMineR</a> dans le cadre d’une analyse de séquences (cf. <a href="../analyses_avancees/analyse-sequences.html" class="quarto-xref"><span>Chapitre 46</span></a>).</p>
 <p>Il présente néanmoins plusieurs inconvénients. Comme indiqué dans le chapitre sur les tibbles (cf. <a href="../bases/tibbles.html#sec-tidy-data" class="quarto-xref"><span>Section 5.1</span></a>), les données ne sont pas au format <em>tidy</em>, notamment car une même information (ici le statut matrimonial) est stockées dans plusieurs colonnes et car une seconde information (ici l’âge) est stockée dans l’intitulé des variables et non dans une variable en tant que telle. Le format large n’est pas très adapté pour du recodage ou encore pour le calcul d’indicateurs (par exemple l’âge au premier mariage). Ce n’est pas non plus un format adapté pour la production de graphiques avec <a href="https://ggplot2.tidyverse.org">ggplot2</a>, de tableaux avec <a href="https://github.com/ddsjoberg/gtsummary">gtsummary</a> ou la réalisation de modèles à observations répétées.</p>
 <p>Pour une représentation <em>tydy</em> des données, on optera pour un format <strong>long</strong>&nbsp;: chaque correspondra à un individu et à un pas de temps donné. Nous aurons donc une ligne pour le statut matrimonial à 20 ans, une ligne pour celui à 21 ans, etc. Dans un telle table de données, où l’unité statistique est la personne-temps, il aura donc une variable pour stocker la dimension temporelle et une autre pour le statut de l’individu. Un tel format est particulièrement adapté pour facilement représenter simultanément plusieurs dimensions de l’individu, mais également pour considérer différentes horloges. Nous verrons quelques exemples plus loin.</p>
 <p>Enfin, les données peuvent également être représentés dans un format <strong>périodique</strong>. Alors que dans un format long chaque ligne représente un pas de temps et a, de fait, la même durée, dans un format périodique chaque ligne représente une période de temps où les autres variables sont identiques. Il est donc nécessaire dans ce cas de disposer deux deux variables temporelles&nbsp;: l’une indiquant le début et la seconde la fin de la période considérée. Ce type de format est notamment attendu par <a href="https://github.com/therneau/survival">survival</a> pour la réalisation d’une analyse de survie (cf. <a href="../analyses_avancees/analyse-survie.html" class="quarto-xref"><span>Chapitre 45</span></a>) avec prise en compte de facteurs variant dans le temps.</p>
@@ -784,24 +795,24 @@ cookieconsent.run({
 <p>Prenons un exemple concret pour illustrer notre propos et voir comment passer d’un format à un autre.</p>
 <p>Le package <a href="https://framagit.org/nicolas-robette/seqhandbook">seqhandbook</a> fournit un jeu de données <code><a href="https://nicolas-robette.github.io/seqhandbook/reference/seqmsa.html">seqhandbook::seqmsa</a></code> correspondant aux trajectoires matrimoniales, parentales et résidentielles entre 14 et 35 ans de 500 personnes interrogées dans le cadre de l’enquête <em>Biographies et entourage</em> de l’Ined en 2001.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a>dlarge <span class="ot">&lt;-</span> seqhandbook<span class="sc">::</span>seqmsa</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-label="1"></a>dlarge <span class="ot">&lt;-</span> seqhandbook<span class="sc">::</span>seqmsa</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Jetons un œil aux données.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a><span class="fu">library</span>(tidyverse)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-label="1"></a><span class="fu">library</span>(tidyverse)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
-✔ dplyr     1.1.4     ✔ readr     2.1.6
+✔ dplyr     1.2.1     ✔ readr     2.2.0
 ✔ forcats   1.0.1     ✔ stringr   1.6.0
-✔ ggplot2   4.0.1     ✔ tibble    3.3.0
-✔ lubridate 1.9.4     ✔ tidyr     1.3.2
-✔ purrr     1.2.0     
+✔ ggplot2   4.0.3     ✔ tibble    3.3.1
+✔ lubridate 1.9.5     ✔ tidyr     1.3.2
+✔ purrr     1.2.2     
 ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
 ✖ dplyr::filter() masks stats::filter()
 ✖ dplyr::lag()    masks stats::lag()
 ℹ Use the conflicted package (&lt;http://conflicted.r-lib.org/&gt;) to force all conflicts to become errors</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a>dlarge <span class="sc">|&gt;</span> <span class="fu">glimpse</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-label="1"></a>dlarge <span class="sc">|&gt;</span> <span class="fu">glimpse</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Rows: 500
 Columns: 66
@@ -882,82 +893,82 @@ $ nenf35 &lt;dbl&gt; 1, 2, 2, 2, 2, 1, 0, 3, 3, 0, 2, 2, 3, 1, 0, 1, 2, 2, 2, 1,
 <p>Chaque variable est ici codée sous forme numérique.</p>
 <p>On peut noter l’absence d’identifiant individu. Commençons donc pas en créer un.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a>dlarge <span class="ot">&lt;-</span></span>
-<span id="cb6-2"><a href="#cb6-2"></a>  dlarge <span class="sc">|&gt;</span> </span>
-<span id="cb6-3"><a href="#cb6-3"></a>  <span class="fu">mutate</span>(<span class="at">id_ind =</span> <span class="fu">row_number</span>())</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-label="1"></a>dlarge <span class="ot">&lt;-</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-label="2"></a>  dlarge <span class="sc">|&gt;</span> </span>
+<span id="cb6-3"><a href="#cb6-3" aria-label="3"></a>  <span class="fu">mutate</span>(<span class="at">id_ind =</span> <span class="fu">row_number</span>())</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Pour passer à un format long, nous allons utiliser <code><a href="https://tidyr.tidyverse.org/reference/pivot_longer.html">tidyr::pivot_longer()</a></code> que nous avons déjà évoquée dans le chapitre consacré à <a href="https://tidyr.tidyverse.org">tidyr</a> (cf. <a href="tidyr.html" class="quarto-xref"><span>Chapitre 38</span></a>). Nous allons devoir traiter chaque dimension séparément avant de les fusionner avec <code><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html">dplyr::full_join()</a></code>.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a>slog <span class="ot">&lt;-</span></span>
-<span id="cb7-2"><a href="#cb7-2"></a>  dlarge <span class="sc">|&gt;</span> </span>
-<span id="cb7-3"><a href="#cb7-3"></a>  <span class="fu">select</span>(id_ind, <span class="fu">starts_with</span>(<span class="st">"slog"</span>)) <span class="sc">|&gt;</span>  </span>
-<span id="cb7-4"><a href="#cb7-4"></a>  <span class="fu">pivot_longer</span>(</span>
-<span id="cb7-5"><a href="#cb7-5"></a>    <span class="at">cols =</span> <span class="fu">starts_with</span>(<span class="st">"slog"</span>),</span>
-<span id="cb7-6"><a href="#cb7-6"></a>    <span class="at">values_to =</span> <span class="st">"slog"</span>,</span>
-<span id="cb7-7"><a href="#cb7-7"></a>    <span class="at">names_to =</span> <span class="st">"age"</span>,</span>
-<span id="cb7-8"><a href="#cb7-8"></a>    <span class="at">names_prefix =</span> <span class="st">"slog"</span></span>
-<span id="cb7-9"><a href="#cb7-9"></a>  )</span>
-<span id="cb7-10"><a href="#cb7-10"></a></span>
-<span id="cb7-11"><a href="#cb7-11"></a>smat <span class="ot">&lt;-</span></span>
-<span id="cb7-12"><a href="#cb7-12"></a>  dlarge <span class="sc">|&gt;</span> </span>
-<span id="cb7-13"><a href="#cb7-13"></a>  <span class="fu">select</span>(id_ind, <span class="fu">starts_with</span>(<span class="st">"smat"</span>)) <span class="sc">|&gt;</span>  </span>
-<span id="cb7-14"><a href="#cb7-14"></a>  <span class="fu">pivot_longer</span>(</span>
-<span id="cb7-15"><a href="#cb7-15"></a>    <span class="at">cols =</span> <span class="fu">starts_with</span>(<span class="st">"smat"</span>),</span>
-<span id="cb7-16"><a href="#cb7-16"></a>    <span class="at">values_to =</span> <span class="st">"smat"</span>,</span>
-<span id="cb7-17"><a href="#cb7-17"></a>    <span class="at">names_to =</span> <span class="st">"age"</span>,</span>
-<span id="cb7-18"><a href="#cb7-18"></a>    <span class="at">names_prefix =</span> <span class="st">"smat"</span></span>
-<span id="cb7-19"><a href="#cb7-19"></a>  )</span>
-<span id="cb7-20"><a href="#cb7-20"></a></span>
-<span id="cb7-21"><a href="#cb7-21"></a>nenf <span class="ot">&lt;-</span></span>
-<span id="cb7-22"><a href="#cb7-22"></a>  dlarge <span class="sc">|&gt;</span> </span>
-<span id="cb7-23"><a href="#cb7-23"></a>  <span class="fu">select</span>(id_ind, <span class="fu">starts_with</span>(<span class="st">"nenf"</span>)) <span class="sc">|&gt;</span>  </span>
-<span id="cb7-24"><a href="#cb7-24"></a>  <span class="fu">pivot_longer</span>(</span>
-<span id="cb7-25"><a href="#cb7-25"></a>    <span class="at">cols =</span> <span class="fu">starts_with</span>(<span class="st">"nenf"</span>),</span>
-<span id="cb7-26"><a href="#cb7-26"></a>    <span class="at">values_to =</span> <span class="st">"nenf"</span>,</span>
-<span id="cb7-27"><a href="#cb7-27"></a>    <span class="at">names_to =</span> <span class="st">"age"</span>,</span>
-<span id="cb7-28"><a href="#cb7-28"></a>    <span class="at">names_prefix =</span> <span class="st">"nenf"</span></span>
-<span id="cb7-29"><a href="#cb7-29"></a>  )</span>
-<span id="cb7-30"><a href="#cb7-30"></a></span>
-<span id="cb7-31"><a href="#cb7-31"></a>dlong <span class="ot">&lt;-</span></span>
-<span id="cb7-32"><a href="#cb7-32"></a>  slog <span class="sc">|&gt;</span> </span>
-<span id="cb7-33"><a href="#cb7-33"></a>  <span class="fu">full_join</span>(smat, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"id_ind"</span>, <span class="st">"age"</span>)) <span class="sc">|&gt;</span> </span>
-<span id="cb7-34"><a href="#cb7-34"></a>  <span class="fu">full_join</span>(nenf, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"id_ind"</span>, <span class="st">"age"</span>)) <span class="sc">|&gt;</span> </span>
-<span id="cb7-35"><a href="#cb7-35"></a>  <span class="fu">mutate</span>(<span class="at">age =</span> <span class="fu">as.integer</span>(age))</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-label="1"></a>slog <span class="ot">&lt;-</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-label="2"></a>  dlarge <span class="sc">|&gt;</span> </span>
+<span id="cb7-3"><a href="#cb7-3" aria-label="3"></a>  <span class="fu">select</span>(id_ind, <span class="fu">starts_with</span>(<span class="st">"slog"</span>)) <span class="sc">|&gt;</span>  </span>
+<span id="cb7-4"><a href="#cb7-4" aria-label="4"></a>  <span class="fu">pivot_longer</span>(</span>
+<span id="cb7-5"><a href="#cb7-5" aria-label="5"></a>    <span class="at">cols =</span> <span class="fu">starts_with</span>(<span class="st">"slog"</span>),</span>
+<span id="cb7-6"><a href="#cb7-6" aria-label="6"></a>    <span class="at">values_to =</span> <span class="st">"slog"</span>,</span>
+<span id="cb7-7"><a href="#cb7-7" aria-label="7"></a>    <span class="at">names_to =</span> <span class="st">"age"</span>,</span>
+<span id="cb7-8"><a href="#cb7-8" aria-label="8"></a>    <span class="at">names_prefix =</span> <span class="st">"slog"</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-label="9"></a>  )</span>
+<span id="cb7-10"><a href="#cb7-10" aria-label="10"></a></span>
+<span id="cb7-11"><a href="#cb7-11" aria-label="11"></a>smat <span class="ot">&lt;-</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-label="12"></a>  dlarge <span class="sc">|&gt;</span> </span>
+<span id="cb7-13"><a href="#cb7-13" aria-label="13"></a>  <span class="fu">select</span>(id_ind, <span class="fu">starts_with</span>(<span class="st">"smat"</span>)) <span class="sc">|&gt;</span>  </span>
+<span id="cb7-14"><a href="#cb7-14" aria-label="14"></a>  <span class="fu">pivot_longer</span>(</span>
+<span id="cb7-15"><a href="#cb7-15" aria-label="15"></a>    <span class="at">cols =</span> <span class="fu">starts_with</span>(<span class="st">"smat"</span>),</span>
+<span id="cb7-16"><a href="#cb7-16" aria-label="16"></a>    <span class="at">values_to =</span> <span class="st">"smat"</span>,</span>
+<span id="cb7-17"><a href="#cb7-17" aria-label="17"></a>    <span class="at">names_to =</span> <span class="st">"age"</span>,</span>
+<span id="cb7-18"><a href="#cb7-18" aria-label="18"></a>    <span class="at">names_prefix =</span> <span class="st">"smat"</span></span>
+<span id="cb7-19"><a href="#cb7-19" aria-label="19"></a>  )</span>
+<span id="cb7-20"><a href="#cb7-20" aria-label="20"></a></span>
+<span id="cb7-21"><a href="#cb7-21" aria-label="21"></a>nenf <span class="ot">&lt;-</span></span>
+<span id="cb7-22"><a href="#cb7-22" aria-label="22"></a>  dlarge <span class="sc">|&gt;</span> </span>
+<span id="cb7-23"><a href="#cb7-23" aria-label="23"></a>  <span class="fu">select</span>(id_ind, <span class="fu">starts_with</span>(<span class="st">"nenf"</span>)) <span class="sc">|&gt;</span>  </span>
+<span id="cb7-24"><a href="#cb7-24" aria-label="24"></a>  <span class="fu">pivot_longer</span>(</span>
+<span id="cb7-25"><a href="#cb7-25" aria-label="25"></a>    <span class="at">cols =</span> <span class="fu">starts_with</span>(<span class="st">"nenf"</span>),</span>
+<span id="cb7-26"><a href="#cb7-26" aria-label="26"></a>    <span class="at">values_to =</span> <span class="st">"nenf"</span>,</span>
+<span id="cb7-27"><a href="#cb7-27" aria-label="27"></a>    <span class="at">names_to =</span> <span class="st">"age"</span>,</span>
+<span id="cb7-28"><a href="#cb7-28" aria-label="28"></a>    <span class="at">names_prefix =</span> <span class="st">"nenf"</span></span>
+<span id="cb7-29"><a href="#cb7-29" aria-label="29"></a>  )</span>
+<span id="cb7-30"><a href="#cb7-30" aria-label="30"></a></span>
+<span id="cb7-31"><a href="#cb7-31" aria-label="31"></a>dlong <span class="ot">&lt;-</span></span>
+<span id="cb7-32"><a href="#cb7-32" aria-label="32"></a>  slog <span class="sc">|&gt;</span> </span>
+<span id="cb7-33"><a href="#cb7-33" aria-label="33"></a>  <span class="fu">full_join</span>(smat, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"id_ind"</span>, <span class="st">"age"</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb7-34"><a href="#cb7-34" aria-label="34"></a>  <span class="fu">full_join</span>(nenf, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"id_ind"</span>, <span class="st">"age"</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb7-35"><a href="#cb7-35" aria-label="35"></a>  <span class="fu">mutate</span>(<span class="at">age =</span> <span class="fu">as.integer</span>(age))</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Il est maintenant aisé de documenter nos données avec <a href="https://larmarange.github.io/labelled/">labelled</a>. Nous allons utiliser <code><a href="https://larmarange.github.io/labelled/reference/val_labels.html">labelled::set_value_labels()</a></code> pour définir des étiquettes de valeurs puis <code><a href="https://larmarange.github.io/labelled/reference/to_factor.html">labelled::unlabelled()</a></code> pour convertir les trois variables de statut en facteurs (cf. <a href="../manipulation/etiquettes-valeurs.html" class="quarto-xref"><span>Chapitre 12</span></a>).</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a><span class="fu">library</span>(labelled)</span>
-<span id="cb8-2"><a href="#cb8-2"></a>dlong <span class="ot">&lt;-</span></span>
-<span id="cb8-3"><a href="#cb8-3"></a>  dlong <span class="sc">|&gt;</span> </span>
-<span id="cb8-4"><a href="#cb8-4"></a>  <span class="fu">set_variable_labels</span>(</span>
-<span id="cb8-5"><a href="#cb8-5"></a>    <span class="at">age =</span> <span class="st">"Âge"</span>,</span>
-<span id="cb8-6"><a href="#cb8-6"></a>    <span class="at">slog =</span> <span class="st">"Statut résidentiel"</span>,</span>
-<span id="cb8-7"><a href="#cb8-7"></a>    <span class="at">smat =</span> <span class="st">"Statut matrimonial"</span>,</span>
-<span id="cb8-8"><a href="#cb8-8"></a>    <span class="at">nenf =</span> <span class="st">"Statut parental"</span></span>
-<span id="cb8-9"><a href="#cb8-9"></a>  ) <span class="sc">|&gt;</span> </span>
-<span id="cb8-10"><a href="#cb8-10"></a>  <span class="fu">set_value_labels</span>(</span>
-<span id="cb8-11"><a href="#cb8-11"></a>    <span class="at">slog =</span> <span class="fu">c</span>(</span>
-<span id="cb8-12"><a href="#cb8-12"></a>      <span class="st">"non indépendant"</span> <span class="ot">=</span> <span class="dv">0</span>,</span>
-<span id="cb8-13"><a href="#cb8-13"></a>      <span class="st">"logement indépendant"</span> <span class="ot">=</span> <span class="dv">1</span></span>
-<span id="cb8-14"><a href="#cb8-14"></a>    ),</span>
-<span id="cb8-15"><a href="#cb8-15"></a>    <span class="at">smat =</span> <span class="fu">c</span>(</span>
-<span id="cb8-16"><a href="#cb8-16"></a>      <span class="st">"jamais en union"</span> <span class="ot">=</span> <span class="dv">1</span>,</span>
-<span id="cb8-17"><a href="#cb8-17"></a>      <span class="st">"union cohabitante"</span> <span class="ot">=</span> <span class="dv">2</span>,</span>
-<span id="cb8-18"><a href="#cb8-18"></a>      <span class="st">"marié·e"</span> <span class="ot">=</span> <span class="dv">3</span>,</span>
-<span id="cb8-19"><a href="#cb8-19"></a>      <span class="st">"séparé·e"</span> <span class="ot">=</span> <span class="dv">4</span></span>
-<span id="cb8-20"><a href="#cb8-20"></a>    ),</span>
-<span id="cb8-21"><a href="#cb8-21"></a>    <span class="at">nenf =</span> <span class="fu">c</span>(</span>
-<span id="cb8-22"><a href="#cb8-22"></a>      <span class="st">"sans enfant"</span> <span class="ot">=</span> <span class="dv">0</span>,</span>
-<span id="cb8-23"><a href="#cb8-23"></a>      <span class="st">"1 enfant"</span> <span class="ot">=</span> <span class="dv">1</span>,</span>
-<span id="cb8-24"><a href="#cb8-24"></a>      <span class="st">"2 enfants"</span> <span class="ot">=</span> <span class="dv">2</span>,</span>
-<span id="cb8-25"><a href="#cb8-25"></a>      <span class="st">"3 enfants ou +"</span> <span class="ot">=</span> <span class="dv">3</span></span>
-<span id="cb8-26"><a href="#cb8-26"></a>    )</span>
-<span id="cb8-27"><a href="#cb8-27"></a>  ) <span class="sc">|&gt;</span> </span>
-<span id="cb8-28"><a href="#cb8-28"></a>  <span class="fu">unlabelled</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-label="1"></a><span class="fu">library</span>(labelled)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-label="2"></a>dlong <span class="ot">&lt;-</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-label="3"></a>  dlong <span class="sc">|&gt;</span> </span>
+<span id="cb8-4"><a href="#cb8-4" aria-label="4"></a>  <span class="fu">set_variable_labels</span>(</span>
+<span id="cb8-5"><a href="#cb8-5" aria-label="5"></a>    <span class="at">age =</span> <span class="st">"Âge"</span>,</span>
+<span id="cb8-6"><a href="#cb8-6" aria-label="6"></a>    <span class="at">slog =</span> <span class="st">"Statut résidentiel"</span>,</span>
+<span id="cb8-7"><a href="#cb8-7" aria-label="7"></a>    <span class="at">smat =</span> <span class="st">"Statut matrimonial"</span>,</span>
+<span id="cb8-8"><a href="#cb8-8" aria-label="8"></a>    <span class="at">nenf =</span> <span class="st">"Statut parental"</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-label="9"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb8-10"><a href="#cb8-10" aria-label="10"></a>  <span class="fu">set_value_labels</span>(</span>
+<span id="cb8-11"><a href="#cb8-11" aria-label="11"></a>    <span class="at">slog =</span> <span class="fu">c</span>(</span>
+<span id="cb8-12"><a href="#cb8-12" aria-label="12"></a>      <span class="st">"non indépendant"</span> <span class="ot">=</span> <span class="dv">0</span>,</span>
+<span id="cb8-13"><a href="#cb8-13" aria-label="13"></a>      <span class="st">"logement indépendant"</span> <span class="ot">=</span> <span class="dv">1</span></span>
+<span id="cb8-14"><a href="#cb8-14" aria-label="14"></a>    ),</span>
+<span id="cb8-15"><a href="#cb8-15" aria-label="15"></a>    <span class="at">smat =</span> <span class="fu">c</span>(</span>
+<span id="cb8-16"><a href="#cb8-16" aria-label="16"></a>      <span class="st">"jamais en union"</span> <span class="ot">=</span> <span class="dv">1</span>,</span>
+<span id="cb8-17"><a href="#cb8-17" aria-label="17"></a>      <span class="st">"union cohabitante"</span> <span class="ot">=</span> <span class="dv">2</span>,</span>
+<span id="cb8-18"><a href="#cb8-18" aria-label="18"></a>      <span class="st">"marié·e"</span> <span class="ot">=</span> <span class="dv">3</span>,</span>
+<span id="cb8-19"><a href="#cb8-19" aria-label="19"></a>      <span class="st">"séparé·e"</span> <span class="ot">=</span> <span class="dv">4</span></span>
+<span id="cb8-20"><a href="#cb8-20" aria-label="20"></a>    ),</span>
+<span id="cb8-21"><a href="#cb8-21" aria-label="21"></a>    <span class="at">nenf =</span> <span class="fu">c</span>(</span>
+<span id="cb8-22"><a href="#cb8-22" aria-label="22"></a>      <span class="st">"sans enfant"</span> <span class="ot">=</span> <span class="dv">0</span>,</span>
+<span id="cb8-23"><a href="#cb8-23" aria-label="23"></a>      <span class="st">"1 enfant"</span> <span class="ot">=</span> <span class="dv">1</span>,</span>
+<span id="cb8-24"><a href="#cb8-24" aria-label="24"></a>      <span class="st">"2 enfants"</span> <span class="ot">=</span> <span class="dv">2</span>,</span>
+<span id="cb8-25"><a href="#cb8-25" aria-label="25"></a>      <span class="st">"3 enfants ou +"</span> <span class="ot">=</span> <span class="dv">3</span></span>
+<span id="cb8-26"><a href="#cb8-26" aria-label="26"></a>    )</span>
+<span id="cb8-27"><a href="#cb8-27" aria-label="27"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb8-28"><a href="#cb8-28" aria-label="28"></a>  <span class="fu">unlabelled</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Voyons maintenant à quoi ressemble notre fichier long&nbsp;:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a>dlong</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-label="1"></a>dlong</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 11,000 × 5
    id_ind   age slog            smat            nenf       
@@ -978,12 +989,12 @@ $ nenf35 &lt;dbl&gt; 1, 2, 2, 2, 2, 1, 0, 3, 3, 0, 2, 2, 3, 1, 0, 1, 2, 2, 2, 1,
 <p>Le passage d’un format long à un format périodique est souvent un peu plus complexe, car cela nécessite d’identifier les successions de lignes identiques puis de les regrouper en retenant l’âge du début et l’âge de la fin de la période. Dans ce cadre, les fonctions <code><a href="https://larmarange.github.io/guideR/reference/is_different.html">guideR::cumdifferent()</a></code> et <code><a href="https://larmarange.github.io/guideR/reference/is_different.html">guideR::num_cycle()</a></code> que nous avons abordé dans le chapitre sur les fonctions à fenêtre peuvent être utiles (cf. <a href="fonctions-a-fenetre.html#sec-fonctions-cumulatives" class="quarto-xref"><span>Section 40.4</span></a>). Heureusement, <a href="https://larmarange.github.io/guideR/">guideR</a>, le package compagnon de <em>guide-R</em>, propose une fonction <code><a href="https://larmarange.github.io/guideR/reference/long_to_periods.html">guideR::long_to_periods()</a></code> justement dédiée à la conversion d’un format long à un format périodique.</p>
 <p>La première chose est de bien définir les variables à prendre en compte pour l’identification des périodes. En effet, cela impactera sur le nombre de périodes obtenues. Si l’on se contente d’indiquer un identifiant individuel et une variable temporelle, alors le résultat n’inclura qu’une période par individu en renverra le premier âge et le dernier âge connu.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a><span class="fu">library</span>(guideR)</span>
-<span id="cb11-2"><a href="#cb11-2"></a>dlong <span class="sc">|&gt;</span> </span>
-<span id="cb11-3"><a href="#cb11-3"></a>  <span class="fu">long_to_periods</span>(</span>
-<span id="cb11-4"><a href="#cb11-4"></a>    <span class="at">id =</span> id_ind,</span>
-<span id="cb11-5"><a href="#cb11-5"></a>    <span class="at">start =</span> age</span>
-<span id="cb11-6"><a href="#cb11-6"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-label="1"></a><span class="fu">library</span>(guideR)</span>
+<span id="cb11-2"><a href="#cb11-2" aria-label="2"></a>dlong <span class="sc">|&gt;</span> </span>
+<span id="cb11-3"><a href="#cb11-3" aria-label="3"></a>  <span class="fu">long_to_periods</span>(</span>
+<span id="cb11-4"><a href="#cb11-4" aria-label="4"></a>    <span class="at">id =</span> id_ind,</span>
+<span id="cb11-5"><a href="#cb11-5" aria-label="5"></a>    <span class="at">start =</span> age</span>
+<span id="cb11-6"><a href="#cb11-6" aria-label="6"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 500 × 3
 # Groups:   id_ind [500]
@@ -1004,12 +1015,12 @@ $ nenf35 &lt;dbl&gt; 1, 2, 2, 2, 2, 1, 0, 3, 3, 0, 2, 2, 3, 1, 0, 1, 2, 2, 2, 1,
 </div>
 <p>Si je passe la variable <em>slog</em> au paramètre <code>by</code>, alors une nouvelle période sera créée à chaque fois que le statut résidentiel change.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a>dlong <span class="sc">|&gt;</span> </span>
-<span id="cb13-2"><a href="#cb13-2"></a>  <span class="fu">long_to_periods</span>(</span>
-<span id="cb13-3"><a href="#cb13-3"></a>    <span class="at">id =</span> id_ind,</span>
-<span id="cb13-4"><a href="#cb13-4"></a>    <span class="at">start =</span> age,</span>
-<span id="cb13-5"><a href="#cb13-5"></a>    <span class="at">by =</span> slog</span>
-<span id="cb13-6"><a href="#cb13-6"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-label="1"></a>dlong <span class="sc">|&gt;</span> </span>
+<span id="cb13-2"><a href="#cb13-2" aria-label="2"></a>  <span class="fu">long_to_periods</span>(</span>
+<span id="cb13-3"><a href="#cb13-3" aria-label="3"></a>    <span class="at">id =</span> id_ind,</span>
+<span id="cb13-4"><a href="#cb13-4" aria-label="4"></a>    <span class="at">start =</span> age,</span>
+<span id="cb13-5"><a href="#cb13-5" aria-label="5"></a>    <span class="at">by =</span> slog</span>
+<span id="cb13-6"><a href="#cb13-6" aria-label="6"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 1,131 × 4
 # Groups:   id_ind [500]
@@ -1031,18 +1042,18 @@ $ nenf35 &lt;dbl&gt; 1, 2, 2, 2, 2, 1, 0, 3, 3, 0, 2, 2, 3, 1, 0, 1, 2, 2, 2, 1,
 <p>Nous pouvons ainsi voir que l’individu n’avait pas de logement indépendant de l’âge de 14 à 26 ans puis a eu un logement indépendant de 26 à 35 ans.</p>
 <p>Si l’on passe plusieurs variables à <code>by</code>, alors une nouvelle période sera créée à chaque changement d’une de ces variables.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1"></a>dperiods <span class="ot">&lt;-</span></span>
-<span id="cb15-2"><a href="#cb15-2"></a>  dlong <span class="sc">|&gt;</span> </span>
-<span id="cb15-3"><a href="#cb15-3"></a>  <span class="fu">long_to_periods</span>(</span>
-<span id="cb15-4"><a href="#cb15-4"></a>    <span class="at">id =</span> id_ind,</span>
-<span id="cb15-5"><a href="#cb15-5"></a>    <span class="at">start =</span> age,</span>
-<span id="cb15-6"><a href="#cb15-6"></a>    <span class="at">by =</span> <span class="fu">c</span>(slog, smat, nenf)</span>
-<span id="cb15-7"><a href="#cb15-7"></a>  ) <span class="sc">|&gt;</span> </span>
-<span id="cb15-8"><a href="#cb15-8"></a>  <span class="fu">rename</span>(</span>
-<span id="cb15-9"><a href="#cb15-9"></a>    <span class="at">debut =</span> age,</span>
-<span id="cb15-10"><a href="#cb15-10"></a>    <span class="at">fin =</span> .stop</span>
-<span id="cb15-11"><a href="#cb15-11"></a>  )</span>
-<span id="cb15-12"><a href="#cb15-12"></a>dperiods</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-label="1"></a>dperiods <span class="ot">&lt;-</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-label="2"></a>  dlong <span class="sc">|&gt;</span> </span>
+<span id="cb15-3"><a href="#cb15-3" aria-label="3"></a>  <span class="fu">long_to_periods</span>(</span>
+<span id="cb15-4"><a href="#cb15-4" aria-label="4"></a>    <span class="at">id =</span> id_ind,</span>
+<span id="cb15-5"><a href="#cb15-5" aria-label="5"></a>    <span class="at">start =</span> age,</span>
+<span id="cb15-6"><a href="#cb15-6" aria-label="6"></a>    <span class="at">by =</span> <span class="fu">c</span>(slog, smat, nenf)</span>
+<span id="cb15-7"><a href="#cb15-7" aria-label="7"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb15-8"><a href="#cb15-8" aria-label="8"></a>  <span class="fu">rename</span>(</span>
+<span id="cb15-9"><a href="#cb15-9" aria-label="9"></a>    <span class="at">debut =</span> age,</span>
+<span id="cb15-10"><a href="#cb15-10" aria-label="10"></a>    <span class="at">fin =</span> .stop</span>
+<span id="cb15-11"><a href="#cb15-11" aria-label="11"></a>  )</span>
+<span id="cb15-12"><a href="#cb15-12" aria-label="12"></a>dperiods</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 2,203 × 6
 # Groups:   id_ind [500]
@@ -1063,13 +1074,13 @@ $ nenf35 &lt;dbl&gt; 1, 2, 2, 2, 2, 1, 0, 3, 3, 0, 2, 2, 3, 1, 0, 1, 2, 2, 2, 1,
 </div>
 <p>Pour repasser d’un format long à un format large, on aura recours à <code><a href="https://tidyr.tidyverse.org/reference/pivot_wider.html">tidyr::pivot_wider()</a></code> et pour le passage d’un format périodique à un format long à <code><a href="https://larmarange.github.io/guideR/reference/periods_to_long.html">guideR::periods_to_long()</a></code>.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1"></a>dlong <span class="sc">|&gt;</span> </span>
-<span id="cb17-2"><a href="#cb17-2"></a>  <span class="fu">pivot_wider</span>(</span>
-<span id="cb17-3"><a href="#cb17-3"></a>    <span class="at">id_cols =</span> id_ind,</span>
-<span id="cb17-4"><a href="#cb17-4"></a>    <span class="at">names_from =</span> age,</span>
-<span id="cb17-5"><a href="#cb17-5"></a>    <span class="at">names_prefix =</span> <span class="st">"log_"</span>,</span>
-<span id="cb17-6"><a href="#cb17-6"></a>    <span class="at">values_from =</span> slog</span>
-<span id="cb17-7"><a href="#cb17-7"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-label="1"></a>dlong <span class="sc">|&gt;</span> </span>
+<span id="cb17-2"><a href="#cb17-2" aria-label="2"></a>  <span class="fu">pivot_wider</span>(</span>
+<span id="cb17-3"><a href="#cb17-3" aria-label="3"></a>    <span class="at">id_cols =</span> id_ind,</span>
+<span id="cb17-4"><a href="#cb17-4" aria-label="4"></a>    <span class="at">names_from =</span> age,</span>
+<span id="cb17-5"><a href="#cb17-5" aria-label="5"></a>    <span class="at">names_prefix =</span> <span class="st">"log_"</span>,</span>
+<span id="cb17-6"><a href="#cb17-6" aria-label="6"></a>    <span class="at">values_from =</span> slog</span>
+<span id="cb17-7"><a href="#cb17-7" aria-label="7"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 500 × 23
    id_ind log_14  log_15 log_16 log_17 log_18 log_19 log_20 log_21 log_22 log_23
@@ -1089,13 +1100,13 @@ $ nenf35 &lt;dbl&gt; 1, 2, 2, 2, 2, 1, 0, 3, 3, 0, 2, 2, 3, 1, 0, 1, 2, 2, 2, 1,
 #   log_28 &lt;fct&gt;, log_29 &lt;fct&gt;, log_30 &lt;fct&gt;, log_31 &lt;fct&gt;, log_32 &lt;fct&gt;,
 #   log_33 &lt;fct&gt;, log_34 &lt;fct&gt;, log_35 &lt;fct&gt;</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1"></a>dperiods <span class="sc">|&gt;</span> </span>
-<span id="cb19-2"><a href="#cb19-2"></a>  <span class="fu">periods_to_long</span>(</span>
-<span id="cb19-3"><a href="#cb19-3"></a>    <span class="at">start =</span> debut,</span>
-<span id="cb19-4"><a href="#cb19-4"></a>    <span class="at">stop =</span> fin,</span>
-<span id="cb19-5"><a href="#cb19-5"></a>    <span class="at">time_step =</span> <span class="dv">1</span>,</span>
-<span id="cb19-6"><a href="#cb19-6"></a>    <span class="at">time_name =</span> <span class="st">"age"</span></span>
-<span id="cb19-7"><a href="#cb19-7"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-label="1"></a>dperiods <span class="sc">|&gt;</span> </span>
+<span id="cb19-2"><a href="#cb19-2" aria-label="2"></a>  <span class="fu">periods_to_long</span>(</span>
+<span id="cb19-3"><a href="#cb19-3" aria-label="3"></a>    <span class="at">start =</span> debut,</span>
+<span id="cb19-4"><a href="#cb19-4" aria-label="4"></a>    <span class="at">stop =</span> fin,</span>
+<span id="cb19-5"><a href="#cb19-5" aria-label="5"></a>    <span class="at">time_step =</span> <span class="dv">1</span>,</span>
+<span id="cb19-6"><a href="#cb19-6" aria-label="6"></a>    <span class="at">time_name =</span> <span class="st">"age"</span></span>
+<span id="cb19-7"><a href="#cb19-7" aria-label="7"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 12,703 × 5
 # Groups:   id_ind [500]
@@ -1118,12 +1129,12 @@ $ nenf35 &lt;dbl&gt; 1, 2, 2, 2, 2, 1, 0, 3, 3, 0, 2, 2, 3, 1, 0, 1, 2, 2, 2, 1,
 <span class="header-section-number">42.3</span> Exemples de visualisation et de manipulation</h2>
 <p>Pour visualiser rapidement les trajectoires individuelles, <a href="https://larmarange.github.io/guideR/">guideR</a> propose une fonction <code><a href="https://larmarange.github.io/guideR/reference/plot_trajectories.html">guideR::plot_trajectories()</a></code> qui part d’une table de données au format long. On parle de <em>tapis de séquences</em>. Par exemple, pour les trajectoires résidentielles selon l’âge.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1"></a>dlong <span class="sc">|&gt;</span> </span>
-<span id="cb21-2"><a href="#cb21-2"></a>  <span class="fu">plot_trajectories</span>(</span>
-<span id="cb21-3"><a href="#cb21-3"></a>    <span class="at">id =</span> id_ind,</span>
-<span id="cb21-4"><a href="#cb21-4"></a>    <span class="at">time =</span> age,</span>
-<span id="cb21-5"><a href="#cb21-5"></a>    <span class="at">fill =</span> slog</span>
-<span id="cb21-6"><a href="#cb21-6"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-label="1"></a>dlong <span class="sc">|&gt;</span> </span>
+<span id="cb21-2"><a href="#cb21-2" aria-label="2"></a>  <span class="fu">plot_trajectories</span>(</span>
+<span id="cb21-3"><a href="#cb21-3" aria-label="3"></a>    <span class="at">id =</span> id_ind,</span>
+<span id="cb21-4"><a href="#cb21-4" aria-label="4"></a>    <span class="at">time =</span> age,</span>
+<span id="cb21-5"><a href="#cb21-5" aria-label="5"></a>    <span class="at">fill =</span> slog</span>
+<span id="cb21-6"><a href="#cb21-6" aria-label="6"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure"><p><a href="donnees-longitudinales_files/figure-html/unnamed-chunk-11-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-1"><img src="donnees-longitudinales_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid figure-img" width="672"></a></p>
@@ -1135,15 +1146,15 @@ $ nenf35 &lt;dbl&gt; 1, 2, 2, 2, 2, 1, 0, 3, 3, 0, 2, 2, 3, 1, 0, 1, 2, 2, 2, 1,
 <p>Nous pouvons nous demander s’il y a un lien entre l’entrée en union et le statut résidentiel.</p>
 <p>Première étape, calculons, pour chaque individu, l’âge de première entrée en union. Il s’agit donc du plus petit âge ou le statut matrimonial est différent de <q>jamais en union</q>. Cela est relativement facile avec un format long et les verbes de <a href="https://dplyr.tidyverse.org">dplyr</a>.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1"></a>age_1u <span class="ot">&lt;-</span></span>
-<span id="cb22-2"><a href="#cb22-2"></a>  dlong <span class="sc">|&gt;</span> </span>
-<span id="cb22-3"><a href="#cb22-3"></a>  <span class="fu">filter</span>(smat <span class="sc">!=</span> <span class="st">"jamais en union"</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb22-4"><a href="#cb22-4"></a>  <span class="fu">group_by</span>(id_ind) <span class="sc">|&gt;</span> </span>
-<span id="cb22-5"><a href="#cb22-5"></a>  <span class="fu">summarise</span>(<span class="at">age_1u =</span> <span class="fu">min</span>(age)) <span class="sc">|&gt;</span> </span>
-<span id="cb22-6"><a href="#cb22-6"></a>  <span class="fu">set_variable_labels</span>(</span>
-<span id="cb22-7"><a href="#cb22-7"></a>    <span class="at">age_1u =</span> <span class="st">"Âge à la première union"</span></span>
-<span id="cb22-8"><a href="#cb22-8"></a>  )</span>
-<span id="cb22-9"><a href="#cb22-9"></a>age_1u</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-label="1"></a>age_1u <span class="ot">&lt;-</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-label="2"></a>  dlong <span class="sc">|&gt;</span> </span>
+<span id="cb22-3"><a href="#cb22-3" aria-label="3"></a>  <span class="fu">filter</span>(smat <span class="sc">!=</span> <span class="st">"jamais en union"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb22-4"><a href="#cb22-4" aria-label="4"></a>  <span class="fu">group_by</span>(id_ind) <span class="sc">|&gt;</span> </span>
+<span id="cb22-5"><a href="#cb22-5" aria-label="5"></a>  <span class="fu">summarise</span>(<span class="at">age_1u =</span> <span class="fu">min</span>(age)) <span class="sc">|&gt;</span> </span>
+<span id="cb22-6"><a href="#cb22-6" aria-label="6"></a>  <span class="fu">set_variable_labels</span>(</span>
+<span id="cb22-7"><a href="#cb22-7" aria-label="7"></a>    <span class="at">age_1u =</span> <span class="st">"Âge à la première union"</span></span>
+<span id="cb22-8"><a href="#cb22-8" aria-label="8"></a>  )</span>
+<span id="cb22-9"><a href="#cb22-9" aria-label="9"></a>age_1u</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 459 × 2
    id_ind age_1u
@@ -1163,18 +1174,18 @@ $ nenf35 &lt;dbl&gt; 1, 2, 2, 2, 2, 1, 0, 3, 3, 0, 2, 2, 3, 1, 0, 1, 2, 2, 2, 1,
 </div>
 <p>Ajoutons cette variable au fichier long et trions notre graphique précédent selon cette variable.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1"></a>dlong <span class="ot">&lt;-</span></span>
-<span id="cb24-2"><a href="#cb24-2"></a>  dlong <span class="sc">|&gt;</span> </span>
-<span id="cb24-3"><a href="#cb24-3"></a>  <span class="fu">left_join</span>(age_1u, <span class="at">by =</span> <span class="st">"id_ind"</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-label="1"></a>dlong <span class="ot">&lt;-</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-label="2"></a>  dlong <span class="sc">|&gt;</span> </span>
+<span id="cb24-3"><a href="#cb24-3" aria-label="3"></a>  <span class="fu">left_join</span>(age_1u, <span class="at">by =</span> <span class="st">"id_ind"</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1"></a>dlong <span class="sc">|&gt;</span> </span>
-<span id="cb25-2"><a href="#cb25-2"></a>  <span class="fu">plot_trajectories</span>(</span>
-<span id="cb25-3"><a href="#cb25-3"></a>    <span class="at">id =</span> id_ind,</span>
-<span id="cb25-4"><a href="#cb25-4"></a>    <span class="at">time =</span> age,</span>
-<span id="cb25-5"><a href="#cb25-5"></a>    <span class="at">fill =</span> slog,</span>
-<span id="cb25-6"><a href="#cb25-6"></a>    <span class="at">sort_by =</span> age_1u</span>
-<span id="cb25-7"><a href="#cb25-7"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-label="1"></a>dlong <span class="sc">|&gt;</span> </span>
+<span id="cb25-2"><a href="#cb25-2" aria-label="2"></a>  <span class="fu">plot_trajectories</span>(</span>
+<span id="cb25-3"><a href="#cb25-3" aria-label="3"></a>    <span class="at">id =</span> id_ind,</span>
+<span id="cb25-4"><a href="#cb25-4" aria-label="4"></a>    <span class="at">time =</span> age,</span>
+<span id="cb25-5"><a href="#cb25-5" aria-label="5"></a>    <span class="at">fill =</span> slog,</span>
+<span id="cb25-6"><a href="#cb25-6" aria-label="6"></a>    <span class="at">sort_by =</span> age_1u</span>
+<span id="cb25-7"><a href="#cb25-7" aria-label="7"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure"><p><a href="donnees-longitudinales_files/figure-html/unnamed-chunk-14-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-2"><img src="donnees-longitudinales_files/figure-html/unnamed-chunk-14-1.png" class="img-fluid figure-img" width="672"></a></p>
@@ -1185,27 +1196,27 @@ $ nenf35 &lt;dbl&gt; 1, 2, 2, 2, 2, 1, 0, 3, 3, 0, 2, 2, 3, 1, 0, 1, 2, 2, 2, 1,
 <p>Ici, les individus avec le plus petit âge à la première union sont représentés en bas du graphique. On voit une diagonale se dessiner et les individus les plus bas dans le graphique obtiennent également un logement indépendant plus tôt.</p>
 <p>Il faut noter que certains individus n’ont pas vécu d’union avant 35 ans. Ces derniers n’apparaissent dans l’objet <code>age_1u</code> que nous avons créé plus tôt. Dès lors, après fusion, la variable <em>age_1u</em> a pour valeur <code>NA</code> pour ces derniers. Nous pourrions essayer d’isoler ces <q>célibataires de longue durée</q>. Créons une variable dédiée.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1"></a>dlong <span class="ot">&lt;-</span></span>
-<span id="cb26-2"><a href="#cb26-2"></a>  dlong <span class="sc">|&gt;</span> </span>
-<span id="cb26-3"><a href="#cb26-3"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb26-4"><a href="#cb26-4"></a>    <span class="at">celib =</span> <span class="fu">if_else</span>(</span>
-<span id="cb26-5"><a href="#cb26-5"></a>      <span class="fu">is.na</span>(age_1u),</span>
-<span id="cb26-6"><a href="#cb26-6"></a>      <span class="st">"célibataire jusqu'à 35 ans"</span>,</span>
-<span id="cb26-7"><a href="#cb26-7"></a>      <span class="st">"a connu au moins une union"</span></span>
-<span id="cb26-8"><a href="#cb26-8"></a>    ) <span class="sc">|&gt;</span> </span>
-<span id="cb26-9"><a href="#cb26-9"></a>      <span class="fu">as.factor</span>()</span>
-<span id="cb26-10"><a href="#cb26-10"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-label="1"></a>dlong <span class="ot">&lt;-</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-label="2"></a>  dlong <span class="sc">|&gt;</span> </span>
+<span id="cb26-3"><a href="#cb26-3" aria-label="3"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb26-4"><a href="#cb26-4" aria-label="4"></a>    <span class="at">celib =</span> <span class="fu">if_else</span>(</span>
+<span id="cb26-5"><a href="#cb26-5" aria-label="5"></a>      <span class="fu">is.na</span>(age_1u),</span>
+<span id="cb26-6"><a href="#cb26-6" aria-label="6"></a>      <span class="st">"célibataire jusqu'à 35 ans"</span>,</span>
+<span id="cb26-7"><a href="#cb26-7" aria-label="7"></a>      <span class="st">"a connu au moins une union"</span></span>
+<span id="cb26-8"><a href="#cb26-8" aria-label="8"></a>    ) <span class="sc">|&gt;</span> </span>
+<span id="cb26-9"><a href="#cb26-9" aria-label="9"></a>      <span class="fu">as.factor</span>()</span>
+<span id="cb26-10"><a href="#cb26-10" aria-label="10"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Vérifions cette variable en dessinant les trajectoires matrimoniales par sous-groupe grâce à l’argument <code>by</code>.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1"></a>dlong <span class="sc">|&gt;</span> </span>
-<span id="cb27-2"><a href="#cb27-2"></a>  <span class="fu">plot_trajectories</span>(</span>
-<span id="cb27-3"><a href="#cb27-3"></a>    <span class="at">id =</span> id_ind,</span>
-<span id="cb27-4"><a href="#cb27-4"></a>    <span class="at">time =</span> age,</span>
-<span id="cb27-5"><a href="#cb27-5"></a>    <span class="at">fill =</span> smat,</span>
-<span id="cb27-6"><a href="#cb27-6"></a>    <span class="at">sort_by =</span> age_1u,</span>
-<span id="cb27-7"><a href="#cb27-7"></a>    <span class="at">by =</span> celib</span>
-<span id="cb27-8"><a href="#cb27-8"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-label="1"></a>dlong <span class="sc">|&gt;</span> </span>
+<span id="cb27-2"><a href="#cb27-2" aria-label="2"></a>  <span class="fu">plot_trajectories</span>(</span>
+<span id="cb27-3"><a href="#cb27-3" aria-label="3"></a>    <span class="at">id =</span> id_ind,</span>
+<span id="cb27-4"><a href="#cb27-4" aria-label="4"></a>    <span class="at">time =</span> age,</span>
+<span id="cb27-5"><a href="#cb27-5" aria-label="5"></a>    <span class="at">fill =</span> smat,</span>
+<span id="cb27-6"><a href="#cb27-6" aria-label="6"></a>    <span class="at">sort_by =</span> age_1u,</span>
+<span id="cb27-7"><a href="#cb27-7" aria-label="7"></a>    <span class="at">by =</span> celib</span>
+<span id="cb27-8"><a href="#cb27-8" aria-label="8"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure"><p><a href="donnees-longitudinales_files/figure-html/unnamed-chunk-16-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-3"><img src="donnees-longitudinales_files/figure-html/unnamed-chunk-16-1.png" class="img-fluid figure-img" width="672"></a></p>
@@ -1215,14 +1226,14 @@ $ nenf35 &lt;dbl&gt; 1, 2, 2, 2, 2, 1, 0, 3, 3, 0, 2, 2, 3, 1, 0, 1, 2, 2, 2, 1,
 </div>
 <p>Refaisons notre graphique des trajectoirs résidentielle.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1"></a>dlong <span class="sc">|&gt;</span> </span>
-<span id="cb28-2"><a href="#cb28-2"></a>  <span class="fu">plot_trajectories</span>(</span>
-<span id="cb28-3"><a href="#cb28-3"></a>    <span class="at">id =</span> id_ind,</span>
-<span id="cb28-4"><a href="#cb28-4"></a>    <span class="at">time =</span> age,</span>
-<span id="cb28-5"><a href="#cb28-5"></a>    <span class="at">fill =</span> slog,</span>
-<span id="cb28-6"><a href="#cb28-6"></a>    <span class="at">sort_by =</span> age_1u,</span>
-<span id="cb28-7"><a href="#cb28-7"></a>    <span class="at">by =</span> celib</span>
-<span id="cb28-8"><a href="#cb28-8"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-label="1"></a>dlong <span class="sc">|&gt;</span> </span>
+<span id="cb28-2"><a href="#cb28-2" aria-label="2"></a>  <span class="fu">plot_trajectories</span>(</span>
+<span id="cb28-3"><a href="#cb28-3" aria-label="3"></a>    <span class="at">id =</span> id_ind,</span>
+<span id="cb28-4"><a href="#cb28-4" aria-label="4"></a>    <span class="at">time =</span> age,</span>
+<span id="cb28-5"><a href="#cb28-5" aria-label="5"></a>    <span class="at">fill =</span> slog,</span>
+<span id="cb28-6"><a href="#cb28-6" aria-label="6"></a>    <span class="at">sort_by =</span> age_1u,</span>
+<span id="cb28-7"><a href="#cb28-7" aria-label="7"></a>    <span class="at">by =</span> celib</span>
+<span id="cb28-8"><a href="#cb28-8" aria-label="8"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure"><p><a href="donnees-longitudinales_files/figure-html/unnamed-chunk-17-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-4"><img src="donnees-longitudinales_files/figure-html/unnamed-chunk-17-1.png" class="img-fluid figure-img" width="672"></a></p>
@@ -1233,25 +1244,25 @@ $ nenf35 &lt;dbl&gt; 1, 2, 2, 2, 2, 1, 0, 3, 3, 0, 2, 2, 3, 1, 0, 1, 2, 2, 2, 1,
 <p>Nos <q>célibataires</q> sont ici mieux isolés. En croisant les deux figures, il semble que pour celles et ceux qui se sont mis en union assez jeune, cela doit probablement correspondre au moment où ils ont eu un logement indépendant. Par contre, dans le haut du graphique, il y a plus d’hétérogénéité et l’accession à un logement indépenant semble moins corrélé à la mise en union.</p>
 <p>Pour poursuivre notre travail exploratoire, essayons de changer d’horloge et regardons comment évolue nos trajectoires si nous les centrons sur le moment de la mise en union. Calculons la durée (avant/après) par rapport à la première mise en union. Bien entendu, nos <q>célibataires</q> seront exclus de l’analyse puisqu’ils n’ont pax d’âge de première mise en union.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1"></a>dlong <span class="ot">&lt;-</span></span>
-<span id="cb29-2"><a href="#cb29-2"></a>  dlong <span class="sc">|&gt;</span> </span>
-<span id="cb29-3"><a href="#cb29-3"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb29-4"><a href="#cb29-4"></a>    <span class="at">duree_1u =</span> age <span class="sc">-</span> age_1u</span>
-<span id="cb29-5"><a href="#cb29-5"></a>  ) <span class="sc">|&gt;</span> </span>
-<span id="cb29-6"><a href="#cb29-6"></a>  <span class="fu">set_variable_labels</span>(</span>
-<span id="cb29-7"><a href="#cb29-7"></a>    <span class="at">duree_1u =</span> <span class="st">"Années avant/après la première mise en union"</span></span>
-<span id="cb29-8"><a href="#cb29-8"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-label="1"></a>dlong <span class="ot">&lt;-</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-label="2"></a>  dlong <span class="sc">|&gt;</span> </span>
+<span id="cb29-3"><a href="#cb29-3" aria-label="3"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb29-4"><a href="#cb29-4" aria-label="4"></a>    <span class="at">duree_1u =</span> age <span class="sc">-</span> age_1u</span>
+<span id="cb29-5"><a href="#cb29-5" aria-label="5"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb29-6"><a href="#cb29-6" aria-label="6"></a>  <span class="fu">set_variable_labels</span>(</span>
+<span id="cb29-7"><a href="#cb29-7" aria-label="7"></a>    <span class="at">duree_1u =</span> <span class="st">"Années avant/après la première mise en union"</span></span>
+<span id="cb29-8"><a href="#cb29-8" aria-label="8"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Il n’y a plus qu’à redessiner nos trajectoires en changeant d’horloge.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb30"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1"></a>dlong <span class="sc">|&gt;</span> </span>
-<span id="cb30-2"><a href="#cb30-2"></a>  <span class="fu">filter</span>(celib <span class="sc">==</span> <span class="st">"a connu au moins une union"</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb30-3"><a href="#cb30-3"></a>  <span class="fu">plot_trajectories</span>(</span>
-<span id="cb30-4"><a href="#cb30-4"></a>    <span class="at">id =</span> id_ind,</span>
-<span id="cb30-5"><a href="#cb30-5"></a>    <span class="at">time =</span> duree_1u,</span>
-<span id="cb30-6"><a href="#cb30-6"></a>    <span class="at">fill =</span> slog,</span>
-<span id="cb30-7"><a href="#cb30-7"></a>    <span class="at">sort_by =</span> age_1u,</span>
-<span id="cb30-8"><a href="#cb30-8"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb30"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-label="1"></a>dlong <span class="sc">|&gt;</span> </span>
+<span id="cb30-2"><a href="#cb30-2" aria-label="2"></a>  <span class="fu">filter</span>(celib <span class="sc">==</span> <span class="st">"a connu au moins une union"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb30-3"><a href="#cb30-3" aria-label="3"></a>  <span class="fu">plot_trajectories</span>(</span>
+<span id="cb30-4"><a href="#cb30-4" aria-label="4"></a>    <span class="at">id =</span> id_ind,</span>
+<span id="cb30-5"><a href="#cb30-5" aria-label="5"></a>    <span class="at">time =</span> duree_1u,</span>
+<span id="cb30-6"><a href="#cb30-6" aria-label="6"></a>    <span class="at">fill =</span> slog,</span>
+<span id="cb30-7"><a href="#cb30-7" aria-label="7"></a>    <span class="at">sort_by =</span> age_1u,</span>
+<span id="cb30-8"><a href="#cb30-8" aria-label="8"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure"><p><a href="donnees-longitudinales_files/figure-html/unnamed-chunk-19-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-5"><img src="donnees-longitudinales_files/figure-html/unnamed-chunk-19-1.png" class="img-fluid figure-img" width="672"></a></p>
@@ -1270,15 +1281,50 @@ $ nenf35 &lt;dbl&gt; 1, 2, 2, 2, 2, 1, 0, 3, 3, 0, 2, 2, 3, 1, 0, 1, 2, 2, 2, 1,
   window.document.addEventListener("DOMContentLoaded", function (event) {
     // Ensure there is a toggle, if there isn't float one in the top right
     if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
-      const a = window.document.createElement('a');
-      a.classList.add('top-right');
-      a.classList.add('quarto-color-scheme-toggle');
-      a.href = "";
-      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const toggle = window.document.createElement('button');
+      toggle.type = "button";
+      toggle.setAttribute("role", "switch");
+      toggle.setAttribute("aria-checked", "false");
+      toggle.classList.add('top-right');
+      toggle.classList.add('quarto-color-scheme-toggle');
+      toggle.setAttribute("aria-label", "Basculer le mode sombre");
+      toggle.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
       const i = window.document.createElement("i");
       i.classList.add('bi');
-      a.appendChild(i);
-      window.document.body.appendChild(a);
+      toggle.appendChild(i);
+      // Put the toggle in a landmark of its own, so that landmark navigation
+      // can reach it.
+      //
+      // The container is always a fresh direct child of body, and the toggle is
+      // never moved into page furniture that the theme or the author controls.
+      // The toggle is positioned against the page, so any ancestor that
+      // establishes a containing block captures it: a positioned element or a
+      // grid for position: absolute, and transform, filter, will-change or
+      // contain for position: fixed. A direct child of body has none of these
+      // to inherit, and the shift when one appears is silent and visual.
+      //
+      // ARIA says a document should have at most one banner, and axe reports a
+      // duplicate whether or not the banners carry distinct labels. So use a
+      // header when the page has no banner yet, and a named region otherwise.
+      //
+      // A header is a banner wherever it sits, unless it is inside sectioning
+      // content, so this cannot just look at the children of body: a custom
+      // page layout wraps the title block header in a plain div. An explicit
+      // role="banner" always counts.
+      const sectioning = 'article, aside, main, nav, section, [role="article"], [role="complementary"], [role="main"], [role="navigation"], [role="region"]';
+      const hasBanner = Array.from(
+        window.document.querySelectorAll('header:not([role]), [role="banner"]')
+      ).some(function(el) {
+        return el.hasAttribute("role") || el.closest(sectioning) === null;
+      });
+      const container = window.document.createElement(hasBanner ? "div" : "header");
+      if (hasBanner) {
+        container.setAttribute("role", "region");
+        container.setAttribute("aria-label", "Basculer le mode sombre");
+      }
+      container.classList.add('quarto-color-scheme-toggle-container');
+      container.appendChild(toggle);
+      window.document.body.appendChild(container);
     }
     setColorSchemeToggle(hasAlternateSentinel())
     const icon = "";
@@ -1353,11 +1399,34 @@ $ nenf35 &lt;dbl&gt; 1, 2, 2, 2, 2, 1, 0, 3, 3, 0, 2, 2, 3, 1, 0, 1, 2, 2, 2, 1,
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);
         var filterRegex = new RegExp('/' + window.location.host + '/');
+      const newWindowLabel = "(s'ouvre dans un nouvel onglet)";
+      const newWindowNoteId = "quarto-ext-newwindow-label";
+      // Links reference one hidden label through aria-describedby, so the
+      // announcement never changes their accessible name.
+      var describeNewWindow = (link) => {
+        if (!window.document.getElementById(newWindowNoteId)) {
+          var newWindowNote = window.document.createElement("span");
+          newWindowNote.id = newWindowNoteId;
+          newWindowNote.hidden = true;
+          newWindowNote.textContent = newWindowLabel;
+          window.document.body.appendChild(newWindowNote);
+        }
+        var describedBy = (link.getAttribute("aria-describedby") || "").split(/\s+/).filter(Boolean);
+        if (!describedBy.includes(newWindowNoteId)) {
+          describedBy.push(newWindowNoteId);
+          link.setAttribute("aria-describedby", describedBy.join(" "));
+        }
+      }
+      var opensNewContext = (link) => {
+        var target = (link.getAttribute("target") || "").toLowerCase();
+        return target !== "" && !["_self", "_parent", "_top"].includes(target);
+      }
       var isInternal = (href) => {
           return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
       }
       // Inspect non-navigation links and adorn them if external
-     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      window.quartoDecorateExternalLinks = function (root) {
+     var links = (root || window.document).querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
       for (var i=0; i<links.length; i++) {
         const link = links[i];
         if (!isInternal(link.href)) {
@@ -1366,8 +1435,72 @@ $ nenf35 &lt;dbl&gt; 1, 2, 2, 2, 2, 1, 0, 3, 3, 0, 2, 2, 3, 1, 0, 1, 2, 2, 2, 1,
           if (link.dataset.originalHref !== undefined) {
             link.href = link.dataset.originalHref;
           }
+          if (!link.classList.contains('no-external-icon')) {
+          }
+        }
+        if (opensNewContext(link)) {
+          describeNewWindow(link);
         }
       }
+      };
+      window.quartoDecorateExternalLinks(window.document);
+    // Esc closes the popup (WCAG 1.4.13) and focus leaving both trigger and
+    // popup closes it (WCAG 2.4.11); tippy handles neither for interactive popups.
+    const hideOnEscAndFocusOut = {
+      name: 'hideOnEscAndFocusOut',
+      defaultValue: true,
+      fn(instance) {
+        const dismiss = () => {
+          // A show scheduled by the trigger delay would otherwise reopen it
+          instance.clearDelayTimeouts();
+          instance.hide();
+        };
+        const onKeyDown = (event) => {
+          if (event.key !== 'Escape') {
+            return;
+          }
+          // Keep Esc from also reaching page handlers (e.g. reveal.js overview),
+          // except an open reveal.js slide menu, which Esc should close too.
+          // The menu handles keys only when its keyboard option is on.
+          const menuHandlesEsc = window.Reveal?.getPlugin?.('menu')?.isOpen() &&
+            window.Reveal.getConfig().menu?.keyboard !== false;
+          if (!menuHandlesEsc) {
+            event.stopPropagation();
+          }
+          if (instance.popper.contains(window.document.activeElement)) {
+            // Disabled while refocusing so the focus trigger does not reopen it
+            instance.disable();
+            instance.reference.focus();
+            instance.enable();
+          }
+          dismiss();
+        };
+        const onFocusOut = (event) => {
+          const target = event.relatedTarget;
+          if (target && !instance.reference.contains(target) &&
+              !instance.popper.contains(target)) {
+            dismiss();
+          }
+        };
+        // On the trigger too: a click trigger (code-annotations: select) has no
+        // blur handling. Attached for the instance's lifetime so leaving the
+        // trigger also cancels a show still pending on the trigger delay.
+        instance.reference.addEventListener('focusout', onFocusOut);
+        return {
+          onShow() {
+            window.document.addEventListener('keydown', onKeyDown, true);
+            instance.popper.addEventListener('focusout', onFocusOut);
+          },
+          onHide() {
+            window.document.removeEventListener('keydown', onKeyDown, true);
+            instance.popper.removeEventListener('focusout', onFocusOut);
+          },
+          onDestroy() {
+            instance.reference.removeEventListener('focusout', onFocusOut);
+          },
+        };
+      },
+    };
     function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
       const config = {
         allowHTML: true,
@@ -1381,6 +1514,7 @@ $ nenf35 &lt;dbl&gt; 1, 2, 2, 2, 2, 1, 0, 3, 3, 0, 2, 2, 3, 1, 0, 1, 2, 2, 2, 1,
         interactiveBorder: 10,
         theme: 'quarto',
         placement: 'bottom-start',
+        plugins: [hideOnEscAndFocusOut],
       };
       if (contentFn) {
         config.content = contentFn;
@@ -1543,44 +1677,54 @@ $ nenf35 &lt;dbl&gt; 1, 2, 2, 2, 2, 1, 0, 3, 3, 0, 2, 2, 3, 1, 0, 1, 2, 2, 2, 1,
           const lineIds = lines.map((line) => {
             return targetCell + "-" + line;
           })
-          let top = null;
-          let height = null;
-          let parent = null;
+          // Each band is positioned against its own containing block, which is
+          // not the offsetParent of the lines, so place it from client rects.
+          const placeBand = (band, firstEl, lastEl, codeBlock) => {
+            const container = band.offsetParent;
+            if (container === null) {
+              return;
+            }
+            const containerRect = container.getBoundingClientRect();
+            // Reveal.js scales slides with a transform, so convert client
+            // pixels back to the CSS pixels of the container.
+            const scale = containerRect.height / container.offsetHeight || 1;
+            const firstRect = firstEl.getBoundingClientRect();
+            const lastRect = lastEl.getBoundingClientRect();
+            const top = (firstRect.top - containerRect.top) / scale - container.clientTop + container.scrollTop;
+            const height = (lastRect.bottom - firstRect.top) / scale;
+            band.style.top = top - 2 + "px";
+            band.style.height = height + 4 + "px";
+            if (codeBlock) {
+              // Without the copy button wrapper, the containing block is wider
+              // than the code block, so span the code block explicitly.
+              const blockRect = codeBlock.getBoundingClientRect();
+              band.style.left = (blockRect.left - containerRect.left) / scale - container.clientLeft + container.scrollLeft + "px";
+              band.style.width = blockRect.width / scale + "px";
+            }
+          };
           if (lineIds.length > 0) {
-              //compute the position of the single el (top and bottom and make a div)
-              const el = window.document.getElementById(lineIds[0]);
-              top = el.offsetTop;
-              height = el.offsetHeight;
-              parent = el.parentElement.parentElement;
-            if (lineIds.length > 1) {
-              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
-              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
-              height = bottom - top;
+            const el = window.document.getElementById(lineIds[0]);
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const parent = el.parentElement.parentElement;
+            // cook up a div (if necessary) and position it
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
             }
-            if (top !== null && height !== null && parent !== null) {
-              // cook up a div (if necessary) and position it 
-              let div = window.document.getElementById("code-annotation-line-highlight");
-              if (div === null) {
-                div = window.document.createElement("div");
-                div.setAttribute("id", "code-annotation-line-highlight");
-                div.style.position = 'absolute';
-                parent.appendChild(div);
-              }
-              div.style.top = top - 2 + "px";
-              div.style.height = height + 4 + "px";
-              div.style.left = 0;
-              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
-              if (gutterDiv === null) {
-                gutterDiv = window.document.createElement("div");
-                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
-                gutterDiv.style.position = 'absolute';
-                const codeCell = window.document.getElementById(targetCell);
-                const gutter = codeCell.querySelector('.code-annotation-gutter');
-                gutter.appendChild(gutterDiv);
-              }
-              gutterDiv.style.top = top - 2 + "px";
-              gutterDiv.style.height = height + 4 + "px";
+            placeBand(div, el, lastEl, parent.closest("div.sourceCode") || parent);
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
             }
+            placeBand(gutterDiv, el, lastEl);
             selectedAnnoteEl = annoteEl;
           }
         };
@@ -1678,6 +1822,8 @@ $ nenf35 &lt;dbl&gt; 1, 2, 2, 2, 2, 1, 0, 3, 3, 0, 2, 2, 3, 1, 0, 1, 2, 2, 2, 1,
       }
     }
   });
+  </script><script type="application/javascript">
+  window.quartoScrollableRegionsLabels = {"code":"Code défilable","output":"Sortie défilable"};
   </script><input type="hidden" id="giscus-base-theme" value="light"><input type="hidden" id="giscus-alt-theme" value="dark"><script>
   function loadGiscus() {
     // Function to get the theme based on body class
@@ -1707,7 +1853,7 @@ $ nenf35 &lt;dbl&gt; 1, 2, 2, 2, 2, 1, 0, 3, 3, 0, 2, 2, 3, 1, 0, 1, 2, 2, 2, 1,
     document.getElementById("quarto-content").appendChild(script);
   }
   loadGiscus();
-</script><nav class="page-navigation"><div class="nav-page nav-page-previous">
+</script><nav class="page-navigation" aria-label="Page"><div class="nav-page nav-page-previous">
       <a href="../manipulation_avancee/transformations-multiples.html" class="pagination-link" aria-label="Transformations multiples">
         <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">41</span>&nbsp; <span class="chapter-title">Transformations multiples</span></span>
       </a>          

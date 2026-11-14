@@ -2,17 +2,20 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="fr" xml:lang="fr"><head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.9.37">
+<meta name="generator" content="quarto-1.12.2">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 <title>8&nbsp; dplyr – guide-R</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
 */
-code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
-div.columns{display: flex; gap: min(4vw, 1.5em);}
-div.column{flex: auto; overflow-x: auto;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
 div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 ul.task-list{list-style: none;}
 ul.task-list li input[type="checkbox"] {
@@ -55,7 +58,27 @@ div.sourceCode
 @media screen {
 pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
-</style>
+@media print {
+  html {
+    color-scheme: light only;
+  }
+  html, body, pre, code {
+    background-color: transparent;
+  }
+  body, a, a:visited, blockquote {
+    color: black;
+  }
+  pre, code {
+    padding: 0;
+  }
+  p, h2, h3 {
+    orphans: 3;
+    widows: 3;
+  }
+  h2, h3, h4 {
+    page-break-after: avoid;
+  }
+}</style>
 
 <script src="../site_libs/quarto-nav/quarto-nav.js"></script>
 <script src="../site_libs/quarto-nav/headroom.min.js"></script>
@@ -71,18 +94,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../site_libs/cookie-consent/cookie-consent.css" rel="stylesheet">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/scrollable-regions/scrollable-regions.js" type="module"></script>
 <script src="../site_libs/quarto-html/popper.min.js"></script>
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-7f8f88aac4f3542376d5c11b86a4c14d.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-d0ae9245876894da5ac7e18953ecc5cc.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-7f8f88aac4f3542376d5c11b86a4c14d.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-a34e72179bd910c3a0d1c193f042680d.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-6b7095a9b6a9693542ed2f2ab64557fc.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-a34e72179bd910c3a0d1c193f042680d.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-fad85691bd79911de0320b982f671d9d.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../site_libs/bootstrap/bootstrap-dark-f68506c574928121fec95fb329006eac.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<link href="../site_libs/bootstrap/bootstrap-fad85691bd79911de0320b982f671d9d.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light"><script id="quarto-search-options" type="application/json">{
+<link href="../site_libs/bootstrap/bootstrap-58f34290aeb0f1f441acb5dc787127af.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-3208342b027bcedf30363d9c3a4fd7ef.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../site_libs/bootstrap/bootstrap-58f34290aeb0f1f441acb5dc787127af.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light"><script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
   "collapse-after": 3,
@@ -131,7 +155,7 @@ cookieconsent.run({
 </script><style>html{ scroll-behavior: smooth; }</style>
 <link rel="stylesheet" href="../styles.css">
 </head>
-<body class="nav-sidebar floating slimcontent quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+<body class="nav-sidebar floating slimcontent quarto-light"><a id="quarto-skip-link" class="visually-hidden-focusable" href="#quarto-document-content">Aller au contenu principal</a><script id="quarto-html-before-body" type="application/javascript">
     const toggleBodyColorMode = (bsSheetEl) => {
       const mode = bsSheetEl.getAttribute("data-mode");
       const bodyEl = window.document.querySelector("body");
@@ -154,6 +178,7 @@ cookieconsent.run({
       for (let i=0; i < toggles.length; i++) {
         const toggle = toggles[i];
         if (toggle) {
+          toggle.setAttribute("aria-checked", alternate ? "true" : "false");
           if (alternate) {
             toggle.classList.add("alternate");
           } else {
@@ -183,13 +208,19 @@ cookieconsent.run({
       manageTransitions('#quarto-margin-sidebar .nav-link', true);
       // Switch the toggles
       setColorSchemeToggle(alternate)
-      // Hack to workaround the fact that safari doesn't
-      // properly recolor the scrollbar when toggling (#1455)
+    }
+    // Hack to workaround the fact that safari doesn't
+    // properly recolor the scrollbar when toggling (#1455).
+    // Not run on load: stylesheets are set before first paint there, and
+    // scrolling would undo the scroll to a URL fragment (#14973).
+    // The one pixel nudge keeps the reader where they were.
+    const refreshSafariScrollbar = () => {
       if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
         manageTransitions("body", false);
-        window.scrollTo(0, 1);
+        const scrollY = window.scrollY;
+        window.scrollTo(0, scrollY > 0 ? scrollY - 1 : 1);
         setTimeout(() => {
-          window.scrollTo(0, 0);
+          window.scrollTo(0, scrollY);
           manageTransitions("body", true);
         }, 40);
       }
@@ -283,6 +314,7 @@ cookieconsent.run({
       // Read the current dark / light value
       let toAlternate = !hasAlternateSentinel();
       toggleColorMode(toAlternate);
+      refreshSafariScrollbar();
       setStyleSentinel(toAlternate);
       toggleGiscusIfUsed(toAlternate, darkModeDefault);
       window.dispatchEvent(new Event('resize'));
@@ -296,12 +328,12 @@ cookieconsent.run({
   </script>
 
 <div id="quarto-search-results"></div>
-  <header id="quarto-header" class="headroom fixed-top"><nav class="quarto-secondary-nav"><div class="container-fluid d-flex">
+  <header id="quarto-header" class="headroom fixed-top"><nav class="quarto-secondary-nav" aria-label="Barre d'outils"><div class="container-fluid d-flex">
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Basculer la barre latérale" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../manipulation/pipe.html"><strong>Manipulation de données</strong></a></li><li class="breadcrumb-item"><a href="../manipulation/dplyr.html"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title"><code>dplyr</code></span></a></li></ol></nav>
-        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Basculer la barre latérale" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        <nav class="quarto-page-breadcrumbs" aria-label="Fil d'Ariane"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../manipulation/pipe.html"><strong>Manipulation de données</strong></a></li><li class="breadcrumb-item"><a href="../manipulation/dplyr.html"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title"><code>dplyr</code></span></a></li></ol></nav>
+        <a class="flex-grow-1" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Recherche" onclick="window.quartoOpenSearch();">
         <i class="bi bi-search"></i>
@@ -309,15 +341,15 @@ cookieconsent.run({
     </div>
   </nav></header><!-- content --><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
 <!-- sidebar -->
-  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto"><div class="pt-lg-2 mt-2 text-left sidebar-header sidebar-header-stacked">
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto" aria-label="Site web"><div class="pt-lg-2 mt-2 text-left sidebar-header sidebar-header-stacked">
       <a href="../index.html" class="sidebar-logo-link">
       <img src="../ressources/typewriter.png" alt="" class="sidebar-logo light-content py-0 d-lg-inline d-none"><img src="../ressources/typewriter.png" alt="" class="sidebar-logo dark-content py-0 d-lg-inline d-none"></a>
     <div class="sidebar-title mb-0 py-0">
       <a href="../">guide-R</a> 
         <div class="sidebar-tools-main tools-wide">
     <a href="https://github.com/larmarange/guide-R/" title="Code source" class="quarto-navigation-tool px-1" aria-label="Code source"><i class="bi bi-github"></i></a>
-    <a href="../guide-R.epub" title="Download ePub" class="quarto-navigation-tool px-1" aria-label="Download ePub"><i class="bi bi-journal"></i></a>
-  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Basculer le mode sombre"><i class="bi"></i></a>
+    <a href="../guide-R.epub" title="Télécharger ePub" class="quarto-navigation-tool px-1" aria-label="Télécharger ePub"><i class="bi bi-journal"></i></a>
+  <button type="button" role="switch" aria-checked="false" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Basculer le mode sombre" aria-label="Basculer le mode sombre"><i class="bi"></i></button>
 </div>
     </div>
       </div>
@@ -336,13 +368,10 @@ cookieconsent.run({
 </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
- <span class="menu-text"><strong>Bases du langage</strong></span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Basculer la section">
-            <i class="bi bi-chevron-right ms-2"></i>
-          </a> 
+            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-controls="quarto-sidebar-section-1" aria-expanded="true">
+ <span class="menu-text" id="quarto-sidebar-section-1-label"><strong>Bases du langage</strong></span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
       </div>
-      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">
+      <ul id="quarto-sidebar-section-1" aria-labelledby="quarto-sidebar-section-1-label" class="collapse list-unstyled sidebar-section depth1 show">
 <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../bases/packages.html" class="sidebar-item-text sidebar-link">
@@ -383,13 +412,10 @@ cookieconsent.run({
 </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
- <span class="menu-text"><strong>Manipulation de données</strong></span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Basculer la section">
-            <i class="bi bi-chevron-right ms-2"></i>
-          </a> 
+            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-controls="quarto-sidebar-section-2" aria-expanded="true">
+ <span class="menu-text" id="quarto-sidebar-section-2-label"><strong>Manipulation de données</strong></span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
       </div>
-      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">
+      <ul id="quarto-sidebar-section-2" aria-labelledby="quarto-sidebar-section-2-label" class="collapse list-unstyled sidebar-section depth1 show">
 <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../manipulation/pipe.html" class="sidebar-item-text sidebar-link">
@@ -454,13 +480,10 @@ cookieconsent.run({
 </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
- <span class="menu-text"><strong>Analyses</strong></span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Basculer la section">
-            <i class="bi bi-chevron-right ms-2"></i>
-          </a> 
+            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" aria-controls="quarto-sidebar-section-3" aria-expanded="true">
+ <span class="menu-text" id="quarto-sidebar-section-3-label"><strong>Analyses</strong></span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
       </div>
-      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">
+      <ul id="quarto-sidebar-section-3" aria-labelledby="quarto-sidebar-section-3-label" class="collapse list-unstyled sidebar-section depth1 show">
 <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../analyses/ggplot2.html" class="sidebar-item-text sidebar-link">
@@ -543,13 +566,10 @@ cookieconsent.run({
 </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true">
- <span class="menu-text"><strong>Données pondérées avec <code>survey</code></strong></span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true" aria-label="Basculer la section">
-            <i class="bi bi-chevron-right ms-2"></i>
-          </a> 
+            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" aria-controls="quarto-sidebar-section-4" aria-expanded="true">
+ <span class="menu-text" id="quarto-sidebar-section-4-label"><strong>Données pondérées avec <code>survey</code></strong></span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
       </div>
-      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">
+      <ul id="quarto-sidebar-section-4" aria-labelledby="quarto-sidebar-section-4-label" class="collapse list-unstyled sidebar-section depth1 show">
 <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../donnees_ponderees/plan-echantillonnage.html" class="sidebar-item-text sidebar-link">
@@ -584,13 +604,10 @@ cookieconsent.run({
 </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true">
- <span class="menu-text"><strong>Manipulation avancée</strong></span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true" aria-label="Basculer la section">
-            <i class="bi bi-chevron-right ms-2"></i>
-          </a> 
+            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" aria-controls="quarto-sidebar-section-5" aria-expanded="true">
+ <span class="menu-text" id="quarto-sidebar-section-5-label"><strong>Manipulation avancée</strong></span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
       </div>
-      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">
+      <ul id="quarto-sidebar-section-5" aria-labelledby="quarto-sidebar-section-5-label" class="collapse list-unstyled sidebar-section depth1 show">
 <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../manipulation_avancee/fusion-tables.html" class="sidebar-item-text sidebar-link">
@@ -643,13 +660,10 @@ cookieconsent.run({
 </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="true">
- <span class="menu-text"><strong>Analyses avancées</strong></span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="true" aria-label="Basculer la section">
-            <i class="bi bi-chevron-right ms-2"></i>
-          </a> 
+            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" aria-controls="quarto-sidebar-section-6" aria-expanded="true">
+ <span class="menu-text" id="quarto-sidebar-section-6-label"><strong>Analyses avancées</strong></span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
       </div>
-      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 show">
+      <ul id="quarto-sidebar-section-6" aria-labelledby="quarto-sidebar-section-6-label" class="collapse list-unstyled sidebar-section depth1 show">
 <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../analyses_avancees/analyse-factorielle.html" class="sidebar-item-text sidebar-link">
@@ -720,13 +734,10 @@ cookieconsent.run({
 </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="true">
- <span class="menu-text"><strong>Pour aller plus loin</strong></span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="true" aria-label="Basculer la section">
-            <i class="bi bi-chevron-right ms-2"></i>
-          </a> 
+            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" aria-controls="quarto-sidebar-section-7" aria-expanded="true">
+ <span class="menu-text" id="quarto-sidebar-section-7-label"><strong>Pour aller plus loin</strong></span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
       </div>
-      <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth1 show">
+      <ul id="quarto-sidebar-section-7" aria-labelledby="quarto-sidebar-section-7-label" class="collapse list-unstyled sidebar-section depth1 show">
 <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../extra/ressources-documentaires.html" class="sidebar-item-text sidebar-link">
@@ -740,7 +751,7 @@ cookieconsent.run({
 </nav><div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        <nav id="TOC" role="doc-toc" class="toc-active"><h2 id="toc-title">Table des matières</h2>
+        <nav id="TOC" role="doc-toc" aria-labelledby="toc-title" class="toc-active"><h2 id="toc-title">Table des matières</h2>
    
   <ul>
 <li>
@@ -778,7 +789,7 @@ cookieconsent.run({
   </ul><div class="toc-actions"><ul><li><a href="https://github.com/larmarange/guide-R/blob/main/manipulation/dplyr.qmd" class="toc-action"><i class="bi bi-github"></i>Voir la source</a></li><li><a href="https://github.com/larmarange/guide-R/issues/new" class="toc-action"><i class="bi empty"></i>Faire part d'un problème</a></li></ul></div></nav>
     </div>
 <!-- main -->
-<main class="content page-columns page-full" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../manipulation/pipe.html"><strong>Manipulation de données</strong></a></li><li class="breadcrumb-item"><a href="../manipulation/dplyr.html"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title"><code>dplyr</code></span></a></li></ol></nav><div class="quarto-title">
+<main class="content page-columns page-full" id="quarto-document-content" tabindex="-1"><header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="Fil d'Ariane"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../manipulation/pipe.html"><strong>Manipulation de données</strong></a></li><li class="breadcrumb-item"><a href="../manipulation/dplyr.html"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title"><code>dplyr</code></span></a></li></ol></nav><div class="quarto-title">
 <h1 class="title"><span id="sec-dplyr" class="quarto-section-identifier"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title"><code>dplyr</code></span></span></h1>
 </div>
 
@@ -796,7 +807,7 @@ cookieconsent.run({
 </header><p><a href="https://dplyr.tidyverse.org">dplyr</a> est l’un des packages les plus connus du <em>tidyverse</em>. Il facilite le traitement et la manipulation des tableaux de données (qu’il s’agisse de <em>data frame</em> ou de <em>tibble</em>). Il propose une syntaxe claire et cohérente, sous formes de <q>verbes</q> correspondant à des fonctions.</p>
 <p><a href="https://dplyr.tidyverse.org">dplyr</a> part du principe que les données sont <em>tidy</em> (chaque variable est une colonne, chaque observation est une ligne, voir <a href="../bases/tibbles.html" class="quarto-xref"><span>Chapitre 5</span></a>). Les verbes de <a href="https://dplyr.tidyverse.org">dplyr</a> prennent en entrée un tableau de données<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> (<em>data frame</em> ou <em>tibble</em>) et renvoient systématiquement un <em>tibble</em>.</p>
 <div class="no-row-height column-margin column-container"><div id="fn1"><p><sup>1</sup>&nbsp;Le package <a href="https://dbplyr.tidyverse.org/">dbplyr</a> permets d’étendre les verbes de <a href="https://dplyr.tidyverse.org">dplyr</a> à des tables de bases de données <strong>SQL,</strong> <a href="https://dtplyr.tidyverse.org">dtplyr</a> à des tableaux de données du type <a href="https://r-datatable.com">data.table</a> et <a href="http://gdfe.co/srvyr/">srvyr</a> à des données pondérées du type <a href="http://r-survey.r-forge.r-project.org/survey/">survey</a>.</p></div></div><div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="fu">library</span>(dplyr)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-label="1"></a><span class="fu">library</span>(dplyr)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Dans ce qui suit on va utiliser le jeu de données <a href="https://github.com/hadley/nycflights13">nycflights13</a>, contenu dans l’extension du même nom (qu’il faut donc avoir installée). Celui-ci correspond aux données de tous les vols au départ d’un des trois aéroports de New-York en 2013. Il a la particularité d’être réparti en trois tables&nbsp;:</p>
 <ul>
@@ -809,11 +820,11 @@ cookieconsent.run({
 </ul>
 <p>On va charger les trois tables du jeu de données&nbsp;:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a><span class="fu">library</span>(nycflights13)</span>
-<span id="cb2-2"><a href="#cb2-2"></a><span class="do">## Chargement des trois tables du jeu de données</span></span>
-<span id="cb2-3"><a href="#cb2-3"></a><span class="fu">data</span>(flights)</span>
-<span id="cb2-4"><a href="#cb2-4"></a><span class="fu">data</span>(airports)</span>
-<span id="cb2-5"><a href="#cb2-5"></a><span class="fu">data</span>(airlines)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-label="1"></a><span class="fu">library</span>(nycflights13)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-label="2"></a><span class="do">## Chargement des trois tables du jeu de données</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-label="3"></a><span class="fu">data</span>(flights)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-label="4"></a><span class="fu">data</span>(airports)</span>
+<span id="cb2-5"><a href="#cb2-5" aria-label="5"></a><span class="fu">data</span>(airlines)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Normalement trois objets correspondant aux trois tables ont dû apparaître dans votre environnement.</p>
 <section id="opérations-sur-les-lignes" class="level2 page-columns page-full" data-number="8.1"><h2 data-number="8.1" class="anchored" data-anchor-id="opérations-sur-les-lignes">
@@ -823,7 +834,7 @@ cookieconsent.run({
 <p><code><a href="https://dplyr.tidyverse.org/reference/filter.html">dplyr::filter()</a></code> sélectionne des lignes d’un tableau de données selon une condition. On lui passe en paramètre un test, et seules les lignes pour lesquelles ce test renvoi <code>TRUE</code> (vrai) sont conservées<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a>.</p>
 <div class="no-row-height column-margin column-container"><div id="fn2"><p><sup>2</sup>&nbsp;Si le test renvoie faux (<code>FALSE</code>) ou une valeur manquante (<code>NA</code>), les lignes correspondantes ne seront donc pas sélectionnées.</p></div></div><p>Par exemple, si on veut sélectionner les vols du mois de janvier, on peut filtrer sur la variable <em>month</em> de la manière suivante&nbsp;:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a><span class="fu">filter</span>(flights, month <span class="sc">==</span> <span class="dv">1</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-label="1"></a><span class="fu">filter</span>(flights, month <span class="sc">==</span> <span class="dv">1</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 27,004 × 19
     year month   day dep_time sched_dep_time dep_delay arr_time sched_arr_time
@@ -846,7 +857,7 @@ cookieconsent.run({
 </div>
 <p>Cela peut s’écrire plus simplement avec un pipe&nbsp;:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a>flights <span class="sc">|&gt;</span> <span class="fu">filter</span>(month <span class="sc">==</span> <span class="dv">1</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-label="1"></a>flights <span class="sc">|&gt;</span> <span class="fu">filter</span>(month <span class="sc">==</span> <span class="dv">1</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 27,004 × 19
     year month   day dep_time sched_dep_time dep_delay arr_time sched_arr_time
@@ -869,8 +880,8 @@ cookieconsent.run({
 </div>
 <p>Si l’on veut uniquement les vols avec un retard au départ (variable <em>dep_delay</em>) compris entre 10 et 15 minutes&nbsp;:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a>flights <span class="sc">|&gt;</span> </span>
-<span id="cb7-2"><a href="#cb7-2"></a>  <span class="fu">filter</span>(dep_delay <span class="sc">&gt;=</span> <span class="dv">10</span> <span class="sc">&amp;</span> dep_delay <span class="sc">&lt;=</span> <span class="dv">15</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-label="1"></a>flights <span class="sc">|&gt;</span> </span>
+<span id="cb7-2"><a href="#cb7-2" aria-label="2"></a>  <span class="fu">filter</span>(dep_delay <span class="sc">&gt;=</span> <span class="dv">10</span> <span class="sc">&amp;</span> dep_delay <span class="sc">&lt;=</span> <span class="dv">15</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 14,919 × 19
     year month   day dep_time sched_dep_time dep_delay arr_time sched_arr_time
@@ -893,13 +904,13 @@ cookieconsent.run({
 </div>
 <p>Si l’on passe plusieurs arguments à <code><a href="https://dplyr.tidyverse.org/reference/filter.html">dplyr::filter()</a></code>, celui-ci rajoute automatiquement une condition <strong>ET</strong>. La ligne ci-dessus peut donc également être écrite de la manière suivante, avec le même résultat&nbsp;:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a>flights <span class="sc">|&gt;</span> </span>
-<span id="cb9-2"><a href="#cb9-2"></a>  <span class="fu">filter</span>(dep_delay <span class="sc">&gt;=</span> <span class="dv">10</span>, dep_delay <span class="sc">&lt;=</span> <span class="dv">15</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-label="1"></a>flights <span class="sc">|&gt;</span> </span>
+<span id="cb9-2"><a href="#cb9-2" aria-label="2"></a>  <span class="fu">filter</span>(dep_delay <span class="sc">&gt;=</span> <span class="dv">10</span>, dep_delay <span class="sc">&lt;=</span> <span class="dv">15</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Enfin, on peut également placer des fonctions dans les tests, qui nous permettent par exemple de sélectionner les vols avec la plus grande distance&nbsp;:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a>flights <span class="sc">|&gt;</span> </span>
-<span id="cb10-2"><a href="#cb10-2"></a>  <span class="fu">filter</span>(distance <span class="sc">==</span> <span class="fu">max</span>(distance))</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-label="1"></a>flights <span class="sc">|&gt;</span> </span>
+<span id="cb10-2"><a href="#cb10-2" aria-label="2"></a>  <span class="fu">filter</span>(distance <span class="sc">==</span> <span class="fu">max</span>(distance))</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 342 × 19
     year month   day dep_time sched_dep_time dep_delay arr_time sched_arr_time
@@ -934,9 +945,9 @@ cookieconsent.run({
 <p>Dans l’expression <code>flights |&gt; filter(month == 1)</code>, <code>month</code> est interprété comme la colonne <em>month</em> du tableau <code>flights</code>, à savoir <code>flights$month</code>.</p>
 <p>Il est également possible d’indiquer des objets extérieurs au tableau&nbsp;:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a>m <span class="ot">&lt;-</span> <span class="dv">2</span></span>
-<span id="cb12-2"><a href="#cb12-2"></a>flights <span class="sc">|&gt;</span> </span>
-<span id="cb12-3"><a href="#cb12-3"></a>  <span class="fu">filter</span>(month <span class="sc">==</span> m)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-label="1"></a>m <span class="ot">&lt;-</span> <span class="dv">2</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-label="2"></a>flights <span class="sc">|&gt;</span> </span>
+<span id="cb12-3"><a href="#cb12-3" aria-label="3"></a>  <span class="fu">filter</span>(month <span class="sc">==</span> m)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 24,951 × 19
     year month   day dep_time sched_dep_time dep_delay arr_time sched_arr_time
@@ -960,9 +971,9 @@ cookieconsent.run({
 <p>Cela fonctionne car il n’y a pas de colonne <em>m</em> dans <code>flights</code>. Dès lors, <a href="https://dplyr.tidyverse.org">dplyr</a> regarde s’il existe un objet <code>m</code> dans l’environnement de travail.</p>
 <p>Par contre, si une colonne existe dans le tableau, elle aura priorité sur les objets du même nom dans l’environnement. Dans l’exemple ci-dessous, le résultat obtenu n’est pas celui voulu. Il est interprété comme <q>sélectionner toutes les lignes où la colonne <em>mois</em> est égale à elle-même</q> et donc cela sélectionne toutes les lignes du tableau.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a>month <span class="ot">&lt;-</span> <span class="dv">3</span></span>
-<span id="cb14-2"><a href="#cb14-2"></a>flights <span class="sc">|&gt;</span> </span>
-<span id="cb14-3"><a href="#cb14-3"></a>  <span class="fu">filter</span>(month <span class="sc">==</span> month)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-label="1"></a>month <span class="ot">&lt;-</span> <span class="dv">3</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-label="2"></a>flights <span class="sc">|&gt;</span> </span>
+<span id="cb14-3"><a href="#cb14-3" aria-label="3"></a>  <span class="fu">filter</span>(month <span class="sc">==</span> month)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 336,776 × 19
     year month   day dep_time sched_dep_time dep_delay arr_time sched_arr_time
@@ -985,9 +996,9 @@ cookieconsent.run({
 </div>
 <p>Afin de distinguer ce qui correspond à une colonne du tableau et à un objet de l’environnement, on pourra avoir recours à <code>.data</code> et <code>.env</code> (voir <code><a href="https://rlang.r-lib.org/reference/dot-data.html">help(".env", package = "rlang")</a></code>).</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1"></a>month <span class="ot">&lt;-</span> <span class="dv">3</span></span>
-<span id="cb16-2"><a href="#cb16-2"></a>flights <span class="sc">|&gt;</span> </span>
-<span id="cb16-3"><a href="#cb16-3"></a>  <span class="fu">filter</span>(.data<span class="sc">$</span>month <span class="sc">==</span> .env<span class="sc">$</span>month)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-label="1"></a>month <span class="ot">&lt;-</span> <span class="dv">3</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-label="2"></a>flights <span class="sc">|&gt;</span> </span>
+<span id="cb16-3"><a href="#cb16-3" aria-label="3"></a>  <span class="fu">filter</span>(.data<span class="sc">$</span>month <span class="sc">==</span> .env<span class="sc">$</span>month)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 28,834 × 19
     year month   day dep_time sched_dep_time dep_delay arr_time sched_arr_time
@@ -1015,8 +1026,8 @@ cookieconsent.run({
 <p>Le verbe <code><a href="https://dplyr.tidyverse.org/reference/slice.html">dplyr::slice()</a></code> sélectionne des lignes du tableau selon leur position. On lui passe un chiffre ou un vecteur de chiffres.</p>
 <p>Si l’on souhaite sélectionner la 345<sup>e</sup> ligne du tableau <code>airports</code>&nbsp;:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1"></a>airports <span class="sc">|&gt;</span> </span>
-<span id="cb18-2"><a href="#cb18-2"></a>  <span class="fu">slice</span>(<span class="dv">345</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-label="1"></a>airports <span class="sc">|&gt;</span> </span>
+<span id="cb18-2"><a href="#cb18-2" aria-label="2"></a>  <span class="fu">slice</span>(<span class="dv">345</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 1 × 8
   faa   name                lat   lon   alt    tz dst   tzone            
@@ -1026,8 +1037,8 @@ cookieconsent.run({
 </div>
 <p>Si l’on veut sélectionner les 5 premières lignes&nbsp;:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1"></a>airports <span class="sc">|&gt;</span> </span>
-<span id="cb20-2"><a href="#cb20-2"></a>  <span class="fu">slice</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-label="1"></a>airports <span class="sc">|&gt;</span> </span>
+<span id="cb20-2"><a href="#cb20-2" aria-label="2"></a>  <span class="fu">slice</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 5 × 8
   faa   name                            lat   lon   alt    tz dst   tzone       
@@ -1044,8 +1055,8 @@ cookieconsent.run({
 <p><code><a href="https://dplyr.tidyverse.org/reference/arrange.html">dplyr::arrange()</a></code> réordonne les lignes d’un tableau selon une ou plusieurs colonnes.</p>
 <p>Ainsi, si l’on veut trier le tableau <code>flights</code> selon le retard au départ, dans l’ordre croissant&nbsp;:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1"></a>flights <span class="sc">|&gt;</span> </span>
-<span id="cb22-2"><a href="#cb22-2"></a>  <span class="fu">arrange</span>(dep_delay)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-label="1"></a>flights <span class="sc">|&gt;</span> </span>
+<span id="cb22-2"><a href="#cb22-2" aria-label="2"></a>  <span class="fu">arrange</span>(dep_delay)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 336,776 × 19
     year month   day dep_time sched_dep_time dep_delay arr_time sched_arr_time
@@ -1068,8 +1079,8 @@ cookieconsent.run({
 </div>
 <p>On peut trier selon plusieurs colonnes. Par exemple selon le mois, puis selon le retard au départ&nbsp;:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1"></a>flights <span class="sc">|&gt;</span> </span>
-<span id="cb24-2"><a href="#cb24-2"></a>  <span class="fu">arrange</span>(month, dep_delay)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-label="1"></a>flights <span class="sc">|&gt;</span> </span>
+<span id="cb24-2"><a href="#cb24-2" aria-label="2"></a>  <span class="fu">arrange</span>(month, dep_delay)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 336,776 × 19
     year month   day dep_time sched_dep_time dep_delay arr_time sched_arr_time
@@ -1092,8 +1103,8 @@ cookieconsent.run({
 </div>
 <p>Si l’on veut trier selon une colonne par ordre décroissant, on lui applique la fonction <code data-pkg="dplyr"><a href="https://dplyr.tidyverse.org/reference/desc.html">dplyr::desc()</a></code>&nbsp;:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1"></a>flights <span class="sc">|&gt;</span> </span>
-<span id="cb26-2"><a href="#cb26-2"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(dep_delay))</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-label="1"></a>flights <span class="sc">|&gt;</span> </span>
+<span id="cb26-2"><a href="#cb26-2" aria-label="2"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(dep_delay))</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 336,776 × 19
     year month   day dep_time sched_dep_time dep_delay arr_time sched_arr_time
@@ -1116,9 +1127,9 @@ cookieconsent.run({
 </div>
 <p>Combiné avec <code><a href="https://dplyr.tidyverse.org/reference/slice.html">dplyr::slice()</a></code>, <code><a href="https://dplyr.tidyverse.org/reference/arrange.html">dplyr::arrange()</a></code> permet par exemple de sélectionner les trois vols ayant eu le plus de retard&nbsp;:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1"></a>flights <span class="sc">|&gt;</span> </span>
-<span id="cb28-2"><a href="#cb28-2"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(dep_delay)) <span class="sc">|&gt;</span> </span>
-<span id="cb28-3"><a href="#cb28-3"></a>  <span class="fu">slice</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-label="1"></a>flights <span class="sc">|&gt;</span> </span>
+<span id="cb28-2"><a href="#cb28-2" aria-label="2"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(dep_delay)) <span class="sc">|&gt;</span> </span>
+<span id="cb28-3"><a href="#cb28-3" aria-label="3"></a>  <span class="fu">slice</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 3 × 19
    year month   day dep_time sched_dep_time dep_delay arr_time sched_arr_time
@@ -1135,37 +1146,37 @@ cookieconsent.run({
 <span class="header-section-number">8.1.4</span> slice_sample()</h3>
 <p><code><a href="https://dplyr.tidyverse.org/reference/slice.html">dplyr::slice_sample()</a></code> permet de sélectionner aléatoirement un nombre de lignes ou une fraction des lignes d’un tableau. Ainsi si l’on veut choisir 5 lignes au hasard dans le tableau <code>airports</code>&nbsp;:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb30"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1"></a>airports <span class="sc">|&gt;</span> </span>
-<span id="cb30-2"><a href="#cb30-2"></a>  <span class="fu">slice_sample</span>(<span class="at">n =</span> <span class="dv">5</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb30"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-label="1"></a>airports <span class="sc">|&gt;</span> </span>
+<span id="cb30-2"><a href="#cb30-2" aria-label="2"></a>  <span class="fu">slice_sample</span>(<span class="at">n =</span> <span class="dv">5</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 5 × 8
-  faa   name                          lat    lon   alt    tz dst   tzone        
-  &lt;chr&gt; &lt;chr&gt;                       &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;        
-1 0S9   Jefferson County Intl        48.1 -123.    108    -8 A     America/Los_…
-2 ERI   Erie Intl Tom Ridge Fld      42.1  -80.2   733    -5 A     America/New_…
-3 FFO   Wright Patterson Afb         39.8  -84.0   823    -5 A     America/New_…
-4 FBS   Friday Harbor Seaplane Base  48.5 -123.      0    -8 A     America/Los_…
-5 BID   Block Island State Airport   41.2  -71.6   108    -5 A     America/New_…</code></pre>
+  faa   name                         lat    lon   alt    tz dst   tzone         
+  &lt;chr&gt; &lt;chr&gt;                      &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;         
+1 PWT   Bremerton National          47.5 -123.    444    -8 A     America/Los_A…
+2 MGR   Moultrie Municipal Airport  31.1  -83.8   294    -5 A     America/New_Y…
+3 ECA   Iosco County                44.3  -83.4   606    -5 A     America/New_Y…
+4 C91   Dowagiac Municipal Airport  42.0  -86.1   748    -5 U     America/New_Y…
+5 BDE   Baudette Intl               48.7  -94.6  1086    -6 A     America/Chica…</code></pre>
 </div>
 </div>
 <p>Si l’on veut tirer au hasard 10% des lignes de <code>flights</code>&nbsp;:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb32"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1"></a>flights <span class="sc">|&gt;</span> </span>
-<span id="cb32-2"><a href="#cb32-2"></a>  <span class="fu">slice_sample</span>(<span class="at">prop =</span> .<span class="dv">1</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb32"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-label="1"></a>flights <span class="sc">|&gt;</span> </span>
+<span id="cb32-2"><a href="#cb32-2" aria-label="2"></a>  <span class="fu">slice_sample</span>(<span class="at">prop =</span> <span class="fl">.1</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 33,677 × 19
     year month   day dep_time sched_dep_time dep_delay arr_time sched_arr_time
    &lt;int&gt; &lt;int&gt; &lt;int&gt;    &lt;int&gt;          &lt;int&gt;     &lt;dbl&gt;    &lt;int&gt;          &lt;int&gt;
- 1  2013    11    21     1711           1715        -4     2022           2035
- 2  2013     6    12      747            755        -8     1022           1045
- 3  2013    12     6       NA           1545        NA       NA           1810
- 4  2013     4    11      721            725        -4     1017           1015
- 5  2013     4    21      805            810        -5     1025           1037
- 6  2013     6    26      736            743        -7      854            918
- 7  2013     4     3     1256           1305        -9     1438           1455
- 8  2013    12     7     1626           1630        -4     1745           1800
- 9  2013     4    12     2007           1830        97     2158           2010
-10  2013     2     4      641            639         2      957            957
+ 1  2013     1    19     1633           1635        -2     1809           1811
+ 2  2013     8    10      742            745        -3      927            939
+ 3  2013     3     5     2125           2029        56     2225           2153
+ 4  2013     2     4     1725           1446       159     2035           1757
+ 5  2013    12    12     1552           1528        24     1825           1831
+ 6  2013     8     1     2000           1900        60     2117           2030
+ 7  2013     3    28      751            751         0      950            959
+ 8  2013     7    28      841            850        -9      937           1017
+ 9  2013     1     8     2125           2129        -4     2231           2231
+10  2013     8    31     1742           1745        -3     1942           2005
 # ℹ 33,667 more rows
 # ℹ 11 more variables: arr_delay &lt;dbl&gt;, carrier &lt;chr&gt;, flight &lt;int&gt;,
 #   tailnum &lt;chr&gt;, origin &lt;chr&gt;, dest &lt;chr&gt;, air_time &lt;dbl&gt;, distance &lt;dbl&gt;,
@@ -1177,9 +1188,9 @@ cookieconsent.run({
 <span class="header-section-number">8.1.5</span> distinct()</h3>
 <p><code><a href="https://dplyr.tidyverse.org/reference/distinct.html">dplyr::distinct()</a></code> filtre les lignes du tableau pour ne conserver que les lignes distinctes, en supprimant toutes les lignes en double.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb34"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1"></a>flights <span class="sc">|&gt;</span></span>
-<span id="cb34-2"><a href="#cb34-2"></a>  <span class="fu">select</span>(day, month) <span class="sc">|&gt;</span></span>
-<span id="cb34-3"><a href="#cb34-3"></a>  <span class="fu">distinct</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb34"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-label="1"></a>flights <span class="sc">|&gt;</span></span>
+<span id="cb34-2"><a href="#cb34-2" aria-label="2"></a>  <span class="fu">select</span>(day, month) <span class="sc">|&gt;</span></span>
+<span id="cb34-3"><a href="#cb34-3" aria-label="3"></a>  <span class="fu">distinct</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 365 × 2
      day month
@@ -1199,8 +1210,8 @@ cookieconsent.run({
 </div>
 <p>On peut lui spécifier une liste de variables&nbsp;: dans ce cas, pour toutes les observations ayant des valeurs identiques pour les variables en question, <code><a href="https://dplyr.tidyverse.org/reference/distinct.html">dplyr::distinct()</a></code> ne conservera que la première d’entre elles.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb36"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1"></a>flights <span class="sc">|&gt;</span></span>
-<span id="cb36-2"><a href="#cb36-2"></a>  <span class="fu">distinct</span>(month, day)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb36"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-label="1"></a>flights <span class="sc">|&gt;</span></span>
+<span id="cb36-2"><a href="#cb36-2" aria-label="2"></a>  <span class="fu">distinct</span>(month, day)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 365 × 2
    month   day
@@ -1220,8 +1231,8 @@ cookieconsent.run({
 </div>
 <p>L’option <code>.keep_all</code> permet, dans l’opération précédente, de conserver l’ensemble des colonnes du tableau&nbsp;:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb38"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1"></a>flights <span class="sc">|&gt;</span></span>
-<span id="cb38-2"><a href="#cb38-2"></a>  <span class="fu">distinct</span>(month, day, <span class="at">.keep_all =</span> <span class="cn">TRUE</span>) </span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb38"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-label="1"></a>flights <span class="sc">|&gt;</span></span>
+<span id="cb38-2"><a href="#cb38-2" aria-label="2"></a>  <span class="fu">distinct</span>(month, day, <span class="at">.keep_all =</span> <span class="cn">TRUE</span>) </span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 365 × 19
     year month   day dep_time sched_dep_time dep_delay arr_time sched_arr_time
@@ -1248,8 +1259,8 @@ cookieconsent.run({
 <span class="header-section-number">8.2.1</span> select()</h3>
 <p><code><a href="https://dplyr.tidyverse.org/reference/select.html">dplyr::select()</a></code> permet de sélectionner des colonnes d’un tableau de données. Ainsi, si l’on veut extraire les colonnes <code>lat</code> et <code>lon</code> du tableau <code>airports</code>&nbsp;:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb40"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1"></a>airports <span class="sc">|&gt;</span> </span>
-<span id="cb40-2"><a href="#cb40-2"></a>  <span class="fu">select</span>(lat, lon)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb40"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-label="1"></a>airports <span class="sc">|&gt;</span> </span>
+<span id="cb40-2"><a href="#cb40-2" aria-label="2"></a>  <span class="fu">select</span>(lat, lon)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 1,458 × 2
      lat    lon
@@ -1269,8 +1280,8 @@ cookieconsent.run({
 </div>
 <p>Si on fait précéder le nom d’un <code>-</code>, la colonne est éliminée plutôt que sélectionnée&nbsp;:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb42"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1"></a>airports <span class="sc">|&gt;</span> </span>
-<span id="cb42-2"><a href="#cb42-2"></a>  <span class="fu">select</span>(<span class="sc">-</span>lat, <span class="sc">-</span>lon)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb42"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-label="1"></a>airports <span class="sc">|&gt;</span> </span>
+<span id="cb42-2"><a href="#cb42-2" aria-label="2"></a>  <span class="fu">select</span>(<span class="sc">-</span>lat, <span class="sc">-</span>lon)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 1,458 × 6
    faa   name                             alt    tz dst   tzone              
@@ -1290,8 +1301,8 @@ cookieconsent.run({
 </div>
 <p><code><a href="https://dplyr.tidyverse.org/reference/select.html">dplyr::select()</a></code> comprend toute une série de fonctions facilitant la sélection de multiples colonnes. Par exemple, <code><a href="https://tidyselect.r-lib.org/reference/starts_with.html">dplyr::starts_with()</a></code>, <code>dplyr::ends_width()</code>, <code><a href="https://tidyselect.r-lib.org/reference/starts_with.html">dplyr::contains()</a></code> ou <code><a href="https://tidyselect.r-lib.org/reference/starts_with.html">dplyr::matches()</a></code> permettent d’exprimer des conditions sur les noms de variables&nbsp;:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb44"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1"></a>flights <span class="sc">|&gt;</span> </span>
-<span id="cb44-2"><a href="#cb44-2"></a>  <span class="fu">select</span>(<span class="fu">starts_with</span>(<span class="st">"dep_"</span>))</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb44"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-label="1"></a>flights <span class="sc">|&gt;</span> </span>
+<span id="cb44-2"><a href="#cb44-2" aria-label="2"></a>  <span class="fu">select</span>(<span class="fu">starts_with</span>(<span class="st">"dep_"</span>))</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 336,776 × 2
    dep_time dep_delay
@@ -1311,8 +1322,8 @@ cookieconsent.run({
 </div>
 <p>La syntaxe <code>colonne1:colonne2</code> permet de sélectionner toutes les colonnes situées entre <em>colonne1</em> et <em>colonne2</em> incluses<a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a>&nbsp;:</p>
 <div class="no-row-height column-margin column-container"><div id="fn3"><p><sup>3</sup>&nbsp;À noter que cette opération est un peu plus “fragile” que les autres, car si l’ordre des colonnes change elle peut renvoyer un résultat différent.</p></div></div><div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb46"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1"></a>flights <span class="sc">|&gt;</span> </span>
-<span id="cb46-2"><a href="#cb46-2"></a>  <span class="fu">select</span>(year<span class="sc">:</span>day)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb46"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-label="1"></a>flights <span class="sc">|&gt;</span> </span>
+<span id="cb46-2"><a href="#cb46-2" aria-label="2"></a>  <span class="fu">select</span>(year<span class="sc">:</span>day)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 336,776 × 3
     year month   day
@@ -1332,8 +1343,8 @@ cookieconsent.run({
 </div>
 <p><code data-data_pkg="tidyselect"><a href="https://tidyselect.r-lib.org/reference/all_of.html">dplyr::all_of()</a></code> et <code data-data_pkg="tidyselect"><a href="https://tidyselect.r-lib.org/reference/all_of.html">dplyr::any_of()</a></code> permettent de fournir une liste de variables à extraire sous forme de vecteur textuel. Alors que <code data-data_pkg="tidyselect"><a href="https://tidyselect.r-lib.org/reference/all_of.html">dplyr::all_of()</a></code> renverra une erreur si une variable n’est pas trouvée dans le tableau de départ, <code data-data_pkg="tidyselect"><a href="https://tidyselect.r-lib.org/reference/all_of.html">dplyr::any_of()</a></code> sera moins stricte.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb48"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1"></a>flights <span class="sc">|&gt;</span> </span>
-<span id="cb48-2"><a href="#cb48-2"></a>  <span class="fu">select</span>(<span class="fu">all_of</span>(<span class="fu">c</span>(<span class="st">"year"</span>, <span class="st">"month"</span>, <span class="st">"day"</span>)))</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb48"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-label="1"></a>flights <span class="sc">|&gt;</span> </span>
+<span id="cb48-2"><a href="#cb48-2" aria-label="2"></a>  <span class="fu">select</span>(<span class="fu">all_of</span>(<span class="fu">c</span>(<span class="st">"year"</span>, <span class="st">"month"</span>, <span class="st">"day"</span>)))</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 336,776 × 3
     year month   day
@@ -1352,8 +1363,8 @@ cookieconsent.run({
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb50"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1"></a>flights <span class="sc">|&gt;</span> </span>
-<span id="cb50-2"><a href="#cb50-2"></a>  <span class="fu">select</span>(<span class="fu">all_of</span>(<span class="fu">c</span>(<span class="st">"century"</span>, <span class="st">"year"</span>, <span class="st">"month"</span>, <span class="st">"day"</span>)))</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb50"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-label="1"></a>flights <span class="sc">|&gt;</span> </span>
+<span id="cb50-2"><a href="#cb50-2" aria-label="2"></a>  <span class="fu">select</span>(<span class="fu">all_of</span>(<span class="fu">c</span>(<span class="st">"century"</span>, <span class="st">"year"</span>, <span class="st">"month"</span>, <span class="st">"day"</span>)))</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-error">
 <pre><code>Error in `select()`:
 ℹ In argument: `all_of(c("century", "year", "month", "day"))`.
@@ -1365,8 +1376,8 @@ Caused by error in `all_of()`:
 <pre><code>Erreur : Can't subset columns that don't exist. 
 x Column `century` doesn't exist.</code></pre>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb53"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1"></a>flights <span class="sc">|&gt;</span> </span>
-<span id="cb53-2"><a href="#cb53-2"></a>  <span class="fu">select</span>(<span class="fu">any_of</span>(<span class="fu">c</span>(<span class="st">"century"</span>, <span class="st">"year"</span>, <span class="st">"month"</span>, <span class="st">"day"</span>)))</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb53"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1" aria-label="1"></a>flights <span class="sc">|&gt;</span> </span>
+<span id="cb53-2"><a href="#cb53-2" aria-label="2"></a>  <span class="fu">select</span>(<span class="fu">any_of</span>(<span class="fu">c</span>(<span class="st">"century"</span>, <span class="st">"year"</span>, <span class="st">"month"</span>, <span class="st">"day"</span>)))</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 336,776 × 3
     year month   day
@@ -1386,8 +1397,8 @@ x Column `century` doesn't exist.</code></pre>
 </div>
 <p><code data-data_pkg="tidyselect"><a href="https://tidyselect.r-lib.org/reference/where.html">dplyr::where()</a></code> permets de sélectionner des variables à partir d’une fonction qui renvoie une valeur logique. Par exemple, pour sélectionner seulement les variables textuelles&nbsp;:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb55"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1"></a>flights <span class="sc">|&gt;</span> </span>
-<span id="cb55-2"><a href="#cb55-2"></a>  <span class="fu">select</span>(<span class="fu">where</span>(is.character))</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb55"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1" aria-label="1"></a>flights <span class="sc">|&gt;</span> </span>
+<span id="cb55-2"><a href="#cb55-2" aria-label="2"></a>  <span class="fu">select</span>(<span class="fu">where</span>(is.character))</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 336,776 × 4
    carrier tailnum origin dest 
@@ -1407,8 +1418,8 @@ x Column `century` doesn't exist.</code></pre>
 </div>
 <p><code><a href="https://dplyr.tidyverse.org/reference/select.html">dplyr::select()</a></code> peut être utilisée pour réordonner les colonnes d’une table en utilisant la fonction <code data-pkg="dplyr" data-rdoc="select_helpers"><a href="https://tidyselect.r-lib.org/reference/everything.html">dplyr::everything()</a></code>, qui sélectionne l’ensemble des colonnes non encore sélectionnées. Ainsi, si l’on souhaite faire passer la colonne <em>name</em> en première position de la table <code>airports</code>, on peut faire&nbsp;:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb57"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb57-1"><a href="#cb57-1"></a>airports <span class="sc">|&gt;</span> </span>
-<span id="cb57-2"><a href="#cb57-2"></a>  <span class="fu">select</span>(name, <span class="fu">everything</span>())</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb57"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb57-1"><a href="#cb57-1" aria-label="1"></a>airports <span class="sc">|&gt;</span> </span>
+<span id="cb57-2"><a href="#cb57-2" aria-label="2"></a>  <span class="fu">select</span>(name, <span class="fu">everything</span>())</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 1,458 × 8
    name                           faa     lat    lon   alt    tz dst   tzone    
@@ -1430,8 +1441,8 @@ x Column `century` doesn't exist.</code></pre>
 <span class="header-section-number">8.2.2</span> relocate()</h3>
 <p>Pour réordonner des colonnes, on pourra aussi avoir recours à <code><a href="https://dplyr.tidyverse.org/reference/relocate.html">dplyr::relocate()</a></code> en indiquant les premières variables. Il n’est pas nécessaire d’ajouter <code data-pkg="dplyr">everything()</code> car avec <code><a href="https://dplyr.tidyverse.org/reference/relocate.html">dplyr::relocate()</a></code> toutes les variables sont conservées.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb59"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb59-1"><a href="#cb59-1"></a>airports <span class="sc">|&gt;</span> </span>
-<span id="cb59-2"><a href="#cb59-2"></a>  <span class="fu">relocate</span>(lon, lat, name)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb59"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb59-1"><a href="#cb59-1" aria-label="1"></a>airports <span class="sc">|&gt;</span> </span>
+<span id="cb59-2"><a href="#cb59-2" aria-label="2"></a>  <span class="fu">relocate</span>(lon, lat, name)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 1,458 × 8
       lon   lat name                           faa     alt    tz dst   tzone    
@@ -1453,8 +1464,8 @@ x Column `century` doesn't exist.</code></pre>
 <span class="header-section-number">8.2.3</span> rename()</h3>
 <p>Une variante de <code><a href="https://dplyr.tidyverse.org/reference/select.html">dplyr::select()</a></code> est <code><a href="https://dplyr.tidyverse.org/reference/rename.html">dplyr::rename()</a></code><a href="#fn4" class="footnote-ref" id="fnref4" role="doc-noteref"><sup>4</sup></a>, qui permet de renommer facilement des colonnes. On l’utilise en lui passant des paramètres de la forme <code>nouveau_nom = ancien_nom</code>. Ainsi, si on veut renommer les colonnes <em>lon</em> et <em>lat</em> de <code>airports</code> en <em>longitude</em> et <em>latitude</em>&nbsp;:</p>
 <div class="no-row-height column-margin column-container"><div id="fn4"><p><sup>4</sup>&nbsp;Il est également possible de renommer des colonnes directement avec <code>select()</code>, avec la même syntaxe que pour <code>rename()</code>.</p></div></div><div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb61"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb61-1"><a href="#cb61-1"></a>airports <span class="sc">|&gt;</span> </span>
-<span id="cb61-2"><a href="#cb61-2"></a>  <span class="fu">rename</span>(<span class="at">longitude =</span> lon, <span class="at">latitude =</span> lat)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb61"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb61-1"><a href="#cb61-1" aria-label="1"></a>airports <span class="sc">|&gt;</span> </span>
+<span id="cb61-2"><a href="#cb61-2" aria-label="2"></a>  <span class="fu">rename</span>(<span class="at">longitude =</span> lon, <span class="at">latitude =</span> lat)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 1,458 × 8
    faa   name                         latitude longitude   alt    tz dst   tzone
@@ -1474,12 +1485,12 @@ x Column `century` doesn't exist.</code></pre>
 </div>
 <p>Si les noms de colonnes comportent des espaces ou des caractères spéciaux, on peut les entourer de guillemets (<code>"</code>) ou de <em>quotes</em> inverses (<code>`</code>)&nbsp;:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb63"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb63-1"><a href="#cb63-1"></a>flights <span class="sc">|&gt;</span> </span>
-<span id="cb63-2"><a href="#cb63-2"></a>  <span class="fu">rename</span>(</span>
-<span id="cb63-3"><a href="#cb63-3"></a>    <span class="st">"retard départ"</span> <span class="ot">=</span> dep_delay,</span>
-<span id="cb63-4"><a href="#cb63-4"></a>    <span class="st">"retard arrivée"</span> <span class="ot">=</span> arr_delay</span>
-<span id="cb63-5"><a href="#cb63-5"></a>  ) <span class="sc">|&gt;</span> </span>
-<span id="cb63-6"><a href="#cb63-6"></a>  <span class="fu">select</span>(<span class="st">`</span><span class="at">retard départ</span><span class="st">`</span>, <span class="st">`</span><span class="at">retard arrivée</span><span class="st">`</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb63"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb63-1"><a href="#cb63-1" aria-label="1"></a>flights <span class="sc">|&gt;</span> </span>
+<span id="cb63-2"><a href="#cb63-2" aria-label="2"></a>  <span class="fu">rename</span>(</span>
+<span id="cb63-3"><a href="#cb63-3" aria-label="3"></a>    <span class="st">"retard départ"</span> <span class="ot">=</span> dep_delay,</span>
+<span id="cb63-4"><a href="#cb63-4" aria-label="4"></a>    <span class="st">"retard arrivée"</span> <span class="ot">=</span> arr_delay</span>
+<span id="cb63-5"><a href="#cb63-5" aria-label="5"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb63-6"><a href="#cb63-6" aria-label="6"></a>  <span class="fu">select</span>(<span class="st">`</span><span class="at">retard départ</span><span class="st">`</span>, <span class="st">`</span><span class="at">retard arrivée</span><span class="st">`</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 336,776 × 2
    `retard départ` `retard arrivée`
@@ -1501,8 +1512,8 @@ x Column `century` doesn't exist.</code></pre>
 <span class="header-section-number">8.2.4</span> rename_with()</h3>
 <p>La fonction <code><a href="https://dplyr.tidyverse.org/reference/rename.html">dplyr::rename_with()</a></code> permets de renommer plusieurs colonnes d’un coup en transmettant une fonction, par exemple <code><a href="https://rdrr.io/r/base/chartr.html">toupper()</a></code> qui passe tous les caractères en majuscule.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb65"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb65-1"><a href="#cb65-1"></a>airports <span class="sc">|&gt;</span> </span>
-<span id="cb65-2"><a href="#cb65-2"></a>  <span class="fu">rename_with</span>(toupper)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb65"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb65-1"><a href="#cb65-1" aria-label="1"></a>airports <span class="sc">|&gt;</span> </span>
+<span id="cb65-2"><a href="#cb65-2" aria-label="2"></a>  <span class="fu">rename_with</span>(toupper)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 1,458 × 8
    FAA   NAME                             LAT    LON   ALT    TZ DST   TZONE    
@@ -1520,14 +1531,14 @@ x Column `century` doesn't exist.</code></pre>
 # ℹ 1,448 more rows</code></pre>
 </div>
 </div>
-<p>On pourra notamment utiliser les fonctions du package <code>snakecase</code> et, en particulier, <code>snakecase::to_snake_case()</code> que je recommande pour nommer de manière consistante les variables<a href="#fn5" class="footnote-ref" id="fnref5" role="doc-noteref"><sup>5</sup></a>.</p>
+<p>On pourra notamment utiliser les fonctions du package <code>snakecase</code> et, en particulier, <code><a href="https://rdrr.io/pkg/snakecase/man/caseconverter.html">snakecase::to_snake_case()</a></code> que je recommande pour nommer de manière consistante les variables<a href="#fn5" class="footnote-ref" id="fnref5" role="doc-noteref"><sup>5</sup></a>.</p>
 <div class="no-row-height column-margin column-container"><div id="fn5"><p><sup>5</sup>&nbsp;Le <a href="https://fr.wikipedia.org/wiki/Snake_case"><strong><em>snake case</em></strong></a> est une convention typographique en informatique consistant à écrire des ensembles de mots, généralement, en minuscules en les séparant par des tirets bas.</p></div></div></section><section id="pull" class="level3" data-number="8.2.5"><h3 data-number="8.2.5" class="anchored" data-anchor-id="pull">
 <span class="header-section-number">8.2.5</span> pull()</h3>
 <p>La fonction <code><a href="https://dplyr.tidyverse.org/reference/pull.html">dplyr::pull()</a></code> permet d’accéder au contenu d’une variable. C’est un équivalent aux opérateurs <code>$</code> ou <code>[[]]</code>. On peut lui passer un nom de variable ou bien sa position.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb67"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb67-1"><a href="#cb67-1"></a>airports <span class="sc">|&gt;</span> </span>
-<span id="cb67-2"><a href="#cb67-2"></a>  <span class="fu">pull</span>(alt) <span class="sc">|&gt;</span> </span>
-<span id="cb67-3"><a href="#cb67-3"></a>  <span class="fu">mean</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb67"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb67-1"><a href="#cb67-1" aria-label="1"></a>airports <span class="sc">|&gt;</span> </span>
+<span id="cb67-2"><a href="#cb67-2" aria-label="2"></a>  <span class="fu">pull</span>(alt) <span class="sc">|&gt;</span> </span>
+<span id="cb67-3"><a href="#cb67-3" aria-label="3"></a>  <span class="fu">mean</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 1001.416</code></pre>
 </div>
@@ -1550,18 +1561,18 @@ Note
 <p><code><a href="https://dplyr.tidyverse.org/reference/mutate.html">dplyr::mutate()</a></code> permet de créer de nouvelles colonnes dans le tableau de données, en général à partir de variables existantes.</p>
 <p>Par exemple, la table <code>airports</code> contient l’altitude de l’aéroport en pieds. Si l’on veut créer une nouvelle variable <em>alt_m</em> avec l’altitude en mètres, on peut faire&nbsp;:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb69"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb69-1"><a href="#cb69-1"></a>airports <span class="ot">&lt;-</span> </span>
-<span id="cb69-2"><a href="#cb69-2"></a>  airports <span class="sc">|&gt;</span> </span>
-<span id="cb69-3"><a href="#cb69-3"></a>  <span class="fu">mutate</span>(<span class="at">alt_m =</span> alt <span class="sc">/</span> <span class="fl">3.2808</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb69"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb69-1"><a href="#cb69-1" aria-label="1"></a>airports <span class="ot">&lt;-</span> </span>
+<span id="cb69-2"><a href="#cb69-2" aria-label="2"></a>  airports <span class="sc">|&gt;</span> </span>
+<span id="cb69-3"><a href="#cb69-3" aria-label="3"></a>  <span class="fu">mutate</span>(<span class="at">alt_m =</span> alt <span class="sc">/</span> <span class="fl">3.2808</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>On peut créer plusieurs nouvelles colonnes en une seule fois, et les expressions successives peuvent prendre en compte les résultats des calculs précédents. L’exemple suivant convertit d’abord la distance en kilomètres dans une variable <em>distance_km</em>, puis utilise cette nouvelle colonne pour calculer la vitesse en km/h.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb70"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb70-1"><a href="#cb70-1"></a>flights <span class="ot">&lt;-</span> </span>
-<span id="cb70-2"><a href="#cb70-2"></a>  flights <span class="sc">|&gt;</span> </span>
-<span id="cb70-3"><a href="#cb70-3"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb70-4"><a href="#cb70-4"></a>    <span class="at">distance_km =</span> distance <span class="sc">/</span> <span class="fl">0.62137</span>,</span>
-<span id="cb70-5"><a href="#cb70-5"></a>    <span class="at">vitesse =</span> distance_km <span class="sc">/</span> air_time <span class="sc">*</span> <span class="dv">60</span></span>
-<span id="cb70-6"><a href="#cb70-6"></a>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb70"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb70-1"><a href="#cb70-1" aria-label="1"></a>flights <span class="ot">&lt;-</span> </span>
+<span id="cb70-2"><a href="#cb70-2" aria-label="2"></a>  flights <span class="sc">|&gt;</span> </span>
+<span id="cb70-3"><a href="#cb70-3" aria-label="3"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb70-4"><a href="#cb70-4" aria-label="4"></a>    <span class="at">distance_km =</span> distance <span class="sc">/</span> <span class="fl">0.62137</span>,</span>
+<span id="cb70-5"><a href="#cb70-5" aria-label="5"></a>    <span class="at">vitesse =</span> distance_km <span class="sc">/</span> air_time <span class="sc">*</span> <span class="dv">60</span></span>
+<span id="cb70-6"><a href="#cb70-6" aria-label="6"></a>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section></section><section id="opérations-groupées" class="level2 page-columns page-full" data-number="8.3"><h2 data-number="8.3" class="anchored" data-anchor-id="opérations-groupées">
 <span class="header-section-number">8.3</span> Opérations groupées</h2>
@@ -1569,8 +1580,8 @@ Note
 <span class="header-section-number">8.3.1</span> group_by()</h3>
 <p>Un élément très important de <a href="https://dplyr.tidyverse.org">dplyr</a> est la fonction <code><a href="https://dplyr.tidyverse.org/reference/group_by.html">dplyr::group_by()</a></code>. Elle permet de définir des groupes de lignes à partir des valeurs d’une ou plusieurs colonnes. Par exemple, on peut grouper les vols selon leur mois&nbsp;:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb71"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb71-1"><a href="#cb71-1"></a>flights <span class="sc">|&gt;</span> </span>
-<span id="cb71-2"><a href="#cb71-2"></a>  <span class="fu">group_by</span>(month)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb71"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb71-1"><a href="#cb71-1" aria-label="1"></a>flights <span class="sc">|&gt;</span> </span>
+<span id="cb71-2"><a href="#cb71-2" aria-label="2"></a>  <span class="fu">group_by</span>(month)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 336,776 × 21
 # Groups:   month [12]
@@ -1596,9 +1607,9 @@ Note
 <p>Par défaut ceci ne fait rien de visible, à part l’apparition d’une mention <em>Groups</em> dans l’affichage du résultat. Mais à partir du moment où des groupes ont été définis, les verbes comme <code><a href="https://dplyr.tidyverse.org/reference/slice.html">dplyr::slice()</a></code> ou <code><a href="https://dplyr.tidyverse.org/reference/mutate.html">dplyr::mutate()</a></code> vont en tenir compte lors de leurs opérations.</p>
 <p>Par exemple, si on applique <code><a href="https://dplyr.tidyverse.org/reference/slice.html">dplyr::slice()</a></code> à un tableau préalablement groupé, il va sélectionner les lignes aux positions indiquées <em>pour chaque groupe</em>. Ainsi la commande suivante affiche le premier vol de chaque mois, selon leur ordre d’apparition dans le tableau&nbsp;:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb73"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb73-1"><a href="#cb73-1"></a>flights <span class="sc">|&gt;</span> </span>
-<span id="cb73-2"><a href="#cb73-2"></a>  <span class="fu">group_by</span>(month) <span class="sc">|&gt;</span> </span>
-<span id="cb73-3"><a href="#cb73-3"></a>  <span class="fu">slice</span>(<span class="dv">1</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb73"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb73-1"><a href="#cb73-1" aria-label="1"></a>flights <span class="sc">|&gt;</span> </span>
+<span id="cb73-2"><a href="#cb73-2" aria-label="2"></a>  <span class="fu">group_by</span>(month) <span class="sc">|&gt;</span> </span>
+<span id="cb73-3"><a href="#cb73-3" aria-label="3"></a>  <span class="fu">slice</span>(<span class="dv">1</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 12 × 21
 # Groups:   month [12]
@@ -1624,9 +1635,9 @@ Note
 </div>
 <p>Idem pour <code><a href="https://dplyr.tidyverse.org/reference/mutate.html">dplyr::mutate()</a></code>&nbsp;: les opérations appliquées lors du calcul des valeurs des nouvelles colonnes sont appliquée groupe de lignes par groupe de lignes. Dans l’exemple suivant, on ajoute une nouvelle colonne qui contient le retard moyen <em>du mois correspondant</em>&nbsp;:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb75"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb75-1"><a href="#cb75-1"></a>flights <span class="sc">|&gt;</span> </span>
-<span id="cb75-2"><a href="#cb75-2"></a>  <span class="fu">group_by</span>(month) <span class="sc">|&gt;</span> </span>
-<span id="cb75-3"><a href="#cb75-3"></a>  <span class="fu">mutate</span>(<span class="at">mean_delay_month =</span> <span class="fu">mean</span>(dep_delay, <span class="at">na.rm =</span> <span class="cn">TRUE</span>))</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb75"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb75-1"><a href="#cb75-1" aria-label="1"></a>flights <span class="sc">|&gt;</span> </span>
+<span id="cb75-2"><a href="#cb75-2" aria-label="2"></a>  <span class="fu">group_by</span>(month) <span class="sc">|&gt;</span> </span>
+<span id="cb75-3"><a href="#cb75-3" aria-label="3"></a>  <span class="fu">mutate</span>(<span class="at">mean_delay_month =</span> <span class="fu">mean</span>(dep_delay, <span class="at">na.rm =</span> <span class="cn">TRUE</span>))</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 336,776 × 22
 # Groups:   month [12]
@@ -1652,9 +1663,9 @@ Note
 <p>Ceci peut permettre, par exemple, de déterminer si un retard donné est supérieur ou inférieur au retard moyen du mois en cours.</p>
 <p><code><a href="https://dplyr.tidyverse.org/reference/group_by.html">dplyr::group_by()</a></code> peut aussi être utile avec <code><a href="https://dplyr.tidyverse.org/reference/filter.html">dplyr::filter()</a></code>, par exemple pour sélectionner les vols avec le retard au départ le plus important <em>pour chaque mois</em>&nbsp;:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb77"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb77-1"><a href="#cb77-1"></a>flights <span class="sc">|&gt;</span> </span>
-<span id="cb77-2"><a href="#cb77-2"></a>  <span class="fu">group_by</span>(month) <span class="sc">|&gt;</span> </span>
-<span id="cb77-3"><a href="#cb77-3"></a>  <span class="fu">filter</span>(dep_delay <span class="sc">==</span> <span class="fu">max</span>(dep_delay, <span class="at">na.rm =</span> <span class="cn">TRUE</span>))</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb77"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb77-1"><a href="#cb77-1" aria-label="1"></a>flights <span class="sc">|&gt;</span> </span>
+<span id="cb77-2"><a href="#cb77-2" aria-label="2"></a>  <span class="fu">group_by</span>(month) <span class="sc">|&gt;</span> </span>
+<span id="cb77-3"><a href="#cb77-3" aria-label="3"></a>  <span class="fu">filter</span>(dep_delay <span class="sc">==</span> <span class="fu">max</span>(dep_delay, <span class="at">na.rm =</span> <span class="cn">TRUE</span>))</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 12 × 21
 # Groups:   month [12]
@@ -1683,9 +1694,9 @@ Note
 </div>
 <p>On peut voir la différence en comparant les deux résultats suivants&nbsp;:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb79"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb79-1"><a href="#cb79-1"></a>flights <span class="sc">|&gt;</span> </span>
-<span id="cb79-2"><a href="#cb79-2"></a>  <span class="fu">group_by</span>(month) <span class="sc">|&gt;</span> </span>
-<span id="cb79-3"><a href="#cb79-3"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(dep_delay))</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb79"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb79-1"><a href="#cb79-1" aria-label="1"></a>flights <span class="sc">|&gt;</span> </span>
+<span id="cb79-2"><a href="#cb79-2" aria-label="2"></a>  <span class="fu">group_by</span>(month) <span class="sc">|&gt;</span> </span>
+<span id="cb79-3"><a href="#cb79-3" aria-label="3"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(dep_delay))</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 336,776 × 21
 # Groups:   month [12]
@@ -1707,9 +1718,9 @@ Note
 #   hour &lt;dbl&gt;, minute &lt;dbl&gt;, time_hour &lt;dttm&gt;, distance_km &lt;dbl&gt;,
 #   vitesse &lt;dbl&gt;</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb81"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb81-1"><a href="#cb81-1"></a>flights <span class="sc">|&gt;</span> </span>
-<span id="cb81-2"><a href="#cb81-2"></a>  <span class="fu">group_by</span>(month) <span class="sc">|&gt;</span> </span>
-<span id="cb81-3"><a href="#cb81-3"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(dep_delay), <span class="at">.by_group =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb81"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb81-1"><a href="#cb81-1" aria-label="1"></a>flights <span class="sc">|&gt;</span> </span>
+<span id="cb81-2"><a href="#cb81-2" aria-label="2"></a>  <span class="fu">group_by</span>(month) <span class="sc">|&gt;</span> </span>
+<span id="cb81-3"><a href="#cb81-3" aria-label="3"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(dep_delay), <span class="at">.by_group =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 336,776 × 21
 # Groups:   month [12]
@@ -1736,11 +1747,11 @@ Note
 <span class="header-section-number">8.3.2</span> summarise()</h3>
 <p><code><a href="https://dplyr.tidyverse.org/reference/summarise.html">dplyr::summarise()</a></code> permet d’agréger les lignes du tableau en effectuant une opération <q>résumée</q> sur une ou plusieurs colonnes. Il s’agit de toutes les fonctions qui prennent en entrée un ensemble de valeurs et renvoie une valeur unique, comme la moyenne (<code><a href="https://rdrr.io/r/base/mean.html">mean()</a></code>). Par exemple, si l’on souhaite connaître les retards moyens au départ et à l’arrivée pour l’ensemble des vols du tableau <code>flights</code>&nbsp;:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb83"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb83-1"><a href="#cb83-1"></a>flights <span class="sc">|&gt;</span> </span>
-<span id="cb83-2"><a href="#cb83-2"></a>  <span class="fu">summarise</span>(</span>
-<span id="cb83-3"><a href="#cb83-3"></a>    <span class="at">retard_dep =</span> <span class="fu">mean</span>(dep_delay, <span class="at">na.rm=</span><span class="cn">TRUE</span>),</span>
-<span id="cb83-4"><a href="#cb83-4"></a>    <span class="at">retard_arr =</span> <span class="fu">mean</span>(arr_delay, <span class="at">na.rm=</span><span class="cn">TRUE</span>)</span>
-<span id="cb83-5"><a href="#cb83-5"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb83"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb83-1"><a href="#cb83-1" aria-label="1"></a>flights <span class="sc">|&gt;</span> </span>
+<span id="cb83-2"><a href="#cb83-2" aria-label="2"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb83-3"><a href="#cb83-3" aria-label="3"></a>    <span class="at">retard_dep =</span> <span class="fu">mean</span>(dep_delay, <span class="at">na.rm=</span><span class="cn">TRUE</span>),</span>
+<span id="cb83-4"><a href="#cb83-4" aria-label="4"></a>    <span class="at">retard_arr =</span> <span class="fu">mean</span>(arr_delay, <span class="at">na.rm=</span><span class="cn">TRUE</span>)</span>
+<span id="cb83-5"><a href="#cb83-5" aria-label="5"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 1 × 2
   retard_dep retard_arr
@@ -1750,13 +1761,13 @@ Note
 </div>
 <p>Cette fonction est en général utilisée avec <code><a href="https://dplyr.tidyverse.org/reference/group_by.html">dplyr::group_by()</a></code>, puisqu’elle permet du coup d’agréger et de résumer les lignes du tableau groupe par groupe. Si l’on souhaite calculer le délai maximum, le délai minimum et le délai moyen au départ pour chaque mois, on pourra faire&nbsp;:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb85"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb85-1"><a href="#cb85-1"></a>flights <span class="sc">|&gt;</span></span>
-<span id="cb85-2"><a href="#cb85-2"></a>  <span class="fu">group_by</span>(month) <span class="sc">|&gt;</span></span>
-<span id="cb85-3"><a href="#cb85-3"></a>  <span class="fu">summarise</span>(</span>
-<span id="cb85-4"><a href="#cb85-4"></a>    <span class="at">max_delay =</span> <span class="fu">max</span>(dep_delay, <span class="at">na.rm=</span><span class="cn">TRUE</span>),</span>
-<span id="cb85-5"><a href="#cb85-5"></a>    <span class="at">min_delay =</span> <span class="fu">min</span>(dep_delay, <span class="at">na.rm=</span><span class="cn">TRUE</span>),</span>
-<span id="cb85-6"><a href="#cb85-6"></a>    <span class="at">mean_delay =</span> <span class="fu">mean</span>(dep_delay, <span class="at">na.rm=</span><span class="cn">TRUE</span>)</span>
-<span id="cb85-7"><a href="#cb85-7"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb85"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb85-1"><a href="#cb85-1" aria-label="1"></a>flights <span class="sc">|&gt;</span></span>
+<span id="cb85-2"><a href="#cb85-2" aria-label="2"></a>  <span class="fu">group_by</span>(month) <span class="sc">|&gt;</span></span>
+<span id="cb85-3"><a href="#cb85-3" aria-label="3"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb85-4"><a href="#cb85-4" aria-label="4"></a>    <span class="at">max_delay =</span> <span class="fu">max</span>(dep_delay, <span class="at">na.rm=</span><span class="cn">TRUE</span>),</span>
+<span id="cb85-5"><a href="#cb85-5" aria-label="5"></a>    <span class="at">min_delay =</span> <span class="fu">min</span>(dep_delay, <span class="at">na.rm=</span><span class="cn">TRUE</span>),</span>
+<span id="cb85-6"><a href="#cb85-6" aria-label="6"></a>    <span class="at">mean_delay =</span> <span class="fu">mean</span>(dep_delay, <span class="at">na.rm=</span><span class="cn">TRUE</span>)</span>
+<span id="cb85-7"><a href="#cb85-7" aria-label="7"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 12 × 4
    month max_delay min_delay mean_delay
@@ -1777,9 +1788,9 @@ Note
 </div>
 <p><code><a href="https://dplyr.tidyverse.org/reference/summarise.html">dplyr::summarise()</a></code> dispose d’une fonction spéciale <code data-pkg="dplyr"><a href="https://dplyr.tidyverse.org/reference/context.html">dplyr::n()</a></code>, qui retourne le nombre de lignes du groupe. Ainsi si l’on veut le nombre de vols par destination, on peut utiliser&nbsp;:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb87"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb87-1"><a href="#cb87-1"></a>flights <span class="sc">|&gt;</span></span>
-<span id="cb87-2"><a href="#cb87-2"></a>  <span class="fu">group_by</span>(dest) <span class="sc">|&gt;</span></span>
-<span id="cb87-3"><a href="#cb87-3"></a>  <span class="fu">summarise</span>(<span class="at">n =</span> <span class="fu">n</span>())</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb87"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb87-1"><a href="#cb87-1" aria-label="1"></a>flights <span class="sc">|&gt;</span></span>
+<span id="cb87-2"><a href="#cb87-2" aria-label="2"></a>  <span class="fu">group_by</span>(dest) <span class="sc">|&gt;</span></span>
+<span id="cb87-3"><a href="#cb87-3" aria-label="3"></a>  <span class="fu">summarise</span>(<span class="at">n =</span> <span class="fu">n</span>())</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 105 × 2
    dest      n
@@ -1802,8 +1813,8 @@ Note
 <span class="header-section-number">8.3.3</span> count()</h3>
 <p>À noter que quand l’on veut compter le nombre de lignes par groupe, on peut utiliser directement la fonction <code><a href="https://dplyr.tidyverse.org/reference/count.html">dplyr::count()</a></code>. Ainsi le code suivant est identique au précédent&nbsp;:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb89"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb89-1"><a href="#cb89-1"></a>flights <span class="sc">|&gt;</span></span>
-<span id="cb89-2"><a href="#cb89-2"></a>  <span class="fu">count</span>(dest)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb89"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb89-1"><a href="#cb89-1" aria-label="1"></a>flights <span class="sc">|&gt;</span></span>
+<span id="cb89-2"><a href="#cb89-2" aria-label="2"></a>  <span class="fu">count</span>(dest)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 105 × 2
    dest      n
@@ -1825,13 +1836,17 @@ Note
 <span class="header-section-number">8.3.4</span> Grouper selon plusieurs variables</h3>
 <p>On peut grouper selon plusieurs variables à la fois, il suffit de les indiquer dans la clause du <code><a href="https://dplyr.tidyverse.org/reference/group_by.html">dplyr::group_by()</a></code>&nbsp;:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb91"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb91-1"><a href="#cb91-1"></a>flights <span class="sc">|&gt;</span></span>
-<span id="cb91-2"><a href="#cb91-2"></a>  <span class="fu">group_by</span>(month, dest) <span class="sc">|&gt;</span></span>
-<span id="cb91-3"><a href="#cb91-3"></a>  <span class="fu">summarise</span>(<span class="at">nb =</span> <span class="fu">n</span>()) <span class="sc">|&gt;</span></span>
-<span id="cb91-4"><a href="#cb91-4"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(nb))</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb91"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb91-1"><a href="#cb91-1" aria-label="1"></a>flights <span class="sc">|&gt;</span></span>
+<span id="cb91-2"><a href="#cb91-2" aria-label="2"></a>  <span class="fu">group_by</span>(month, dest) <span class="sc">|&gt;</span></span>
+<span id="cb91-3"><a href="#cb91-3" aria-label="3"></a>  <span class="fu">summarise</span>(<span class="at">nb =</span> <span class="fu">n</span>()) <span class="sc">|&gt;</span></span>
+<span id="cb91-4"><a href="#cb91-4" aria-label="4"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(nb))</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>`summarise()` has grouped output by 'month'. You can override using the
-`.groups` argument.</code></pre>
+<pre><code>`summarise()` has regrouped the output.
+ℹ Summaries were computed grouped by month and dest.
+ℹ Output is grouped by month.
+ℹ Use `summarise(.groups = "drop_last")` to silence this message.
+ℹ Use `summarise(.by = c(month, dest))` for per-operation grouping
+  (`?dplyr::dplyr_by`) instead.</code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 1,113 × 3
@@ -1853,9 +1868,9 @@ Note
 </div>
 <p>On peut également compter selon plusieurs variables&nbsp;:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb94"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb94-1"><a href="#cb94-1"></a>flights <span class="sc">|&gt;</span> </span>
-<span id="cb94-2"><a href="#cb94-2"></a>  <span class="fu">count</span>(origin, dest) <span class="sc">|&gt;</span> </span>
-<span id="cb94-3"><a href="#cb94-3"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(n))</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb94"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb94-1"><a href="#cb94-1" aria-label="1"></a>flights <span class="sc">|&gt;</span> </span>
+<span id="cb94-2"><a href="#cb94-2" aria-label="2"></a>  <span class="fu">count</span>(origin, dest) <span class="sc">|&gt;</span> </span>
+<span id="cb94-3"><a href="#cb94-3" aria-label="3"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(n))</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 224 × 3
    origin dest      n
@@ -1880,14 +1895,18 @@ Note
 </ul>
 <p>Au final, on obtient le code suivant&nbsp;:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb96"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb96-1"><a href="#cb96-1"></a>flights <span class="sc">|&gt;</span></span>
-<span id="cb96-2"><a href="#cb96-2"></a>  <span class="fu">group_by</span>(month, origin, dest) <span class="sc">|&gt;</span></span>
-<span id="cb96-3"><a href="#cb96-3"></a>  <span class="fu">summarise</span>(<span class="at">nb =</span> <span class="fu">n</span>()) <span class="sc">|&gt;</span></span>
-<span id="cb96-4"><a href="#cb96-4"></a>  <span class="fu">group_by</span>(month) <span class="sc">|&gt;</span></span>
-<span id="cb96-5"><a href="#cb96-5"></a>  <span class="fu">filter</span>(nb <span class="sc">==</span> <span class="fu">max</span>(nb))</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb96"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb96-1"><a href="#cb96-1" aria-label="1"></a>flights <span class="sc">|&gt;</span></span>
+<span id="cb96-2"><a href="#cb96-2" aria-label="2"></a>  <span class="fu">group_by</span>(month, origin, dest) <span class="sc">|&gt;</span></span>
+<span id="cb96-3"><a href="#cb96-3" aria-label="3"></a>  <span class="fu">summarise</span>(<span class="at">nb =</span> <span class="fu">n</span>()) <span class="sc">|&gt;</span></span>
+<span id="cb96-4"><a href="#cb96-4" aria-label="4"></a>  <span class="fu">group_by</span>(month) <span class="sc">|&gt;</span></span>
+<span id="cb96-5"><a href="#cb96-5" aria-label="5"></a>  <span class="fu">filter</span>(nb <span class="sc">==</span> <span class="fu">max</span>(nb))</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>`summarise()` has grouped output by 'month', 'origin'. You can override using
-the `.groups` argument.</code></pre>
+<pre><code>`summarise()` has regrouped the output.
+ℹ Summaries were computed grouped by month, origin, and dest.
+ℹ Output is grouped by month and origin.
+ℹ Use `summarise(.groups = "drop_last")` to silence this message.
+ℹ Use `summarise(.by = c(month, origin, dest))` for per-operation grouping
+  (`?dplyr::dplyr_by`) instead.</code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 12 × 4
@@ -1910,12 +1929,16 @@ the `.groups` argument.</code></pre>
 </div>
 <p>Lorsqu’on effectue un <code><a href="https://dplyr.tidyverse.org/reference/group_by.html">dplyr::group_by()</a></code> suivi d’un <code><a href="https://dplyr.tidyverse.org/reference/summarise.html">dplyr::summarise()</a></code>, le tableau résultat est automatiquement dégroupé <em>de la dernière variable de regroupement</em>. Ainsi le tableau généré par le code suivant est groupé par <em>month</em> et <em>origin</em><a href="#fn6" class="footnote-ref" id="fnref6" role="doc-noteref"><sup>6</sup></a>&nbsp;:</p>
 <div class="no-row-height column-margin column-container"><div id="fn6"><p><sup>6</sup>&nbsp;Comme expliqué dans le message affiché dans la console, cela peut être contrôlé avec l’argument <code>.groups</code> de <code><a href="https://dplyr.tidyverse.org/reference/summarise.html">dplyr::summarise()</a></code>, dont les options sont décrites dans l’aide de la fonction.</p></div></div><div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb99"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb99-1"><a href="#cb99-1"></a>flights <span class="sc">|&gt;</span></span>
-<span id="cb99-2"><a href="#cb99-2"></a>  <span class="fu">group_by</span>(month, origin, dest) <span class="sc">|&gt;</span></span>
-<span id="cb99-3"><a href="#cb99-3"></a>  <span class="fu">summarise</span>(<span class="at">nb =</span> <span class="fu">n</span>())</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb99"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb99-1"><a href="#cb99-1" aria-label="1"></a>flights <span class="sc">|&gt;</span></span>
+<span id="cb99-2"><a href="#cb99-2" aria-label="2"></a>  <span class="fu">group_by</span>(month, origin, dest) <span class="sc">|&gt;</span></span>
+<span id="cb99-3"><a href="#cb99-3" aria-label="3"></a>  <span class="fu">summarise</span>(<span class="at">nb =</span> <span class="fu">n</span>())</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>`summarise()` has grouped output by 'month', 'origin'. You can override using
-the `.groups` argument.</code></pre>
+<pre><code>`summarise()` has regrouped the output.
+ℹ Summaries were computed grouped by month, origin, and dest.
+ℹ Output is grouped by month and origin.
+ℹ Use `summarise(.groups = "drop_last")` to silence this message.
+ℹ Use `summarise(.by = c(month, origin, dest))` for per-operation grouping
+  (`?dplyr::dplyr_by`) instead.</code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 2,313 × 4
@@ -1937,13 +1960,17 @@ the `.groups` argument.</code></pre>
 </div>
 <p>Cela peut permettre d’<q>enchaîner</q> les opérations groupées. Dans l’exemple suivant, on calcule le pourcentage des trajets pour chaque destination par rapport à tous les trajets du mois&nbsp;:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb102"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb102-1"><a href="#cb102-1"></a>flights <span class="sc">|&gt;</span></span>
-<span id="cb102-2"><a href="#cb102-2"></a>  <span class="fu">group_by</span>(month, dest) <span class="sc">|&gt;</span></span>
-<span id="cb102-3"><a href="#cb102-3"></a>  <span class="fu">summarise</span>(<span class="at">nb =</span> <span class="fu">n</span>()) <span class="sc">|&gt;</span> </span>
-<span id="cb102-4"><a href="#cb102-4"></a>  <span class="fu">mutate</span>(<span class="at">pourcentage =</span> nb <span class="sc">/</span> <span class="fu">sum</span>(nb) <span class="sc">*</span> <span class="dv">100</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb102"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb102-1"><a href="#cb102-1" aria-label="1"></a>flights <span class="sc">|&gt;</span></span>
+<span id="cb102-2"><a href="#cb102-2" aria-label="2"></a>  <span class="fu">group_by</span>(month, dest) <span class="sc">|&gt;</span></span>
+<span id="cb102-3"><a href="#cb102-3" aria-label="3"></a>  <span class="fu">summarise</span>(<span class="at">nb =</span> <span class="fu">n</span>()) <span class="sc">|&gt;</span> </span>
+<span id="cb102-4"><a href="#cb102-4" aria-label="4"></a>  <span class="fu">mutate</span>(<span class="at">pourcentage =</span> nb <span class="sc">/</span> <span class="fu">sum</span>(nb) <span class="sc">*</span> <span class="dv">100</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>`summarise()` has grouped output by 'month'. You can override using the
-`.groups` argument.</code></pre>
+<pre><code>`summarise()` has regrouped the output.
+ℹ Summaries were computed grouped by month and dest.
+ℹ Output is grouped by month.
+ℹ Use `summarise(.groups = "drop_last")` to silence this message.
+ℹ Use `summarise(.by = c(month, dest))` for per-operation grouping
+  (`?dplyr::dplyr_by`) instead.</code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 1,113 × 4
@@ -1965,14 +1992,18 @@ the `.groups` argument.</code></pre>
 </div>
 <p>On peut à tout moment <q>dégrouper</q> un tableau à l’aide de <code><a href="https://dplyr.tidyverse.org/reference/group_by.html">dplyr::ungroup()</a></code>. Ce serait par exemple nécessaire, dans l’exemple précédent, si on voulait calculer le pourcentage sur le nombre total de vols plutôt que sur le nombre de vols par mois&nbsp;:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb105"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb105-1"><a href="#cb105-1"></a>flights <span class="sc">|&gt;</span></span>
-<span id="cb105-2"><a href="#cb105-2"></a>  <span class="fu">group_by</span>(month, dest) <span class="sc">|&gt;</span></span>
-<span id="cb105-3"><a href="#cb105-3"></a>  <span class="fu">summarise</span>(<span class="at">nb =</span> <span class="fu">n</span>()) <span class="sc">|&gt;</span> </span>
-<span id="cb105-4"><a href="#cb105-4"></a>  <span class="fu">ungroup</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb105-5"><a href="#cb105-5"></a>  <span class="fu">mutate</span>(<span class="at">pourcentage =</span> nb <span class="sc">/</span> <span class="fu">sum</span>(nb) <span class="sc">*</span> <span class="dv">100</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb105"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb105-1"><a href="#cb105-1" aria-label="1"></a>flights <span class="sc">|&gt;</span></span>
+<span id="cb105-2"><a href="#cb105-2" aria-label="2"></a>  <span class="fu">group_by</span>(month, dest) <span class="sc">|&gt;</span></span>
+<span id="cb105-3"><a href="#cb105-3" aria-label="3"></a>  <span class="fu">summarise</span>(<span class="at">nb =</span> <span class="fu">n</span>()) <span class="sc">|&gt;</span> </span>
+<span id="cb105-4"><a href="#cb105-4" aria-label="4"></a>  <span class="fu">ungroup</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb105-5"><a href="#cb105-5" aria-label="5"></a>  <span class="fu">mutate</span>(<span class="at">pourcentage =</span> nb <span class="sc">/</span> <span class="fu">sum</span>(nb) <span class="sc">*</span> <span class="dv">100</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>`summarise()` has grouped output by 'month'. You can override using the
-`.groups` argument.</code></pre>
+<pre><code>`summarise()` has regrouped the output.
+ℹ Summaries were computed grouped by month and dest.
+ℹ Output is grouped by month.
+ℹ Use `summarise(.groups = "drop_last")` to silence this message.
+ℹ Use `summarise(.by = c(month, dest))` for per-operation grouping
+  (`?dplyr::dplyr_by`) instead.</code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 1,113 × 4
@@ -1993,8 +2024,8 @@ the `.groups` argument.</code></pre>
 </div>
 <p>À noter que <code><a href="https://dplyr.tidyverse.org/reference/count.html">dplyr::count()</a></code>, par contre, renvoi un tableau non groupé&nbsp;:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb108"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb108-1"><a href="#cb108-1"></a>flights <span class="sc">|&gt;</span> </span>
-<span id="cb108-2"><a href="#cb108-2"></a>  <span class="fu">count</span>(month, dest)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb108"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb108-1"><a href="#cb108-1" aria-label="1"></a>flights <span class="sc">|&gt;</span> </span>
+<span id="cb108-2"><a href="#cb108-2" aria-label="2"></a>  <span class="fu">count</span>(month, dest)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 1,113 × 3
    month dest      n
@@ -2025,15 +2056,50 @@ the `.groups` argument.</code></pre>
   window.document.addEventListener("DOMContentLoaded", function (event) {
     // Ensure there is a toggle, if there isn't float one in the top right
     if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
-      const a = window.document.createElement('a');
-      a.classList.add('top-right');
-      a.classList.add('quarto-color-scheme-toggle');
-      a.href = "";
-      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const toggle = window.document.createElement('button');
+      toggle.type = "button";
+      toggle.setAttribute("role", "switch");
+      toggle.setAttribute("aria-checked", "false");
+      toggle.classList.add('top-right');
+      toggle.classList.add('quarto-color-scheme-toggle');
+      toggle.setAttribute("aria-label", "Basculer le mode sombre");
+      toggle.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
       const i = window.document.createElement("i");
       i.classList.add('bi');
-      a.appendChild(i);
-      window.document.body.appendChild(a);
+      toggle.appendChild(i);
+      // Put the toggle in a landmark of its own, so that landmark navigation
+      // can reach it.
+      //
+      // The container is always a fresh direct child of body, and the toggle is
+      // never moved into page furniture that the theme or the author controls.
+      // The toggle is positioned against the page, so any ancestor that
+      // establishes a containing block captures it: a positioned element or a
+      // grid for position: absolute, and transform, filter, will-change or
+      // contain for position: fixed. A direct child of body has none of these
+      // to inherit, and the shift when one appears is silent and visual.
+      //
+      // ARIA says a document should have at most one banner, and axe reports a
+      // duplicate whether or not the banners carry distinct labels. So use a
+      // header when the page has no banner yet, and a named region otherwise.
+      //
+      // A header is a banner wherever it sits, unless it is inside sectioning
+      // content, so this cannot just look at the children of body: a custom
+      // page layout wraps the title block header in a plain div. An explicit
+      // role="banner" always counts.
+      const sectioning = 'article, aside, main, nav, section, [role="article"], [role="complementary"], [role="main"], [role="navigation"], [role="region"]';
+      const hasBanner = Array.from(
+        window.document.querySelectorAll('header:not([role]), [role="banner"]')
+      ).some(function(el) {
+        return el.hasAttribute("role") || el.closest(sectioning) === null;
+      });
+      const container = window.document.createElement(hasBanner ? "div" : "header");
+      if (hasBanner) {
+        container.setAttribute("role", "region");
+        container.setAttribute("aria-label", "Basculer le mode sombre");
+      }
+      container.classList.add('quarto-color-scheme-toggle-container');
+      container.appendChild(toggle);
+      window.document.body.appendChild(container);
     }
     setColorSchemeToggle(hasAlternateSentinel())
     const icon = "";
@@ -2108,11 +2174,34 @@ the `.groups` argument.</code></pre>
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);
         var filterRegex = new RegExp('/' + window.location.host + '/');
+      const newWindowLabel = "(s'ouvre dans un nouvel onglet)";
+      const newWindowNoteId = "quarto-ext-newwindow-label";
+      // Links reference one hidden label through aria-describedby, so the
+      // announcement never changes their accessible name.
+      var describeNewWindow = (link) => {
+        if (!window.document.getElementById(newWindowNoteId)) {
+          var newWindowNote = window.document.createElement("span");
+          newWindowNote.id = newWindowNoteId;
+          newWindowNote.hidden = true;
+          newWindowNote.textContent = newWindowLabel;
+          window.document.body.appendChild(newWindowNote);
+        }
+        var describedBy = (link.getAttribute("aria-describedby") || "").split(/\s+/).filter(Boolean);
+        if (!describedBy.includes(newWindowNoteId)) {
+          describedBy.push(newWindowNoteId);
+          link.setAttribute("aria-describedby", describedBy.join(" "));
+        }
+      }
+      var opensNewContext = (link) => {
+        var target = (link.getAttribute("target") || "").toLowerCase();
+        return target !== "" && !["_self", "_parent", "_top"].includes(target);
+      }
       var isInternal = (href) => {
           return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
       }
       // Inspect non-navigation links and adorn them if external
-     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      window.quartoDecorateExternalLinks = function (root) {
+     var links = (root || window.document).querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
       for (var i=0; i<links.length; i++) {
         const link = links[i];
         if (!isInternal(link.href)) {
@@ -2121,8 +2210,72 @@ the `.groups` argument.</code></pre>
           if (link.dataset.originalHref !== undefined) {
             link.href = link.dataset.originalHref;
           }
+          if (!link.classList.contains('no-external-icon')) {
+          }
+        }
+        if (opensNewContext(link)) {
+          describeNewWindow(link);
         }
       }
+      };
+      window.quartoDecorateExternalLinks(window.document);
+    // Esc closes the popup (WCAG 1.4.13) and focus leaving both trigger and
+    // popup closes it (WCAG 2.4.11); tippy handles neither for interactive popups.
+    const hideOnEscAndFocusOut = {
+      name: 'hideOnEscAndFocusOut',
+      defaultValue: true,
+      fn(instance) {
+        const dismiss = () => {
+          // A show scheduled by the trigger delay would otherwise reopen it
+          instance.clearDelayTimeouts();
+          instance.hide();
+        };
+        const onKeyDown = (event) => {
+          if (event.key !== 'Escape') {
+            return;
+          }
+          // Keep Esc from also reaching page handlers (e.g. reveal.js overview),
+          // except an open reveal.js slide menu, which Esc should close too.
+          // The menu handles keys only when its keyboard option is on.
+          const menuHandlesEsc = window.Reveal?.getPlugin?.('menu')?.isOpen() &&
+            window.Reveal.getConfig().menu?.keyboard !== false;
+          if (!menuHandlesEsc) {
+            event.stopPropagation();
+          }
+          if (instance.popper.contains(window.document.activeElement)) {
+            // Disabled while refocusing so the focus trigger does not reopen it
+            instance.disable();
+            instance.reference.focus();
+            instance.enable();
+          }
+          dismiss();
+        };
+        const onFocusOut = (event) => {
+          const target = event.relatedTarget;
+          if (target && !instance.reference.contains(target) &&
+              !instance.popper.contains(target)) {
+            dismiss();
+          }
+        };
+        // On the trigger too: a click trigger (code-annotations: select) has no
+        // blur handling. Attached for the instance's lifetime so leaving the
+        // trigger also cancels a show still pending on the trigger delay.
+        instance.reference.addEventListener('focusout', onFocusOut);
+        return {
+          onShow() {
+            window.document.addEventListener('keydown', onKeyDown, true);
+            instance.popper.addEventListener('focusout', onFocusOut);
+          },
+          onHide() {
+            window.document.removeEventListener('keydown', onKeyDown, true);
+            instance.popper.removeEventListener('focusout', onFocusOut);
+          },
+          onDestroy() {
+            instance.reference.removeEventListener('focusout', onFocusOut);
+          },
+        };
+      },
+    };
     function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
       const config = {
         allowHTML: true,
@@ -2136,6 +2289,7 @@ the `.groups` argument.</code></pre>
         interactiveBorder: 10,
         theme: 'quarto',
         placement: 'bottom-start',
+        plugins: [hideOnEscAndFocusOut],
       };
       if (contentFn) {
         config.content = contentFn;
@@ -2298,44 +2452,54 @@ the `.groups` argument.</code></pre>
           const lineIds = lines.map((line) => {
             return targetCell + "-" + line;
           })
-          let top = null;
-          let height = null;
-          let parent = null;
+          // Each band is positioned against its own containing block, which is
+          // not the offsetParent of the lines, so place it from client rects.
+          const placeBand = (band, firstEl, lastEl, codeBlock) => {
+            const container = band.offsetParent;
+            if (container === null) {
+              return;
+            }
+            const containerRect = container.getBoundingClientRect();
+            // Reveal.js scales slides with a transform, so convert client
+            // pixels back to the CSS pixels of the container.
+            const scale = containerRect.height / container.offsetHeight || 1;
+            const firstRect = firstEl.getBoundingClientRect();
+            const lastRect = lastEl.getBoundingClientRect();
+            const top = (firstRect.top - containerRect.top) / scale - container.clientTop + container.scrollTop;
+            const height = (lastRect.bottom - firstRect.top) / scale;
+            band.style.top = top - 2 + "px";
+            band.style.height = height + 4 + "px";
+            if (codeBlock) {
+              // Without the copy button wrapper, the containing block is wider
+              // than the code block, so span the code block explicitly.
+              const blockRect = codeBlock.getBoundingClientRect();
+              band.style.left = (blockRect.left - containerRect.left) / scale - container.clientLeft + container.scrollLeft + "px";
+              band.style.width = blockRect.width / scale + "px";
+            }
+          };
           if (lineIds.length > 0) {
-              //compute the position of the single el (top and bottom and make a div)
-              const el = window.document.getElementById(lineIds[0]);
-              top = el.offsetTop;
-              height = el.offsetHeight;
-              parent = el.parentElement.parentElement;
-            if (lineIds.length > 1) {
-              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
-              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
-              height = bottom - top;
+            const el = window.document.getElementById(lineIds[0]);
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const parent = el.parentElement.parentElement;
+            // cook up a div (if necessary) and position it
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
             }
-            if (top !== null && height !== null && parent !== null) {
-              // cook up a div (if necessary) and position it 
-              let div = window.document.getElementById("code-annotation-line-highlight");
-              if (div === null) {
-                div = window.document.createElement("div");
-                div.setAttribute("id", "code-annotation-line-highlight");
-                div.style.position = 'absolute';
-                parent.appendChild(div);
-              }
-              div.style.top = top - 2 + "px";
-              div.style.height = height + 4 + "px";
-              div.style.left = 0;
-              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
-              if (gutterDiv === null) {
-                gutterDiv = window.document.createElement("div");
-                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
-                gutterDiv.style.position = 'absolute';
-                const codeCell = window.document.getElementById(targetCell);
-                const gutter = codeCell.querySelector('.code-annotation-gutter');
-                gutter.appendChild(gutterDiv);
-              }
-              gutterDiv.style.top = top - 2 + "px";
-              gutterDiv.style.height = height + 4 + "px";
+            placeBand(div, el, lastEl, parent.closest("div.sourceCode") || parent);
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
             }
+            placeBand(gutterDiv, el, lastEl);
             selectedAnnoteEl = annoteEl;
           }
         };
@@ -2433,6 +2597,8 @@ the `.groups` argument.</code></pre>
       }
     }
   });
+  </script><script type="application/javascript">
+  window.quartoScrollableRegionsLabels = {"code":"Code défilable","output":"Sortie défilable"};
   </script><input type="hidden" id="giscus-base-theme" value="light"><input type="hidden" id="giscus-alt-theme" value="dark"><script>
   function loadGiscus() {
     // Function to get the theme based on body class
@@ -2462,7 +2628,7 @@ the `.groups` argument.</code></pre>
     document.getElementById("quarto-content").appendChild(script);
   }
   loadGiscus();
-</script><nav class="page-navigation"><div class="nav-page nav-page-previous">
+</script><nav class="page-navigation" aria-label="Page"><div class="nav-page nav-page-previous">
       <a href="../manipulation/pipe.html" class="pagination-link" aria-label="Le pipe">
         <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Le pipe</span></span>
       </a>          

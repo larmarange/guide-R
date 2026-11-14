@@ -2,17 +2,20 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="fr" xml:lang="fr"><head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.9.37">
+<meta name="generator" content="quarto-1.12.2">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 <title>22&nbsp; Régression linéaire – guide-R</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
 */
-code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
-div.columns{display: flex; gap: min(4vw, 1.5em);}
-div.column{flex: auto; overflow-x: auto;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
 div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 ul.task-list{list-style: none;}
 ul.task-list li input[type="checkbox"] {
@@ -55,7 +58,27 @@ div.sourceCode
 @media screen {
 pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
-</style>
+@media print {
+  html {
+    color-scheme: light only;
+  }
+  html, body, pre, code {
+    background-color: transparent;
+  }
+  body, a, a:visited, blockquote {
+    color: black;
+  }
+  pre, code {
+    padding: 0;
+  }
+  p, h2, h3 {
+    orphans: 3;
+    widows: 3;
+  }
+  h2, h3, h4 {
+    page-break-after: avoid;
+  }
+}</style>
 
 <script src="../site_libs/quarto-nav/quarto-nav.js"></script>
 <script src="../site_libs/quarto-nav/headroom.min.js"></script>
@@ -71,18 +94,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../site_libs/cookie-consent/cookie-consent.css" rel="stylesheet">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/scrollable-regions/scrollable-regions.js" type="module"></script>
 <script src="../site_libs/quarto-html/popper.min.js"></script>
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-7f8f88aac4f3542376d5c11b86a4c14d.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-d0ae9245876894da5ac7e18953ecc5cc.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-7f8f88aac4f3542376d5c11b86a4c14d.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-a34e72179bd910c3a0d1c193f042680d.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-6b7095a9b6a9693542ed2f2ab64557fc.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-a34e72179bd910c3a0d1c193f042680d.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-fad85691bd79911de0320b982f671d9d.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../site_libs/bootstrap/bootstrap-dark-f68506c574928121fec95fb329006eac.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<link href="../site_libs/bootstrap/bootstrap-fad85691bd79911de0320b982f671d9d.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-58f34290aeb0f1f441acb5dc787127af.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-3208342b027bcedf30363d9c3a4fd7ef.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../site_libs/bootstrap/bootstrap-58f34290aeb0f1f441acb5dc787127af.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <script src="../site_libs/quarto-contrib/glightbox/glightbox.min.js"></script>
 <link href="../site_libs/quarto-contrib/glightbox/glightbox.min.css" rel="stylesheet">
 <link href="../site_libs/quarto-contrib/glightbox/lightbox.css" rel="stylesheet"><script id="quarto-search-options" type="application/json">{
@@ -132,7 +156,7 @@ cookieconsent.run({
   });
 });
 </script><style>html{ scroll-behavior: smooth; }</style>
-<script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script><script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script><script type="text/javascript">
+<script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script><script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script><script type="text/javascript">
 const typesetMath = (el) => {
   if (window.MathJax) {
     // MathJax Typeset
@@ -159,7 +183,7 @@ window.Quarto = {
 };
 </script><link rel="stylesheet" href="../styles.css">
 </head>
-<body class="nav-sidebar floating slimcontent quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+<body class="nav-sidebar floating slimcontent quarto-light"><a id="quarto-skip-link" class="visually-hidden-focusable" href="#quarto-document-content">Aller au contenu principal</a><script id="quarto-html-before-body" type="application/javascript">
     const toggleBodyColorMode = (bsSheetEl) => {
       const mode = bsSheetEl.getAttribute("data-mode");
       const bodyEl = window.document.querySelector("body");
@@ -182,6 +206,7 @@ window.Quarto = {
       for (let i=0; i < toggles.length; i++) {
         const toggle = toggles[i];
         if (toggle) {
+          toggle.setAttribute("aria-checked", alternate ? "true" : "false");
           if (alternate) {
             toggle.classList.add("alternate");
           } else {
@@ -211,13 +236,19 @@ window.Quarto = {
       manageTransitions('#quarto-margin-sidebar .nav-link', true);
       // Switch the toggles
       setColorSchemeToggle(alternate)
-      // Hack to workaround the fact that safari doesn't
-      // properly recolor the scrollbar when toggling (#1455)
+    }
+    // Hack to workaround the fact that safari doesn't
+    // properly recolor the scrollbar when toggling (#1455).
+    // Not run on load: stylesheets are set before first paint there, and
+    // scrolling would undo the scroll to a URL fragment (#14973).
+    // The one pixel nudge keeps the reader where they were.
+    const refreshSafariScrollbar = () => {
       if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
         manageTransitions("body", false);
-        window.scrollTo(0, 1);
+        const scrollY = window.scrollY;
+        window.scrollTo(0, scrollY > 0 ? scrollY - 1 : 1);
         setTimeout(() => {
-          window.scrollTo(0, 0);
+          window.scrollTo(0, scrollY);
           manageTransitions("body", true);
         }, 40);
       }
@@ -311,6 +342,7 @@ window.Quarto = {
       // Read the current dark / light value
       let toAlternate = !hasAlternateSentinel();
       toggleColorMode(toAlternate);
+      refreshSafariScrollbar();
       setStyleSentinel(toAlternate);
       toggleGiscusIfUsed(toAlternate, darkModeDefault);
       window.dispatchEvent(new Event('resize'));
@@ -324,12 +356,12 @@ window.Quarto = {
   </script>
 
 <div id="quarto-search-results"></div>
-  <header id="quarto-header" class="headroom fixed-top"><nav class="quarto-secondary-nav"><div class="container-fluid d-flex">
+  <header id="quarto-header" class="headroom fixed-top"><nav class="quarto-secondary-nav" aria-label="Barre d'outils"><div class="container-fluid d-flex">
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Basculer la barre latérale" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../analyses/ggplot2.html"><strong>Analyses</strong></a></li><li class="breadcrumb-item"><a href="../analyses/regression-lineaire.html"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Régression linéaire</span></a></li></ol></nav>
-        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Basculer la barre latérale" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        <nav class="quarto-page-breadcrumbs" aria-label="Fil d'Ariane"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../analyses/ggplot2.html"><strong>Analyses</strong></a></li><li class="breadcrumb-item"><a href="../analyses/regression-lineaire.html"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Régression linéaire</span></a></li></ol></nav>
+        <a class="flex-grow-1" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Recherche" onclick="window.quartoOpenSearch();">
         <i class="bi bi-search"></i>
@@ -337,15 +369,15 @@ window.Quarto = {
     </div>
   </nav></header><!-- content --><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
 <!-- sidebar -->
-  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto"><div class="pt-lg-2 mt-2 text-left sidebar-header sidebar-header-stacked">
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto" aria-label="Site web"><div class="pt-lg-2 mt-2 text-left sidebar-header sidebar-header-stacked">
       <a href="../index.html" class="sidebar-logo-link">
       <img src="../ressources/typewriter.png" alt="" class="sidebar-logo light-content py-0 d-lg-inline d-none"><img src="../ressources/typewriter.png" alt="" class="sidebar-logo dark-content py-0 d-lg-inline d-none"></a>
     <div class="sidebar-title mb-0 py-0">
       <a href="../">guide-R</a> 
         <div class="sidebar-tools-main tools-wide">
     <a href="https://github.com/larmarange/guide-R/" title="Code source" class="quarto-navigation-tool px-1" aria-label="Code source"><i class="bi bi-github"></i></a>
-    <a href="../guide-R.epub" title="Download ePub" class="quarto-navigation-tool px-1" aria-label="Download ePub"><i class="bi bi-journal"></i></a>
-  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Basculer le mode sombre"><i class="bi"></i></a>
+    <a href="../guide-R.epub" title="Télécharger ePub" class="quarto-navigation-tool px-1" aria-label="Télécharger ePub"><i class="bi bi-journal"></i></a>
+  <button type="button" role="switch" aria-checked="false" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Basculer le mode sombre" aria-label="Basculer le mode sombre"><i class="bi"></i></button>
 </div>
     </div>
       </div>
@@ -364,13 +396,10 @@ window.Quarto = {
 </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
- <span class="menu-text"><strong>Bases du langage</strong></span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Basculer la section">
-            <i class="bi bi-chevron-right ms-2"></i>
-          </a> 
+            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-controls="quarto-sidebar-section-1" aria-expanded="true">
+ <span class="menu-text" id="quarto-sidebar-section-1-label"><strong>Bases du langage</strong></span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
       </div>
-      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">
+      <ul id="quarto-sidebar-section-1" aria-labelledby="quarto-sidebar-section-1-label" class="collapse list-unstyled sidebar-section depth1 show">
 <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../bases/packages.html" class="sidebar-item-text sidebar-link">
@@ -411,13 +440,10 @@ window.Quarto = {
 </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
- <span class="menu-text"><strong>Manipulation de données</strong></span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Basculer la section">
-            <i class="bi bi-chevron-right ms-2"></i>
-          </a> 
+            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-controls="quarto-sidebar-section-2" aria-expanded="true">
+ <span class="menu-text" id="quarto-sidebar-section-2-label"><strong>Manipulation de données</strong></span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
       </div>
-      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">
+      <ul id="quarto-sidebar-section-2" aria-labelledby="quarto-sidebar-section-2-label" class="collapse list-unstyled sidebar-section depth1 show">
 <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../manipulation/pipe.html" class="sidebar-item-text sidebar-link">
@@ -482,13 +508,10 @@ window.Quarto = {
 </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
- <span class="menu-text"><strong>Analyses</strong></span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Basculer la section">
-            <i class="bi bi-chevron-right ms-2"></i>
-          </a> 
+            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" aria-controls="quarto-sidebar-section-3" aria-expanded="true">
+ <span class="menu-text" id="quarto-sidebar-section-3-label"><strong>Analyses</strong></span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
       </div>
-      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">
+      <ul id="quarto-sidebar-section-3" aria-labelledby="quarto-sidebar-section-3-label" class="collapse list-unstyled sidebar-section depth1 show">
 <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../analyses/ggplot2.html" class="sidebar-item-text sidebar-link">
@@ -571,13 +594,10 @@ window.Quarto = {
 </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true">
- <span class="menu-text"><strong>Données pondérées avec <code>survey</code></strong></span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true" aria-label="Basculer la section">
-            <i class="bi bi-chevron-right ms-2"></i>
-          </a> 
+            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" aria-controls="quarto-sidebar-section-4" aria-expanded="true">
+ <span class="menu-text" id="quarto-sidebar-section-4-label"><strong>Données pondérées avec <code>survey</code></strong></span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
       </div>
-      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">
+      <ul id="quarto-sidebar-section-4" aria-labelledby="quarto-sidebar-section-4-label" class="collapse list-unstyled sidebar-section depth1 show">
 <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../donnees_ponderees/plan-echantillonnage.html" class="sidebar-item-text sidebar-link">
@@ -612,13 +632,10 @@ window.Quarto = {
 </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true">
- <span class="menu-text"><strong>Manipulation avancée</strong></span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true" aria-label="Basculer la section">
-            <i class="bi bi-chevron-right ms-2"></i>
-          </a> 
+            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" aria-controls="quarto-sidebar-section-5" aria-expanded="true">
+ <span class="menu-text" id="quarto-sidebar-section-5-label"><strong>Manipulation avancée</strong></span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
       </div>
-      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">
+      <ul id="quarto-sidebar-section-5" aria-labelledby="quarto-sidebar-section-5-label" class="collapse list-unstyled sidebar-section depth1 show">
 <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../manipulation_avancee/fusion-tables.html" class="sidebar-item-text sidebar-link">
@@ -671,13 +688,10 @@ window.Quarto = {
 </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="true">
- <span class="menu-text"><strong>Analyses avancées</strong></span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="true" aria-label="Basculer la section">
-            <i class="bi bi-chevron-right ms-2"></i>
-          </a> 
+            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" aria-controls="quarto-sidebar-section-6" aria-expanded="true">
+ <span class="menu-text" id="quarto-sidebar-section-6-label"><strong>Analyses avancées</strong></span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
       </div>
-      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 show">
+      <ul id="quarto-sidebar-section-6" aria-labelledby="quarto-sidebar-section-6-label" class="collapse list-unstyled sidebar-section depth1 show">
 <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../analyses_avancees/analyse-factorielle.html" class="sidebar-item-text sidebar-link">
@@ -748,13 +762,10 @@ window.Quarto = {
 </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="true">
- <span class="menu-text"><strong>Pour aller plus loin</strong></span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="true" aria-label="Basculer la section">
-            <i class="bi bi-chevron-right ms-2"></i>
-          </a> 
+            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" aria-controls="quarto-sidebar-section-7" aria-expanded="true">
+ <span class="menu-text" id="quarto-sidebar-section-7-label"><strong>Pour aller plus loin</strong></span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
       </div>
-      <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth1 show">
+      <ul id="quarto-sidebar-section-7" aria-labelledby="quarto-sidebar-section-7-label" class="collapse list-unstyled sidebar-section depth1 show">
 <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../extra/ressources-documentaires.html" class="sidebar-item-text sidebar-link">
@@ -768,7 +779,7 @@ window.Quarto = {
 </nav><div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        <nav id="TOC" role="doc-toc" class="toc-active"><h2 id="toc-title">Table des matières</h2>
+        <nav id="TOC" role="doc-toc" aria-labelledby="toc-title" class="toc-active"><h2 id="toc-title">Table des matières</h2>
    
   <ul>
 <li><a href="#sec-regression-lineaire-variable-explicative-continue" id="toc-sec-regression-lineaire-variable-explicative-continue" class="nav-link active" data-scroll-target="#sec-regression-lineaire-variable-explicative-continue"><span class="header-section-number">22.1</span> Modèle à une seule variable explicative continue</a></li>
@@ -777,7 +788,7 @@ window.Quarto = {
   </ul><div class="toc-actions"><ul><li><a href="https://github.com/larmarange/guide-R/blob/main/analyses/regression-lineaire.qmd" class="toc-action"><i class="bi bi-github"></i>Voir la source</a></li><li><a href="https://github.com/larmarange/guide-R/issues/new" class="toc-action"><i class="bi empty"></i>Faire part d'un problème</a></li></ul></div></nav>
     </div>
 <!-- main -->
-<main class="content page-columns page-full" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../analyses/ggplot2.html"><strong>Analyses</strong></a></li><li class="breadcrumb-item"><a href="../analyses/regression-lineaire.html"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Régression linéaire</span></a></li></ol></nav><div class="quarto-title">
+<main class="content page-columns page-full" id="quarto-document-content" tabindex="-1"><header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="Fil d'Ariane"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../analyses/ggplot2.html"><strong>Analyses</strong></a></li><li class="breadcrumb-item"><a href="../analyses/regression-lineaire.html"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Régression linéaire</span></a></li></ol></nav><div class="quarto-title">
 <h1 class="title"><span id="sec-regression-lineaire" class="quarto-section-identifier"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Régression linéaire</span></span></h1>
 </div>
 
@@ -798,12 +809,12 @@ window.Quarto = {
 <p>Nous avons déjà abordé très rapidement la régression linéaire dans le chapitre sur la <em>statistique bivariée</em> (cf. <a href="statistique-bivariee.html#sec-deux-variables-continues" class="quarto-xref"><span>Section 19.3</span></a>).</p>
 <p>Reprenons le même exemple à partir du jeu de données <code>iris</code> qui comporte les caractéristiques de 150 fleurs de trois espèces différentes d’iris. Nous cherchons dans un premier temps à explorer la relation entre la largeur (<em>Petal.Width</em>) et la longueur des pétales (<em>Petal.Length</em>). Représentons cette relation sous la forme d’un nuage de points.</p>
 <div class="cell page-columns page-full">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="fu">library</span>(tidyverse)</span>
-<span id="cb1-2"><a href="#cb1-2"></a><span class="fu">ggplot</span>(iris) <span class="sc">+</span></span>
-<span id="cb1-3"><a href="#cb1-3"></a>  <span class="fu">aes</span>(<span class="at">x =</span> Petal.Length, <span class="at">y =</span> Petal.Width) <span class="sc">+</span></span>
-<span id="cb1-4"><a href="#cb1-4"></a>  <span class="fu">geom_point</span>(<span class="at">colour =</span> <span class="st">"blue"</span>, <span class="at">alpha =</span> .<span class="dv">25</span>) <span class="sc">+</span></span>
-<span id="cb1-5"><a href="#cb1-5"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Longueur"</span>, <span class="at">y =</span> <span class="st">"Largeur"</span>) <span class="sc">+</span></span>
-<span id="cb1-6"><a href="#cb1-6"></a>  <span class="fu">theme_light</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-label="1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-label="2"></a><span class="fu">ggplot</span>(iris) <span class="sc">+</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-label="3"></a>  <span class="fu">aes</span>(<span class="at">x =</span> Petal.Length, <span class="at">y =</span> Petal.Width) <span class="sc">+</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-label="4"></a>  <span class="fu">geom_point</span>(<span class="at">colour =</span> <span class="st">"blue"</span>, <span class="at">alpha =</span> <span class="fl">.25</span>) <span class="sc">+</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-label="5"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Longueur"</span>, <span class="at">y =</span> <span class="st">"Largeur"</span>) <span class="sc">+</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-label="6"></a>  <span class="fu">theme_light</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display page-columns page-full">
 <div id="fig-rel-petal.width-petal.length" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full"><div aria-describedby="fig-rel-petal.width-petal.length-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -817,12 +828,12 @@ Figure&nbsp;22.1: Relation entre la largeur et la longueur des pétales (nuage d
 </div>
 <p>Il semble bien qu’il y a une <strong>relation linéaire</strong> entre ces deux variables, c’est-à-dire que la relation entre ces deux variables peut être représentée sous la forme d’une droite. Pour cela, on va rechercher la droite telle que la distance entre les points observés et la droite soit la plus petite possible. Cette droite peut être représentée graphique avec <code><a href="https://ggplot2.tidyverse.org/reference/geom_smooth.html">ggplot2::geom_smooth()</a></code> et l’option <code>method = "lm"</code>&nbsp;:</p>
 <div class="cell page-columns page-full">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a><span class="fu">ggplot</span>(iris) <span class="sc">+</span></span>
-<span id="cb2-2"><a href="#cb2-2"></a>  <span class="fu">aes</span>(<span class="at">x =</span> Petal.Length, <span class="at">y =</span> Petal.Width) <span class="sc">+</span></span>
-<span id="cb2-3"><a href="#cb2-3"></a>  <span class="fu">geom_point</span>(<span class="at">colour =</span> <span class="st">"blue"</span>, <span class="at">alpha =</span> .<span class="dv">25</span>) <span class="sc">+</span></span>
-<span id="cb2-4"><a href="#cb2-4"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>) <span class="sc">+</span></span>
-<span id="cb2-5"><a href="#cb2-5"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Longueur"</span>, <span class="at">y =</span> <span class="st">"Largeur"</span>) <span class="sc">+</span></span>
-<span id="cb2-6"><a href="#cb2-6"></a>  <span class="fu">theme_light</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-label="1"></a><span class="fu">ggplot</span>(iris) <span class="sc">+</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-label="2"></a>  <span class="fu">aes</span>(<span class="at">x =</span> Petal.Length, <span class="at">y =</span> Petal.Width) <span class="sc">+</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-label="3"></a>  <span class="fu">geom_point</span>(<span class="at">colour =</span> <span class="st">"blue"</span>, <span class="at">alpha =</span> <span class="fl">.25</span>) <span class="sc">+</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-label="4"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>) <span class="sc">+</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-label="5"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Longueur"</span>, <span class="at">y =</span> <span class="st">"Largeur"</span>) <span class="sc">+</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-label="6"></a>  <span class="fu">theme_light</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display page-columns page-full">
 <div id="fig-rel-petal.width-petal.length-lm" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full"><div aria-describedby="fig-rel-petal.width-petal.length-lm-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -837,8 +848,8 @@ Figure&nbsp;22.2: Relation linéaire entre la largeur et la longueur des pétale
 <p>La fonction de base pour calculer une régression linéaire est la fonction <code><a href="https://rdrr.io/r/stats/lm.html">stats::lm()</a></code>. On doit en premier lieu spécifier le modèle à l’aide d’une <strong>formule</strong> : on indique la variable à expliquer dans la partie gauche de la formule et la variable explicative dans la partie droite, les deux parties étant séparées par un tilde<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> (<code>~</code>).</p>
 <div class="no-row-height column-margin column-container"><div id="fn1"><p><sup>1</sup>&nbsp;Avec un clavier français, sous Windows, le caractère tilde s’obtient en pressant simultanément les touches <kbd>Alt Gr</kbd> et <kbd>7</kbd>.</p></div></div><p>Dans le cas présent, la variable <em>Petal.Width</em> fait office de variable à expliquer et <em>Petal.Length</em> de variable explicative. Le modèle s’écrit donc <code>Petal.Width ~ Petal.Length</code>.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a>mod <span class="ot">&lt;-</span> <span class="fu">lm</span>(Petal.Width <span class="sc">~</span> Petal.Length, <span class="at">data =</span> iris)</span>
-<span id="cb3-2"><a href="#cb3-2"></a>mod</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-label="1"></a>mod <span class="ot">&lt;-</span> <span class="fu">lm</span>(Petal.Width <span class="sc">~</span> Petal.Length, <span class="at">data =</span> iris)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-label="2"></a>mod</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 Call:
@@ -851,19 +862,19 @@ Coefficients:
 </div>
 <p>Le résultat comporte deux coefficients. Le premier, d’une valeur de <span class="math inline">\(0,4158\)</span>, est associé à la variable <em>Petal.Length</em> et indique la pente de la courbe (on parle de <em>slope</em> en anglais). Le second, d’une valeur de <span class="math inline">\(-0,3631\)</span>, représente l’ordonnée à l’origine (<em>intercept</em> en anglais), c’est-à-dire la valeur estimée de <em>Petal.Width</em> lorsque <em>Petal.Length</em> vaut 0. Nous pouvons rendre cela plus visible en élargissant notre graphique.</p>
 <div class="cell page-columns page-full">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a><span class="fu">ggplot</span>(iris) <span class="sc">+</span></span>
-<span id="cb5-2"><a href="#cb5-2"></a>  <span class="fu">aes</span>(<span class="at">x =</span> Petal.Length, <span class="at">y =</span> Petal.Width) <span class="sc">+</span></span>
-<span id="cb5-3"><a href="#cb5-3"></a>  <span class="fu">geom_point</span>(<span class="at">colour =</span> <span class="st">"blue"</span>, <span class="at">alpha =</span> .<span class="dv">25</span>) <span class="sc">+</span></span>
-<span id="cb5-4"><a href="#cb5-4"></a>  <span class="fu">geom_abline</span>(</span>
-<span id="cb5-5"><a href="#cb5-5"></a>    <span class="at">intercept =</span> mod<span class="sc">$</span>coefficients[<span class="dv">1</span>],</span>
-<span id="cb5-6"><a href="#cb5-6"></a>    <span class="at">slope =</span> mod<span class="sc">$</span>coefficients[<span class="dv">2</span>],</span>
-<span id="cb5-7"><a href="#cb5-7"></a>    <span class="at">linewidth =</span> <span class="dv">1</span>,</span>
-<span id="cb5-8"><a href="#cb5-8"></a>    <span class="at">colour =</span> <span class="st">"red"</span></span>
-<span id="cb5-9"><a href="#cb5-9"></a>  ) <span class="sc">+</span></span>
-<span id="cb5-10"><a href="#cb5-10"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="dv">0</span>, <span class="at">linewidth =</span> <span class="dv">1</span>, <span class="at">linetype =</span> <span class="st">"dotted"</span>) <span class="sc">+</span></span>
-<span id="cb5-11"><a href="#cb5-11"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Longueur"</span>, <span class="at">y =</span> <span class="st">"Largeur"</span>) <span class="sc">+</span></span>
-<span id="cb5-12"><a href="#cb5-12"></a>  <span class="fu">expand_limits</span>(<span class="at">x =</span> <span class="dv">0</span>, <span class="at">y =</span> <span class="sc">-</span><span class="dv">1</span>) <span class="sc">+</span></span>
-<span id="cb5-13"><a href="#cb5-13"></a>  <span class="fu">theme_light</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-label="1"></a><span class="fu">ggplot</span>(iris) <span class="sc">+</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-label="2"></a>  <span class="fu">aes</span>(<span class="at">x =</span> Petal.Length, <span class="at">y =</span> Petal.Width) <span class="sc">+</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-label="3"></a>  <span class="fu">geom_point</span>(<span class="at">colour =</span> <span class="st">"blue"</span>, <span class="at">alpha =</span> <span class="fl">.25</span>) <span class="sc">+</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-label="4"></a>  <span class="fu">geom_abline</span>(</span>
+<span id="cb5-5"><a href="#cb5-5" aria-label="5"></a>    <span class="at">intercept =</span> mod<span class="sc">$</span>coefficients[<span class="dv">1</span>],</span>
+<span id="cb5-6"><a href="#cb5-6" aria-label="6"></a>    <span class="at">slope =</span> mod<span class="sc">$</span>coefficients[<span class="dv">2</span>],</span>
+<span id="cb5-7"><a href="#cb5-7" aria-label="7"></a>    <span class="at">linewidth =</span> <span class="dv">1</span>,</span>
+<span id="cb5-8"><a href="#cb5-8" aria-label="8"></a>    <span class="at">colour =</span> <span class="st">"red"</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-label="9"></a>  ) <span class="sc">+</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-label="10"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="dv">0</span>, <span class="at">linewidth =</span> <span class="dv">1</span>, <span class="at">linetype =</span> <span class="st">"dotted"</span>) <span class="sc">+</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-label="11"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Longueur"</span>, <span class="at">y =</span> <span class="st">"Largeur"</span>) <span class="sc">+</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-label="12"></a>  <span class="fu">expand_limits</span>(<span class="at">x =</span> <span class="dv">0</span>, <span class="at">y =</span> <span class="sc">-</span><span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-label="13"></a>  <span class="fu">theme_light</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display page-columns page-full">
 <div id="fig-rel-petal.width-petal.length-lm2" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full"><div aria-describedby="fig-rel-petal.width-petal.length-lm2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -876,34 +887,32 @@ Figure&nbsp;22.3: Relation linéaire entre la largeur et la longueur des pétale
 </div>
 </div>
 <p>Le modèle linéaire calculé estime donc que le relation entre nos deux variables peut s’écrire sous la forme suivante&nbsp;:</p>
-<p><span class="math display">\[
-Petal.Width = 0,4158 \cdot Petal.Length - 0,3631
-\]</span></p>
+<p><span class="math display">\[Petal.Width = 0,4158 \cdot Petal.Length - 0,3631\]</span></p>
 <p>Le package <a href="https://github.com/ddsjoberg/gtsummary">gtsummary</a> fournit <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/tbl_regression.html">gtsummary::tbl_regression()</a></code>, une fonction bien pratique pour produire un tableau propre avec les coefficients du modèle, leur intervalle de confiance à 95% et leur p-valeurs<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a>. On précisera <code>intercept = TRUE</code> pour forcer l’affichage de l’<em>intercept</em> qui est masqué par défaut.</p>
 <div class="no-row-height column-margin column-container"><div id="fn2"><p><sup>2</sup>&nbsp;Si l’on a besoin de ces informations sous la forme d’un tableau de données classique, on pourra se référer à <code><a href="https://larmarange.github.io/broom.helpers/reference/tidy_plus_plus.html">broom.helpers::tidy_plus_plus()</a></code>, utilisée de manière sous-jacente par <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/tbl_regression.html">gtsummary::tbl_regression()</a></code>, ainsi qu’à la méthode <code><a href="https://generics.r-lib.org/reference/tidy.html">broom::tidy()</a></code>. Ces fonctions sont génériques et peut être utilisées avec une très grande variété de modèles.</p></div></div><div class="cell page-columns page-full">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a><span class="fu">library</span>(gtsummary)</span>
-<span id="cb6-2"><a href="#cb6-2"></a>mod <span class="sc">%&gt;%</span></span>
-<span id="cb6-3"><a href="#cb6-3"></a>  <span class="fu">tbl_regression</span>(<span class="at">intercept =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-label="1"></a><span class="fu">library</span>(gtsummary)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-label="2"></a>mod <span class="sc">%&gt;%</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-label="3"></a>  <span class="fu">tbl_regression</span>(<span class="at">intercept =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div id="tbl-regression-lm" class="cell quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-tbl figure page-columns page-full"><div aria-describedby="tbl-regression-lm-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
-<div id="umomoubpun" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#umomoubpun table {
+<div id="lagcrpclsk" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#lagcrpclsk table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#umomoubpun thead, #umomoubpun tbody, #umomoubpun tfoot, #umomoubpun tr, #umomoubpun td, #umomoubpun th {
+#lagcrpclsk thead, #lagcrpclsk tbody, #lagcrpclsk tfoot, #lagcrpclsk tr, #lagcrpclsk td, #lagcrpclsk th {
   border-style: none;
 }
 
-#umomoubpun p {
+#lagcrpclsk p {
   margin: 0;
   padding: 0;
 }
 
-#umomoubpun .gt_table {
+#lagcrpclsk .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -929,12 +938,12 @@ Petal.Width = 0,4158 \cdot Petal.Length - 0,3631
   border-left-color: #D3D3D3;
 }
 
-#umomoubpun .gt_caption {
+#lagcrpclsk .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#umomoubpun .gt_title {
+#lagcrpclsk .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -946,7 +955,7 @@ Petal.Width = 0,4158 \cdot Petal.Length - 0,3631
   border-bottom-width: 0;
 }
 
-#umomoubpun .gt_subtitle {
+#lagcrpclsk .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -958,7 +967,7 @@ Petal.Width = 0,4158 \cdot Petal.Length - 0,3631
   border-top-width: 0;
 }
 
-#umomoubpun .gt_heading {
+#lagcrpclsk .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -970,13 +979,13 @@ Petal.Width = 0,4158 \cdot Petal.Length - 0,3631
   border-right-color: #D3D3D3;
 }
 
-#umomoubpun .gt_bottom_border {
+#lagcrpclsk .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#umomoubpun .gt_col_headings {
+#lagcrpclsk .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -991,7 +1000,7 @@ Petal.Width = 0,4158 \cdot Petal.Length - 0,3631
   border-right-color: #D3D3D3;
 }
 
-#umomoubpun .gt_col_heading {
+#lagcrpclsk .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1011,7 +1020,7 @@ Petal.Width = 0,4158 \cdot Petal.Length - 0,3631
   overflow-x: hidden;
 }
 
-#umomoubpun .gt_column_spanner_outer {
+#lagcrpclsk .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1023,15 +1032,15 @@ Petal.Width = 0,4158 \cdot Petal.Length - 0,3631
   padding-right: 4px;
 }
 
-#umomoubpun .gt_column_spanner_outer:first-child {
+#lagcrpclsk .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#umomoubpun .gt_column_spanner_outer:last-child {
+#lagcrpclsk .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#umomoubpun .gt_column_spanner {
+#lagcrpclsk .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -1043,11 +1052,11 @@ Petal.Width = 0,4158 \cdot Petal.Length - 0,3631
   width: 100%;
 }
 
-#umomoubpun .gt_spanner_row {
+#lagcrpclsk .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#umomoubpun .gt_group_heading {
+#lagcrpclsk .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1073,7 +1082,7 @@ Petal.Width = 0,4158 \cdot Petal.Length - 0,3631
   text-align: left;
 }
 
-#umomoubpun .gt_empty_group_heading {
+#lagcrpclsk .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -1088,15 +1097,15 @@ Petal.Width = 0,4158 \cdot Petal.Length - 0,3631
   vertical-align: middle;
 }
 
-#umomoubpun .gt_from_md > :first-child {
+#lagcrpclsk .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#umomoubpun .gt_from_md > :last-child {
+#lagcrpclsk .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#umomoubpun .gt_row {
+#lagcrpclsk .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1115,7 +1124,7 @@ Petal.Width = 0,4158 \cdot Petal.Length - 0,3631
   overflow-x: hidden;
 }
 
-#umomoubpun .gt_stub {
+#lagcrpclsk .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1128,7 +1137,7 @@ Petal.Width = 0,4158 \cdot Petal.Length - 0,3631
   padding-right: 5px;
 }
 
-#umomoubpun .gt_stub_row_group {
+#lagcrpclsk .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1142,15 +1151,15 @@ Petal.Width = 0,4158 \cdot Petal.Length - 0,3631
   vertical-align: top;
 }
 
-#umomoubpun .gt_row_group_first td {
+#lagcrpclsk .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#umomoubpun .gt_row_group_first th {
+#lagcrpclsk .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#umomoubpun .gt_summary_row {
+#lagcrpclsk .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1160,16 +1169,16 @@ Petal.Width = 0,4158 \cdot Petal.Length - 0,3631
   padding-right: 5px;
 }
 
-#umomoubpun .gt_first_summary_row {
+#lagcrpclsk .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#umomoubpun .gt_first_summary_row.thick {
+#lagcrpclsk .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#umomoubpun .gt_last_summary_row {
+#lagcrpclsk .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1179,7 +1188,7 @@ Petal.Width = 0,4158 \cdot Petal.Length - 0,3631
   border-bottom-color: #D3D3D3;
 }
 
-#umomoubpun .gt_grand_summary_row {
+#lagcrpclsk .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1189,7 +1198,7 @@ Petal.Width = 0,4158 \cdot Petal.Length - 0,3631
   padding-right: 5px;
 }
 
-#umomoubpun .gt_first_grand_summary_row {
+#lagcrpclsk .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1199,7 +1208,7 @@ Petal.Width = 0,4158 \cdot Petal.Length - 0,3631
   border-top-color: #D3D3D3;
 }
 
-#umomoubpun .gt_last_grand_summary_row_top {
+#lagcrpclsk .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1209,11 +1218,11 @@ Petal.Width = 0,4158 \cdot Petal.Length - 0,3631
   border-bottom-color: #D3D3D3;
 }
 
-#umomoubpun .gt_striped {
+#lagcrpclsk .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#umomoubpun .gt_table_body {
+#lagcrpclsk .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1222,7 +1231,7 @@ Petal.Width = 0,4158 \cdot Petal.Length - 0,3631
   border-bottom-color: #D3D3D3;
 }
 
-#umomoubpun .gt_footnotes {
+#lagcrpclsk .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1236,7 +1245,7 @@ Petal.Width = 0,4158 \cdot Petal.Length - 0,3631
   border-right-color: #D3D3D3;
 }
 
-#umomoubpun .gt_footnote {
+#lagcrpclsk .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -1245,7 +1254,7 @@ Petal.Width = 0,4158 \cdot Petal.Length - 0,3631
   padding-right: 5px;
 }
 
-#umomoubpun .gt_sourcenotes {
+#lagcrpclsk .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1259,7 +1268,7 @@ Petal.Width = 0,4158 \cdot Petal.Length - 0,3631
   border-right-color: #D3D3D3;
 }
 
-#umomoubpun .gt_sourcenote {
+#lagcrpclsk .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -1267,72 +1276,72 @@ Petal.Width = 0,4158 \cdot Petal.Length - 0,3631
   padding-right: 5px;
 }
 
-#umomoubpun .gt_left {
+#lagcrpclsk .gt_left {
   text-align: left;
 }
 
-#umomoubpun .gt_center {
+#lagcrpclsk .gt_center {
   text-align: center;
 }
 
-#umomoubpun .gt_right {
+#lagcrpclsk .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#umomoubpun .gt_font_normal {
+#lagcrpclsk .gt_font_normal {
   font-weight: normal;
 }
 
-#umomoubpun .gt_font_bold {
+#lagcrpclsk .gt_font_bold {
   font-weight: bold;
 }
 
-#umomoubpun .gt_font_italic {
+#lagcrpclsk .gt_font_italic {
   font-style: italic;
 }
 
-#umomoubpun .gt_super {
+#lagcrpclsk .gt_super {
   font-size: 65%;
 }
 
-#umomoubpun .gt_footnote_marks {
+#lagcrpclsk .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#umomoubpun .gt_asterisk {
+#lagcrpclsk .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#umomoubpun .gt_indent_1 {
+#lagcrpclsk .gt_indent_1 {
   text-indent: 5px;
 }
 
-#umomoubpun .gt_indent_2 {
+#lagcrpclsk .gt_indent_2 {
   text-indent: 10px;
 }
 
-#umomoubpun .gt_indent_3 {
+#lagcrpclsk .gt_indent_3 {
   text-indent: 15px;
 }
 
-#umomoubpun .gt_indent_4 {
+#lagcrpclsk .gt_indent_4 {
   text-indent: 20px;
 }
 
-#umomoubpun .gt_indent_5 {
+#lagcrpclsk .gt_indent_5 {
   text-indent: 25px;
 }
 
-#umomoubpun .katex-display {
+#lagcrpclsk .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#umomoubpun div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#lagcrpclsk div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
@@ -1357,7 +1366,7 @@ Petal.Width = 0,4158 \cdot Petal.Length - 0,3631
 <td class="gt_row gt_center" headers="p.value">&lt;0.001</td>
 </tr>
 </tbody>
-<tfoot class="gt_sourcenotes"><tr class="odd">
+<tfoot><tr class="gt_sourcenotes odd">
 <td colspan="4" class="gt_sourcenote">Abbreviation: CI = Confidence Interval</td>
 </tr></tfoot>
 </table>
@@ -1382,7 +1391,7 @@ Astuce
 <div class="callout-body-container callout-body">
 <p>Dans certains cas, si l’on suppose que la relation entre les deux variables est proportionnelle, on peut souhaiter calculer un modèle sans <em>intercept</em>. Par défaut, <strong>R</strong> ajoute un <em>intercept</em> à ses modèles. Pour forcer le calcul d’un modèle sans <em>intercept</em>, on ajoutera <code>- 1</code> à la formule définissant le modèle.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a><span class="fu">lm</span>(Petal.Width <span class="sc">~</span> Petal.Length <span class="sc">-</span> <span class="dv">1</span>, <span class="at">data =</span> iris)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-label="1"></a><span class="fu">lm</span>(Petal.Width <span class="sc">~</span> Petal.Length <span class="sc">-</span> <span class="dv">1</span>, <span class="at">data =</span> iris)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 Call:
@@ -1399,8 +1408,8 @@ Petal.Length
 <span class="header-section-number">22.2</span> Modèle à une seule variable explicative catégorielle</h2>
 <p>Si dans un modèle linéaire la variable à expliquer est nécessairement continue, il est possible de définir une variable explicative catégorielle. Prenons la variable <em>Species</em>.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a><span class="fu">library</span>(labelled)</span>
-<span id="cb9-2"><a href="#cb9-2"></a>iris <span class="sc">%&gt;%</span> <span class="fu">look_for</span>(<span class="st">"Species"</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-label="1"></a><span class="fu">library</span>(labelled)</span>
+<span id="cb9-2"><a href="#cb9-2" aria-label="2"></a>iris <span class="sc">%&gt;%</span> <span class="fu">look_for</span>(<span class="st">"Species"</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code> pos variable label col_type missing values    
  5   Species  —     fct      0       setosa    
@@ -1410,8 +1419,8 @@ Petal.Length
 </div>
 <p>Il s’agit d’un facteur à trois modalités. Par défaut, la première valeur du facteur (ici <em>setosa</em>) va servir de modalité de référence.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a>mod <span class="ot">&lt;-</span> <span class="fu">lm</span>(Petal.Width <span class="sc">~</span> Species, <span class="at">data =</span> iris)</span>
-<span id="cb11-2"><a href="#cb11-2"></a>mod</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-label="1"></a>mod <span class="ot">&lt;-</span> <span class="fu">lm</span>(Petal.Width <span class="sc">~</span> Species, <span class="at">data =</span> iris)</span>
+<span id="cb11-2"><a href="#cb11-2" aria-label="2"></a>mod</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 Call:
@@ -1423,28 +1432,28 @@ Coefficients:
 </div>
 </div>
 <div class="cell page-columns page-full">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a>mod <span class="sc">%&gt;%</span></span>
-<span id="cb13-2"><a href="#cb13-2"></a>  <span class="fu">tbl_regression</span>(<span class="at">intercept =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-label="1"></a>mod <span class="sc">%&gt;%</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-label="2"></a>  <span class="fu">tbl_regression</span>(<span class="at">intercept =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div id="tbl-regression-lm-2" class="cell quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-tbl figure page-columns page-full"><div aria-describedby="tbl-regression-lm-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
-<div id="freionkini" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#freionkini table {
+<div id="rmlynpjxvg" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#rmlynpjxvg table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#freionkini thead, #freionkini tbody, #freionkini tfoot, #freionkini tr, #freionkini td, #freionkini th {
+#rmlynpjxvg thead, #rmlynpjxvg tbody, #rmlynpjxvg tfoot, #rmlynpjxvg tr, #rmlynpjxvg td, #rmlynpjxvg th {
   border-style: none;
 }
 
-#freionkini p {
+#rmlynpjxvg p {
   margin: 0;
   padding: 0;
 }
 
-#freionkini .gt_table {
+#rmlynpjxvg .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -1470,12 +1479,12 @@ Coefficients:
   border-left-color: #D3D3D3;
 }
 
-#freionkini .gt_caption {
+#rmlynpjxvg .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#freionkini .gt_title {
+#rmlynpjxvg .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -1487,7 +1496,7 @@ Coefficients:
   border-bottom-width: 0;
 }
 
-#freionkini .gt_subtitle {
+#rmlynpjxvg .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -1499,7 +1508,7 @@ Coefficients:
   border-top-width: 0;
 }
 
-#freionkini .gt_heading {
+#rmlynpjxvg .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -1511,13 +1520,13 @@ Coefficients:
   border-right-color: #D3D3D3;
 }
 
-#freionkini .gt_bottom_border {
+#rmlynpjxvg .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#freionkini .gt_col_headings {
+#rmlynpjxvg .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1532,7 +1541,7 @@ Coefficients:
   border-right-color: #D3D3D3;
 }
 
-#freionkini .gt_col_heading {
+#rmlynpjxvg .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1552,7 +1561,7 @@ Coefficients:
   overflow-x: hidden;
 }
 
-#freionkini .gt_column_spanner_outer {
+#rmlynpjxvg .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1564,15 +1573,15 @@ Coefficients:
   padding-right: 4px;
 }
 
-#freionkini .gt_column_spanner_outer:first-child {
+#rmlynpjxvg .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#freionkini .gt_column_spanner_outer:last-child {
+#rmlynpjxvg .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#freionkini .gt_column_spanner {
+#rmlynpjxvg .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -1584,11 +1593,11 @@ Coefficients:
   width: 100%;
 }
 
-#freionkini .gt_spanner_row {
+#rmlynpjxvg .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#freionkini .gt_group_heading {
+#rmlynpjxvg .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1614,7 +1623,7 @@ Coefficients:
   text-align: left;
 }
 
-#freionkini .gt_empty_group_heading {
+#rmlynpjxvg .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -1629,15 +1638,15 @@ Coefficients:
   vertical-align: middle;
 }
 
-#freionkini .gt_from_md > :first-child {
+#rmlynpjxvg .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#freionkini .gt_from_md > :last-child {
+#rmlynpjxvg .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#freionkini .gt_row {
+#rmlynpjxvg .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1656,7 +1665,7 @@ Coefficients:
   overflow-x: hidden;
 }
 
-#freionkini .gt_stub {
+#rmlynpjxvg .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1669,7 +1678,7 @@ Coefficients:
   padding-right: 5px;
 }
 
-#freionkini .gt_stub_row_group {
+#rmlynpjxvg .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1683,15 +1692,15 @@ Coefficients:
   vertical-align: top;
 }
 
-#freionkini .gt_row_group_first td {
+#rmlynpjxvg .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#freionkini .gt_row_group_first th {
+#rmlynpjxvg .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#freionkini .gt_summary_row {
+#rmlynpjxvg .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1701,16 +1710,16 @@ Coefficients:
   padding-right: 5px;
 }
 
-#freionkini .gt_first_summary_row {
+#rmlynpjxvg .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#freionkini .gt_first_summary_row.thick {
+#rmlynpjxvg .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#freionkini .gt_last_summary_row {
+#rmlynpjxvg .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1720,7 +1729,7 @@ Coefficients:
   border-bottom-color: #D3D3D3;
 }
 
-#freionkini .gt_grand_summary_row {
+#rmlynpjxvg .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1730,7 +1739,7 @@ Coefficients:
   padding-right: 5px;
 }
 
-#freionkini .gt_first_grand_summary_row {
+#rmlynpjxvg .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1740,7 +1749,7 @@ Coefficients:
   border-top-color: #D3D3D3;
 }
 
-#freionkini .gt_last_grand_summary_row_top {
+#rmlynpjxvg .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1750,11 +1759,11 @@ Coefficients:
   border-bottom-color: #D3D3D3;
 }
 
-#freionkini .gt_striped {
+#rmlynpjxvg .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#freionkini .gt_table_body {
+#rmlynpjxvg .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1763,7 +1772,7 @@ Coefficients:
   border-bottom-color: #D3D3D3;
 }
 
-#freionkini .gt_footnotes {
+#rmlynpjxvg .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1777,7 +1786,7 @@ Coefficients:
   border-right-color: #D3D3D3;
 }
 
-#freionkini .gt_footnote {
+#rmlynpjxvg .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -1786,7 +1795,7 @@ Coefficients:
   padding-right: 5px;
 }
 
-#freionkini .gt_sourcenotes {
+#rmlynpjxvg .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1800,7 +1809,7 @@ Coefficients:
   border-right-color: #D3D3D3;
 }
 
-#freionkini .gt_sourcenote {
+#rmlynpjxvg .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -1808,72 +1817,72 @@ Coefficients:
   padding-right: 5px;
 }
 
-#freionkini .gt_left {
+#rmlynpjxvg .gt_left {
   text-align: left;
 }
 
-#freionkini .gt_center {
+#rmlynpjxvg .gt_center {
   text-align: center;
 }
 
-#freionkini .gt_right {
+#rmlynpjxvg .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#freionkini .gt_font_normal {
+#rmlynpjxvg .gt_font_normal {
   font-weight: normal;
 }
 
-#freionkini .gt_font_bold {
+#rmlynpjxvg .gt_font_bold {
   font-weight: bold;
 }
 
-#freionkini .gt_font_italic {
+#rmlynpjxvg .gt_font_italic {
   font-style: italic;
 }
 
-#freionkini .gt_super {
+#rmlynpjxvg .gt_super {
   font-size: 65%;
 }
 
-#freionkini .gt_footnote_marks {
+#rmlynpjxvg .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#freionkini .gt_asterisk {
+#rmlynpjxvg .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#freionkini .gt_indent_1 {
+#rmlynpjxvg .gt_indent_1 {
   text-indent: 5px;
 }
 
-#freionkini .gt_indent_2 {
+#rmlynpjxvg .gt_indent_2 {
   text-indent: 10px;
 }
 
-#freionkini .gt_indent_3 {
+#rmlynpjxvg .gt_indent_3 {
   text-indent: 15px;
 }
 
-#freionkini .gt_indent_4 {
+#rmlynpjxvg .gt_indent_4 {
   text-indent: 20px;
 }
 
-#freionkini .gt_indent_5 {
+#rmlynpjxvg .gt_indent_5 {
   text-indent: 25px;
 }
 
-#freionkini .katex-display {
+#rmlynpjxvg .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#freionkini div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#rmlynpjxvg div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
@@ -1922,7 +1931,7 @@ Coefficients:
 <td class="gt_row gt_center" headers="p.value">&lt;0.001</td>
 </tr>
 </tbody>
-<tfoot class="gt_sourcenotes"><tr class="odd">
+<tfoot><tr class="gt_sourcenotes odd">
 <td colspan="4" class="gt_sourcenote">Abbreviation: CI = Confidence Interval</td>
 </tr></tfoot>
 </table>
@@ -1937,9 +1946,9 @@ Table&nbsp;22.2: régression linaire avec une variable explicative catégorielle
 <p>Dans ce cas de figure, l’<em>intercept</em> représente la situation à la référence, donc pour l’espèce <em>setosa</em>.</p>
 <p>Calculons les moyennes par espèce&nbsp;:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a>iris <span class="sc">%&gt;%</span></span>
-<span id="cb14-2"><a href="#cb14-2"></a>  <span class="fu">group_by</span>(Species) <span class="sc">%&gt;%</span></span>
-<span id="cb14-3"><a href="#cb14-3"></a>  <span class="fu">summarise</span>(<span class="fu">mean</span>(Petal.Width))</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-label="1"></a>iris <span class="sc">%&gt;%</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-label="2"></a>  <span class="fu">group_by</span>(Species) <span class="sc">%&gt;%</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-label="3"></a>  <span class="fu">summarise</span>(<span class="fu">mean</span>(Petal.Width))</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 3 × 2
   Species    `mean(Petal.Width)`
@@ -1964,7 +1973,7 @@ Astuce
 <div class="callout-body-container callout-body">
 <p>Lorsque l’on calcule le même modèle sans <em>intercept</em>, les coefficients s’interprètent un différemment&nbsp;:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1"></a><span class="fu">lm</span>(Petal.Width <span class="sc">~</span> Species <span class="sc">-</span> <span class="dv">1</span>, <span class="at">data =</span> iris)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-label="1"></a><span class="fu">lm</span>(Petal.Width <span class="sc">~</span> Species <span class="sc">-</span> <span class="dv">1</span>, <span class="at">data =</span> iris)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 Call:
@@ -1984,11 +1993,11 @@ Coefficients:
 <p>Un des intérêts de la régression linéaire est de pouvoir estimer un modèle multivariable, c’est-à-dire avec plusieurs variables explicatives.</p>
 <p>Pour cela, on listera les différentes variables explicatives dans la partie droite de la formule, séparées par le symbole <code>+</code>.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1"></a>mod <span class="ot">&lt;-</span> <span class="fu">lm</span>(</span>
-<span id="cb18-2"><a href="#cb18-2"></a>  Petal.Width <span class="sc">~</span> Petal.Length <span class="sc">+</span> Sepal.Width <span class="sc">+</span> Sepal.Length <span class="sc">+</span> Species,</span>
-<span id="cb18-3"><a href="#cb18-3"></a>  <span class="at">data =</span> iris</span>
-<span id="cb18-4"><a href="#cb18-4"></a>)</span>
-<span id="cb18-5"><a href="#cb18-5"></a>mod</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-label="1"></a>mod <span class="ot">&lt;-</span> <span class="fu">lm</span>(</span>
+<span id="cb18-2"><a href="#cb18-2" aria-label="2"></a>  Petal.Width <span class="sc">~</span> Petal.Length <span class="sc">+</span> Sepal.Width <span class="sc">+</span> Sepal.Length <span class="sc">+</span> Species,</span>
+<span id="cb18-3"><a href="#cb18-3" aria-label="3"></a>  <span class="at">data =</span> iris</span>
+<span id="cb18-4"><a href="#cb18-4" aria-label="4"></a>)</span>
+<span id="cb18-5"><a href="#cb18-5" aria-label="5"></a>mod</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 Call:
@@ -2020,28 +2029,28 @@ Note
 </div>
 </div>
 <div class="cell page-columns page-full">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1"></a>mod <span class="sc">%&gt;%</span></span>
-<span id="cb20-2"><a href="#cb20-2"></a>  <span class="fu">tbl_regression</span>(<span class="at">intercept =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-label="1"></a>mod <span class="sc">%&gt;%</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-label="2"></a>  <span class="fu">tbl_regression</span>(<span class="at">intercept =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div id="tbl-regression-lm-3" class="cell quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-tbl figure page-columns page-full"><div aria-describedby="tbl-regression-lm-3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
-<div id="vkhijaxizb" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#vkhijaxizb table {
+<div id="uvuucqsdgu" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#uvuucqsdgu table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#vkhijaxizb thead, #vkhijaxizb tbody, #vkhijaxizb tfoot, #vkhijaxizb tr, #vkhijaxizb td, #vkhijaxizb th {
+#uvuucqsdgu thead, #uvuucqsdgu tbody, #uvuucqsdgu tfoot, #uvuucqsdgu tr, #uvuucqsdgu td, #uvuucqsdgu th {
   border-style: none;
 }
 
-#vkhijaxizb p {
+#uvuucqsdgu p {
   margin: 0;
   padding: 0;
 }
 
-#vkhijaxizb .gt_table {
+#uvuucqsdgu .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -2067,12 +2076,12 @@ Note
   border-left-color: #D3D3D3;
 }
 
-#vkhijaxizb .gt_caption {
+#uvuucqsdgu .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#vkhijaxizb .gt_title {
+#uvuucqsdgu .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -2084,7 +2093,7 @@ Note
   border-bottom-width: 0;
 }
 
-#vkhijaxizb .gt_subtitle {
+#uvuucqsdgu .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -2096,7 +2105,7 @@ Note
   border-top-width: 0;
 }
 
-#vkhijaxizb .gt_heading {
+#uvuucqsdgu .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -2108,13 +2117,13 @@ Note
   border-right-color: #D3D3D3;
 }
 
-#vkhijaxizb .gt_bottom_border {
+#uvuucqsdgu .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#vkhijaxizb .gt_col_headings {
+#uvuucqsdgu .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -2129,7 +2138,7 @@ Note
   border-right-color: #D3D3D3;
 }
 
-#vkhijaxizb .gt_col_heading {
+#uvuucqsdgu .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2149,7 +2158,7 @@ Note
   overflow-x: hidden;
 }
 
-#vkhijaxizb .gt_column_spanner_outer {
+#uvuucqsdgu .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2161,15 +2170,15 @@ Note
   padding-right: 4px;
 }
 
-#vkhijaxizb .gt_column_spanner_outer:first-child {
+#uvuucqsdgu .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#vkhijaxizb .gt_column_spanner_outer:last-child {
+#uvuucqsdgu .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#vkhijaxizb .gt_column_spanner {
+#uvuucqsdgu .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -2181,11 +2190,11 @@ Note
   width: 100%;
 }
 
-#vkhijaxizb .gt_spanner_row {
+#uvuucqsdgu .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#vkhijaxizb .gt_group_heading {
+#uvuucqsdgu .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2211,7 +2220,7 @@ Note
   text-align: left;
 }
 
-#vkhijaxizb .gt_empty_group_heading {
+#uvuucqsdgu .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -2226,15 +2235,15 @@ Note
   vertical-align: middle;
 }
 
-#vkhijaxizb .gt_from_md > :first-child {
+#uvuucqsdgu .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#vkhijaxizb .gt_from_md > :last-child {
+#uvuucqsdgu .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#vkhijaxizb .gt_row {
+#uvuucqsdgu .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2253,7 +2262,7 @@ Note
   overflow-x: hidden;
 }
 
-#vkhijaxizb .gt_stub {
+#uvuucqsdgu .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2266,7 +2275,7 @@ Note
   padding-right: 5px;
 }
 
-#vkhijaxizb .gt_stub_row_group {
+#uvuucqsdgu .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2280,15 +2289,15 @@ Note
   vertical-align: top;
 }
 
-#vkhijaxizb .gt_row_group_first td {
+#uvuucqsdgu .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#vkhijaxizb .gt_row_group_first th {
+#uvuucqsdgu .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#vkhijaxizb .gt_summary_row {
+#uvuucqsdgu .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -2298,16 +2307,16 @@ Note
   padding-right: 5px;
 }
 
-#vkhijaxizb .gt_first_summary_row {
+#uvuucqsdgu .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#vkhijaxizb .gt_first_summary_row.thick {
+#uvuucqsdgu .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#vkhijaxizb .gt_last_summary_row {
+#uvuucqsdgu .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2317,7 +2326,7 @@ Note
   border-bottom-color: #D3D3D3;
 }
 
-#vkhijaxizb .gt_grand_summary_row {
+#uvuucqsdgu .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -2327,7 +2336,7 @@ Note
   padding-right: 5px;
 }
 
-#vkhijaxizb .gt_first_grand_summary_row {
+#uvuucqsdgu .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2337,7 +2346,7 @@ Note
   border-top-color: #D3D3D3;
 }
 
-#vkhijaxizb .gt_last_grand_summary_row_top {
+#uvuucqsdgu .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2347,11 +2356,11 @@ Note
   border-bottom-color: #D3D3D3;
 }
 
-#vkhijaxizb .gt_striped {
+#uvuucqsdgu .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#vkhijaxizb .gt_table_body {
+#uvuucqsdgu .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -2360,7 +2369,7 @@ Note
   border-bottom-color: #D3D3D3;
 }
 
-#vkhijaxizb .gt_footnotes {
+#uvuucqsdgu .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -2374,7 +2383,7 @@ Note
   border-right-color: #D3D3D3;
 }
 
-#vkhijaxizb .gt_footnote {
+#uvuucqsdgu .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -2383,7 +2392,7 @@ Note
   padding-right: 5px;
 }
 
-#vkhijaxizb .gt_sourcenotes {
+#uvuucqsdgu .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -2397,7 +2406,7 @@ Note
   border-right-color: #D3D3D3;
 }
 
-#vkhijaxizb .gt_sourcenote {
+#uvuucqsdgu .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -2405,72 +2414,72 @@ Note
   padding-right: 5px;
 }
 
-#vkhijaxizb .gt_left {
+#uvuucqsdgu .gt_left {
   text-align: left;
 }
 
-#vkhijaxizb .gt_center {
+#uvuucqsdgu .gt_center {
   text-align: center;
 }
 
-#vkhijaxizb .gt_right {
+#uvuucqsdgu .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#vkhijaxizb .gt_font_normal {
+#uvuucqsdgu .gt_font_normal {
   font-weight: normal;
 }
 
-#vkhijaxizb .gt_font_bold {
+#uvuucqsdgu .gt_font_bold {
   font-weight: bold;
 }
 
-#vkhijaxizb .gt_font_italic {
+#uvuucqsdgu .gt_font_italic {
   font-style: italic;
 }
 
-#vkhijaxizb .gt_super {
+#uvuucqsdgu .gt_super {
   font-size: 65%;
 }
 
-#vkhijaxizb .gt_footnote_marks {
+#uvuucqsdgu .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#vkhijaxizb .gt_asterisk {
+#uvuucqsdgu .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#vkhijaxizb .gt_indent_1 {
+#uvuucqsdgu .gt_indent_1 {
   text-indent: 5px;
 }
 
-#vkhijaxizb .gt_indent_2 {
+#uvuucqsdgu .gt_indent_2 {
   text-indent: 10px;
 }
 
-#vkhijaxizb .gt_indent_3 {
+#uvuucqsdgu .gt_indent_3 {
   text-indent: 15px;
 }
 
-#vkhijaxizb .gt_indent_4 {
+#uvuucqsdgu .gt_indent_4 {
   text-indent: 20px;
 }
 
-#vkhijaxizb .gt_indent_5 {
+#uvuucqsdgu .gt_indent_5 {
   text-indent: 25px;
 }
 
-#vkhijaxizb .katex-display {
+#uvuucqsdgu .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#vkhijaxizb div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#uvuucqsdgu div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
@@ -2537,7 +2546,7 @@ Note
 <td class="gt_row gt_center" headers="p.value">&lt;0.001</td>
 </tr>
 </tbody>
-<tfoot class="gt_sourcenotes"><tr class="odd">
+<tfoot><tr class="gt_sourcenotes odd">
 <td colspan="4" class="gt_sourcenote">Abbreviation: CI = Confidence Interval</td>
 </tr></tfoot>
 </table>
@@ -2552,11 +2561,8 @@ Table&nbsp;22.3: régression linaire avec plusieurs variables explicatives
 <p>Ce type de modèle permet d’estimer l’effet de chaque variable explicative, <q>toutes choses égales par ailleurs</q>. Dans le cas présent, on s’aperçoit que la largeur des pétales diffère significativement selon les espèces, est fortement corrélée positivement à la longueur du pétale et la largeur du sépale et qu’il y a, lorsque l’on ajuste sur l’ensemble des autres variables, une relation négative (faiblement significative) avec la longueur du sépale.</p>
 <p>Lorsque le nombre de coefficients est élevé, une représentation graphique est souvent plus facile à lire qu’un tableau. On parle alors de graphique en forêt ou <em>forest plot</em> en anglais. Rien de plus facile&nbsp;! Il suffit d’avoir recours à <code><a href="https://larmarange.github.io/ggstats/reference/ggcoef_model.html">ggstats::ggcoef_model()</a></code>.</p>
 <div class="cell page-columns page-full">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1"></a><span class="fu">library</span>(ggstats)</span>
-<span id="cb21-2"><a href="#cb21-2"></a><span class="fu">ggcoef_model</span>(mod)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>`height` was translated to `width`.</code></pre>
-</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-label="1"></a><span class="fu">library</span>(ggstats)</span>
+<span id="cb21-2"><a href="#cb21-2" aria-label="2"></a><span class="fu">ggcoef_model</span>(mod)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display page-columns page-full">
 <div id="fig-forest-plot-lm" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full"><div aria-describedby="fig-forest-plot-lm-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -2574,15 +2580,50 @@ Figure&nbsp;22.4: un graphique en forêt des coefficients du modèle
   window.document.addEventListener("DOMContentLoaded", function (event) {
     // Ensure there is a toggle, if there isn't float one in the top right
     if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
-      const a = window.document.createElement('a');
-      a.classList.add('top-right');
-      a.classList.add('quarto-color-scheme-toggle');
-      a.href = "";
-      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const toggle = window.document.createElement('button');
+      toggle.type = "button";
+      toggle.setAttribute("role", "switch");
+      toggle.setAttribute("aria-checked", "false");
+      toggle.classList.add('top-right');
+      toggle.classList.add('quarto-color-scheme-toggle');
+      toggle.setAttribute("aria-label", "Basculer le mode sombre");
+      toggle.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
       const i = window.document.createElement("i");
       i.classList.add('bi');
-      a.appendChild(i);
-      window.document.body.appendChild(a);
+      toggle.appendChild(i);
+      // Put the toggle in a landmark of its own, so that landmark navigation
+      // can reach it.
+      //
+      // The container is always a fresh direct child of body, and the toggle is
+      // never moved into page furniture that the theme or the author controls.
+      // The toggle is positioned against the page, so any ancestor that
+      // establishes a containing block captures it: a positioned element or a
+      // grid for position: absolute, and transform, filter, will-change or
+      // contain for position: fixed. A direct child of body has none of these
+      // to inherit, and the shift when one appears is silent and visual.
+      //
+      // ARIA says a document should have at most one banner, and axe reports a
+      // duplicate whether or not the banners carry distinct labels. So use a
+      // header when the page has no banner yet, and a named region otherwise.
+      //
+      // A header is a banner wherever it sits, unless it is inside sectioning
+      // content, so this cannot just look at the children of body: a custom
+      // page layout wraps the title block header in a plain div. An explicit
+      // role="banner" always counts.
+      const sectioning = 'article, aside, main, nav, section, [role="article"], [role="complementary"], [role="main"], [role="navigation"], [role="region"]';
+      const hasBanner = Array.from(
+        window.document.querySelectorAll('header:not([role]), [role="banner"]')
+      ).some(function(el) {
+        return el.hasAttribute("role") || el.closest(sectioning) === null;
+      });
+      const container = window.document.createElement(hasBanner ? "div" : "header");
+      if (hasBanner) {
+        container.setAttribute("role", "region");
+        container.setAttribute("aria-label", "Basculer le mode sombre");
+      }
+      container.classList.add('quarto-color-scheme-toggle-container');
+      container.appendChild(toggle);
+      window.document.body.appendChild(container);
     }
     setColorSchemeToggle(hasAlternateSentinel())
     const icon = "";
@@ -2657,11 +2698,34 @@ Figure&nbsp;22.4: un graphique en forêt des coefficients du modèle
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);
         var filterRegex = new RegExp('/' + window.location.host + '/');
+      const newWindowLabel = "(s'ouvre dans un nouvel onglet)";
+      const newWindowNoteId = "quarto-ext-newwindow-label";
+      // Links reference one hidden label through aria-describedby, so the
+      // announcement never changes their accessible name.
+      var describeNewWindow = (link) => {
+        if (!window.document.getElementById(newWindowNoteId)) {
+          var newWindowNote = window.document.createElement("span");
+          newWindowNote.id = newWindowNoteId;
+          newWindowNote.hidden = true;
+          newWindowNote.textContent = newWindowLabel;
+          window.document.body.appendChild(newWindowNote);
+        }
+        var describedBy = (link.getAttribute("aria-describedby") || "").split(/\s+/).filter(Boolean);
+        if (!describedBy.includes(newWindowNoteId)) {
+          describedBy.push(newWindowNoteId);
+          link.setAttribute("aria-describedby", describedBy.join(" "));
+        }
+      }
+      var opensNewContext = (link) => {
+        var target = (link.getAttribute("target") || "").toLowerCase();
+        return target !== "" && !["_self", "_parent", "_top"].includes(target);
+      }
       var isInternal = (href) => {
           return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
       }
       // Inspect non-navigation links and adorn them if external
-     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      window.quartoDecorateExternalLinks = function (root) {
+     var links = (root || window.document).querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
       for (var i=0; i<links.length; i++) {
         const link = links[i];
         if (!isInternal(link.href)) {
@@ -2670,8 +2734,72 @@ Figure&nbsp;22.4: un graphique en forêt des coefficients du modèle
           if (link.dataset.originalHref !== undefined) {
             link.href = link.dataset.originalHref;
           }
+          if (!link.classList.contains('no-external-icon')) {
+          }
+        }
+        if (opensNewContext(link)) {
+          describeNewWindow(link);
         }
       }
+      };
+      window.quartoDecorateExternalLinks(window.document);
+    // Esc closes the popup (WCAG 1.4.13) and focus leaving both trigger and
+    // popup closes it (WCAG 2.4.11); tippy handles neither for interactive popups.
+    const hideOnEscAndFocusOut = {
+      name: 'hideOnEscAndFocusOut',
+      defaultValue: true,
+      fn(instance) {
+        const dismiss = () => {
+          // A show scheduled by the trigger delay would otherwise reopen it
+          instance.clearDelayTimeouts();
+          instance.hide();
+        };
+        const onKeyDown = (event) => {
+          if (event.key !== 'Escape') {
+            return;
+          }
+          // Keep Esc from also reaching page handlers (e.g. reveal.js overview),
+          // except an open reveal.js slide menu, which Esc should close too.
+          // The menu handles keys only when its keyboard option is on.
+          const menuHandlesEsc = window.Reveal?.getPlugin?.('menu')?.isOpen() &&
+            window.Reveal.getConfig().menu?.keyboard !== false;
+          if (!menuHandlesEsc) {
+            event.stopPropagation();
+          }
+          if (instance.popper.contains(window.document.activeElement)) {
+            // Disabled while refocusing so the focus trigger does not reopen it
+            instance.disable();
+            instance.reference.focus();
+            instance.enable();
+          }
+          dismiss();
+        };
+        const onFocusOut = (event) => {
+          const target = event.relatedTarget;
+          if (target && !instance.reference.contains(target) &&
+              !instance.popper.contains(target)) {
+            dismiss();
+          }
+        };
+        // On the trigger too: a click trigger (code-annotations: select) has no
+        // blur handling. Attached for the instance's lifetime so leaving the
+        // trigger also cancels a show still pending on the trigger delay.
+        instance.reference.addEventListener('focusout', onFocusOut);
+        return {
+          onShow() {
+            window.document.addEventListener('keydown', onKeyDown, true);
+            instance.popper.addEventListener('focusout', onFocusOut);
+          },
+          onHide() {
+            window.document.removeEventListener('keydown', onKeyDown, true);
+            instance.popper.removeEventListener('focusout', onFocusOut);
+          },
+          onDestroy() {
+            instance.reference.removeEventListener('focusout', onFocusOut);
+          },
+        };
+      },
+    };
     function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
       const config = {
         allowHTML: true,
@@ -2685,6 +2813,7 @@ Figure&nbsp;22.4: un graphique en forêt des coefficients du modèle
         interactiveBorder: 10,
         theme: 'quarto',
         placement: 'bottom-start',
+        plugins: [hideOnEscAndFocusOut],
       };
       if (contentFn) {
         config.content = contentFn;
@@ -2847,44 +2976,54 @@ Figure&nbsp;22.4: un graphique en forêt des coefficients du modèle
           const lineIds = lines.map((line) => {
             return targetCell + "-" + line;
           })
-          let top = null;
-          let height = null;
-          let parent = null;
+          // Each band is positioned against its own containing block, which is
+          // not the offsetParent of the lines, so place it from client rects.
+          const placeBand = (band, firstEl, lastEl, codeBlock) => {
+            const container = band.offsetParent;
+            if (container === null) {
+              return;
+            }
+            const containerRect = container.getBoundingClientRect();
+            // Reveal.js scales slides with a transform, so convert client
+            // pixels back to the CSS pixels of the container.
+            const scale = containerRect.height / container.offsetHeight || 1;
+            const firstRect = firstEl.getBoundingClientRect();
+            const lastRect = lastEl.getBoundingClientRect();
+            const top = (firstRect.top - containerRect.top) / scale - container.clientTop + container.scrollTop;
+            const height = (lastRect.bottom - firstRect.top) / scale;
+            band.style.top = top - 2 + "px";
+            band.style.height = height + 4 + "px";
+            if (codeBlock) {
+              // Without the copy button wrapper, the containing block is wider
+              // than the code block, so span the code block explicitly.
+              const blockRect = codeBlock.getBoundingClientRect();
+              band.style.left = (blockRect.left - containerRect.left) / scale - container.clientLeft + container.scrollLeft + "px";
+              band.style.width = blockRect.width / scale + "px";
+            }
+          };
           if (lineIds.length > 0) {
-              //compute the position of the single el (top and bottom and make a div)
-              const el = window.document.getElementById(lineIds[0]);
-              top = el.offsetTop;
-              height = el.offsetHeight;
-              parent = el.parentElement.parentElement;
-            if (lineIds.length > 1) {
-              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
-              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
-              height = bottom - top;
+            const el = window.document.getElementById(lineIds[0]);
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const parent = el.parentElement.parentElement;
+            // cook up a div (if necessary) and position it
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
             }
-            if (top !== null && height !== null && parent !== null) {
-              // cook up a div (if necessary) and position it 
-              let div = window.document.getElementById("code-annotation-line-highlight");
-              if (div === null) {
-                div = window.document.createElement("div");
-                div.setAttribute("id", "code-annotation-line-highlight");
-                div.style.position = 'absolute';
-                parent.appendChild(div);
-              }
-              div.style.top = top - 2 + "px";
-              div.style.height = height + 4 + "px";
-              div.style.left = 0;
-              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
-              if (gutterDiv === null) {
-                gutterDiv = window.document.createElement("div");
-                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
-                gutterDiv.style.position = 'absolute';
-                const codeCell = window.document.getElementById(targetCell);
-                const gutter = codeCell.querySelector('.code-annotation-gutter');
-                gutter.appendChild(gutterDiv);
-              }
-              gutterDiv.style.top = top - 2 + "px";
-              gutterDiv.style.height = height + 4 + "px";
+            placeBand(div, el, lastEl, parent.closest("div.sourceCode") || parent);
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
             }
+            placeBand(gutterDiv, el, lastEl);
             selectedAnnoteEl = annoteEl;
           }
         };
@@ -2982,6 +3121,8 @@ Figure&nbsp;22.4: un graphique en forêt des coefficients du modèle
       }
     }
   });
+  </script><script type="application/javascript">
+  window.quartoScrollableRegionsLabels = {"code":"Code défilable","output":"Sortie défilable"};
   </script><input type="hidden" id="giscus-base-theme" value="light"><input type="hidden" id="giscus-alt-theme" value="dark"><script>
   function loadGiscus() {
     // Function to get the theme based on body class
@@ -3011,7 +3152,7 @@ Figure&nbsp;22.4: un graphique en forêt des coefficients du modèle
     document.getElementById("quarto-content").appendChild(script);
   }
   loadGiscus();
-</script><nav class="page-navigation"><div class="nav-page nav-page-previous">
+</script><nav class="page-navigation" aria-label="Page"><div class="nav-page nav-page-previous">
       <a href="../analyses/reponses-multiples.html" class="pagination-link" aria-label="Questions à réponses multiples">
         <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Questions à réponses multiples</span></span>
       </a>          

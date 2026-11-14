@@ -2,17 +2,20 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="fr" xml:lang="fr"><head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.9.37">
+<meta name="generator" content="quarto-1.12.2">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 <title>28&nbsp; Multicolinéarité – guide-R</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
 */
-code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
-div.columns{display: flex; gap: min(4vw, 1.5em);}
-div.column{flex: auto; overflow-x: auto;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
 div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 ul.task-list{list-style: none;}
 ul.task-list li input[type="checkbox"] {
@@ -55,7 +58,27 @@ div.sourceCode
 @media screen {
 pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
-</style>
+@media print {
+  html {
+    color-scheme: light only;
+  }
+  html, body, pre, code {
+    background-color: transparent;
+  }
+  body, a, a:visited, blockquote {
+    color: black;
+  }
+  pre, code {
+    padding: 0;
+  }
+  p, h2, h3 {
+    orphans: 3;
+    widows: 3;
+  }
+  h2, h3, h4 {
+    page-break-after: avoid;
+  }
+}</style>
 
 <script src="../site_libs/quarto-nav/quarto-nav.js"></script>
 <script src="../site_libs/quarto-nav/headroom.min.js"></script>
@@ -71,18 +94,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../site_libs/cookie-consent/cookie-consent.css" rel="stylesheet">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/scrollable-regions/scrollable-regions.js" type="module"></script>
 <script src="../site_libs/quarto-html/popper.min.js"></script>
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-7f8f88aac4f3542376d5c11b86a4c14d.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-d0ae9245876894da5ac7e18953ecc5cc.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-7f8f88aac4f3542376d5c11b86a4c14d.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-a34e72179bd910c3a0d1c193f042680d.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-6b7095a9b6a9693542ed2f2ab64557fc.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-a34e72179bd910c3a0d1c193f042680d.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-fad85691bd79911de0320b982f671d9d.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../site_libs/bootstrap/bootstrap-dark-f68506c574928121fec95fb329006eac.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<link href="../site_libs/bootstrap/bootstrap-fad85691bd79911de0320b982f671d9d.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-58f34290aeb0f1f441acb5dc787127af.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-3208342b027bcedf30363d9c3a4fd7ef.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../site_libs/bootstrap/bootstrap-58f34290aeb0f1f441acb5dc787127af.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <script src="../site_libs/quarto-contrib/glightbox/glightbox.min.js"></script>
 <link href="../site_libs/quarto-contrib/glightbox/glightbox.min.css" rel="stylesheet">
 <link href="../site_libs/quarto-contrib/glightbox/lightbox.css" rel="stylesheet"><script id="quarto-search-options" type="application/json">{
@@ -134,7 +158,7 @@ cookieconsent.run({
 </script><style>html{ scroll-behavior: smooth; }</style>
 <link rel="stylesheet" href="../styles.css">
 </head>
-<body class="nav-sidebar floating slimcontent quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+<body class="nav-sidebar floating slimcontent quarto-light"><a id="quarto-skip-link" class="visually-hidden-focusable" href="#quarto-document-content">Aller au contenu principal</a><script id="quarto-html-before-body" type="application/javascript">
     const toggleBodyColorMode = (bsSheetEl) => {
       const mode = bsSheetEl.getAttribute("data-mode");
       const bodyEl = window.document.querySelector("body");
@@ -157,6 +181,7 @@ cookieconsent.run({
       for (let i=0; i < toggles.length; i++) {
         const toggle = toggles[i];
         if (toggle) {
+          toggle.setAttribute("aria-checked", alternate ? "true" : "false");
           if (alternate) {
             toggle.classList.add("alternate");
           } else {
@@ -186,13 +211,19 @@ cookieconsent.run({
       manageTransitions('#quarto-margin-sidebar .nav-link', true);
       // Switch the toggles
       setColorSchemeToggle(alternate)
-      // Hack to workaround the fact that safari doesn't
-      // properly recolor the scrollbar when toggling (#1455)
+    }
+    // Hack to workaround the fact that safari doesn't
+    // properly recolor the scrollbar when toggling (#1455).
+    // Not run on load: stylesheets are set before first paint there, and
+    // scrolling would undo the scroll to a URL fragment (#14973).
+    // The one pixel nudge keeps the reader where they were.
+    const refreshSafariScrollbar = () => {
       if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
         manageTransitions("body", false);
-        window.scrollTo(0, 1);
+        const scrollY = window.scrollY;
+        window.scrollTo(0, scrollY > 0 ? scrollY - 1 : 1);
         setTimeout(() => {
-          window.scrollTo(0, 0);
+          window.scrollTo(0, scrollY);
           manageTransitions("body", true);
         }, 40);
       }
@@ -286,6 +317,7 @@ cookieconsent.run({
       // Read the current dark / light value
       let toAlternate = !hasAlternateSentinel();
       toggleColorMode(toAlternate);
+      refreshSafariScrollbar();
       setStyleSentinel(toAlternate);
       toggleGiscusIfUsed(toAlternate, darkModeDefault);
       window.dispatchEvent(new Event('resize'));
@@ -299,12 +331,12 @@ cookieconsent.run({
   </script>
 
 <div id="quarto-search-results"></div>
-  <header id="quarto-header" class="headroom fixed-top"><nav class="quarto-secondary-nav"><div class="container-fluid d-flex">
+  <header id="quarto-header" class="headroom fixed-top"><nav class="quarto-secondary-nav" aria-label="Barre d'outils"><div class="container-fluid d-flex">
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Basculer la barre latérale" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../analyses/ggplot2.html"><strong>Analyses</strong></a></li><li class="breadcrumb-item"><a href="../analyses/multicolinearite.html"><span class="chapter-number">28</span>&nbsp; <span class="chapter-title">Multicolinéarité</span></a></li></ol></nav>
-        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Basculer la barre latérale" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        <nav class="quarto-page-breadcrumbs" aria-label="Fil d'Ariane"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../analyses/ggplot2.html"><strong>Analyses</strong></a></li><li class="breadcrumb-item"><a href="../analyses/multicolinearite.html"><span class="chapter-number">28</span>&nbsp; <span class="chapter-title">Multicolinéarité</span></a></li></ol></nav>
+        <a class="flex-grow-1" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Recherche" onclick="window.quartoOpenSearch();">
         <i class="bi bi-search"></i>
@@ -312,15 +344,15 @@ cookieconsent.run({
     </div>
   </nav></header><!-- content --><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
 <!-- sidebar -->
-  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto"><div class="pt-lg-2 mt-2 text-left sidebar-header sidebar-header-stacked">
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto" aria-label="Site web"><div class="pt-lg-2 mt-2 text-left sidebar-header sidebar-header-stacked">
       <a href="../index.html" class="sidebar-logo-link">
       <img src="../ressources/typewriter.png" alt="" class="sidebar-logo light-content py-0 d-lg-inline d-none"><img src="../ressources/typewriter.png" alt="" class="sidebar-logo dark-content py-0 d-lg-inline d-none"></a>
     <div class="sidebar-title mb-0 py-0">
       <a href="../">guide-R</a> 
         <div class="sidebar-tools-main tools-wide">
     <a href="https://github.com/larmarange/guide-R/" title="Code source" class="quarto-navigation-tool px-1" aria-label="Code source"><i class="bi bi-github"></i></a>
-    <a href="../guide-R.epub" title="Download ePub" class="quarto-navigation-tool px-1" aria-label="Download ePub"><i class="bi bi-journal"></i></a>
-  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Basculer le mode sombre"><i class="bi"></i></a>
+    <a href="../guide-R.epub" title="Télécharger ePub" class="quarto-navigation-tool px-1" aria-label="Télécharger ePub"><i class="bi bi-journal"></i></a>
+  <button type="button" role="switch" aria-checked="false" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Basculer le mode sombre" aria-label="Basculer le mode sombre"><i class="bi"></i></button>
 </div>
     </div>
       </div>
@@ -339,13 +371,10 @@ cookieconsent.run({
 </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
- <span class="menu-text"><strong>Bases du langage</strong></span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Basculer la section">
-            <i class="bi bi-chevron-right ms-2"></i>
-          </a> 
+            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-controls="quarto-sidebar-section-1" aria-expanded="true">
+ <span class="menu-text" id="quarto-sidebar-section-1-label"><strong>Bases du langage</strong></span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
       </div>
-      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">
+      <ul id="quarto-sidebar-section-1" aria-labelledby="quarto-sidebar-section-1-label" class="collapse list-unstyled sidebar-section depth1 show">
 <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../bases/packages.html" class="sidebar-item-text sidebar-link">
@@ -386,13 +415,10 @@ cookieconsent.run({
 </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
- <span class="menu-text"><strong>Manipulation de données</strong></span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Basculer la section">
-            <i class="bi bi-chevron-right ms-2"></i>
-          </a> 
+            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-controls="quarto-sidebar-section-2" aria-expanded="true">
+ <span class="menu-text" id="quarto-sidebar-section-2-label"><strong>Manipulation de données</strong></span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
       </div>
-      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">
+      <ul id="quarto-sidebar-section-2" aria-labelledby="quarto-sidebar-section-2-label" class="collapse list-unstyled sidebar-section depth1 show">
 <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../manipulation/pipe.html" class="sidebar-item-text sidebar-link">
@@ -457,13 +483,10 @@ cookieconsent.run({
 </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
- <span class="menu-text"><strong>Analyses</strong></span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Basculer la section">
-            <i class="bi bi-chevron-right ms-2"></i>
-          </a> 
+            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" aria-controls="quarto-sidebar-section-3" aria-expanded="true">
+ <span class="menu-text" id="quarto-sidebar-section-3-label"><strong>Analyses</strong></span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
       </div>
-      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">
+      <ul id="quarto-sidebar-section-3" aria-labelledby="quarto-sidebar-section-3-label" class="collapse list-unstyled sidebar-section depth1 show">
 <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../analyses/ggplot2.html" class="sidebar-item-text sidebar-link">
@@ -546,13 +569,10 @@ cookieconsent.run({
 </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true">
- <span class="menu-text"><strong>Données pondérées avec <code>survey</code></strong></span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true" aria-label="Basculer la section">
-            <i class="bi bi-chevron-right ms-2"></i>
-          </a> 
+            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" aria-controls="quarto-sidebar-section-4" aria-expanded="true">
+ <span class="menu-text" id="quarto-sidebar-section-4-label"><strong>Données pondérées avec <code>survey</code></strong></span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
       </div>
-      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">
+      <ul id="quarto-sidebar-section-4" aria-labelledby="quarto-sidebar-section-4-label" class="collapse list-unstyled sidebar-section depth1 show">
 <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../donnees_ponderees/plan-echantillonnage.html" class="sidebar-item-text sidebar-link">
@@ -587,13 +607,10 @@ cookieconsent.run({
 </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true">
- <span class="menu-text"><strong>Manipulation avancée</strong></span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true" aria-label="Basculer la section">
-            <i class="bi bi-chevron-right ms-2"></i>
-          </a> 
+            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" aria-controls="quarto-sidebar-section-5" aria-expanded="true">
+ <span class="menu-text" id="quarto-sidebar-section-5-label"><strong>Manipulation avancée</strong></span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
       </div>
-      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">
+      <ul id="quarto-sidebar-section-5" aria-labelledby="quarto-sidebar-section-5-label" class="collapse list-unstyled sidebar-section depth1 show">
 <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../manipulation_avancee/fusion-tables.html" class="sidebar-item-text sidebar-link">
@@ -646,13 +663,10 @@ cookieconsent.run({
 </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="true">
- <span class="menu-text"><strong>Analyses avancées</strong></span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="true" aria-label="Basculer la section">
-            <i class="bi bi-chevron-right ms-2"></i>
-          </a> 
+            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" aria-controls="quarto-sidebar-section-6" aria-expanded="true">
+ <span class="menu-text" id="quarto-sidebar-section-6-label"><strong>Analyses avancées</strong></span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
       </div>
-      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 show">
+      <ul id="quarto-sidebar-section-6" aria-labelledby="quarto-sidebar-section-6-label" class="collapse list-unstyled sidebar-section depth1 show">
 <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../analyses_avancees/analyse-factorielle.html" class="sidebar-item-text sidebar-link">
@@ -723,13 +737,10 @@ cookieconsent.run({
 </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="true">
- <span class="menu-text"><strong>Pour aller plus loin</strong></span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="true" aria-label="Basculer la section">
-            <i class="bi bi-chevron-right ms-2"></i>
-          </a> 
+            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" aria-controls="quarto-sidebar-section-7" aria-expanded="true">
+ <span class="menu-text" id="quarto-sidebar-section-7-label"><strong>Pour aller plus loin</strong></span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
       </div>
-      <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth1 show">
+      <ul id="quarto-sidebar-section-7" aria-labelledby="quarto-sidebar-section-7-label" class="collapse list-unstyled sidebar-section depth1 show">
 <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../extra/ressources-documentaires.html" class="sidebar-item-text sidebar-link">
@@ -743,7 +754,7 @@ cookieconsent.run({
 </nav><div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        <nav id="TOC" role="doc-toc" class="toc-active"><h2 id="toc-title">Table des matières</h2>
+        <nav id="TOC" role="doc-toc" aria-labelledby="toc-title" class="toc-active"><h2 id="toc-title">Table des matières</h2>
    
   <ul>
 <li><a href="#d%C3%A9finition" id="toc-définition" class="nav-link active" data-scroll-target="#d%C3%A9finition"><span class="header-section-number">28.1</span> Définition</a></li>
@@ -753,7 +764,7 @@ cookieconsent.run({
   </ul><div class="toc-actions"><ul><li><a href="https://github.com/larmarange/guide-R/blob/main/analyses/multicolinearite.qmd" class="toc-action"><i class="bi bi-github"></i>Voir la source</a></li><li><a href="https://github.com/larmarange/guide-R/issues/new" class="toc-action"><i class="bi empty"></i>Faire part d'un problème</a></li></ul></div></nav>
     </div>
 <!-- main -->
-<main class="content page-columns page-full" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../analyses/ggplot2.html"><strong>Analyses</strong></a></li><li class="breadcrumb-item"><a href="../analyses/multicolinearite.html"><span class="chapter-number">28</span>&nbsp; <span class="chapter-title">Multicolinéarité</span></a></li></ol></nav><div class="quarto-title">
+<main class="content page-columns page-full" id="quarto-document-content" tabindex="-1"><header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="Fil d'Ariane"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../analyses/ggplot2.html"><strong>Analyses</strong></a></li><li class="breadcrumb-item"><a href="../analyses/multicolinearite.html"><span class="chapter-number">28</span>&nbsp; <span class="chapter-title">Multicolinéarité</span></a></li></ol></nav><div class="quarto-title">
 <h1 class="title"><span id="sec-multicolinearite" class="quarto-section-identifier"><span class="chapter-number">28</span>&nbsp; <span class="chapter-title">Multicolinéarité</span></span></h1>
 </div>
 
@@ -790,53 +801,53 @@ cookieconsent.run({
 <div class="no-row-height column-margin column-container"><div id="fn1"><p><sup>1</sup>&nbsp;<a href="https://statisticalhorizons.com/multicollinearity">When Can You Safely Ignore Multicollinearity?</a></p></div><div id="fn2"><p><sup>2</sup>&nbsp;Pour plus de détails, voir ce post de Davig Giles, <a href="http://davegiles.blogspot.be/2013/06/can-you-actually-test-for.html">Can You Actually TEST for Multicollinearity?</a>, qui explique pourquoi ce n’est pas possible.</p></div></div><p>L’extension <a href="https://github.com/bprice2652/car_repo">car</a> fournit une fonction <code><a href="https://rdrr.io/pkg/car/man/vif.html">car::vif()</a></code> permettant de calculer les FIV à partir d’un modèle. Elle implémente même une version <q>généralisée</q> permettant de considérer des facteurs catégoriels et des modèles linéaires généralisés comme la régression logistique.</p>
 <p>Reprenons, pour exemple, un modèle logistique que nous avons déjà abordé dans d’autres chapitres.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="fu">library</span>(tidyverse)</span>
-<span id="cb1-2"><a href="#cb1-2"></a><span class="fu">library</span>(labelled)</span>
-<span id="cb1-3"><a href="#cb1-3"></a></span>
-<span id="cb1-4"><a href="#cb1-4"></a><span class="fu">data</span>(hdv2003, <span class="at">package =</span> <span class="st">"questionr"</span>)</span>
-<span id="cb1-5"><a href="#cb1-5"></a></span>
-<span id="cb1-6"><a href="#cb1-6"></a>d <span class="ot">&lt;-</span></span>
-<span id="cb1-7"><a href="#cb1-7"></a>  hdv2003 <span class="sc">|&gt;</span> </span>
-<span id="cb1-8"><a href="#cb1-8"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb1-9"><a href="#cb1-9"></a>    <span class="at">sexe =</span> sexe <span class="sc">|&gt;</span> <span class="fu">fct_relevel</span>(<span class="st">"Femme"</span>),</span>
-<span id="cb1-10"><a href="#cb1-10"></a>    <span class="at">groupe_ages =</span> age <span class="sc">|&gt;</span></span>
-<span id="cb1-11"><a href="#cb1-11"></a>      <span class="fu">cut</span>(</span>
-<span id="cb1-12"><a href="#cb1-12"></a>        <span class="fu">c</span>(<span class="dv">18</span>, <span class="dv">25</span>, <span class="dv">45</span>, <span class="dv">65</span>, <span class="dv">99</span>),</span>
-<span id="cb1-13"><a href="#cb1-13"></a>        <span class="at">right =</span> <span class="cn">FALSE</span>,</span>
-<span id="cb1-14"><a href="#cb1-14"></a>        <span class="at">include.lowest =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb1-15"><a href="#cb1-15"></a>        <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"18-24 ans"</span>, <span class="st">"25-44 ans"</span>,</span>
-<span id="cb1-16"><a href="#cb1-16"></a>                   <span class="st">"45-64 ans"</span>, <span class="st">"65 ans et plus"</span>)</span>
-<span id="cb1-17"><a href="#cb1-17"></a>      ),</span>
-<span id="cb1-18"><a href="#cb1-18"></a>    <span class="at">etudes =</span> nivetud <span class="sc">|&gt;</span> </span>
-<span id="cb1-19"><a href="#cb1-19"></a>      <span class="fu">fct_recode</span>(</span>
-<span id="cb1-20"><a href="#cb1-20"></a>        <span class="st">"Primaire"</span> <span class="ot">=</span> <span class="st">"N'a jamais fait d'etudes"</span>,</span>
-<span id="cb1-21"><a href="#cb1-21"></a>        <span class="st">"Primaire"</span> <span class="ot">=</span> <span class="st">"A arrete ses etudes, avant la derniere annee d'etudes primaires"</span>,</span>
-<span id="cb1-22"><a href="#cb1-22"></a>        <span class="st">"Primaire"</span> <span class="ot">=</span> <span class="st">"Derniere annee d'etudes primaires"</span>,</span>
-<span id="cb1-23"><a href="#cb1-23"></a>        <span class="st">"Secondaire"</span> <span class="ot">=</span> <span class="st">"1er cycle"</span>,</span>
-<span id="cb1-24"><a href="#cb1-24"></a>        <span class="st">"Secondaire"</span> <span class="ot">=</span> <span class="st">"2eme cycle"</span>,</span>
-<span id="cb1-25"><a href="#cb1-25"></a>        <span class="st">"Technique / Professionnel"</span> <span class="ot">=</span> <span class="st">"Enseignement technique ou professionnel court"</span>,</span>
-<span id="cb1-26"><a href="#cb1-26"></a>        <span class="st">"Technique / Professionnel"</span> <span class="ot">=</span> <span class="st">"Enseignement technique ou professionnel long"</span>,</span>
-<span id="cb1-27"><a href="#cb1-27"></a>        <span class="st">"Supérieur"</span> <span class="ot">=</span> <span class="st">"Enseignement superieur y compris technique superieur"</span></span>
-<span id="cb1-28"><a href="#cb1-28"></a>    ) <span class="sc">|&gt;</span> </span>
-<span id="cb1-29"><a href="#cb1-29"></a>    <span class="fu">fct_na_value_to_level</span>(<span class="st">"Non documenté"</span>)  </span>
-<span id="cb1-30"><a href="#cb1-30"></a>  ) <span class="sc">|&gt;</span> </span>
-<span id="cb1-31"><a href="#cb1-31"></a>  <span class="fu">set_variable_labels</span>(</span>
-<span id="cb1-32"><a href="#cb1-32"></a>    <span class="at">sport =</span> <span class="st">"Pratique un sport ?"</span>,</span>
-<span id="cb1-33"><a href="#cb1-33"></a>    <span class="at">sexe =</span> <span class="st">"Sexe"</span>,</span>
-<span id="cb1-34"><a href="#cb1-34"></a>    <span class="at">groupe_ages =</span> <span class="st">"Groupe d'âges"</span>,</span>
-<span id="cb1-35"><a href="#cb1-35"></a>    <span class="at">etudes =</span> <span class="st">"Niveau d'études"</span>,</span>
-<span id="cb1-36"><a href="#cb1-36"></a>    <span class="at">heures.tv =</span> <span class="st">"Heures de télévision / jour"</span></span>
-<span id="cb1-37"><a href="#cb1-37"></a>  )</span>
-<span id="cb1-38"><a href="#cb1-38"></a></span>
-<span id="cb1-39"><a href="#cb1-39"></a>mod <span class="ot">&lt;-</span> <span class="fu">glm</span>(</span>
-<span id="cb1-40"><a href="#cb1-40"></a>  sport <span class="sc">~</span> sexe <span class="sc">+</span> groupe_ages <span class="sc">+</span> etudes <span class="sc">+</span> heures.tv,</span>
-<span id="cb1-41"><a href="#cb1-41"></a>  <span class="at">family =</span> binomial,</span>
-<span id="cb1-42"><a href="#cb1-42"></a>  <span class="at">data =</span> d</span>
-<span id="cb1-43"><a href="#cb1-43"></a>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-label="1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-label="2"></a><span class="fu">library</span>(labelled)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-label="3"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-label="4"></a><span class="fu">data</span>(hdv2003, <span class="at">package =</span> <span class="st">"questionr"</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-label="5"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-label="6"></a>d <span class="ot">&lt;-</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-label="7"></a>  hdv2003 <span class="sc">|&gt;</span> </span>
+<span id="cb1-8"><a href="#cb1-8" aria-label="8"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb1-9"><a href="#cb1-9" aria-label="9"></a>    <span class="at">sexe =</span> sexe <span class="sc">|&gt;</span> <span class="fu">fct_relevel</span>(<span class="st">"Femme"</span>),</span>
+<span id="cb1-10"><a href="#cb1-10" aria-label="10"></a>    <span class="at">groupe_ages =</span> age <span class="sc">|&gt;</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-label="11"></a>      <span class="fu">cut</span>(</span>
+<span id="cb1-12"><a href="#cb1-12" aria-label="12"></a>        <span class="fu">c</span>(<span class="dv">18</span>, <span class="dv">25</span>, <span class="dv">45</span>, <span class="dv">65</span>, <span class="dv">99</span>),</span>
+<span id="cb1-13"><a href="#cb1-13" aria-label="13"></a>        <span class="at">right =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb1-14"><a href="#cb1-14" aria-label="14"></a>        <span class="at">include.lowest =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb1-15"><a href="#cb1-15" aria-label="15"></a>        <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"18-24 ans"</span>, <span class="st">"25-44 ans"</span>,</span>
+<span id="cb1-16"><a href="#cb1-16" aria-label="16"></a>                   <span class="st">"45-64 ans"</span>, <span class="st">"65 ans et plus"</span>)</span>
+<span id="cb1-17"><a href="#cb1-17" aria-label="17"></a>      ),</span>
+<span id="cb1-18"><a href="#cb1-18" aria-label="18"></a>    <span class="at">etudes =</span> nivetud <span class="sc">|&gt;</span> </span>
+<span id="cb1-19"><a href="#cb1-19" aria-label="19"></a>      <span class="fu">fct_recode</span>(</span>
+<span id="cb1-20"><a href="#cb1-20" aria-label="20"></a>        <span class="st">"Primaire"</span> <span class="ot">=</span> <span class="st">"N'a jamais fait d'etudes"</span>,</span>
+<span id="cb1-21"><a href="#cb1-21" aria-label="21"></a>        <span class="st">"Primaire"</span> <span class="ot">=</span> <span class="st">"A arrete ses etudes, avant la derniere annee d'etudes primaires"</span>,</span>
+<span id="cb1-22"><a href="#cb1-22" aria-label="22"></a>        <span class="st">"Primaire"</span> <span class="ot">=</span> <span class="st">"Derniere annee d'etudes primaires"</span>,</span>
+<span id="cb1-23"><a href="#cb1-23" aria-label="23"></a>        <span class="st">"Secondaire"</span> <span class="ot">=</span> <span class="st">"1er cycle"</span>,</span>
+<span id="cb1-24"><a href="#cb1-24" aria-label="24"></a>        <span class="st">"Secondaire"</span> <span class="ot">=</span> <span class="st">"2eme cycle"</span>,</span>
+<span id="cb1-25"><a href="#cb1-25" aria-label="25"></a>        <span class="st">"Technique / Professionnel"</span> <span class="ot">=</span> <span class="st">"Enseignement technique ou professionnel court"</span>,</span>
+<span id="cb1-26"><a href="#cb1-26" aria-label="26"></a>        <span class="st">"Technique / Professionnel"</span> <span class="ot">=</span> <span class="st">"Enseignement technique ou professionnel long"</span>,</span>
+<span id="cb1-27"><a href="#cb1-27" aria-label="27"></a>        <span class="st">"Supérieur"</span> <span class="ot">=</span> <span class="st">"Enseignement superieur y compris technique superieur"</span></span>
+<span id="cb1-28"><a href="#cb1-28" aria-label="28"></a>    ) <span class="sc">|&gt;</span> </span>
+<span id="cb1-29"><a href="#cb1-29" aria-label="29"></a>    <span class="fu">fct_na_value_to_level</span>(<span class="st">"Non documenté"</span>)  </span>
+<span id="cb1-30"><a href="#cb1-30" aria-label="30"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb1-31"><a href="#cb1-31" aria-label="31"></a>  <span class="fu">set_variable_labels</span>(</span>
+<span id="cb1-32"><a href="#cb1-32" aria-label="32"></a>    <span class="at">sport =</span> <span class="st">"Pratique un sport ?"</span>,</span>
+<span id="cb1-33"><a href="#cb1-33" aria-label="33"></a>    <span class="at">sexe =</span> <span class="st">"Sexe"</span>,</span>
+<span id="cb1-34"><a href="#cb1-34" aria-label="34"></a>    <span class="at">groupe_ages =</span> <span class="st">"Groupe d'âges"</span>,</span>
+<span id="cb1-35"><a href="#cb1-35" aria-label="35"></a>    <span class="at">etudes =</span> <span class="st">"Niveau d'études"</span>,</span>
+<span id="cb1-36"><a href="#cb1-36" aria-label="36"></a>    <span class="at">heures.tv =</span> <span class="st">"Heures de télévision / jour"</span></span>
+<span id="cb1-37"><a href="#cb1-37" aria-label="37"></a>  )</span>
+<span id="cb1-38"><a href="#cb1-38" aria-label="38"></a></span>
+<span id="cb1-39"><a href="#cb1-39" aria-label="39"></a>mod <span class="ot">&lt;-</span> <span class="fu">glm</span>(</span>
+<span id="cb1-40"><a href="#cb1-40" aria-label="40"></a>  sport <span class="sc">~</span> sexe <span class="sc">+</span> groupe_ages <span class="sc">+</span> etudes <span class="sc">+</span> heures.tv,</span>
+<span id="cb1-41"><a href="#cb1-41" aria-label="41"></a>  <span class="at">family =</span> binomial,</span>
+<span id="cb1-42"><a href="#cb1-42" aria-label="42"></a>  <span class="at">data =</span> d</span>
+<span id="cb1-43"><a href="#cb1-43" aria-label="43"></a>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Le calcul des FIV se fait simplement en passant le modèle à la fonction <code><a href="https://rdrr.io/pkg/car/man/vif.html">car::vif()</a></code>.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a>mod <span class="sc">|&gt;</span> car<span class="sc">::</span><span class="fu">vif</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-label="1"></a>mod <span class="sc">|&gt;</span> car<span class="sc">::</span><span class="fu">vif</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>                GVIF Df GVIF^(1/(2*Df))
 sexe        1.024640  1        1.012245
@@ -848,38 +859,38 @@ heures.tv   1.057819  1        1.028503</code></pre>
 <p>Dans notre exemple, tous les FIV sont proches de 1. Il n’y a donc pas de problème potentiel de colinéarité à explorer.</p>
 <p>Pour un tableau propre, nous pouvons aussi utiliser <code><a href="https://www.danieldsjoberg.com/gtsummary/reference/add_vif.html">gtsummary::add_vif()</a></code>.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a><span class="fu">library</span>(gtsummary)</span>
-<span id="cb4-2"><a href="#cb4-2"></a><span class="fu">theme_gtsummary_language</span>(</span>
-<span id="cb4-3"><a href="#cb4-3"></a>  <span class="st">"fr"</span>,</span>
-<span id="cb4-4"><a href="#cb4-4"></a>  <span class="at">decimal.mark =</span> <span class="st">","</span>,</span>
-<span id="cb4-5"><a href="#cb4-5"></a>  <span class="at">big.mark =</span> <span class="st">" "</span></span>
-<span id="cb4-6"><a href="#cb4-6"></a>)</span>
-<span id="cb4-7"><a href="#cb4-7"></a>guideR<span class="sc">::</span><span class="fu">theme_gtsummary_bold_labels</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-label="1"></a><span class="fu">library</span>(gtsummary)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-label="2"></a><span class="fu">theme_gtsummary_language</span>(</span>
+<span id="cb4-3"><a href="#cb4-3" aria-label="3"></a>  <span class="st">"fr"</span>,</span>
+<span id="cb4-4"><a href="#cb4-4" aria-label="4"></a>  <span class="at">decimal.mark =</span> <span class="st">","</span>,</span>
+<span id="cb4-5"><a href="#cb4-5" aria-label="5"></a>  <span class="at">big.mark =</span> <span class="st">" "</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-label="6"></a>)</span>
+<span id="cb4-7"><a href="#cb4-7" aria-label="7"></a>guideR<span class="sc">::</span><span class="fu">theme_gtsummary_bold_labels</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell page-columns page-full">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a>mod <span class="sc">|&gt;</span> </span>
-<span id="cb5-2"><a href="#cb5-2"></a>  <span class="fu">tbl_regression</span>(<span class="at">exponentiate =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb5-3"><a href="#cb5-3"></a>  <span class="fu">add_vif</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-label="1"></a>mod <span class="sc">|&gt;</span> </span>
+<span id="cb5-2"><a href="#cb5-2" aria-label="2"></a>  <span class="fu">tbl_regression</span>(<span class="at">exponentiate =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb5-3"><a href="#cb5-3" aria-label="3"></a>  <span class="fu">add_vif</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div id="tbl-add_vif" class="cell quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-tbl figure page-columns page-full"><div aria-describedby="tbl-add_vif-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca" class="page-columns page-full">
 <div class="cell-output-display page-columns page-full">
-<div id="ulbdyjvukm" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;" class="page-columns page-full">
-<style>#ulbdyjvukm table {
+<div id="ysbafljbbv" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;" class="page-columns page-full">
+<style>#ysbafljbbv table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#ulbdyjvukm thead, #ulbdyjvukm tbody, #ulbdyjvukm tfoot, #ulbdyjvukm tr, #ulbdyjvukm td, #ulbdyjvukm th {
+#ysbafljbbv thead, #ysbafljbbv tbody, #ysbafljbbv tfoot, #ysbafljbbv tr, #ysbafljbbv td, #ysbafljbbv th {
   border-style: none;
 }
 
-#ulbdyjvukm p {
+#ysbafljbbv p {
   margin: 0;
   padding: 0;
 }
 
-#ulbdyjvukm .gt_table {
+#ysbafljbbv .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -905,12 +916,12 @@ heures.tv   1.057819  1        1.028503</code></pre>
   border-left-color: #D3D3D3;
 }
 
-#ulbdyjvukm .gt_caption {
+#ysbafljbbv .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#ulbdyjvukm .gt_title {
+#ysbafljbbv .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -922,7 +933,7 @@ heures.tv   1.057819  1        1.028503</code></pre>
   border-bottom-width: 0;
 }
 
-#ulbdyjvukm .gt_subtitle {
+#ysbafljbbv .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -934,7 +945,7 @@ heures.tv   1.057819  1        1.028503</code></pre>
   border-top-width: 0;
 }
 
-#ulbdyjvukm .gt_heading {
+#ysbafljbbv .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -946,13 +957,13 @@ heures.tv   1.057819  1        1.028503</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#ulbdyjvukm .gt_bottom_border {
+#ysbafljbbv .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#ulbdyjvukm .gt_col_headings {
+#ysbafljbbv .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -967,7 +978,7 @@ heures.tv   1.057819  1        1.028503</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#ulbdyjvukm .gt_col_heading {
+#ysbafljbbv .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -987,7 +998,7 @@ heures.tv   1.057819  1        1.028503</code></pre>
   overflow-x: hidden;
 }
 
-#ulbdyjvukm .gt_column_spanner_outer {
+#ysbafljbbv .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -999,15 +1010,15 @@ heures.tv   1.057819  1        1.028503</code></pre>
   padding-right: 4px;
 }
 
-#ulbdyjvukm .gt_column_spanner_outer:first-child {
+#ysbafljbbv .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#ulbdyjvukm .gt_column_spanner_outer:last-child {
+#ysbafljbbv .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#ulbdyjvukm .gt_column_spanner {
+#ysbafljbbv .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -1019,11 +1030,11 @@ heures.tv   1.057819  1        1.028503</code></pre>
   width: 100%;
 }
 
-#ulbdyjvukm .gt_spanner_row {
+#ysbafljbbv .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#ulbdyjvukm .gt_group_heading {
+#ysbafljbbv .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1049,7 +1060,7 @@ heures.tv   1.057819  1        1.028503</code></pre>
   text-align: left;
 }
 
-#ulbdyjvukm .gt_empty_group_heading {
+#ysbafljbbv .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -1064,15 +1075,15 @@ heures.tv   1.057819  1        1.028503</code></pre>
   vertical-align: middle;
 }
 
-#ulbdyjvukm .gt_from_md > :first-child {
+#ysbafljbbv .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#ulbdyjvukm .gt_from_md > :last-child {
+#ysbafljbbv .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#ulbdyjvukm .gt_row {
+#ysbafljbbv .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1091,7 +1102,7 @@ heures.tv   1.057819  1        1.028503</code></pre>
   overflow-x: hidden;
 }
 
-#ulbdyjvukm .gt_stub {
+#ysbafljbbv .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1104,7 +1115,7 @@ heures.tv   1.057819  1        1.028503</code></pre>
   padding-right: 5px;
 }
 
-#ulbdyjvukm .gt_stub_row_group {
+#ysbafljbbv .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1118,15 +1129,15 @@ heures.tv   1.057819  1        1.028503</code></pre>
   vertical-align: top;
 }
 
-#ulbdyjvukm .gt_row_group_first td {
+#ysbafljbbv .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#ulbdyjvukm .gt_row_group_first th {
+#ysbafljbbv .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#ulbdyjvukm .gt_summary_row {
+#ysbafljbbv .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1136,16 +1147,16 @@ heures.tv   1.057819  1        1.028503</code></pre>
   padding-right: 5px;
 }
 
-#ulbdyjvukm .gt_first_summary_row {
+#ysbafljbbv .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#ulbdyjvukm .gt_first_summary_row.thick {
+#ysbafljbbv .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#ulbdyjvukm .gt_last_summary_row {
+#ysbafljbbv .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1155,7 +1166,7 @@ heures.tv   1.057819  1        1.028503</code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#ulbdyjvukm .gt_grand_summary_row {
+#ysbafljbbv .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1165,7 +1176,7 @@ heures.tv   1.057819  1        1.028503</code></pre>
   padding-right: 5px;
 }
 
-#ulbdyjvukm .gt_first_grand_summary_row {
+#ysbafljbbv .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1175,7 +1186,7 @@ heures.tv   1.057819  1        1.028503</code></pre>
   border-top-color: #D3D3D3;
 }
 
-#ulbdyjvukm .gt_last_grand_summary_row_top {
+#ysbafljbbv .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1185,11 +1196,11 @@ heures.tv   1.057819  1        1.028503</code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#ulbdyjvukm .gt_striped {
+#ysbafljbbv .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#ulbdyjvukm .gt_table_body {
+#ysbafljbbv .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1198,7 +1209,7 @@ heures.tv   1.057819  1        1.028503</code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#ulbdyjvukm .gt_footnotes {
+#ysbafljbbv .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1212,7 +1223,7 @@ heures.tv   1.057819  1        1.028503</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#ulbdyjvukm .gt_footnote {
+#ysbafljbbv .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -1221,7 +1232,7 @@ heures.tv   1.057819  1        1.028503</code></pre>
   padding-right: 5px;
 }
 
-#ulbdyjvukm .gt_sourcenotes {
+#ysbafljbbv .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1235,7 +1246,7 @@ heures.tv   1.057819  1        1.028503</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#ulbdyjvukm .gt_sourcenote {
+#ysbafljbbv .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -1243,72 +1254,72 @@ heures.tv   1.057819  1        1.028503</code></pre>
   padding-right: 5px;
 }
 
-#ulbdyjvukm .gt_left {
+#ysbafljbbv .gt_left {
   text-align: left;
 }
 
-#ulbdyjvukm .gt_center {
+#ysbafljbbv .gt_center {
   text-align: center;
 }
 
-#ulbdyjvukm .gt_right {
+#ysbafljbbv .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#ulbdyjvukm .gt_font_normal {
+#ysbafljbbv .gt_font_normal {
   font-weight: normal;
 }
 
-#ulbdyjvukm .gt_font_bold {
+#ysbafljbbv .gt_font_bold {
   font-weight: bold;
 }
 
-#ulbdyjvukm .gt_font_italic {
+#ysbafljbbv .gt_font_italic {
   font-style: italic;
 }
 
-#ulbdyjvukm .gt_super {
+#ysbafljbbv .gt_super {
   font-size: 65%;
 }
 
-#ulbdyjvukm .gt_footnote_marks {
+#ysbafljbbv .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#ulbdyjvukm .gt_asterisk {
+#ysbafljbbv .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#ulbdyjvukm .gt_indent_1 {
+#ysbafljbbv .gt_indent_1 {
   text-indent: 5px;
 }
 
-#ulbdyjvukm .gt_indent_2 {
+#ysbafljbbv .gt_indent_2 {
   text-indent: 10px;
 }
 
-#ulbdyjvukm .gt_indent_3 {
+#ysbafljbbv .gt_indent_3 {
   text-indent: 15px;
 }
 
-#ulbdyjvukm .gt_indent_4 {
+#ysbafljbbv .gt_indent_4 {
   text-indent: 20px;
 }
 
-#ulbdyjvukm .gt_indent_5 {
+#ysbafljbbv .gt_indent_5 {
   text-indent: 25px;
 }
 
-#ulbdyjvukm .katex-display {
+#ysbafljbbv .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#ulbdyjvukm div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#ysbafljbbv div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
@@ -1325,7 +1336,7 @@ heures.tv   1.057819  1        1.028503</code></pre>
 <th id="label" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col"><strong>Caractéristique</strong></th>
 <th id="estimate" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col"><strong>OR</strong></th>
 <th id="conf.low" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col"><strong>95% IC</strong></th>
-<th id="p.value" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col"><strong>p-valeur</strong></th>
+<th id="p.value" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col"><strong>Valeur p</strong></th>
 <th id="GVIF" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col"><strong>GVIF</strong></th>
 <th id="aGVIF" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col">
 <strong>Adjusted GVIF</strong><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;"><sup>1</sup></span>
@@ -1474,54 +1485,54 @@ Table&nbsp;28.1: Résumé du modèle logistique simple avec affichage des VIF g�
 </div>
 <p>Le package <a href="https://easystats.github.io/performance/">performance</a> propose quant à lui une fonction <code><a href="https://easystats.github.io/performance/reference/check_collinearity.html">performance::check_collinearity()</a></code> pour le calcul des FIV et de leur intervalle de confiance.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a>mod <span class="sc">|&gt;</span> performance<span class="sc">::</span><span class="fu">check_collinearity</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-label="1"></a>mod <span class="sc">|&gt;</span> performance<span class="sc">::</span><span class="fu">check_collinearity</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># Check for Multicollinearity
 
 Low Correlation
 
         Term  VIF   VIF 95% CI adj. VIF Tolerance Tolerance 95% CI
-        sexe 1.02 [1.00, 1.16]     1.01      0.98     [0.86, 1.00]
- groupe_ages 1.75 [1.64, 1.86]     1.32      0.57     [0.54, 0.61]
-      etudes 1.81 [1.70, 1.93]     1.35      0.55     [0.52, 0.59]
-   heures.tv 1.06 [1.02, 1.13]     1.03      0.95     [0.88, 0.98]</code></pre>
+        sexe 1.02 [1.01, 1.04]     1.01      0.98     [0.96, 0.99]
+ groupe_ages 1.75 [1.65, 1.83]     1.10      0.57     [0.55, 0.60]
+      etudes 1.81 [1.72, 1.90]     1.08      0.55     [0.53, 0.58]
+   heures.tv 1.06 [1.03, 1.08]     1.03      0.95     [0.93, 0.97]</code></pre>
 </div>
 </div>
 <p>Les variables avec un FIV entre 5 et 10 sont présentées comme ayant une corrélation moyenne et celles avec un FIV de 10 ou plus une corrélation forte. Prenons un autre exemple.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a>mod2 <span class="ot">&lt;-</span> <span class="fu">lm</span>(mpg <span class="sc">~</span> wt <span class="sc">+</span> am <span class="sc">+</span> gear <span class="sc">+</span> vs <span class="sc">*</span> cyl, <span class="at">data =</span> mtcars)</span>
-<span id="cb8-2"><a href="#cb8-2"></a>mc <span class="ot">&lt;-</span> mod2 <span class="sc">|&gt;</span> performance<span class="sc">::</span><span class="fu">check_collinearity</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-label="1"></a>mod2 <span class="ot">&lt;-</span> <span class="fu">lm</span>(mpg <span class="sc">~</span> wt <span class="sc">+</span> am <span class="sc">+</span> gear <span class="sc">+</span> vs <span class="sc">*</span> cyl, <span class="at">data =</span> mtcars)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-label="2"></a>mc <span class="ot">&lt;-</span> mod2 <span class="sc">|&gt;</span> performance<span class="sc">::</span><span class="fu">check_collinearity</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Model has interaction terms. VIFs might be inflated.
   Try to center the variables used for the interaction, or check
   multicollinearity among predictors of a model without interaction terms.</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a>mc</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-label="1"></a>mc</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># Check for Multicollinearity
 
 Low Correlation
 
  Term  VIF     VIF 95% CI adj. VIF Tolerance Tolerance 95% CI
-   wt 3.64 [ 2.46,  5.77]     1.91      0.27     [0.17, 0.41]
-   am 4.32 [ 2.88,  6.89]     2.08      0.23     [0.15, 0.35]
- gear 3.06 [ 2.11,  4.82]     1.75      0.33     [0.21, 0.47]
+   wt 3.64 [ 1.76,  4.80]     1.91      0.27     [0.21, 0.57]
+   am 4.32 [ 2.04,  5.71]     2.08      0.23     [0.18, 0.49]
+ gear 3.06 [ 1.52,  4.03]     1.75      0.33     [0.25, 0.66]
 
 Moderate Correlation
 
  Term  VIF     VIF 95% CI adj. VIF Tolerance Tolerance 95% CI
-  cyl 7.87 [ 5.03, 12.70]     2.80      0.13     [0.08, 0.20]
+  cyl 7.87 [ 3.54, 10.37]     2.80      0.13     [0.10, 0.28]
 
 High Correlation
 
    Term   VIF     VIF 95% CI adj. VIF Tolerance Tolerance 95% CI
-     vs 38.55 [23.69, 63.15]     6.21      0.03     [0.02, 0.04]
- vs:cyl 25.79 [15.93, 42.16]     5.08      0.04     [0.02, 0.06]</code></pre>
+     vs 38.55 [16.78, 50.59]     6.21      0.03     [0.02, 0.06]
+ vs:cyl 25.79 [11.26, 33.87]     5.08      0.04     [0.03, 0.09]</code></pre>
 </div>
 </div>
 <p>Une représentation graphique des FIV peut être obtenue avec <code><a href="https://rdrr.io/r/graphics/plot.default.html">plot()</a></code> appliquée au résultat de <code><a href="https://easystats.github.io/performance/reference/check_collinearity.html">performance::check_collinearity()</a></code>.</p>
 <div class="cell page-columns page-full">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a><span class="fu">plot</span>(mc)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-label="1"></a><span class="fu">plot</span>(mc)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display page-columns page-full">
 <div id="fig-check_collinearity" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full"><div aria-describedby="fig-check_collinearity-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -1535,7 +1546,7 @@ Figure&nbsp;28.1: Représentation graphique des FIV d’un modèle
 </div>
 <p>La fonction <code><a href="https://easystats.github.io/insight/reference/display.html">performance::print_md()</a></code> peut être utilisée quant à elle pour une sortie des résultats dans un rapport markdown.</p>
 <div class="cell page-columns page-full">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a>mc <span class="sc">|&gt;</span> performance<span class="sc">::</span><span class="fu">print_md</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-label="1"></a>mc <span class="sc">|&gt;</span> performance<span class="sc">::</span><span class="fu">print_md</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div id="tbl-check_collinearity" class="cell quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-tbl figure page-columns page-full"><div aria-describedby="tbl-check_collinearity-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
@@ -1564,62 +1575,62 @@ Figure&nbsp;28.1: Représentation graphique des FIV d’un modèle
 <tr class="odd">
 <td style="text-align: left;">wt</td>
 <td style="text-align: right;">3.64</td>
-<td style="text-align: right;">2.46</td>
-<td style="text-align: right;">5.77</td>
+<td style="text-align: right;">1.76</td>
+<td style="text-align: right;">4.80</td>
 <td style="text-align: right;">1.91</td>
 <td style="text-align: right;">0.27</td>
-<td style="text-align: right;">0.17</td>
-<td style="text-align: right;">0.41</td>
+<td style="text-align: right;">0.21</td>
+<td style="text-align: right;">0.57</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">am</td>
 <td style="text-align: right;">4.32</td>
-<td style="text-align: right;">2.88</td>
-<td style="text-align: right;">6.89</td>
+<td style="text-align: right;">2.04</td>
+<td style="text-align: right;">5.71</td>
 <td style="text-align: right;">2.08</td>
 <td style="text-align: right;">0.23</td>
-<td style="text-align: right;">0.15</td>
-<td style="text-align: right;">0.35</td>
+<td style="text-align: right;">0.18</td>
+<td style="text-align: right;">0.49</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">gear</td>
 <td style="text-align: right;">3.06</td>
-<td style="text-align: right;">2.11</td>
-<td style="text-align: right;">4.82</td>
+<td style="text-align: right;">1.52</td>
+<td style="text-align: right;">4.03</td>
 <td style="text-align: right;">1.75</td>
 <td style="text-align: right;">0.33</td>
-<td style="text-align: right;">0.21</td>
-<td style="text-align: right;">0.47</td>
+<td style="text-align: right;">0.25</td>
+<td style="text-align: right;">0.66</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">vs</td>
 <td style="text-align: right;">38.55</td>
-<td style="text-align: right;">23.69</td>
-<td style="text-align: right;">63.15</td>
+<td style="text-align: right;">16.78</td>
+<td style="text-align: right;">50.59</td>
 <td style="text-align: right;">6.21</td>
 <td style="text-align: right;">0.03</td>
 <td style="text-align: right;">0.02</td>
-<td style="text-align: right;">0.04</td>
+<td style="text-align: right;">0.06</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">cyl</td>
 <td style="text-align: right;">7.87</td>
-<td style="text-align: right;">5.03</td>
-<td style="text-align: right;">12.70</td>
+<td style="text-align: right;">3.54</td>
+<td style="text-align: right;">10.37</td>
 <td style="text-align: right;">2.80</td>
 <td style="text-align: right;">0.13</td>
-<td style="text-align: right;">0.08</td>
-<td style="text-align: right;">0.20</td>
+<td style="text-align: right;">0.10</td>
+<td style="text-align: right;">0.28</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">vs:cyl</td>
 <td style="text-align: right;">25.79</td>
-<td style="text-align: right;">15.93</td>
-<td style="text-align: right;">42.16</td>
+<td style="text-align: right;">11.26</td>
+<td style="text-align: right;">33.87</td>
 <td style="text-align: right;">5.08</td>
 <td style="text-align: right;">0.04</td>
-<td style="text-align: right;">0.02</td>
-<td style="text-align: right;">0.06</td>
+<td style="text-align: right;">0.03</td>
+<td style="text-align: right;">0.09</td>
 </tr>
 </tbody>
 </table>
@@ -1652,15 +1663,50 @@ Table&nbsp;28.2: Table des FIV d’un modèle
   window.document.addEventListener("DOMContentLoaded", function (event) {
     // Ensure there is a toggle, if there isn't float one in the top right
     if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
-      const a = window.document.createElement('a');
-      a.classList.add('top-right');
-      a.classList.add('quarto-color-scheme-toggle');
-      a.href = "";
-      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const toggle = window.document.createElement('button');
+      toggle.type = "button";
+      toggle.setAttribute("role", "switch");
+      toggle.setAttribute("aria-checked", "false");
+      toggle.classList.add('top-right');
+      toggle.classList.add('quarto-color-scheme-toggle');
+      toggle.setAttribute("aria-label", "Basculer le mode sombre");
+      toggle.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
       const i = window.document.createElement("i");
       i.classList.add('bi');
-      a.appendChild(i);
-      window.document.body.appendChild(a);
+      toggle.appendChild(i);
+      // Put the toggle in a landmark of its own, so that landmark navigation
+      // can reach it.
+      //
+      // The container is always a fresh direct child of body, and the toggle is
+      // never moved into page furniture that the theme or the author controls.
+      // The toggle is positioned against the page, so any ancestor that
+      // establishes a containing block captures it: a positioned element or a
+      // grid for position: absolute, and transform, filter, will-change or
+      // contain for position: fixed. A direct child of body has none of these
+      // to inherit, and the shift when one appears is silent and visual.
+      //
+      // ARIA says a document should have at most one banner, and axe reports a
+      // duplicate whether or not the banners carry distinct labels. So use a
+      // header when the page has no banner yet, and a named region otherwise.
+      //
+      // A header is a banner wherever it sits, unless it is inside sectioning
+      // content, so this cannot just look at the children of body: a custom
+      // page layout wraps the title block header in a plain div. An explicit
+      // role="banner" always counts.
+      const sectioning = 'article, aside, main, nav, section, [role="article"], [role="complementary"], [role="main"], [role="navigation"], [role="region"]';
+      const hasBanner = Array.from(
+        window.document.querySelectorAll('header:not([role]), [role="banner"]')
+      ).some(function(el) {
+        return el.hasAttribute("role") || el.closest(sectioning) === null;
+      });
+      const container = window.document.createElement(hasBanner ? "div" : "header");
+      if (hasBanner) {
+        container.setAttribute("role", "region");
+        container.setAttribute("aria-label", "Basculer le mode sombre");
+      }
+      container.classList.add('quarto-color-scheme-toggle-container');
+      container.appendChild(toggle);
+      window.document.body.appendChild(container);
     }
     setColorSchemeToggle(hasAlternateSentinel())
     const icon = "";
@@ -1735,11 +1781,34 @@ Table&nbsp;28.2: Table des FIV d’un modèle
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);
         var filterRegex = new RegExp('/' + window.location.host + '/');
+      const newWindowLabel = "(s'ouvre dans un nouvel onglet)";
+      const newWindowNoteId = "quarto-ext-newwindow-label";
+      // Links reference one hidden label through aria-describedby, so the
+      // announcement never changes their accessible name.
+      var describeNewWindow = (link) => {
+        if (!window.document.getElementById(newWindowNoteId)) {
+          var newWindowNote = window.document.createElement("span");
+          newWindowNote.id = newWindowNoteId;
+          newWindowNote.hidden = true;
+          newWindowNote.textContent = newWindowLabel;
+          window.document.body.appendChild(newWindowNote);
+        }
+        var describedBy = (link.getAttribute("aria-describedby") || "").split(/\s+/).filter(Boolean);
+        if (!describedBy.includes(newWindowNoteId)) {
+          describedBy.push(newWindowNoteId);
+          link.setAttribute("aria-describedby", describedBy.join(" "));
+        }
+      }
+      var opensNewContext = (link) => {
+        var target = (link.getAttribute("target") || "").toLowerCase();
+        return target !== "" && !["_self", "_parent", "_top"].includes(target);
+      }
       var isInternal = (href) => {
           return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
       }
       // Inspect non-navigation links and adorn them if external
-     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      window.quartoDecorateExternalLinks = function (root) {
+     var links = (root || window.document).querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
       for (var i=0; i<links.length; i++) {
         const link = links[i];
         if (!isInternal(link.href)) {
@@ -1748,8 +1817,72 @@ Table&nbsp;28.2: Table des FIV d’un modèle
           if (link.dataset.originalHref !== undefined) {
             link.href = link.dataset.originalHref;
           }
+          if (!link.classList.contains('no-external-icon')) {
+          }
+        }
+        if (opensNewContext(link)) {
+          describeNewWindow(link);
         }
       }
+      };
+      window.quartoDecorateExternalLinks(window.document);
+    // Esc closes the popup (WCAG 1.4.13) and focus leaving both trigger and
+    // popup closes it (WCAG 2.4.11); tippy handles neither for interactive popups.
+    const hideOnEscAndFocusOut = {
+      name: 'hideOnEscAndFocusOut',
+      defaultValue: true,
+      fn(instance) {
+        const dismiss = () => {
+          // A show scheduled by the trigger delay would otherwise reopen it
+          instance.clearDelayTimeouts();
+          instance.hide();
+        };
+        const onKeyDown = (event) => {
+          if (event.key !== 'Escape') {
+            return;
+          }
+          // Keep Esc from also reaching page handlers (e.g. reveal.js overview),
+          // except an open reveal.js slide menu, which Esc should close too.
+          // The menu handles keys only when its keyboard option is on.
+          const menuHandlesEsc = window.Reveal?.getPlugin?.('menu')?.isOpen() &&
+            window.Reveal.getConfig().menu?.keyboard !== false;
+          if (!menuHandlesEsc) {
+            event.stopPropagation();
+          }
+          if (instance.popper.contains(window.document.activeElement)) {
+            // Disabled while refocusing so the focus trigger does not reopen it
+            instance.disable();
+            instance.reference.focus();
+            instance.enable();
+          }
+          dismiss();
+        };
+        const onFocusOut = (event) => {
+          const target = event.relatedTarget;
+          if (target && !instance.reference.contains(target) &&
+              !instance.popper.contains(target)) {
+            dismiss();
+          }
+        };
+        // On the trigger too: a click trigger (code-annotations: select) has no
+        // blur handling. Attached for the instance's lifetime so leaving the
+        // trigger also cancels a show still pending on the trigger delay.
+        instance.reference.addEventListener('focusout', onFocusOut);
+        return {
+          onShow() {
+            window.document.addEventListener('keydown', onKeyDown, true);
+            instance.popper.addEventListener('focusout', onFocusOut);
+          },
+          onHide() {
+            window.document.removeEventListener('keydown', onKeyDown, true);
+            instance.popper.removeEventListener('focusout', onFocusOut);
+          },
+          onDestroy() {
+            instance.reference.removeEventListener('focusout', onFocusOut);
+          },
+        };
+      },
+    };
     function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
       const config = {
         allowHTML: true,
@@ -1763,6 +1896,7 @@ Table&nbsp;28.2: Table des FIV d’un modèle
         interactiveBorder: 10,
         theme: 'quarto',
         placement: 'bottom-start',
+        plugins: [hideOnEscAndFocusOut],
       };
       if (contentFn) {
         config.content = contentFn;
@@ -1925,44 +2059,54 @@ Table&nbsp;28.2: Table des FIV d’un modèle
           const lineIds = lines.map((line) => {
             return targetCell + "-" + line;
           })
-          let top = null;
-          let height = null;
-          let parent = null;
+          // Each band is positioned against its own containing block, which is
+          // not the offsetParent of the lines, so place it from client rects.
+          const placeBand = (band, firstEl, lastEl, codeBlock) => {
+            const container = band.offsetParent;
+            if (container === null) {
+              return;
+            }
+            const containerRect = container.getBoundingClientRect();
+            // Reveal.js scales slides with a transform, so convert client
+            // pixels back to the CSS pixels of the container.
+            const scale = containerRect.height / container.offsetHeight || 1;
+            const firstRect = firstEl.getBoundingClientRect();
+            const lastRect = lastEl.getBoundingClientRect();
+            const top = (firstRect.top - containerRect.top) / scale - container.clientTop + container.scrollTop;
+            const height = (lastRect.bottom - firstRect.top) / scale;
+            band.style.top = top - 2 + "px";
+            band.style.height = height + 4 + "px";
+            if (codeBlock) {
+              // Without the copy button wrapper, the containing block is wider
+              // than the code block, so span the code block explicitly.
+              const blockRect = codeBlock.getBoundingClientRect();
+              band.style.left = (blockRect.left - containerRect.left) / scale - container.clientLeft + container.scrollLeft + "px";
+              band.style.width = blockRect.width / scale + "px";
+            }
+          };
           if (lineIds.length > 0) {
-              //compute the position of the single el (top and bottom and make a div)
-              const el = window.document.getElementById(lineIds[0]);
-              top = el.offsetTop;
-              height = el.offsetHeight;
-              parent = el.parentElement.parentElement;
-            if (lineIds.length > 1) {
-              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
-              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
-              height = bottom - top;
+            const el = window.document.getElementById(lineIds[0]);
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const parent = el.parentElement.parentElement;
+            // cook up a div (if necessary) and position it
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
             }
-            if (top !== null && height !== null && parent !== null) {
-              // cook up a div (if necessary) and position it 
-              let div = window.document.getElementById("code-annotation-line-highlight");
-              if (div === null) {
-                div = window.document.createElement("div");
-                div.setAttribute("id", "code-annotation-line-highlight");
-                div.style.position = 'absolute';
-                parent.appendChild(div);
-              }
-              div.style.top = top - 2 + "px";
-              div.style.height = height + 4 + "px";
-              div.style.left = 0;
-              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
-              if (gutterDiv === null) {
-                gutterDiv = window.document.createElement("div");
-                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
-                gutterDiv.style.position = 'absolute';
-                const codeCell = window.document.getElementById(targetCell);
-                const gutter = codeCell.querySelector('.code-annotation-gutter');
-                gutter.appendChild(gutterDiv);
-              }
-              gutterDiv.style.top = top - 2 + "px";
-              gutterDiv.style.height = height + 4 + "px";
+            placeBand(div, el, lastEl, parent.closest("div.sourceCode") || parent);
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
             }
+            placeBand(gutterDiv, el, lastEl);
             selectedAnnoteEl = annoteEl;
           }
         };
@@ -2060,6 +2204,8 @@ Table&nbsp;28.2: Table des FIV d’un modèle
       }
     }
   });
+  </script><script type="application/javascript">
+  window.quartoScrollableRegionsLabels = {"code":"Code défilable","output":"Sortie défilable"};
   </script><input type="hidden" id="giscus-base-theme" value="light"><input type="hidden" id="giscus-alt-theme" value="dark"><script>
   function loadGiscus() {
     // Function to get the theme based on body class
@@ -2089,7 +2235,7 @@ Table&nbsp;28.2: Table des FIV d’un modèle
     document.getElementById("quarto-content").appendChild(script);
   }
   loadGiscus();
-</script><nav class="page-navigation"><div class="nav-page nav-page-previous">
+</script><nav class="page-navigation" aria-label="Page"><div class="nav-page nav-page-previous">
       <a href="../analyses/interactions.html" class="pagination-link" aria-label="Interactions">
         <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">27</span>&nbsp; <span class="chapter-title">Interactions</span></span>
       </a>          

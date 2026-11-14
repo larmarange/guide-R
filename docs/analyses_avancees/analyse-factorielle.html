@@ -2,17 +2,20 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="fr" xml:lang="fr"><head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.9.37">
+<meta name="generator" content="quarto-1.12.2">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 <title>43&nbsp; Analyse factorielle – guide-R</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
 */
-code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
-div.columns{display: flex; gap: min(4vw, 1.5em);}
-div.column{flex: auto; overflow-x: auto;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
 div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 ul.task-list{list-style: none;}
 ul.task-list li input[type="checkbox"] {
@@ -55,7 +58,27 @@ div.sourceCode
 @media screen {
 pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
-</style>
+@media print {
+  html {
+    color-scheme: light only;
+  }
+  html, body, pre, code {
+    background-color: transparent;
+  }
+  body, a, a:visited, blockquote {
+    color: black;
+  }
+  pre, code {
+    padding: 0;
+  }
+  p, h2, h3 {
+    orphans: 3;
+    widows: 3;
+  }
+  h2, h3, h4 {
+    page-break-after: avoid;
+  }
+}</style>
 
 <script src="../site_libs/quarto-nav/quarto-nav.js"></script>
 <script src="../site_libs/quarto-nav/headroom.min.js"></script>
@@ -71,18 +94,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../site_libs/cookie-consent/cookie-consent.css" rel="stylesheet">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/scrollable-regions/scrollable-regions.js" type="module"></script>
 <script src="../site_libs/quarto-html/popper.min.js"></script>
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-7f8f88aac4f3542376d5c11b86a4c14d.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-d0ae9245876894da5ac7e18953ecc5cc.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-7f8f88aac4f3542376d5c11b86a4c14d.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-a34e72179bd910c3a0d1c193f042680d.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-6b7095a9b6a9693542ed2f2ab64557fc.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-a34e72179bd910c3a0d1c193f042680d.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-fad85691bd79911de0320b982f671d9d.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../site_libs/bootstrap/bootstrap-dark-f68506c574928121fec95fb329006eac.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<link href="../site_libs/bootstrap/bootstrap-fad85691bd79911de0320b982f671d9d.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-58f34290aeb0f1f441acb5dc787127af.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-3208342b027bcedf30363d9c3a4fd7ef.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../site_libs/bootstrap/bootstrap-58f34290aeb0f1f441acb5dc787127af.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <script src="../site_libs/quarto-contrib/glightbox/glightbox.min.js"></script>
 <link href="../site_libs/quarto-contrib/glightbox/glightbox.min.css" rel="stylesheet">
 <link href="../site_libs/quarto-contrib/glightbox/lightbox.css" rel="stylesheet"><script id="quarto-search-options" type="application/json">{
@@ -134,7 +158,7 @@ cookieconsent.run({
 </script><style>html{ scroll-behavior: smooth; }</style>
 <link rel="stylesheet" href="../styles.css">
 </head>
-<body class="nav-sidebar floating slimcontent quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+<body class="nav-sidebar floating slimcontent quarto-light"><a id="quarto-skip-link" class="visually-hidden-focusable" href="#quarto-document-content">Aller au contenu principal</a><script id="quarto-html-before-body" type="application/javascript">
     const toggleBodyColorMode = (bsSheetEl) => {
       const mode = bsSheetEl.getAttribute("data-mode");
       const bodyEl = window.document.querySelector("body");
@@ -157,6 +181,7 @@ cookieconsent.run({
       for (let i=0; i < toggles.length; i++) {
         const toggle = toggles[i];
         if (toggle) {
+          toggle.setAttribute("aria-checked", alternate ? "true" : "false");
           if (alternate) {
             toggle.classList.add("alternate");
           } else {
@@ -186,13 +211,19 @@ cookieconsent.run({
       manageTransitions('#quarto-margin-sidebar .nav-link', true);
       // Switch the toggles
       setColorSchemeToggle(alternate)
-      // Hack to workaround the fact that safari doesn't
-      // properly recolor the scrollbar when toggling (#1455)
+    }
+    // Hack to workaround the fact that safari doesn't
+    // properly recolor the scrollbar when toggling (#1455).
+    // Not run on load: stylesheets are set before first paint there, and
+    // scrolling would undo the scroll to a URL fragment (#14973).
+    // The one pixel nudge keeps the reader where they were.
+    const refreshSafariScrollbar = () => {
       if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
         manageTransitions("body", false);
-        window.scrollTo(0, 1);
+        const scrollY = window.scrollY;
+        window.scrollTo(0, scrollY > 0 ? scrollY - 1 : 1);
         setTimeout(() => {
-          window.scrollTo(0, 0);
+          window.scrollTo(0, scrollY);
           manageTransitions("body", true);
         }, 40);
       }
@@ -286,6 +317,7 @@ cookieconsent.run({
       // Read the current dark / light value
       let toAlternate = !hasAlternateSentinel();
       toggleColorMode(toAlternate);
+      refreshSafariScrollbar();
       setStyleSentinel(toAlternate);
       toggleGiscusIfUsed(toAlternate, darkModeDefault);
       window.dispatchEvent(new Event('resize'));
@@ -299,12 +331,12 @@ cookieconsent.run({
   </script>
 
 <div id="quarto-search-results"></div>
-  <header id="quarto-header" class="headroom fixed-top"><nav class="quarto-secondary-nav"><div class="container-fluid d-flex">
+  <header id="quarto-header" class="headroom fixed-top"><nav class="quarto-secondary-nav" aria-label="Barre d'outils"><div class="container-fluid d-flex">
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Basculer la barre latérale" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../analyses_avancees/analyse-factorielle.html"><strong>Analyses avancées</strong></a></li><li class="breadcrumb-item"><a href="../analyses_avancees/analyse-factorielle.html"><span class="chapter-number">43</span>&nbsp; <span class="chapter-title">Analyse factorielle</span></a></li></ol></nav>
-        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Basculer la barre latérale" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        <nav class="quarto-page-breadcrumbs" aria-label="Fil d'Ariane"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../analyses_avancees/analyse-factorielle.html"><strong>Analyses avancées</strong></a></li><li class="breadcrumb-item"><a href="../analyses_avancees/analyse-factorielle.html"><span class="chapter-number">43</span>&nbsp; <span class="chapter-title">Analyse factorielle</span></a></li></ol></nav>
+        <a class="flex-grow-1" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Recherche" onclick="window.quartoOpenSearch();">
         <i class="bi bi-search"></i>
@@ -312,15 +344,15 @@ cookieconsent.run({
     </div>
   </nav></header><!-- content --><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
 <!-- sidebar -->
-  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto"><div class="pt-lg-2 mt-2 text-left sidebar-header sidebar-header-stacked">
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto" aria-label="Site web"><div class="pt-lg-2 mt-2 text-left sidebar-header sidebar-header-stacked">
       <a href="../index.html" class="sidebar-logo-link">
       <img src="../ressources/typewriter.png" alt="" class="sidebar-logo light-content py-0 d-lg-inline d-none"><img src="../ressources/typewriter.png" alt="" class="sidebar-logo dark-content py-0 d-lg-inline d-none"></a>
     <div class="sidebar-title mb-0 py-0">
       <a href="../">guide-R</a> 
         <div class="sidebar-tools-main tools-wide">
     <a href="https://github.com/larmarange/guide-R/" title="Code source" class="quarto-navigation-tool px-1" aria-label="Code source"><i class="bi bi-github"></i></a>
-    <a href="../guide-R.epub" title="Download ePub" class="quarto-navigation-tool px-1" aria-label="Download ePub"><i class="bi bi-journal"></i></a>
-  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Basculer le mode sombre"><i class="bi"></i></a>
+    <a href="../guide-R.epub" title="Télécharger ePub" class="quarto-navigation-tool px-1" aria-label="Télécharger ePub"><i class="bi bi-journal"></i></a>
+  <button type="button" role="switch" aria-checked="false" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Basculer le mode sombre" aria-label="Basculer le mode sombre"><i class="bi"></i></button>
 </div>
     </div>
       </div>
@@ -339,13 +371,10 @@ cookieconsent.run({
 </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
- <span class="menu-text"><strong>Bases du langage</strong></span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Basculer la section">
-            <i class="bi bi-chevron-right ms-2"></i>
-          </a> 
+            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-controls="quarto-sidebar-section-1" aria-expanded="true">
+ <span class="menu-text" id="quarto-sidebar-section-1-label"><strong>Bases du langage</strong></span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
       </div>
-      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">
+      <ul id="quarto-sidebar-section-1" aria-labelledby="quarto-sidebar-section-1-label" class="collapse list-unstyled sidebar-section depth1 show">
 <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../bases/packages.html" class="sidebar-item-text sidebar-link">
@@ -386,13 +415,10 @@ cookieconsent.run({
 </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
- <span class="menu-text"><strong>Manipulation de données</strong></span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Basculer la section">
-            <i class="bi bi-chevron-right ms-2"></i>
-          </a> 
+            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-controls="quarto-sidebar-section-2" aria-expanded="true">
+ <span class="menu-text" id="quarto-sidebar-section-2-label"><strong>Manipulation de données</strong></span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
       </div>
-      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">
+      <ul id="quarto-sidebar-section-2" aria-labelledby="quarto-sidebar-section-2-label" class="collapse list-unstyled sidebar-section depth1 show">
 <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../manipulation/pipe.html" class="sidebar-item-text sidebar-link">
@@ -457,13 +483,10 @@ cookieconsent.run({
 </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
- <span class="menu-text"><strong>Analyses</strong></span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Basculer la section">
-            <i class="bi bi-chevron-right ms-2"></i>
-          </a> 
+            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" aria-controls="quarto-sidebar-section-3" aria-expanded="true">
+ <span class="menu-text" id="quarto-sidebar-section-3-label"><strong>Analyses</strong></span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
       </div>
-      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">
+      <ul id="quarto-sidebar-section-3" aria-labelledby="quarto-sidebar-section-3-label" class="collapse list-unstyled sidebar-section depth1 show">
 <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../analyses/ggplot2.html" class="sidebar-item-text sidebar-link">
@@ -546,13 +569,10 @@ cookieconsent.run({
 </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true">
- <span class="menu-text"><strong>Données pondérées avec <code>survey</code></strong></span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true" aria-label="Basculer la section">
-            <i class="bi bi-chevron-right ms-2"></i>
-          </a> 
+            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" aria-controls="quarto-sidebar-section-4" aria-expanded="true">
+ <span class="menu-text" id="quarto-sidebar-section-4-label"><strong>Données pondérées avec <code>survey</code></strong></span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
       </div>
-      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">
+      <ul id="quarto-sidebar-section-4" aria-labelledby="quarto-sidebar-section-4-label" class="collapse list-unstyled sidebar-section depth1 show">
 <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../donnees_ponderees/plan-echantillonnage.html" class="sidebar-item-text sidebar-link">
@@ -587,13 +607,10 @@ cookieconsent.run({
 </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true">
- <span class="menu-text"><strong>Manipulation avancée</strong></span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true" aria-label="Basculer la section">
-            <i class="bi bi-chevron-right ms-2"></i>
-          </a> 
+            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" aria-controls="quarto-sidebar-section-5" aria-expanded="true">
+ <span class="menu-text" id="quarto-sidebar-section-5-label"><strong>Manipulation avancée</strong></span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
       </div>
-      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">
+      <ul id="quarto-sidebar-section-5" aria-labelledby="quarto-sidebar-section-5-label" class="collapse list-unstyled sidebar-section depth1 show">
 <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../manipulation_avancee/fusion-tables.html" class="sidebar-item-text sidebar-link">
@@ -646,13 +663,10 @@ cookieconsent.run({
 </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="true">
- <span class="menu-text"><strong>Analyses avancées</strong></span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="true" aria-label="Basculer la section">
-            <i class="bi bi-chevron-right ms-2"></i>
-          </a> 
+            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" aria-controls="quarto-sidebar-section-6" aria-expanded="true">
+ <span class="menu-text" id="quarto-sidebar-section-6-label"><strong>Analyses avancées</strong></span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
       </div>
-      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 show">
+      <ul id="quarto-sidebar-section-6" aria-labelledby="quarto-sidebar-section-6-label" class="collapse list-unstyled sidebar-section depth1 show">
 <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../analyses_avancees/analyse-factorielle.html" class="sidebar-item-text sidebar-link active">
@@ -723,13 +737,10 @@ cookieconsent.run({
 </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="true">
- <span class="menu-text"><strong>Pour aller plus loin</strong></span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="true" aria-label="Basculer la section">
-            <i class="bi bi-chevron-right ms-2"></i>
-          </a> 
+            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" aria-controls="quarto-sidebar-section-7" aria-expanded="true">
+ <span class="menu-text" id="quarto-sidebar-section-7-label"><strong>Pour aller plus loin</strong></span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
       </div>
-      <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth1 show">
+      <ul id="quarto-sidebar-section-7" aria-labelledby="quarto-sidebar-section-7-label" class="collapse list-unstyled sidebar-section depth1 show">
 <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../extra/ressources-documentaires.html" class="sidebar-item-text sidebar-link">
@@ -743,7 +754,7 @@ cookieconsent.run({
 </nav><div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        <nav id="TOC" role="doc-toc" class="toc-active"><h2 id="toc-title">Table des matières</h2>
+        <nav id="TOC" role="doc-toc" aria-labelledby="toc-title" class="toc-active"><h2 id="toc-title">Table des matières</h2>
    
   <ul>
 <li><a href="#principe-g%C3%A9n%C3%A9ral" id="toc-principe-général" class="nav-link active" data-scroll-target="#principe-g%C3%A9n%C3%A9ral"><span class="header-section-number">43.1</span> Principe général</a></li>
@@ -767,7 +778,7 @@ cookieconsent.run({
   </ul><div class="toc-actions"><ul><li><a href="https://github.com/larmarange/guide-R/blob/main/analyses_avancees/analyse-factorielle.qmd" class="toc-action"><i class="bi bi-github"></i>Voir la source</a></li><li><a href="https://github.com/larmarange/guide-R/issues/new" class="toc-action"><i class="bi empty"></i>Faire part d'un problème</a></li></ul></div></nav>
     </div>
 <!-- main -->
-<main class="content page-columns page-full" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../analyses_avancees/analyse-factorielle.html"><strong>Analyses avancées</strong></a></li><li class="breadcrumb-item"><a href="../analyses_avancees/analyse-factorielle.html"><span class="chapter-number">43</span>&nbsp; <span class="chapter-title">Analyse factorielle</span></a></li></ol></nav><div class="quarto-title">
+<main class="content page-columns page-full" id="quarto-document-content" tabindex="-1"><header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="Fil d'Ariane"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../analyses_avancees/analyse-factorielle.html"><strong>Analyses avancées</strong></a></li><li class="breadcrumb-item"><a href="../analyses_avancees/analyse-factorielle.html"><span class="chapter-number">43</span>&nbsp; <span class="chapter-title">Analyse factorielle</span></a></li></ol></nav><div class="quarto-title">
 <h1 class="title"><span id="sec-analyse-factorielle" class="quarto-section-identifier"><span class="chapter-number">43</span>&nbsp; <span class="chapter-title">Analyse factorielle</span></span></h1>
 </div>
 
@@ -861,11 +872,11 @@ Important
 <p>Nous allons considérer 7 variables binaires (oui/non) portant sur la pratique de différents loisirs (écouter du hard rock, lire des bandes dessinées, pratiquer la pêche ou la chasse, cuisiner, bricoler ou pratiquer un sport). Pour le moment, nous n’allons pas intégrer à l’analyse de variable socio-démographique, car nous souhaitons explorer comment ces activités se corrèlent entre elles, indépendamment de toute autre considération.</p>
 <p>Notons, avec <code><a href="https://juba.github.io/questionr/reference/freq.na.html">questionr::freq.na()</a></code> ou avec <code><a href="https://larmarange.github.io/labelled/reference/look_for.html">labelled::look_for()</a></code>, qu’il n’y a pas de valeurs manquantes dans nos données.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="fu">library</span>(tidyverse)</span>
-<span id="cb1-2"><a href="#cb1-2"></a><span class="fu">data</span>(<span class="st">"hdv2003"</span>, <span class="at">package =</span> <span class="st">"questionr"</span>)</span>
-<span id="cb1-3"><a href="#cb1-3"></a>d <span class="ot">&lt;-</span> hdv2003 <span class="sc">|&gt;</span> </span>
-<span id="cb1-4"><a href="#cb1-4"></a>  <span class="fu">select</span>(hard.rock<span class="sc">:</span>sport)</span>
-<span id="cb1-5"><a href="#cb1-5"></a>d <span class="sc">|&gt;</span> questionr<span class="sc">::</span><span class="fu">freq.na</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-label="1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-label="2"></a><span class="fu">data</span>(<span class="st">"hdv2003"</span>, <span class="at">package =</span> <span class="st">"questionr"</span>)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-label="3"></a>d <span class="ot">&lt;-</span> hdv2003 <span class="sc">|&gt;</span> </span>
+<span id="cb1-4"><a href="#cb1-4" aria-label="4"></a>  <span class="fu">select</span>(hard.rock<span class="sc">:</span>sport)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-label="5"></a>d <span class="sc">|&gt;</span> questionr<span class="sc">::</span><span class="fu">freq.na</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>             missing %
 hard.rock          0 0
@@ -876,7 +887,7 @@ bricol             0 0
 cinema             0 0
 sport              0 0</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a>d <span class="sc">|&gt;</span> labelled<span class="sc">::</span><span class="fu">look_for</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-label="1"></a>d <span class="sc">|&gt;</span> labelled<span class="sc">::</span><span class="fu">look_for</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code> pos variable     label col_type missing values
  1   hard.rock    —     fct      0       Non   
@@ -900,13 +911,13 @@ sport              0 0</code></pre>
 <span class="header-section-number">43.2.1</span> Calcul de l’ACM</h3>
 <p>Avec <a href="https://adeverse.github.io/ade4/">ade4</a>, l’ACM s’obtient à l’aide la fonction <code><a href="https://adeverse.github.io/ade4/reference/dudi.acm.html">ade4::dudi.acm()</a></code>. Par défaut, si l’on exécute seulement <code>ade4::dudi.acm(d)</code>, la fonction va afficher un graphique indiquant la variance expliquée par chaque axe et une invite dans la console va demander le nombre d’axes à conserver pour l’analyse. Une invite de commande n’est pas vraiment adaptée dans le cadre d’un script que l’on souhaite pouvoir exécuter car cela implique une intervention manuelle. On pourra désactiver cette invitation avec <code>scannf = FALSE</code> et indiquer le nombre d’axes à conserver avec l’argument <code>nf</code> (<code>nf = Inf</code> permet de conserver l’ensemble des axes).</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a>acm1_ad <span class="ot">&lt;-</span> d <span class="sc">|&gt;</span></span>
-<span id="cb5-2"><a href="#cb5-2"></a>  ade4<span class="sc">::</span><span class="fu">dudi.acm</span>(<span class="at">scannf =</span> <span class="cn">FALSE</span>, <span class="at">nf =</span> <span class="cn">Inf</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-label="1"></a>acm1_ad <span class="ot">&lt;-</span> d <span class="sc">|&gt;</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-label="2"></a>  ade4<span class="sc">::</span><span class="fu">dudi.acm</span>(<span class="at">scannf =</span> <span class="cn">FALSE</span>, <span class="at">nf =</span> <span class="cn">Inf</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Avec <a href="http://factominer.free.fr">FactoMineR</a>, l’ACM s’obtient avec <code><a href="https://rdrr.io/pkg/FactoMineR/man/MCA.html">FactoMineR::MCA()</a></code>. Par défaut, seuls les 5 premiers axes sont conservés, ce qui est modifiable avec l’argument <code>ncp</code>. De plus, la fonction affiche par défaut un graphique des résultats avant de renvoyer les résultats de l’ACM. Ce graphique peut être désactivé avec <code>graph = FALSE</code>.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a>acm1_fm <span class="ot">&lt;-</span> d <span class="sc">|&gt;</span> </span>
-<span id="cb6-2"><a href="#cb6-2"></a>  FactoMineR<span class="sc">::</span><span class="fu">MCA</span>(<span class="at">ncp =</span> <span class="cn">Inf</span>, <span class="at">graph =</span> <span class="cn">FALSE</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-label="1"></a>acm1_fm <span class="ot">&lt;-</span> d <span class="sc">|&gt;</span> </span>
+<span id="cb6-2"><a href="#cb6-2" aria-label="2"></a>  FactoMineR<span class="sc">::</span><span class="fu">MCA</span>(<span class="at">ncp =</span> <span class="cn">Inf</span>, <span class="at">graph =</span> <span class="cn">FALSE</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Les deux ACM sont ici identiques. Par contre, les deux objets renvoyés ne sont pas structurés de la même manière.</p>
 </section><section id="exploration-graphique-interactive" class="level3 page-columns page-full" data-number="43.2.2"><h3 data-number="43.2.2" class="anchored" data-anchor-id="exploration-graphique-interactive">
@@ -914,11 +925,11 @@ sport              0 0</code></pre>
 <p>Le package <a href="https://juba.github.io/explor/">explor</a> permets d’explorer les résultats de manière interactive. Il fonctionne à la fois avec les analyses factorielles produites avec <a href="http://factominer.free.fr">FactoMineR</a> et celles réalisées avec <a href="https://adeverse.github.io/ade4/">ade4</a>.</p>
 <p>Pour lancer l’exploration interactive, il suffit de passer les résultats de l’ACM à la fonction <code><a href="https://juba.github.io/explor/reference/explor.html">explor::explor()</a></code>.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a>acm1_ad <span class="sc">|&gt;</span> explor<span class="sc">::</span><span class="fu">explor</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-label="1"></a>acm1_ad <span class="sc">|&gt;</span> explor<span class="sc">::</span><span class="fu">explor</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div id="fig-explor-screencast" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full"><div aria-describedby="fig-explor-screencast-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<a href="..\analyses_avancees/ressources/explor_screencast.gif" class="lightbox" data-gallery="quarto-lightbox-gallery-1" title="Figure&nbsp;43.1: Capture d’écran de l’interface d’explor"><img src="..\analyses_avancees/ressources/explor_screencast.gif" class="img-fluid figure-img"></a>
+<a href="../analyses_avancees/ressources/explor_screencast.gif" class="lightbox" data-gallery="quarto-lightbox-gallery-1" title="Figure&nbsp;43.1: Capture d’écran de l’interface d’explor"><img src="../analyses_avancees/ressources/explor_screencast.gif" class="img-fluid figure-img"></a>
 </div>
 <figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig margin-caption" id="fig-explor-screencast-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;43.1: Capture d’écran de l’interface d’<code>explor</code>
@@ -926,26 +937,26 @@ Figure&nbsp;43.1: Capture d’écran de l’interface d’<code>explor</code>
 </div>
 <p>Les graphiques réalisés avec <code><a href="https://juba.github.io/explor/reference/explor.html">explor::explor()</a></code> peuvent être exportés en fichier image SVG (via le bouton dédié en bas à gauche dans l’interface). De même, il est possible d’obtenir un code <strong>R</strong> que l’on pourra copier dans un script pour reproduire le graphique (<strong>ATTENTION :</strong> le graphique produit est interactif et donc utilisable uniquement dans document web).</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a>res <span class="ot">&lt;-</span> explor<span class="sc">::</span><span class="fu">prepare_results</span>(acm1_ad)</span>
-<span id="cb8-2"><a href="#cb8-2"></a>p <span class="ot">&lt;-</span> explor<span class="sc">::</span><span class="fu">MCA_var_plot</span>(</span>
-<span id="cb8-3"><a href="#cb8-3"></a>  res,</span>
-<span id="cb8-4"><a href="#cb8-4"></a>  <span class="at">xax =</span> <span class="dv">1</span>,</span>
-<span id="cb8-5"><a href="#cb8-5"></a>  <span class="at">yax =</span> <span class="dv">2</span>,</span>
-<span id="cb8-6"><a href="#cb8-6"></a>  <span class="at">var_sup =</span> <span class="cn">FALSE</span>,</span>
-<span id="cb8-7"><a href="#cb8-7"></a>  <span class="at">var_sup_choice =</span> ,</span>
-<span id="cb8-8"><a href="#cb8-8"></a>  <span class="at">var_lab_min_contrib =</span> <span class="dv">0</span>,</span>
-<span id="cb8-9"><a href="#cb8-9"></a>  <span class="at">col_var =</span> <span class="st">"Variable"</span>,</span>
-<span id="cb8-10"><a href="#cb8-10"></a>  <span class="at">symbol_var =</span> <span class="st">"Variable"</span>,</span>
-<span id="cb8-11"><a href="#cb8-11"></a>  <span class="at">size_var =</span> <span class="st">"Contrib"</span>,</span>
-<span id="cb8-12"><a href="#cb8-12"></a>  <span class="at">size_range =</span> <span class="fu">c</span>(<span class="fl">52.5</span>, <span class="dv">700</span>),</span>
-<span id="cb8-13"><a href="#cb8-13"></a>  <span class="at">labels_size =</span> <span class="dv">12</span>,</span>
-<span id="cb8-14"><a href="#cb8-14"></a>  <span class="at">point_size =</span> <span class="dv">56</span>,</span>
-<span id="cb8-15"><a href="#cb8-15"></a>  <span class="at">transitions =</span> <span class="cn">FALSE</span>,</span>
-<span id="cb8-16"><a href="#cb8-16"></a>  <span class="at">labels_positions =</span> <span class="st">"auto"</span>,</span>
-<span id="cb8-17"><a href="#cb8-17"></a>  <span class="at">labels_prepend_var =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb8-18"><a href="#cb8-18"></a>  <span class="at">xlim =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="fl">2.58</span>, <span class="fl">1.69</span>),</span>
-<span id="cb8-19"><a href="#cb8-19"></a>  <span class="at">ylim =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="fl">1.33</span>, <span class="fl">2.94</span>)</span>
-<span id="cb8-20"><a href="#cb8-20"></a>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-label="1"></a>res <span class="ot">&lt;-</span> explor<span class="sc">::</span><span class="fu">prepare_results</span>(acm1_ad)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-label="2"></a>p <span class="ot">&lt;-</span> explor<span class="sc">::</span><span class="fu">MCA_var_plot</span>(</span>
+<span id="cb8-3"><a href="#cb8-3" aria-label="3"></a>  res,</span>
+<span id="cb8-4"><a href="#cb8-4" aria-label="4"></a>  <span class="at">xax =</span> <span class="dv">1</span>,</span>
+<span id="cb8-5"><a href="#cb8-5" aria-label="5"></a>  <span class="at">yax =</span> <span class="dv">2</span>,</span>
+<span id="cb8-6"><a href="#cb8-6" aria-label="6"></a>  <span class="at">var_sup =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb8-7"><a href="#cb8-7" aria-label="7"></a>  <span class="at">var_sup_choice =</span> ,</span>
+<span id="cb8-8"><a href="#cb8-8" aria-label="8"></a>  <span class="at">var_lab_min_contrib =</span> <span class="dv">0</span>,</span>
+<span id="cb8-9"><a href="#cb8-9" aria-label="9"></a>  <span class="at">col_var =</span> <span class="st">"Variable"</span>,</span>
+<span id="cb8-10"><a href="#cb8-10" aria-label="10"></a>  <span class="at">symbol_var =</span> <span class="st">"Variable"</span>,</span>
+<span id="cb8-11"><a href="#cb8-11" aria-label="11"></a>  <span class="at">size_var =</span> <span class="st">"Contrib"</span>,</span>
+<span id="cb8-12"><a href="#cb8-12" aria-label="12"></a>  <span class="at">size_range =</span> <span class="fu">c</span>(<span class="fl">52.5</span>, <span class="dv">700</span>),</span>
+<span id="cb8-13"><a href="#cb8-13" aria-label="13"></a>  <span class="at">labels_size =</span> <span class="dv">12</span>,</span>
+<span id="cb8-14"><a href="#cb8-14" aria-label="14"></a>  <span class="at">point_size =</span> <span class="dv">56</span>,</span>
+<span id="cb8-15"><a href="#cb8-15" aria-label="15"></a>  <span class="at">transitions =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb8-16"><a href="#cb8-16" aria-label="16"></a>  <span class="at">labels_positions =</span> <span class="st">"auto"</span>,</span>
+<span id="cb8-17"><a href="#cb8-17" aria-label="17"></a>  <span class="at">labels_prepend_var =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb8-18"><a href="#cb8-18" aria-label="18"></a>  <span class="at">xlim =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="fl">2.58</span>, <span class="fl">1.69</span>),</span>
+<span id="cb8-19"><a href="#cb8-19" aria-label="19"></a>  <span class="at">ylim =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="fl">1.33</span>, <span class="fl">2.94</span>)</span>
+<span id="cb8-20"><a href="#cb8-20" aria-label="20"></a>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="quarto-figure quarto-figure-center page-columns page-full">
 <figure class="figure page-columns page-full"><p><a href="ressources/export_graph_explor.png" class="lightbox" data-gallery="quarto-lightbox-gallery-2" title="Exemple de figure exportée à partir de explor"><img src="ressources/export_graph_explor.png" class="img-fluid figure-img" alt="Exemple de figure exportée à partir de explor"></a></p>
@@ -959,8 +970,8 @@ Figure&nbsp;43.1: Capture d’écran de l’interface d’<code>explor</code>
 <span class="header-section-number">43.2.4</span> Variance expliquée et valeurs propres</h3>
 <p>Les <q>valeurs propres</q> (<em>eigen values</em> en anglais) correspondent à la quantité de variance capturée par chaque axe (on parle également d’inertie). On peut les obtenir aisément avec la fonction <code><a href="https://rpkgs.datanovia.com/factoextra/reference/eigenvalue.html">factoextra::get_eigenvalue()</a></code>.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a>acm1_ad <span class="sc">|&gt;</span></span>
-<span id="cb9-2"><a href="#cb9-2"></a>  factoextra<span class="sc">::</span><span class="fu">get_eigenvalue</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-label="1"></a>acm1_ad <span class="sc">|&gt;</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-label="2"></a>  factoextra<span class="sc">::</span><span class="fu">get_eigenvalue</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>      eigenvalue variance.percent cumulative.variance.percent
 Dim.1  0.2121854         21.21854                    21.21854
@@ -976,12 +987,8 @@ Dim.7  0.0936896          9.36896                   100.00000</code></pre>
 <p>La somme totale des valeurs propres indique la variation totale des données. Souvent, les valeurs propres sont exprimées en pourcentage du total. Dans notre exemple, l’axe 1 capture 21,2&nbsp;% de la variance et l’axe 2 en capture 15,4&nbsp;%. Ainsi, le plan factoriel composé des deux premiers axes permet de capturer à lui seul plus du tiers (36,6&nbsp;%) de la variance totale.</p>
 <p>Une représentation graphique des valeurs propres s’obtient avec <code><a href="https://rpkgs.datanovia.com/factoextra/reference/eigenvalue.html">factoextra::fviz_screeplot()</a></code>.</p>
 <div class="cell page-columns page-full">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a>acm1_ad <span class="sc">|&gt;</span></span>
-<span id="cb11-2"><a href="#cb11-2"></a>  factoextra<span class="sc">::</span><span class="fu">fviz_screeplot</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning in geom_bar(stat = "identity", fill = barfill, color = barcolor, :
-Ignoring empty aesthetic: `width`.</code></pre>
-</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-label="1"></a>acm1_ad <span class="sc">|&gt;</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-label="2"></a>  factoextra<span class="sc">::</span><span class="fu">fviz_screeplot</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display page-columns page-full">
 <div id="fig-fviz_screeplot" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full"><div aria-describedby="fig-fviz_screeplot-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -995,52 +1002,32 @@ Figure&nbsp;43.2: Représentation graphique de la variance expliquée par les di
 </div>
 <p>Il n’y a pas de règle absolue concernant le nombre d’axes à explorer pour l’analyse et l’interprétation des résultats. L’objectif d’une analyse factorielle étant justement de réduire le nombre de dimension considérée pour ce concentrer sur les principales associations entre modalités, il est fréquent de se limiter aux deux premiers ou aux trois premiers axes.</p>
 <p>Une approche fréquente consiste à regarder s’il y a un <q>coude</q>, un saut plus marqué qu’un autre dans le graphique des valeurs propres. Dans notre exemple, qui ne comporte qu’un petit nombre de variable, on voit un saut marqué entre le premier axe et les autres, suggérant de se focaliser en particulier sur ce premier axe.</p>
-</section><section id="contribution-aux-axes" class="level3 page-columns page-full" data-number="43.2.5"><h3 data-number="43.2.5" class="anchored" data-anchor-id="contribution-aux-axes">
+</section><section id="contribution-aux-axes" class="level3" data-number="43.2.5"><h3 data-number="43.2.5" class="anchored" data-anchor-id="contribution-aux-axes">
 <span class="header-section-number">43.2.5</span> Contribution aux axes</h3>
-<p>La fonction <code><a href="https://rpkgs.datanovia.com/factoextra/reference/fviz_contrib.html">factoextra::fviz_contrib()</a></code> permet de visualiser la contribution des différentes modalités à un axe donnée. Regardons le premier axe.</p>
-<div class="cell page-columns page-full">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a>acm1_ad <span class="sc">|&gt;</span></span>
-<span id="cb13-2"><a href="#cb13-2"></a>  factoextra<span class="sc">::</span><span class="fu">fviz_contrib</span>(<span class="at">choice =</span> <span class="st">"var"</span>, <span class="at">axes =</span> <span class="dv">1</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output-display page-columns page-full">
-<div id="fig-fviz_contrib-axe1" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
-<figure class="quarto-float quarto-float-fig figure page-columns page-full"><div aria-describedby="fig-fviz_contrib-axe1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<a href="analyse-factorielle_files/figure-html/fig-fviz_contrib-axe1-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-4" title="Figure&nbsp;43.3: Contribution des modalités au premier axe"><img src="analyse-factorielle_files/figure-html/fig-fviz_contrib-axe1-1.png" class="img-fluid figure-img" width="672"></a>
-</div>
-<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig margin-caption" id="fig-fviz_contrib-axe1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;43.3: Contribution des modalités au premier axe
-</figcaption></figure>
-</div>
-</div>
+<p>La fonction <code><a href="https://rpkgs.datanovia.com/factoextra/reference/fviz_contrib.html">factoextra::fviz_contrib()</a></code> permet de visualiser la contribution des différentes modalités à un axe donné. Regardons le premier axe.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-label="1"></a>acm1_ad <span class="sc">|&gt;</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-label="2"></a>  factoextra<span class="sc">::</span><span class="fu">fviz_contrib</span>(<span class="at">choice =</span> <span class="st">"var"</span>, <span class="at">axes =</span> <span class="dv">1</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>La ligne en pointillés rouges indique la contribution attendue de chaque modalité si la répartition était uniforme. Nous constatons ici que le premier axe est surtout déterminé par la pratique d’une activité sportive et le fait d’aller au cinéma.</p>
-<div class="cell page-columns page-full">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a>acm1_ad <span class="sc">|&gt;</span></span>
-<span id="cb14-2"><a href="#cb14-2"></a>  factoextra<span class="sc">::</span><span class="fu">fviz_contrib</span>(<span class="at">choice =</span> <span class="st">"var"</span>, <span class="at">axes =</span> <span class="dv">2</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output-display page-columns page-full">
-<div id="fig-fviz_contrib-axe2" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
-<figure class="quarto-float quarto-float-fig figure page-columns page-full"><div aria-describedby="fig-fviz_contrib-axe2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<a href="analyse-factorielle_files/figure-html/fig-fviz_contrib-axe2-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-5" title="Figure&nbsp;43.4: Contribution des modalités au deuxième axe"><img src="analyse-factorielle_files/figure-html/fig-fviz_contrib-axe2-1.png" class="img-fluid figure-img" width="672"></a>
-</div>
-<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig margin-caption" id="fig-fviz_contrib-axe2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;43.4: Contribution des modalités au deuxième axe
-</figcaption></figure>
-</div>
-</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-label="1"></a>acm1_ad <span class="sc">|&gt;</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-label="2"></a>  factoextra<span class="sc">::</span><span class="fu">fviz_contrib</span>(<span class="at">choice =</span> <span class="st">"var"</span>, <span class="at">axes =</span> <span class="dv">2</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Le deuxième axe, quant à lui, est surtout marqué par la pratique de la pêche ou de la chasse et, dans une moindre mesure, par le fait de bricoler.</p>
 </section><section id="représentation-des-modalités-dans-le-plan-factoriel" class="level3 page-columns page-full" data-number="43.2.6"><h3 data-number="43.2.6" class="anchored" data-anchor-id="représentation-des-modalités-dans-le-plan-factoriel">
 <span class="header-section-number">43.2.6</span> Représentation des modalités dans le plan factoriel</h3>
 <p>Pour représenter les modalités dans le plan factoriel, on aura recours à <code><a href="https://rpkgs.datanovia.com/factoextra/reference/fviz_mca.html">factoextra::fviz_mca_var()</a></code>. En termes de visualisation, c’est moins ergonomique que ce que propose <a href="https://juba.github.io/explor/">explor</a>. On aura donc tout intérêt à profiter de ce dernier. Si l’on a réalisé un autre type d’analyse factorielle, il faudra choisir la fonction correspondante, par exemple <code><a href="https://rpkgs.datanovia.com/factoextra/reference/fviz_famd.html">factoextra::fviz_famd_var()</a></code> pour une analyse sur données mixtes. La liste complète est visible sur le <a href="https://rpkgs.datanovia.com/factoextra/reference/index.html">site de documentation du package</a>.</p>
 <div class="cell page-columns page-full">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1"></a>acm1_ad <span class="sc">|&gt;</span></span>
-<span id="cb15-2"><a href="#cb15-2"></a>  factoextra<span class="sc">::</span><span class="fu">fviz_mca_var</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-label="1"></a>acm1_ad <span class="sc">|&gt;</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-label="2"></a>  factoextra<span class="sc">::</span><span class="fu">fviz_mca_var</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display page-columns page-full">
 <div id="fig-fviz_mca_var" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full"><div aria-describedby="fig-fviz_mca_var-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<a href="analyse-factorielle_files/figure-html/fig-fviz_mca_var-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-6" title="Figure&nbsp;43.5: Projection des modalités dans le plan factoriel"><img src="analyse-factorielle_files/figure-html/fig-fviz_mca_var-1.png" class="img-fluid figure-img" width="672"></a>
+<a href="analyse-factorielle_files/figure-html/fig-fviz_mca_var-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-4" title="Figure&nbsp;43.3: Projection des modalités dans le plan factoriel"><img src="analyse-factorielle_files/figure-html/fig-fviz_mca_var-1.png" class="img-fluid figure-img" width="672"></a>
 </div>
 <figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig margin-caption" id="fig-fviz_mca_var-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;43.5: Projection des modalités dans le plan factoriel
+Figure&nbsp;43.3: Projection des modalités dans le plan factoriel
 </figcaption></figure>
 </div>
 </div>
@@ -1057,11 +1044,11 @@ Note
 <div class="callout-body-container callout-body">
 <p>Si l’on réalise le même graphique à partir de l’ACM réalisée avec <a href="http://factominer.free.fr">FactoMineR</a>, nous aurons à première vue un résultat différent.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1"></a>acm1_fm <span class="sc">|&gt;</span></span>
-<span id="cb16-2"><a href="#cb16-2"></a>  factoextra<span class="sc">::</span><span class="fu">fviz_mca_var</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-label="1"></a>acm1_fm <span class="sc">|&gt;</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-label="2"></a>  factoextra<span class="sc">::</span><span class="fu">fviz_mca_var</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
-<figure class="figure"><p><a href="analyse-factorielle_files/figure-html/unnamed-chunk-7-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-7"><img src="analyse-factorielle_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid figure-img" width="672"></a></p>
+<figure class="figure"><p><a href="analyse-factorielle_files/figure-html/unnamed-chunk-7-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-5"><img src="analyse-factorielle_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid figure-img" width="672"></a></p>
 </figure>
 </div>
 </div>
@@ -1073,33 +1060,33 @@ Note
 <span class="header-section-number">43.2.7</span> Représentation des individus dans le plan factoriel</h3>
 <p>Pour projeter les individus (i.e.&nbsp;les observations) dans le plan factoriel, nous aurons recours à <code><a href="https://rpkgs.datanovia.com/factoextra/reference/fviz_mca.html">factoextra::fviz_mca_ind()</a></code>.</p>
 <div class="cell page-columns page-full">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1"></a>acm1_ad <span class="sc">|&gt;</span></span>
-<span id="cb17-2"><a href="#cb17-2"></a>  factoextra<span class="sc">::</span><span class="fu">fviz_mca_ind</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-label="1"></a>acm1_ad <span class="sc">|&gt;</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-label="2"></a>  factoextra<span class="sc">::</span><span class="fu">fviz_mca_ind</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display page-columns page-full">
 <div id="fig-fviz_mca_ind" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full"><div aria-describedby="fig-fviz_mca_ind-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<a href="analyse-factorielle_files/figure-html/fig-fviz_mca_ind-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-8" title="Figure&nbsp;43.6: Projection des individus dans le plan factoriel"><img src="analyse-factorielle_files/figure-html/fig-fviz_mca_ind-1.png" class="img-fluid figure-img" width="672"></a>
+<a href="analyse-factorielle_files/figure-html/fig-fviz_mca_ind-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-6" title="Figure&nbsp;43.4: Projection des individus dans le plan factoriel"><img src="analyse-factorielle_files/figure-html/fig-fviz_mca_ind-1.png" class="img-fluid figure-img" width="672"></a>
 </div>
 <figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig margin-caption" id="fig-fviz_mca_ind-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;43.6: Projection des individus dans le plan factoriel
+Figure&nbsp;43.4: Projection des individus dans le plan factoriel
 </figcaption></figure>
 </div>
 </div>
 </div>
 <p>Le graphique sera un peu plus lisible en n’affichant que les points avec un effet de transparence (pour les points superposés).</p>
 <div class="cell page-columns page-full">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1"></a>acm1_ad <span class="sc">|&gt;</span></span>
-<span id="cb18-2"><a href="#cb18-2"></a>  factoextra<span class="sc">::</span><span class="fu">fviz_mca_ind</span>(</span>
-<span id="cb18-3"><a href="#cb18-3"></a>    <span class="at">geom.ind =</span> <span class="st">"point"</span>,</span>
-<span id="cb18-4"><a href="#cb18-4"></a>    <span class="at">alpha.ind =</span> <span class="fl">0.1</span></span>
-<span id="cb18-5"><a href="#cb18-5"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-label="1"></a>acm1_ad <span class="sc">|&gt;</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-label="2"></a>  factoextra<span class="sc">::</span><span class="fu">fviz_mca_ind</span>(</span>
+<span id="cb17-3"><a href="#cb17-3" aria-label="3"></a>    <span class="at">geom.ind =</span> <span class="st">"point"</span>,</span>
+<span id="cb17-4"><a href="#cb17-4" aria-label="4"></a>    <span class="at">alpha.ind =</span> <span class="fl">0.1</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-label="5"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display page-columns page-full">
 <div id="fig-fviz_mca_ind2" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full"><div aria-describedby="fig-fviz_mca_ind2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<a href="analyse-factorielle_files/figure-html/fig-fviz_mca_ind2-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-9" title="Figure&nbsp;43.7: Projection des individus dans le plan factoriel"><img src="analyse-factorielle_files/figure-html/fig-fviz_mca_ind2-1.png" class="img-fluid figure-img" width="672"></a>
+<a href="analyse-factorielle_files/figure-html/fig-fviz_mca_ind2-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-7" title="Figure&nbsp;43.5: Projection des individus dans le plan factoriel"><img src="analyse-factorielle_files/figure-html/fig-fviz_mca_ind2-1.png" class="img-fluid figure-img" width="672"></a>
 </div>
 <figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig margin-caption" id="fig-fviz_mca_ind2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;43.7: Projection des individus dans le plan factoriel
+Figure&nbsp;43.5: Projection des individus dans le plan factoriel
 </figcaption></figure>
 </div>
 </div>
@@ -1107,20 +1094,20 @@ Figure&nbsp;43.7: Projection des individus dans le plan factoriel
 <p>Il est souvent intéressant de colorier les individus selon une variable catégorielle tierce, que ce soit une des variables ayant contribué ou non à l’ACM. Par exemple, nous allons regarder la répartition des individus dans le plan factoriel selon leur pratique d’un sport, puisque cette variable contribuait fortement au premier axe.</p>
 <p>Nous indiquerons la variable considérée à <code>factoextra::fviz_mca_in()</code> via l’argument <code>habillage</code>. L’option <code>addEllipses = TRUE</code> permet de dessiner des ellipses autour des observations.</p>
 <div class="cell page-columns page-full">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1"></a>acm1_ad <span class="sc">|&gt;</span></span>
-<span id="cb19-2"><a href="#cb19-2"></a>  factoextra<span class="sc">::</span><span class="fu">fviz_mca_ind</span>(</span>
-<span id="cb19-3"><a href="#cb19-3"></a>    <span class="at">habillage =</span> d<span class="sc">$</span>sport,</span>
-<span id="cb19-4"><a href="#cb19-4"></a>    <span class="at">addEllipses =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb19-5"><a href="#cb19-5"></a>    <span class="at">geom.ind =</span> <span class="st">"point"</span>,</span>
-<span id="cb19-6"><a href="#cb19-6"></a>    <span class="at">alpha.ind =</span> <span class="fl">0.1</span></span>
-<span id="cb19-7"><a href="#cb19-7"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-label="1"></a>acm1_ad <span class="sc">|&gt;</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-label="2"></a>  factoextra<span class="sc">::</span><span class="fu">fviz_mca_ind</span>(</span>
+<span id="cb18-3"><a href="#cb18-3" aria-label="3"></a>    <span class="at">habillage =</span> d<span class="sc">$</span>sport,</span>
+<span id="cb18-4"><a href="#cb18-4" aria-label="4"></a>    <span class="at">addEllipses =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb18-5"><a href="#cb18-5" aria-label="5"></a>    <span class="at">geom.ind =</span> <span class="st">"point"</span>,</span>
+<span id="cb18-6"><a href="#cb18-6" aria-label="6"></a>    <span class="at">alpha.ind =</span> <span class="fl">0.1</span></span>
+<span id="cb18-7"><a href="#cb18-7" aria-label="7"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display page-columns page-full">
 <div id="fig-fviz_mca_ind-habillage-sport" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full"><div aria-describedby="fig-fviz_mca_ind-habillage-sport-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<a href="analyse-factorielle_files/figure-html/fig-fviz_mca_ind-habillage-sport-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-10" title="Figure&nbsp;43.8: Projection des individus dans le plan factoriel selon la pratique d’un sport"><img src="analyse-factorielle_files/figure-html/fig-fviz_mca_ind-habillage-sport-1.png" class="img-fluid figure-img" width="672"></a>
+<a href="analyse-factorielle_files/figure-html/fig-fviz_mca_ind-habillage-sport-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-8" title="Figure&nbsp;43.6: Projection des individus dans le plan factoriel selon la pratique d’un sport"><img src="analyse-factorielle_files/figure-html/fig-fviz_mca_ind-habillage-sport-1.png" class="img-fluid figure-img" width="672"></a>
 </div>
 <figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig margin-caption" id="fig-fviz_mca_ind-habillage-sport-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;43.8: Projection des individus dans le plan factoriel selon la pratique d’un sport
+Figure&nbsp;43.6: Projection des individus dans le plan factoriel selon la pratique d’un sport
 </figcaption></figure>
 </div>
 </div>
@@ -1137,11 +1124,11 @@ Astuce
 <div class="callout-body-container callout-body">
 <p>Si l’on a réalisé l’ACM avec <a href="https://adeverse.github.io/ade4/">ade4</a>, nous pouvons utiliser la fonction <code><a href="https://adeverse.github.io/ade4/reference/scatter.html">ade4::scatter()</a></code> pour réaliser ce même type de graphique avec l’ensemble des variables inclues dans l’ACM. Afin de rendre le graphique plus lisible, nous passons à la fonction une palette de couleur obtenue avec <code><a href="https://packages.tesselle.org/khroma/reference/colour.html">khroma::colour()</a></code> (cf. <a href="../manipulation/couleurs.html#sec-palettes-paul-tol" class="quarto-xref"><span>Section 16.3.2</span></a>).</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1"></a>acm1_ad <span class="sc">|&gt;</span></span>
-<span id="cb20-2"><a href="#cb20-2"></a>  ade4<span class="sc">::</span><span class="fu">scatter</span>(<span class="at">col =</span> khroma<span class="sc">::</span><span class="fu">colour</span>(<span class="st">"bright"</span>)(<span class="dv">2</span>))</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-label="1"></a>acm1_ad <span class="sc">|&gt;</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-label="2"></a>  ade4<span class="sc">::</span><span class="fu">scatter</span>(<span class="at">col =</span> khroma<span class="sc">::</span><span class="fu">colour</span>(<span class="st">"bright"</span>)(<span class="dv">2</span>))</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
-<figure class="figure"><p><a href="analyse-factorielle_files/figure-html/unnamed-chunk-8-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-11"><img src="analyse-factorielle_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid figure-img" width="672"></a></p>
+<figure class="figure"><p><a href="analyse-factorielle_files/figure-html/unnamed-chunk-8-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-9"><img src="analyse-factorielle_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid figure-img" width="672"></a></p>
 </figure>
 </div>
 </div>
@@ -1153,9 +1140,9 @@ Astuce
 <p>Dans certaines situations (par exemple pour créer un score à partir de la position sur le premier axe), on peut avoir besoin de récupérer les données brutes de l’analyse factorielle.</p>
 <p>On pourra utiliser les fonctions <code>get_*()</code> de <a href="https://github.com/kassambara/factoextra">factoextra</a>. Par exemple, pour les individus dans le cadre d’une ACM, on utilisera <code><a href="https://rpkgs.datanovia.com/factoextra/reference/get_mca.html">factoextra::get_mca_ind()</a></code>.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1"></a>res <span class="ot">&lt;-</span> acm1_ad <span class="sc">|&gt;</span></span>
-<span id="cb21-2"><a href="#cb21-2"></a>  factoextra<span class="sc">::</span><span class="fu">get_mca_ind</span>()</span>
-<span id="cb21-3"><a href="#cb21-3"></a><span class="fu">print</span>(res)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-label="1"></a>res <span class="ot">&lt;-</span> acm1_ad <span class="sc">|&gt;</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-label="2"></a>  factoextra<span class="sc">::</span><span class="fu">get_mca_ind</span>()</span>
+<span id="cb20-3"><a href="#cb20-3" aria-label="3"></a><span class="fu">print</span>(res)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Multiple Correspondence Analysis Results for individuals
  ===================================================
@@ -1167,7 +1154,7 @@ Astuce
 </div>
 <p>Le résultat obtenu est une liste avec trois tableaux de données. Pour accéder aux coordonnées des individus, il suffit donc d’exécuter la commande ci-dessous.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1"></a><span class="fu">as_tibble</span>(res<span class="sc">$</span>coord)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-label="1"></a><span class="fu">as_tibble</span>(res<span class="sc">$</span>coord)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 2,000 × 7
      Dim.1   Dim.2    Dim.3   Dim.4  Dim.5   Dim.6   Dim.7
@@ -1190,57 +1177,57 @@ Astuce
 <p>Dans le cadre d’une analyse factorielle, on peut souhaiter ajouter des variables ou des observations additionnelles, qui ne participeront donc pas au calcul de l’analyse factorielle (et seront donc sans effet sur les axes de l’analyse). Ces variables / observations additionnelles seront simplement projetées dans le nouvel espace factoriel.</p>
 <p>Reprenons notre exemple et calculons des groupes d’âges.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1"></a>hdv2003 <span class="ot">&lt;-</span> hdv2003 <span class="sc">|&gt;</span> </span>
-<span id="cb25-2"><a href="#cb25-2"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb25-3"><a href="#cb25-3"></a>    <span class="at">groupe_ages =</span> age <span class="sc">|&gt;</span></span>
-<span id="cb25-4"><a href="#cb25-4"></a>      <span class="fu">cut</span>(</span>
-<span id="cb25-5"><a href="#cb25-5"></a>        <span class="fu">c</span>(<span class="dv">18</span>, <span class="dv">25</span>, <span class="dv">45</span>, <span class="dv">65</span>, <span class="dv">99</span>),</span>
-<span id="cb25-6"><a href="#cb25-6"></a>        <span class="at">right =</span> <span class="cn">FALSE</span>,</span>
-<span id="cb25-7"><a href="#cb25-7"></a>        <span class="at">include.lowest =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb25-8"><a href="#cb25-8"></a>        <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"18-24 ans"</span>, <span class="st">"25-44 ans"</span>,</span>
-<span id="cb25-9"><a href="#cb25-9"></a>                   <span class="st">"45-64 ans"</span>, <span class="st">"65 ans et plus"</span>)</span>
-<span id="cb25-10"><a href="#cb25-10"></a>      )</span>
-<span id="cb25-11"><a href="#cb25-11"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-label="1"></a>hdv2003 <span class="ot">&lt;-</span> hdv2003 <span class="sc">|&gt;</span> </span>
+<span id="cb24-2"><a href="#cb24-2" aria-label="2"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb24-3"><a href="#cb24-3" aria-label="3"></a>    <span class="at">groupe_ages =</span> age <span class="sc">|&gt;</span></span>
+<span id="cb24-4"><a href="#cb24-4" aria-label="4"></a>      <span class="fu">cut</span>(</span>
+<span id="cb24-5"><a href="#cb24-5" aria-label="5"></a>        <span class="fu">c</span>(<span class="dv">18</span>, <span class="dv">25</span>, <span class="dv">45</span>, <span class="dv">65</span>, <span class="dv">99</span>),</span>
+<span id="cb24-6"><a href="#cb24-6" aria-label="6"></a>        <span class="at">right =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb24-7"><a href="#cb24-7" aria-label="7"></a>        <span class="at">include.lowest =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb24-8"><a href="#cb24-8" aria-label="8"></a>        <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"18-24 ans"</span>, <span class="st">"25-44 ans"</span>,</span>
+<span id="cb24-9"><a href="#cb24-9" aria-label="9"></a>                   <span class="st">"45-64 ans"</span>, <span class="st">"65 ans et plus"</span>)</span>
+<span id="cb24-10"><a href="#cb24-10" aria-label="10"></a>      )</span>
+<span id="cb24-11"><a href="#cb24-11" aria-label="11"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Ajoutons maintenant le sexe, le groupe d’âges et le niveau d’étude comme variables additionnelles.</p>
 <p>Avec <a href="http://factominer.free.fr">FactoMineR</a>, cela se fait directement au moment du calcul de l’ACM, en indiquant l’index (ordre de la colonne dans le tableau) des variables supplémentaires à <code>quali.sup</code> pour les variables catégorielles et à <code>quanti.sup</code> pour les variables continues. De même, <code>ind.sup</code> peut-être utilisé pour indiquer les observations additionnelles.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1"></a>d2 <span class="ot">&lt;-</span> hdv2003 <span class="sc">|&gt;</span> </span>
-<span id="cb26-2"><a href="#cb26-2"></a>  <span class="fu">select</span>(sexe, groupe_ages, nivetud, hard.rock<span class="sc">:</span>sport)</span>
-<span id="cb26-3"><a href="#cb26-3"></a>acm2_fm <span class="ot">&lt;-</span> d2 <span class="sc">|&gt;</span> </span>
-<span id="cb26-4"><a href="#cb26-4"></a>  FactoMineR<span class="sc">::</span><span class="fu">MCA</span>(</span>
-<span id="cb26-5"><a href="#cb26-5"></a>    <span class="at">ncp =</span> <span class="cn">Inf</span>,</span>
-<span id="cb26-6"><a href="#cb26-6"></a>    <span class="at">graph =</span> <span class="cn">FALSE</span>,</span>
-<span id="cb26-7"><a href="#cb26-7"></a>    <span class="at">quali.sup =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">3</span></span>
-<span id="cb26-8"><a href="#cb26-8"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-label="1"></a>d2 <span class="ot">&lt;-</span> hdv2003 <span class="sc">|&gt;</span> </span>
+<span id="cb25-2"><a href="#cb25-2" aria-label="2"></a>  <span class="fu">select</span>(sexe, groupe_ages, nivetud, hard.rock<span class="sc">:</span>sport)</span>
+<span id="cb25-3"><a href="#cb25-3" aria-label="3"></a>acm2_fm <span class="ot">&lt;-</span> d2 <span class="sc">|&gt;</span> </span>
+<span id="cb25-4"><a href="#cb25-4" aria-label="4"></a>  FactoMineR<span class="sc">::</span><span class="fu">MCA</span>(</span>
+<span id="cb25-5"><a href="#cb25-5" aria-label="5"></a>    <span class="at">ncp =</span> <span class="cn">Inf</span>,</span>
+<span id="cb25-6"><a href="#cb25-6" aria-label="6"></a>    <span class="at">graph =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb25-7"><a href="#cb25-7" aria-label="7"></a>    <span class="at">quali.sup =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">3</span></span>
+<span id="cb25-8"><a href="#cb25-8" aria-label="8"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Avec <a href="https://adeverse.github.io/ade4/">ade4</a>, la manipulation est légèrement différente. Le calcul de l’ACM se fait comme précédemment, uniquement avec les variables et les observations inclues dans l’analyse, puis on pourra projeter dans l’espace factoriel les variables / observations additionnelles à l’aide de <code><a href="https://adeverse.github.io/ade4/reference/supcol.html">ade4::supcol()</a></code> et <code><a href="https://adeverse.github.io/ade4/reference/suprow.html">ade4::suprow()</a></code>. Si pour ajouter des observations additionnelles il suffit de passer l’ACM de base et un tableau de données des observations additionnelles à <code><a href="https://adeverse.github.io/ade4/reference/suprow.html">ade4::suprow()</a></code>, c’est un peu plus compliqué pour des variables additionnelles. Il faut déjà réaliser une ACM sur ces variables additionnelles, en extraire le sous objet <code>$tab</code> et passer ce dernier à <code><a href="https://adeverse.github.io/ade4/reference/supcol.html">ade4::supcol()</a></code>.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1"></a>acm_add <span class="ot">&lt;-</span> hdv2003 <span class="sc">|&gt;</span></span>
-<span id="cb27-2"><a href="#cb27-2"></a>  <span class="fu">select</span>(sexe, groupe_ages, nivetud) <span class="sc">|&gt;</span> </span>
-<span id="cb27-3"><a href="#cb27-3"></a>  ade4<span class="sc">::</span><span class="fu">dudi.acm</span>(<span class="at">scannf =</span> <span class="cn">FALSE</span>, <span class="at">nf =</span> <span class="cn">Inf</span>)</span>
-<span id="cb27-4"><a href="#cb27-4"></a></span>
-<span id="cb27-5"><a href="#cb27-5"></a>acm_supp <span class="ot">&lt;-</span> ade4<span class="sc">::</span><span class="fu">supcol</span>(</span>
-<span id="cb27-6"><a href="#cb27-6"></a>  acm1_ad,</span>
-<span id="cb27-7"><a href="#cb27-7"></a>  acm_add<span class="sc">$</span>tab</span>
-<span id="cb27-8"><a href="#cb27-8"></a>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-label="1"></a>acm_add <span class="ot">&lt;-</span> hdv2003 <span class="sc">|&gt;</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-label="2"></a>  <span class="fu">select</span>(sexe, groupe_ages, nivetud) <span class="sc">|&gt;</span> </span>
+<span id="cb26-3"><a href="#cb26-3" aria-label="3"></a>  ade4<span class="sc">::</span><span class="fu">dudi.acm</span>(<span class="at">scannf =</span> <span class="cn">FALSE</span>, <span class="at">nf =</span> <span class="cn">Inf</span>)</span>
+<span id="cb26-4"><a href="#cb26-4" aria-label="4"></a></span>
+<span id="cb26-5"><a href="#cb26-5" aria-label="5"></a>acm_supp <span class="ot">&lt;-</span> ade4<span class="sc">::</span><span class="fu">supcol</span>(</span>
+<span id="cb26-6"><a href="#cb26-6" aria-label="6"></a>  acm1_ad,</span>
+<span id="cb26-7"><a href="#cb26-7" aria-label="7"></a>  acm_add<span class="sc">$</span>tab</span>
+<span id="cb26-8"><a href="#cb26-8" aria-label="8"></a>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Si l’on veut pouvoir utiliser <code><a href="https://juba.github.io/explor/reference/explor.html">explor::explor()</a></code> avec ces variables additionnelles, il faudra enregistrer le résultat de <code><a href="https://adeverse.github.io/ade4/reference/supcol.html">ade4::supcol()</a></code> dans un sous-objet <code>$supv</code> de l’ACM principale.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1"></a>acm2_ad <span class="ot">&lt;-</span> acm1_ad</span>
-<span id="cb28-2"><a href="#cb28-2"></a>acm2_ad<span class="sc">$</span>supv <span class="ot">&lt;-</span> acm_supp</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-label="1"></a>acm2_ad <span class="ot">&lt;-</span> acm1_ad</span>
+<span id="cb27-2"><a href="#cb27-2" aria-label="2"></a>acm2_ad<span class="sc">$</span>supv <span class="ot">&lt;-</span> acm_supp</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Pour des représentations graphiques avec <a href="https://github.com/kassambara/factoextra">factoextra</a>, on privilégiera ici le calcul avec <a href="http://factominer.free.fr">FactoMineR</a> (les variables additionnelles calculées avec <a href="https://adeverse.github.io/ade4/">ade4</a> n’étant pas gérées par <a href="https://github.com/kassambara/factoextra">factoextra</a>). En effet, si l’ACM a été calculée avec {FactoMineR}, factoextra::fviz_mca_var() affiche par défaut les variables ad</p>
 <div class="cell page-columns page-full">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1"></a>acm2_fm <span class="sc">|&gt;</span></span>
-<span id="cb29-2"><a href="#cb29-2"></a>  factoextra<span class="sc">::</span><span class="fu">fviz_mca_var</span>(<span class="at">repel =</span> <span class="cn">TRUE</span>, <span class="at">labelsize =</span> <span class="dv">2</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-label="1"></a>acm2_fm <span class="sc">|&gt;</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-label="2"></a>  factoextra<span class="sc">::</span><span class="fu">fviz_mca_var</span>(<span class="at">repel =</span> <span class="cn">TRUE</span>, <span class="at">labelsize =</span> <span class="dv">2</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display page-columns page-full">
 <div id="fig-fviz_mca_var-acm2_fd" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full"><div aria-describedby="fig-fviz_mca_var-acm2_fd-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<a href="analyse-factorielle_files/figure-html/fig-fviz_mca_var-acm2_fd-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-12" title="Figure&nbsp;43.9: Projection des modalités dans le plan factoriel (incluant les variables additionnelles)"><img src="analyse-factorielle_files/figure-html/fig-fviz_mca_var-acm2_fd-1.png" class="img-fluid figure-img" width="672"></a>
+<a href="analyse-factorielle_files/figure-html/fig-fviz_mca_var-acm2_fd-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-10" title="Figure&nbsp;43.7: Projection des modalités dans le plan factoriel (incluant les variables additionnelles)"><img src="analyse-factorielle_files/figure-html/fig-fviz_mca_var-acm2_fd-1.png" class="img-fluid figure-img" width="672"></a>
 </div>
 <figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig margin-caption" id="fig-fviz_mca_var-acm2_fd-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;43.9: Projection des modalités dans le plan factoriel (incluant les variables additionnelles)
+Figure&nbsp;43.7: Projection des modalités dans le plan factoriel (incluant les variables additionnelles)
 </figcaption></figure>
 </div>
 </div>
@@ -1249,48 +1236,40 @@ Figure&nbsp;43.9: Projection des modalités dans le plan factoriel (incluant les
 <span class="header-section-number">43.4</span> Gestion des valeurs manquantes</h2>
 <p>Pour ce troisième exemple, nous allons maintenant inclure les variables sexe, groupe d’âges et niveau d’étude dans l’ACM, non pas comme variables additionnelles mais comme variables de l’ACM (qui vont donc contribuer au calcul des axes).</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb30"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1"></a>d3 <span class="ot">&lt;-</span> hdv2003 <span class="sc">|&gt;</span> </span>
-<span id="cb30-2"><a href="#cb30-2"></a>  <span class="fu">select</span>(sexe, groupe_ages, nivetud, hard.rock<span class="sc">:</span>sport)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-label="1"></a>d3 <span class="ot">&lt;-</span> hdv2003 <span class="sc">|&gt;</span> </span>
+<span id="cb29-2"><a href="#cb29-2" aria-label="2"></a>  <span class="fu">select</span>(sexe, groupe_ages, nivetud, hard.rock<span class="sc">:</span>sport)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Calculons maintenant l’ACM avec <a href="https://adeverse.github.io/ade4/">ade4</a> et <a href="http://factominer.free.fr">FactoMineR</a>.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb31"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1"></a>acm3_ad <span class="ot">&lt;-</span> d3 <span class="sc">|&gt;</span></span>
-<span id="cb31-2"><a href="#cb31-2"></a>  ade4<span class="sc">::</span><span class="fu">dudi.acm</span>(<span class="at">scannf =</span> <span class="cn">FALSE</span>, <span class="at">nf =</span> <span class="cn">Inf</span>)</span>
-<span id="cb31-3"><a href="#cb31-3"></a>acm3_fm <span class="ot">&lt;-</span> d3 <span class="sc">|&gt;</span> </span>
-<span id="cb31-4"><a href="#cb31-4"></a>  FactoMineR<span class="sc">::</span><span class="fu">MCA</span>(<span class="at">ncp =</span> <span class="cn">Inf</span>, <span class="at">graph =</span> <span class="cn">FALSE</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb30"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-label="1"></a>acm3_ad <span class="ot">&lt;-</span> d3 <span class="sc">|&gt;</span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-label="2"></a>  ade4<span class="sc">::</span><span class="fu">dudi.acm</span>(<span class="at">scannf =</span> <span class="cn">FALSE</span>, <span class="at">nf =</span> <span class="cn">Inf</span>)</span>
+<span id="cb30-3"><a href="#cb30-3" aria-label="3"></a>acm3_fm <span class="ot">&lt;-</span> d3 <span class="sc">|&gt;</span> </span>
+<span id="cb30-4"><a href="#cb30-4" aria-label="4"></a>  FactoMineR<span class="sc">::</span><span class="fu">MCA</span>(<span class="at">ncp =</span> <span class="cn">Inf</span>, <span class="at">graph =</span> <span class="cn">FALSE</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Regardons les valeurs propres et l’inertie expliquée et positionnons les deux graphiques côte à côte (cf. <a href="../analyses/ggplot2.html#sec-combiner-graphiques" class="quarto-xref"><span>Section 17.6</span></a> sur la combinaison de graphiques).</p>
 <div class="cell page-columns page-full">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb32"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1"></a>p_ad <span class="ot">&lt;-</span> acm3_ad <span class="sc">|&gt;</span> </span>
-<span id="cb32-2"><a href="#cb32-2"></a>  factoextra<span class="sc">::</span><span class="fu">fviz_screeplot</span>(<span class="at">choice =</span> <span class="st">"eigenvalue"</span>) <span class="sc">+</span></span>
-<span id="cb32-3"><a href="#cb32-3"></a>  ggplot2<span class="sc">::</span><span class="fu">ggtitle</span>(<span class="st">"ACM3 avec ade4"</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning in geom_bar(stat = "identity", fill = barfill, color = barcolor, :
-Ignoring empty aesthetic: `width`.</code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb34"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1"></a>p_fm<span class="ot">&lt;-</span> acm3_fm <span class="sc">|&gt;</span> </span>
-<span id="cb34-2"><a href="#cb34-2"></a>  factoextra<span class="sc">::</span><span class="fu">fviz_screeplot</span>(<span class="at">choice =</span> <span class="st">"eigenvalue"</span>) <span class="sc">+</span></span>
-<span id="cb34-3"><a href="#cb34-3"></a>  ggplot2<span class="sc">::</span><span class="fu">ggtitle</span>(<span class="st">"ACM3 avec FactoMineR"</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning in geom_bar(stat = "identity", fill = barfill, color = barcolor, :
-Ignoring empty aesthetic: `width`.</code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb36"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1"></a>patchwork<span class="sc">::</span><span class="fu">wrap_plots</span>(p_ad, p_fm) <span class="sc">&amp;</span></span>
-<span id="cb36-2"><a href="#cb36-2"></a>  ggplot2<span class="sc">::</span><span class="fu">ylim</span>(<span class="dv">0</span>, .<span class="dv">3</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb31"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-label="1"></a>p_ad <span class="ot">&lt;-</span> acm3_ad <span class="sc">|&gt;</span> </span>
+<span id="cb31-2"><a href="#cb31-2" aria-label="2"></a>  factoextra<span class="sc">::</span><span class="fu">fviz_screeplot</span>(<span class="at">choice =</span> <span class="st">"eigenvalue"</span>) <span class="sc">+</span></span>
+<span id="cb31-3"><a href="#cb31-3" aria-label="3"></a>  ggplot2<span class="sc">::</span><span class="fu">ggtitle</span>(<span class="st">"ACM3 avec ade4"</span>)</span>
+<span id="cb31-4"><a href="#cb31-4" aria-label="4"></a>p_fm<span class="ot">&lt;-</span> acm3_fm <span class="sc">|&gt;</span> </span>
+<span id="cb31-5"><a href="#cb31-5" aria-label="5"></a>  factoextra<span class="sc">::</span><span class="fu">fviz_screeplot</span>(<span class="at">choice =</span> <span class="st">"eigenvalue"</span>) <span class="sc">+</span></span>
+<span id="cb31-6"><a href="#cb31-6" aria-label="6"></a>  ggplot2<span class="sc">::</span><span class="fu">ggtitle</span>(<span class="st">"ACM3 avec FactoMineR"</span>)</span>
+<span id="cb31-7"><a href="#cb31-7" aria-label="7"></a>patchwork<span class="sc">::</span><span class="fu">wrap_plots</span>(p_ad, p_fm) <span class="sc">&amp;</span></span>
+<span id="cb31-8"><a href="#cb31-8" aria-label="8"></a>  ggplot2<span class="sc">::</span><span class="fu">ylim</span>(<span class="dv">0</span>, <span class="fl">.3</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display page-columns page-full">
 <div id="fig-comparaison-acm3" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full"><div aria-describedby="fig-comparaison-acm3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<a href="analyse-factorielle_files/figure-html/fig-comparaison-acm3-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-13" title="Figure&nbsp;43.10: Inertie expliquée par axe (comparaison des ACM réalisées avec ade4 et FactoMineR)"><img src="analyse-factorielle_files/figure-html/fig-comparaison-acm3-1.png" class="img-fluid figure-img" width="672"></a>
+<a href="analyse-factorielle_files/figure-html/fig-comparaison-acm3-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-11" title="Figure&nbsp;43.8: Inertie expliquée par axe (comparaison des ACM réalisées avec ade4 et FactoMineR)"><img src="analyse-factorielle_files/figure-html/fig-comparaison-acm3-1.png" class="img-fluid figure-img" width="672"></a>
 </div>
 <figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig margin-caption" id="fig-comparaison-acm3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;43.10: Inertie expliquée par axe (comparaison des ACM réalisées avec ade4 et FactoMineR)
+Figure&nbsp;43.8: Inertie expliquée par axe (comparaison des ACM réalisées avec ade4 et FactoMineR)
 </figcaption></figure>
 </div>
 </div>
 </div>
 <p>Comme nous pouvons le voir, cette fois-ci, l’inertie expliquée par axe diffère entre les deux ACM. Cela est du à la présence de valeurs manquantes pour la variable <em>nivetud</em>.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb37"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1"></a>d3 <span class="sc">|&gt;</span> questionr<span class="sc">::</span><span class="fu">freq.na</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb32"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-label="1"></a>d3 <span class="sc">|&gt;</span> questionr<span class="sc">::</span><span class="fu">freq.na</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>             missing %
 nivetud          112 6
@@ -1309,14 +1288,14 @@ sport              0 0</code></pre>
 <p>Pour éviter toute ambiguïté, il est préférable de traiter soi-même les valeurs manquantes (<code>NA</code>) en amont des deux fonctions.</p>
 <p>Pour convertir les valeurs manquantes d’un facteur en une modalité en soi, on utilisera <code><a href="https://forcats.tidyverse.org/reference/fct_na_value_to_level.html">forcats::fct_na_value_to_level()</a></code>. Il est possible d’appliquer cette fonction à tous les facteurs d’un tableau de données avec <code><a href="https://dplyr.tidyverse.org/reference/across.html">dplyr::across()</a></code> (cf. <a href="../manipulation_avancee/transformations-multiples.html" class="quarto-xref"><span>Chapitre 41</span></a>).</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb39"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1"></a>d3_modalite_manquant <span class="ot">&lt;-</span> d3 <span class="sc">|&gt;</span> </span>
-<span id="cb39-2"><a href="#cb39-2"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb39-3"><a href="#cb39-3"></a>    <span class="fu">across</span>(</span>
-<span id="cb39-4"><a href="#cb39-4"></a>      <span class="fu">where</span>(is.factor),</span>
-<span id="cb39-5"><a href="#cb39-5"></a>      fct_na_value_to_level,</span>
-<span id="cb39-6"><a href="#cb39-6"></a>      <span class="at">level =</span> <span class="st">"(manquant)"</span></span>
-<span id="cb39-7"><a href="#cb39-7"></a>    )</span>
-<span id="cb39-8"><a href="#cb39-8"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb34"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-label="1"></a>d3_modalite_manquant <span class="ot">&lt;-</span> d3 <span class="sc">|&gt;</span> </span>
+<span id="cb34-2"><a href="#cb34-2" aria-label="2"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb34-3"><a href="#cb34-3" aria-label="3"></a>    <span class="fu">across</span>(</span>
+<span id="cb34-4"><a href="#cb34-4" aria-label="4"></a>      <span class="fu">where</span>(is.factor),</span>
+<span id="cb34-5"><a href="#cb34-5" aria-label="5"></a>      fct_na_value_to_level,</span>
+<span id="cb34-6"><a href="#cb34-6" aria-label="6"></a>      <span class="at">level =</span> <span class="st">"(manquant)"</span></span>
+<span id="cb34-7"><a href="#cb34-7" aria-label="7"></a>    )</span>
+<span id="cb34-8"><a href="#cb34-8" aria-label="8"></a>  )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Warning: There was 1 warning in `mutate()`.
 ℹ In argument: `across(where(is.factor), fct_na_value_to_level, level =
@@ -1331,11 +1310,11 @@ Supply arguments directly to `.fns` through an anonymous function instead.
   # Now
   across(a:b, \(x) mean(x, na.rm = TRUE))</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb41"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1"></a>d3_modalite_manquant <span class="sc">|&gt;</span> <span class="fu">nrow</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb36"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-label="1"></a>d3_modalite_manquant <span class="sc">|&gt;</span> <span class="fu">nrow</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 2000</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb43"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1"></a>d3_modalite_manquant <span class="sc">|&gt;</span> questionr<span class="sc">::</span><span class="fu">freq.na</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb38"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-label="1"></a>d3_modalite_manquant <span class="sc">|&gt;</span> questionr<span class="sc">::</span><span class="fu">freq.na</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>             missing %
 sexe               0 0
@@ -1352,13 +1331,13 @@ sport              0 0</code></pre>
 </div>
 <p>Pour ne conserver que l’ensemble des observations complètes (i.e.&nbsp;sans valeur manquante), on pourra avoir recours <code><a href="https://tidyr.tidyverse.org/reference/drop_na.html">tidyr::drop_na()</a></code>.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb45"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1"></a>d3_obs_completes <span class="ot">&lt;-</span> d3 <span class="sc">|&gt;</span> </span>
-<span id="cb45-2"><a href="#cb45-2"></a>  tidyr<span class="sc">::</span><span class="fu">drop_na</span>()</span>
-<span id="cb45-3"><a href="#cb45-3"></a>d3_obs_completes <span class="sc">|&gt;</span> <span class="fu">nrow</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb40"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-label="1"></a>d3_obs_completes <span class="ot">&lt;-</span> d3 <span class="sc">|&gt;</span> </span>
+<span id="cb40-2"><a href="#cb40-2" aria-label="2"></a>  tidyr<span class="sc">::</span><span class="fu">drop_na</span>()</span>
+<span id="cb40-3"><a href="#cb40-3" aria-label="3"></a>d3_obs_completes <span class="sc">|&gt;</span> <span class="fu">nrow</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 1888</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb47"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1"></a>d3_obs_completes <span class="sc">|&gt;</span> questionr<span class="sc">::</span><span class="fu">freq.na</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb42"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-label="1"></a>d3_obs_completes <span class="sc">|&gt;</span> questionr<span class="sc">::</span><span class="fu">freq.na</span>()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>             missing %
 sexe               0 0
@@ -1375,7 +1354,7 @@ sport              0 0</code></pre>
 </div>
 <p>Une alternative est offerte par le package <a href="https://framagit.org/nicolas-robette/GDAtools">GDAtools</a> qui implémente une <em>ACM spécifique</em> permettant de neutraliser certaines modalités dans la construction de l’espace factoriel, tout en conservant l’ensemble des individus. Les valeurs manquantes sont automatiquement considérées comme des modalités à ne pas tenir compte. Mais il est également possible d’indiquer d’autres modalités à ignorer (voir le <a href="https://nicolas-robette.github.io/GDAtools/articles/Tutoriel_AGD.html">tutoriel du package</a>).</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb49"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1"></a>acm3_spe <span class="ot">&lt;-</span> GDAtools<span class="sc">::</span><span class="fu">speMCA</span>(d3)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb44"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-label="1"></a>acm3_spe <span class="ot">&lt;-</span> GDAtools<span class="sc">::</span><span class="fu">speMCA</span>(d3)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Si les fonctions de <code>{factorextra}</code> ne sont pas compatibles avec <a href="https://framagit.org/nicolas-robette/GDAtools">GDAtools</a>, on peut tout à fait utiliser <a href="https://juba.github.io/explor/">explor</a>. De plus, <a href="https://framagit.org/nicolas-robette/GDAtools">GDAtools</a> fournit directement plusieurs outils de visualisation avancée et d’aide à l’interprétation des résultats.</p>
 </section><section id="webin-r" class="level2" data-number="43.5"><h2 data-number="43.5" class="anchored" data-anchor-id="webin-r">
@@ -1402,15 +1381,50 @@ sport              0 0</code></pre>
   window.document.addEventListener("DOMContentLoaded", function (event) {
     // Ensure there is a toggle, if there isn't float one in the top right
     if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
-      const a = window.document.createElement('a');
-      a.classList.add('top-right');
-      a.classList.add('quarto-color-scheme-toggle');
-      a.href = "";
-      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const toggle = window.document.createElement('button');
+      toggle.type = "button";
+      toggle.setAttribute("role", "switch");
+      toggle.setAttribute("aria-checked", "false");
+      toggle.classList.add('top-right');
+      toggle.classList.add('quarto-color-scheme-toggle');
+      toggle.setAttribute("aria-label", "Basculer le mode sombre");
+      toggle.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
       const i = window.document.createElement("i");
       i.classList.add('bi');
-      a.appendChild(i);
-      window.document.body.appendChild(a);
+      toggle.appendChild(i);
+      // Put the toggle in a landmark of its own, so that landmark navigation
+      // can reach it.
+      //
+      // The container is always a fresh direct child of body, and the toggle is
+      // never moved into page furniture that the theme or the author controls.
+      // The toggle is positioned against the page, so any ancestor that
+      // establishes a containing block captures it: a positioned element or a
+      // grid for position: absolute, and transform, filter, will-change or
+      // contain for position: fixed. A direct child of body has none of these
+      // to inherit, and the shift when one appears is silent and visual.
+      //
+      // ARIA says a document should have at most one banner, and axe reports a
+      // duplicate whether or not the banners carry distinct labels. So use a
+      // header when the page has no banner yet, and a named region otherwise.
+      //
+      // A header is a banner wherever it sits, unless it is inside sectioning
+      // content, so this cannot just look at the children of body: a custom
+      // page layout wraps the title block header in a plain div. An explicit
+      // role="banner" always counts.
+      const sectioning = 'article, aside, main, nav, section, [role="article"], [role="complementary"], [role="main"], [role="navigation"], [role="region"]';
+      const hasBanner = Array.from(
+        window.document.querySelectorAll('header:not([role]), [role="banner"]')
+      ).some(function(el) {
+        return el.hasAttribute("role") || el.closest(sectioning) === null;
+      });
+      const container = window.document.createElement(hasBanner ? "div" : "header");
+      if (hasBanner) {
+        container.setAttribute("role", "region");
+        container.setAttribute("aria-label", "Basculer le mode sombre");
+      }
+      container.classList.add('quarto-color-scheme-toggle-container');
+      container.appendChild(toggle);
+      window.document.body.appendChild(container);
     }
     setColorSchemeToggle(hasAlternateSentinel())
     const icon = "";
@@ -1485,11 +1499,34 @@ sport              0 0</code></pre>
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);
         var filterRegex = new RegExp('/' + window.location.host + '/');
+      const newWindowLabel = "(s'ouvre dans un nouvel onglet)";
+      const newWindowNoteId = "quarto-ext-newwindow-label";
+      // Links reference one hidden label through aria-describedby, so the
+      // announcement never changes their accessible name.
+      var describeNewWindow = (link) => {
+        if (!window.document.getElementById(newWindowNoteId)) {
+          var newWindowNote = window.document.createElement("span");
+          newWindowNote.id = newWindowNoteId;
+          newWindowNote.hidden = true;
+          newWindowNote.textContent = newWindowLabel;
+          window.document.body.appendChild(newWindowNote);
+        }
+        var describedBy = (link.getAttribute("aria-describedby") || "").split(/\s+/).filter(Boolean);
+        if (!describedBy.includes(newWindowNoteId)) {
+          describedBy.push(newWindowNoteId);
+          link.setAttribute("aria-describedby", describedBy.join(" "));
+        }
+      }
+      var opensNewContext = (link) => {
+        var target = (link.getAttribute("target") || "").toLowerCase();
+        return target !== "" && !["_self", "_parent", "_top"].includes(target);
+      }
       var isInternal = (href) => {
           return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
       }
       // Inspect non-navigation links and adorn them if external
-     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      window.quartoDecorateExternalLinks = function (root) {
+     var links = (root || window.document).querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
       for (var i=0; i<links.length; i++) {
         const link = links[i];
         if (!isInternal(link.href)) {
@@ -1498,8 +1535,72 @@ sport              0 0</code></pre>
           if (link.dataset.originalHref !== undefined) {
             link.href = link.dataset.originalHref;
           }
+          if (!link.classList.contains('no-external-icon')) {
+          }
+        }
+        if (opensNewContext(link)) {
+          describeNewWindow(link);
         }
       }
+      };
+      window.quartoDecorateExternalLinks(window.document);
+    // Esc closes the popup (WCAG 1.4.13) and focus leaving both trigger and
+    // popup closes it (WCAG 2.4.11); tippy handles neither for interactive popups.
+    const hideOnEscAndFocusOut = {
+      name: 'hideOnEscAndFocusOut',
+      defaultValue: true,
+      fn(instance) {
+        const dismiss = () => {
+          // A show scheduled by the trigger delay would otherwise reopen it
+          instance.clearDelayTimeouts();
+          instance.hide();
+        };
+        const onKeyDown = (event) => {
+          if (event.key !== 'Escape') {
+            return;
+          }
+          // Keep Esc from also reaching page handlers (e.g. reveal.js overview),
+          // except an open reveal.js slide menu, which Esc should close too.
+          // The menu handles keys only when its keyboard option is on.
+          const menuHandlesEsc = window.Reveal?.getPlugin?.('menu')?.isOpen() &&
+            window.Reveal.getConfig().menu?.keyboard !== false;
+          if (!menuHandlesEsc) {
+            event.stopPropagation();
+          }
+          if (instance.popper.contains(window.document.activeElement)) {
+            // Disabled while refocusing so the focus trigger does not reopen it
+            instance.disable();
+            instance.reference.focus();
+            instance.enable();
+          }
+          dismiss();
+        };
+        const onFocusOut = (event) => {
+          const target = event.relatedTarget;
+          if (target && !instance.reference.contains(target) &&
+              !instance.popper.contains(target)) {
+            dismiss();
+          }
+        };
+        // On the trigger too: a click trigger (code-annotations: select) has no
+        // blur handling. Attached for the instance's lifetime so leaving the
+        // trigger also cancels a show still pending on the trigger delay.
+        instance.reference.addEventListener('focusout', onFocusOut);
+        return {
+          onShow() {
+            window.document.addEventListener('keydown', onKeyDown, true);
+            instance.popper.addEventListener('focusout', onFocusOut);
+          },
+          onHide() {
+            window.document.removeEventListener('keydown', onKeyDown, true);
+            instance.popper.removeEventListener('focusout', onFocusOut);
+          },
+          onDestroy() {
+            instance.reference.removeEventListener('focusout', onFocusOut);
+          },
+        };
+      },
+    };
     function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
       const config = {
         allowHTML: true,
@@ -1513,6 +1614,7 @@ sport              0 0</code></pre>
         interactiveBorder: 10,
         theme: 'quarto',
         placement: 'bottom-start',
+        plugins: [hideOnEscAndFocusOut],
       };
       if (contentFn) {
         config.content = contentFn;
@@ -1675,44 +1777,54 @@ sport              0 0</code></pre>
           const lineIds = lines.map((line) => {
             return targetCell + "-" + line;
           })
-          let top = null;
-          let height = null;
-          let parent = null;
+          // Each band is positioned against its own containing block, which is
+          // not the offsetParent of the lines, so place it from client rects.
+          const placeBand = (band, firstEl, lastEl, codeBlock) => {
+            const container = band.offsetParent;
+            if (container === null) {
+              return;
+            }
+            const containerRect = container.getBoundingClientRect();
+            // Reveal.js scales slides with a transform, so convert client
+            // pixels back to the CSS pixels of the container.
+            const scale = containerRect.height / container.offsetHeight || 1;
+            const firstRect = firstEl.getBoundingClientRect();
+            const lastRect = lastEl.getBoundingClientRect();
+            const top = (firstRect.top - containerRect.top) / scale - container.clientTop + container.scrollTop;
+            const height = (lastRect.bottom - firstRect.top) / scale;
+            band.style.top = top - 2 + "px";
+            band.style.height = height + 4 + "px";
+            if (codeBlock) {
+              // Without the copy button wrapper, the containing block is wider
+              // than the code block, so span the code block explicitly.
+              const blockRect = codeBlock.getBoundingClientRect();
+              band.style.left = (blockRect.left - containerRect.left) / scale - container.clientLeft + container.scrollLeft + "px";
+              band.style.width = blockRect.width / scale + "px";
+            }
+          };
           if (lineIds.length > 0) {
-              //compute the position of the single el (top and bottom and make a div)
-              const el = window.document.getElementById(lineIds[0]);
-              top = el.offsetTop;
-              height = el.offsetHeight;
-              parent = el.parentElement.parentElement;
-            if (lineIds.length > 1) {
-              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
-              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
-              height = bottom - top;
+            const el = window.document.getElementById(lineIds[0]);
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const parent = el.parentElement.parentElement;
+            // cook up a div (if necessary) and position it
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
             }
-            if (top !== null && height !== null && parent !== null) {
-              // cook up a div (if necessary) and position it 
-              let div = window.document.getElementById("code-annotation-line-highlight");
-              if (div === null) {
-                div = window.document.createElement("div");
-                div.setAttribute("id", "code-annotation-line-highlight");
-                div.style.position = 'absolute';
-                parent.appendChild(div);
-              }
-              div.style.top = top - 2 + "px";
-              div.style.height = height + 4 + "px";
-              div.style.left = 0;
-              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
-              if (gutterDiv === null) {
-                gutterDiv = window.document.createElement("div");
-                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
-                gutterDiv.style.position = 'absolute';
-                const codeCell = window.document.getElementById(targetCell);
-                const gutter = codeCell.querySelector('.code-annotation-gutter');
-                gutter.appendChild(gutterDiv);
-              }
-              gutterDiv.style.top = top - 2 + "px";
-              gutterDiv.style.height = height + 4 + "px";
+            placeBand(div, el, lastEl, parent.closest("div.sourceCode") || parent);
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
             }
+            placeBand(gutterDiv, el, lastEl);
             selectedAnnoteEl = annoteEl;
           }
         };
@@ -1810,6 +1922,8 @@ sport              0 0</code></pre>
       }
     }
   });
+  </script><script type="application/javascript">
+  window.quartoScrollableRegionsLabels = {"code":"Code défilable","output":"Sortie défilable"};
   </script><input type="hidden" id="giscus-base-theme" value="light"><input type="hidden" id="giscus-alt-theme" value="dark"><script>
   function loadGiscus() {
     // Function to get the theme based on body class
@@ -1839,7 +1953,7 @@ sport              0 0</code></pre>
     document.getElementById("quarto-content").appendChild(script);
   }
   loadGiscus();
-</script><nav class="page-navigation"><div class="nav-page nav-page-previous">
+</script><nav class="page-navigation" aria-label="Page"><div class="nav-page nav-page-previous">
       <a href="../manipulation_avancee/donnees-longitudinales.html" class="pagination-link" aria-label="Données longitudinales">
         <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">42</span>&nbsp; <span class="chapter-title">Données longitudinales</span></span>
       </a>          
