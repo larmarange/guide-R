@@ -35,8 +35,22 @@ pak::pkg_install("gtsummary")
 ```
 
 ::: callout-note
-Le package `{pak}` n'est pas disponible par défaut sous **R** et devra donc être installé classiquement avec `install.packages("pak")`. À la différence de `install.packages()`, ` pak::pkg_install()` vérifie si le package est déjà installé et, si oui, si la version installée est déjà la dernière version, avant de procéder à une installation complète si et seulement si cela est nécessaire.
+Le package `{pak}` n'est pas disponible par défaut sous **R** et devra donc être installé classiquement avec `install.packages("pak")`. À la différence de `install.packages()`, `pak::pkg_install()` vérifie si le package est déjà installé et, si oui, si la version installée est déjà la dernière version, avant de procéder à une installation complète si et seulement si cela est nécessaire.
 :::
+
+::: callout-tip
+## Packages pré-compilés pour Linux
+
+Sous Linux, par défaut, `utils::install.packages()` ou `pak::pkg_install()` téléchargent le code source d'un package et le compile localement. De plus, il peut être nécessaire d'installer également des dépendances systèmes requises par certains packages.
+
+Il existe plusieurs outils afin de disposer de packages pré-compilés, ce qui permet de gagner en temps et de faciliter la maintenance.
+
+[`bspm`](https://github.com/cran4linux/bspm) (et sa variante [`cran2copr/CoprManager`](https://github.com/cran4linux/cran2copr) pour Fedora), une fois installé et activé, modifie le comportement de `utils::install.packages()` qui, quand c'est disponible, installe alors le package sous la forme d'un paquet système qui sera ensuite mis à jour directement avec les mises à jour du système. Il faut être vigilant au fait que ces packages sont alors installés dans la librairie du système commune aux différents utilisateurs et non pas dans la librairie utilisateur. Si le même package est également installé dans la librairie utilisateur (par exemple avec `pak::pkg_install()`), alors la version de la librairie utilisateur aura la priorité. Il est recommandé de lire l'aide la fonction [`shadowed_packages()`](https://cran4linux.github.io/bspm/reference/shadowed_packages.html).
+
+[`rspm`](https://cran4linux.github.io/rspm/) est une alternative avec un principe similaire mais installlant les packages dans la librairie utilisateur. Cela permet d'avoir une librairie différente par version de **R** si plusieurs versions sont installées. Par contre, les mises à jours doivent être réalisées manuellement (voir section suivante). `rspm` repose sur [RStudio Public Package Manager](https://packagemanager.posit.co/) qui propose des versions pré-compilées pour certaines distribution Linux[^packages-2] (Ubuntu, Devian, CentOS, openSUSE...). Pour les personnes qui n'ont pas peur d'installer des packages en ligne de commande, on pourra également jeter un œil au projet [`rig`](https://rig.r-lib.org/) (disponible sous Linux, Windows et MacOS).
+:::
+
+[^packages-2]: Fedora n'est pas couverte par `bspm`. On pourra donc se rabattre sur `CoprManager`.
 
 ## Chargement
 
@@ -78,7 +92,7 @@ remove.packages("gtsummary")
 
 Après une mise à jour majeure de **R**, il est souvent nécessaire de réinstaller tous les packages utilisés. De même, on peut parfois souhaiter mettre à jour uniquement les packages utilisés par un projet donné sans avoir à mettre à jour tous les autres packages présents sur son PC.
 
-Une astuce consiste à avoir recours à la fonction `renv::dependencies()` qui examine le code du projet courant pour identifier les packages utilisés, puis à passer cette liste de packages à `pak::pkg_install()` qui installera les packages manquants ou pour lesquels une mise à jour est disponible.
+Une astuce consiste à avoir recours à la fonction `renv::dependencies()` qui examine le code du projet courant pour identifier les packages utilisés, puis à passer cette liste de packages à `pak::pkg_install()` ou à `utils::install.packages()` qui installera les packages manquants ou pour lesquels une mise à jour est disponible.
 
 Il vous suffit d'exécuter la commande ci-dessous :
 
@@ -125,11 +139,11 @@ Le terme `{tidyverse}` est une contraction de *tidy* (qu'on pourrait traduire pa
 
 Ils abordent un très grand nombre d'opérations courantes dans **R** (la liste n'est pas exhaustive) :
 
--   visualisation (`{ggplot2}`)
--   manipulation des tableaux de données (`{dplyr}`, `{tidyr}`)
--   import/export de données (`{readr}`, `{readxl}`, `{haven}`)
--   manipulation de variables (`{forcats}`, `{stringr}`, `{lubridate}`)
--   programmation (`{purrr}`, `{magrittr}`, `{glue}`)
+- visualisation (`{ggplot2}`)
+- manipulation des tableaux de données (`{dplyr}`, `{tidyr}`)
+- import/export de données (`{readr}`, `{readxl}`, `{haven}`)
+- manipulation de variables (`{forcats}`, `{stringr}`, `{lubridate}`)
+- programmation (`{purrr}`, `{magrittr}`, `{glue}`)
 
 Un des objectifs de ces extensions est de fournir des fonctions avec une syntaxe cohérente, qui fonctionnent bien ensemble, et qui retournent des résultats prévisibles. Elles sont en grande partie issues du travail d'[Hadley Wickham](http://hadley.nz/), qui travaille désormais pour [RStudio](https://www.rstudio.com).
 
@@ -140,9 +154,9 @@ Un des objectifs de ces extensions est de fournir des fonctions avec une syntaxe
 install.packages("tidyverse")
 ```
 
-Lorsque l'on charge le package `{tidyverse}` avec `library()`, cela charge également en mémoire les principaux packages du *tidyverse*[^packages-2].
+Lorsque l'on charge le package `{tidyverse}` avec `library()`, cela charge également en mémoire les principaux packages du *tidyverse*[^packages-3].
 
-[^packages-2]: Si on a besoin d'un autre package du *tidyverse* comme `{lubridate}`, il faudra donc le charger individuellement.
+[^packages-3]: Si on a besoin d'un autre package du *tidyverse* comme `{lubridate}`, il faudra donc le charger individuellement.
 
 ```{r}
 library(tidyverse)
@@ -165,7 +179,7 @@ pkgs <- renv::dependencies(path = "../") |>
 pkgs <- pkgs[pkgs != "pak" & pkgs != "svrepmisc"]
 pkgs <- 
   pkgs |> 
-  c("ggokabeito", "seqhandbook", "ggseqplot") |> 
+  c("ggokabeito", "seqhandbook", "ggseqplot", "snakecase", "readODS") |> 
   unique() |> 
   sort()
 ```
@@ -186,7 +200,6 @@ message(cmd)
 ```
 
 ### avec pak::pkg_install()
-
 
 ```{r}
 #| echo: false
